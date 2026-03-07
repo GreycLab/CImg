@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 372
+#define cimg_version 373
 
 /*-----------------------------------------------------------
  #
@@ -30013,8 +30013,8 @@ namespace cimg_library {
       }
 
       static double mp_vector_display(_cimg_math_parser& mp) {
-        const unsigned int
-          _siz = (unsigned int)mp.opcode[3],
+        const unsigned long
+          _siz = (unsigned long)mp.opcode[3],
           siz = _siz?_siz:1;
         const double *const ptr = &_mp_arg(1) + (_siz?1:0);
         const int
@@ -30024,8 +30024,12 @@ namespace cimg_library {
           s = (int)_mp_arg(7);
         CImg<doubleT> img;
         if (w>0 && h>0 && d>0 && s>0) {
-          if ((unsigned int)w*h*d*s<=siz) img.assign(ptr,w,h,d,s,true);
-          else img.assign(ptr,siz).resize(w,h,d,s,-1);
+          if ((unsigned long)w*h*d*s!=siz)
+            throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'display()': "
+                                        "Invalid request to display a vector of size #%lu as a (%d,%d,%d,%d) image "
+                                        "(%lu values).",
+                                        mp.imgin.pixel_type(),siz,w,h,d,s,(unsigned long)w*h*d*s);
+          img.assign(ptr,w,h,d,s,true);
         } else img.assign(ptr,1,siz,1,1,true);
 
         CImg<charT> expr(mp.opcode[2]);
@@ -68463,9 +68467,9 @@ namespace cimg_library {
             writers[index] = 0;
             cimg::mutex(9,0);
             throw CImgIOException(_cimglist_instance
-                                  "save_video(): File '%s', unable to initialize video writer with codec '%c%c%c%c'.",
+                                  "save_video(): File '%s', unable to initialize video writer with codec '%s'.",
                                   cimglist_instance,filename,
-                                  codec0,codec1,codec2,codec3);
+                                  _codec);
           }
           CImg<charT>::string(filename).move_to(filenames[index]);
           sizes(index,0) = W;

@@ -29311,7 +29311,7 @@ namespace cimg_library {
           ptrd = (unsigned int)mp.opcode[1] + 1,
           siz = (unsigned int)mp.opcode[2];
         mp_func op = (mp_func)mp.opcode[3];
-        ulongT l_data[3];
+        ulongT l_data[3] = { 0 };
         CImg<ulongT> l_opcode(l_data,1,3,1,1,true);
         l_opcode[2] = mp.opcode[4]; // Scalar argument
         l_opcode.swap(mp.opcode);
@@ -29327,7 +29327,7 @@ namespace cimg_library {
           siz = (unsigned int)mp.opcode[2],
           ptrs = (unsigned int)mp.opcode[4] + 1;
         mp_func op = (mp_func)mp.opcode[3];
-        ulongT l_data[4];
+        ulongT l_data[4] = { 0 };
         CImg<ulongT> l_opcode(l_data,1,4,1,1,true);
         l_opcode.swap(mp.opcode);
         ulongT &target = mp.opcode[1], &argument = mp.opcode[2];

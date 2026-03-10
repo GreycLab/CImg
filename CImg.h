@@ -57214,7 +57214,6 @@ namespace cimg_library {
         throw CImgArgumentException(_cimg_instance
                                     "load_png(): Specified filename is (null).",
                                     cimg_instance);
-
 #ifndef cimg_use_png
       cimg::unused(bits_per_value);
       if (file)
@@ -69525,20 +69524,19 @@ namespace cimg_library {
         if (!path_found) std::strcpy(s_path,"convert");
 #endif
         winformat_string(s_path);
+
+        // Put path between double quotes and append ' convert' to it if necessary.
+        const unsigned int siz = (unsigned int)std::strlen(s_path);
+        const bool is_magick = std::strstr(s_path,"magick")?true:false;
+        CImg<char> s_path2(3 + siz + (is_magick?8:0));
+        char *s = s_path2._data;
+        *(s++) = '\"';
+        std::memcpy(s,s_path._data,siz); s+=siz;
+        *(s++) = '\"';
+        if (is_magick) { std::memcpy(s," convert",8); s+=8; }
+        *s = 0;
+        s_path2.move_to(s_path);
       }
-
-      // Put path between double quotes and append ' convert' to it if necessary.
-      const unsigned int siz = (unsigned int)std::strlen(s_path);
-      const bool is_magick = std::strstr(s_path,"magick")?true:false;
-      CImg<char> s_path2(3 + siz + (is_magick?8:0));
-      char *s = s_path2._data;
-      *(s++) = '\"';
-      std::memcpy(s,s_path._data,siz); s+=siz;
-      *(s++) = '\"';
-      if (is_magick) { std::memcpy(s," convert",8); s+=8; }
-      *s = 0;
-      s_path2.move_to(s_path);
-
       cimg::mutex(7,0);
       return s_path;
     }

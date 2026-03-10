@@ -59673,7 +59673,7 @@ namespace cimg_library {
 #endif
                       );
       } while (cimg::path_exists(filename_tmp));
-      cimg_snprintf(command,command._width,"\"%s\"%s \"%s\" \"%s\"",
+      cimg_snprintf(command,command._width,"%s%s \"%s\" \"%s\"",
                     magick_path,
                     !cimg::strcasecmp(cimg::split_filename(filename),"pdf")?" -density 400x400":"",
                     s_filename.data(),
@@ -63649,7 +63649,7 @@ namespace cimg_library {
       save_pnm(filename_tmp);
 #endif
       const char *magick_path = cimg::imagemagick_path();
-      cimg_snprintf(command,command._width,"\"%s\" -quality %u \"%s\" \"%s\"",
+      cimg_snprintf(command,command._width,"%s -quality %u \"%s\" \"%s\"",
                     magick_path,quality,
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     CImg<charT>::string(filename)._system_strescape().data());
@@ -67399,7 +67399,7 @@ namespace cimg_library {
                                             cimg::graphicsmagick_path(),
                                             CImg<charT>::string(filename)._system_strescape().data(),
                                             CImg<charT>::string(filename_tmp)._system_strescape().data());
-      else cimg_snprintf(command,command._width,"\"%s\" -coalesce \"%s\" \"%s.png\"",
+      else cimg_snprintf(command,command._width,"%s -coalesce \"%s\" \"%s.png\"",
                          cimg::imagemagick_path(),
                          CImg<charT>::string(filename)._system_strescape().data(),
                          CImg<charT>::string(filename_tmp)._system_strescape().data());
@@ -67908,7 +67908,7 @@ namespace cimg_library {
           frame.assign(frame.get_resize(-100,-100,1,4).draw_image(0,0,0,2,frame.get_shared_channel(0)),false);
         frame.save(filename_tmp2);
       }
-      cimg_snprintf(command,command._width,"\"%s\" -delay %u -loop %u -dispose previous",
+      cimg_snprintf(command,command._width,"%s -delay %u -loop %u -dispose previous",
                     cimg::imagemagick_path(),
                     (unsigned int)std::max(0.f,cimg::round(100/fps)),
                     nb_loops);
@@ -69526,6 +69526,18 @@ namespace cimg_library {
 #endif
         winformat_string(s_path);
       }
+
+      // Put path between double quotes and append ' convert' to it if necessary.
+      const unsigned int siz = (unsigned int)std::strlen(s_path);
+      const bool is_magick = std::strstr(s_path,"magick")?true:false;
+      CImg<char> s_path2(3 + siz + (is_magick?8:0));
+      char *s = s_path2._data;
+      *(s++) = '\"';
+      std::memcpy(s,s_path._data,siz); s+=siz;
+      *(s++) = '\"';
+      if (is_magick) { std::memcpy(s," convert",8); s+=8; }
+      *s = 0;
+      s_path2.move_to(s_path);
 
       cimg::mutex(7,0);
       return s_path;

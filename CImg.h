@@ -69526,6 +69526,7 @@ namespace cimg_library {
 #endif
         winformat_string(s_path);
       }
+
       cimg::mutex(7,0);
       return s_path;
     }

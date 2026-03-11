@@ -3333,7 +3333,7 @@ namespace cimg_library {
       SDL_DisplayID display;
       SDL_ThreadID main_thread_id;
       const SDL_DisplayMode *mode;
-      SDL_Mutex *mutex_lock_display; //, *mutex_wait_event;
+      SDL_Mutex *mutex_lock_display;
 
       SDL3_attr():nb_cimg_displays(0),display(0),mode(0),mutex_lock_display(0) {
         bool init_failed = true;

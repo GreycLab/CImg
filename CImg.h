@@ -431,6 +431,7 @@ enum {FALSE_WIN = 0};
 #endif
 #elif cimg_display==3
 #include <SDL3/SDL.h>
+#include <pthread.h>
 #if cimg_OS==1
 #include <csignal>
 #endif
@@ -653,12 +654,19 @@ extern "C" {
 #include "tinyexr.h"
 #endif
 
-// Try to define cimg_float16.
+// Define cimg_float16.
 #if defined(_HALF_H_) || defined(cimg_use_openexr)
 #define cimg_float16 half
 #define cimg_is_float16 1
 #else
 #define cimg_is_float16 0
+#endif
+
+// Define cimg_use_pthread
+#if defined(PTHREAD_H) || defined(_PTHREAD_H)
+#define cimg_use_pthread 1
+#else
+#define cimg_use_pthread 0
 #endif
 
 // Check if min/max/PI macros are defined.
@@ -3252,7 +3260,7 @@ namespace cimg_library {
         XInitThreads();
 #endif
 	pthread_mutexattr_init(&attr);
-	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+	pthread_mutexattr_settype(&attr,PTHREAD_MUTEX_RECURSIVE);
         pthread_mutex_init(&mutex_wait_event, &attr);
         pthread_mutex_init(&mutex_lock_display, &attr);
         pthread_cond_init(&wait_event,0);
@@ -3325,7 +3333,7 @@ namespace cimg_library {
       SDL_DisplayID display;
       SDL_ThreadID main_thread_id;
       const SDL_DisplayMode *mode;
-      SDL_Mutex *mutex_lock_display; //, *mutex_wait_event;
+      SDL_Mutex *mutex_lock_display;
 
       SDL3_attr():nb_cimg_displays(0),display(0),mode(0),mutex_lock_display(0) {
         bool init_failed = true;
@@ -3375,7 +3383,7 @@ namespace cimg_library {
 #endif
 
     struct Mutex_attr {
-#if cimg_OS==1 && (defined(cimg_use_pthread) || cimg_display==1)
+#if cimg_OS==1 && cimg_use_pthread==1
       pthread_mutex_t mutex[32];
       Mutex_attr() { for (unsigned int i = 0; i<32; ++i) pthread_mutex_init(&mutex[i],0); }
       void lock(const unsigned int n) { pthread_mutex_lock(&mutex[n]); }
@@ -8150,7 +8158,10 @@ namespace cimg_library {
 
       std::fprintf(cimg::output(),"  > Display type:             %s%-13s%s %s('cimg_display'=%d)%s\n",
                    cimg::t_bold,
-                   cimg_display==0?"No display":cimg_display==1?"X11":cimg_display==2?"Windows GDI":"Unknown",
+                   cimg_display==0?"No display":
+                   cimg_display==1?"X11":
+                   cimg_display==2?"Windows GDI":
+                   cimg_display==3?"SDL3":"Unknown",
                    cimg::t_normal,cimg::t_green,
                    (int)cimg_display,
                    cimg::t_normal);

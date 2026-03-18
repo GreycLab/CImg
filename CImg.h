@@ -28124,7 +28124,7 @@ namespace cimg_library {
           st.move_to(mp.list_stats[ind]);
           cimg::mutex(13,0);
         }
-        return mp.list_stats(ind,k);
+        return mp.list_stats[ind].is_empty()?cimg::type<double>::nan():mp.list_stats(ind,k);
       }
 
       static double mp_image_std_static(_cimg_math_parser& mp) {
@@ -28140,7 +28140,7 @@ namespace cimg_library {
           st.move_to(mp.list_stats[ind]);
           cimg::mutex(13,0);
         }
-        return std::sqrt(mp.list_stats(ind,3));
+        return mp.list_stats[ind].is_empty()?cimg::type<double>::nan():std::sqrt(mp.list_stats(ind,3));
       }
 
       static double mp_image_swap(_cimg_math_parser& mp) {

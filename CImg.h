@@ -5970,6 +5970,7 @@ namespace cimg_library {
     /**
        \param command C-string containing the command line to execute.
        \param module_name Module name.
+       \param is_verbose Tell if command must be silent or verbose when outputing messages.
        \return Status value of the executed command, whose meaning is OS-dependent.
        \note This function is similar to <tt>std::system()</tt>
        but it does not open an extra console windows
@@ -7711,7 +7712,7 @@ namespace cimg_library {
 
     //! Get file size.
     /**
-       \param filename Specified filename to get size from.
+       \param file Specified file to get size from.
        \return File size or '-1' if file does not exist.
     **/
     inline cimg_int64 fsize(std::FILE *const file) {
@@ -41996,8 +41997,8 @@ namespace cimg_library {
        \param zsize Depth of the resulting image (~0U means 'instance_depth/zstride').
        \note
        - The correlation of the image instance \p *this by the kernel \p kernel is defined to be:
-       res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x + \beta_x\;(i - c_x),\alpha_y\;y + \beta_y\;(j -
-                    c_y),\alpha_z\;z + \beta_z\;(k - c_z))*kernel(i,j,k).
+       $res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x + \beta_x\;(i - c_x),\alpha_y\;y + \beta_y\;(j -
+                    c_y),\alpha_z\;z + \beta_z\;(k - c_z))*kernel(i,j,k).$
     **/
     template<typename t>
     CImg<T>& correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
@@ -53006,6 +53007,7 @@ namespace cimg_library {
        \param pattern Drawing pattern.
        \param font_height Height of the labels (exact match for 13,23,53,103, interpolated otherwise).
        \param allow_zero Enable/disable the drawing of label '0' if found.
+       \param round_x
     **/
     template<typename t, typename tc>
     CImg<T>& draw_axis(const CImg<t>& values_x, const int y,
@@ -53056,6 +53058,7 @@ namespace cimg_library {
        \param pattern Drawing pattern.
        \param font_height Height of the labels (exact match for 13,23,53,103, interpolated otherwise).
        \param allow_zero Enable/disable the drawing of label '0' if found.
+       \param round_y
     **/
     template<typename t, typename tc>
     CImg<T>& draw_axis(const int x, const CImg<t>& values_y,
@@ -53110,6 +53113,8 @@ namespace cimg_library {
        \param pattern_y Drawing pattern for the Y-axis.
        \param font_height Height of the labels (exact match for 13,23,53,103, interpolated otherwise).
        \param allow_zero Enable/disable the drawing of label '0' if found.
+       \param round_x
+       \param round_y
     **/
     template<typename tx, typename ty, typename tc>
     CImg<T>& draw_axes(const CImg<tx>& values_x, const CImg<ty>& values_y,
@@ -53637,7 +53642,7 @@ namespace cimg_library {
        \param y0 Y-coordinate of the upper-left pixel.
        \param x1 X-coordinate of the lower-right pixel.
        \param y1 Y-coordinate of the lower-right pixel.
-       \param palette Colormap.
+       \param colormap Colormap.
        \param opacity Drawing opacity.
        \param z0r Real part of the upper-left fractal vertex.
        \param z0i Imaginary part of the upper-left fractal vertex.
@@ -55313,6 +55318,7 @@ namespace cimg_library {
        \param feature_type Type of feature to select. Can be <tt>{ 0=point | 1=line | 2=rectangle | 3=ellipse }</tt>.
        \param XYZ Pointer to 3 values X,Y,Z which tells about the projection point coordinates, for volumetric images.
        \param exit_on_anykey Exit function when any key is pressed.
+       \param is_deep_selection_default
     **/
     CImg<T>& select(CImgDisplay &disp,
                     const unsigned int feature_type=2, unsigned int *const XYZ=0,
@@ -59928,7 +59934,7 @@ namespace cimg_library {
 
     //! Load image from a camera stream, using OpenCV.
     /**
-       \param index Index of the camera to capture images from (from 0 to 63).
+       \param camera_index Index of the camera to capture images from (from 0 to 63).
        \param capture_width Width of the desired image ('0' stands for default value).
        \param capture_height Height of the desired image ('0' stands for default value).
        \param skip_frames Number of frames to skip before the capture.
@@ -68777,7 +68783,7 @@ namespace cimg_library {
 
     //! Return a CImg pre-defined font with requested height.
     /**
-       \param font_height Height of the desired font (exact match for 13,23,53,103).
+       \param requested_height Height of the desired font (exact match for 13,23,53,103).
        \param is_variable_width Decide if the font has a variable (\c true) or fixed (\c false) width.
        \note Beware, the returned reference is valid only until the next call to this function!
     **/

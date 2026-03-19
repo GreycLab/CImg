@@ -41,11 +41,7 @@
 
   -------------------------------------*/
 
-/** \addtogroup cimg_overview CImg Library Overview */
-/*@{*/
-/**
-  \page overview CImg Library Overview
-
+/** \addtogroup cimg_overview CImg Library Overview
   The <b>CImg Library</b> is an image processing library, designed for C++ programmers.
   It provides useful classes and functions to load/save, display and process various types of images.
 
@@ -171,8 +167,8 @@
 
   If you are ready to get more, and to start writing more serious programs
   with CImg, you are invited to go to the \ref cimg_tutorial section.
-
-**/
+*/
+/*@{*/
 /*@}*/
 
 /*-----------------------------------
@@ -181,11 +177,7 @@
 
   -------------------------------------*/
 
-/** \addtogroup cimg_faq FAQ : Frequently Asked Questions. */
-/*@{*/
-/**
-  \page faq FAQ
-
+/** \addtogroup cimg_faq FAQ : Frequently Asked Questions.
   \section ssf0 FAQ Summary
 
   - <a href="#sf1">General information and availability</a>
@@ -360,8 +352,8 @@
   \subsection ssf31 3.1 Translations
 
   This FAQ has been translated to <a href="http://science.webhostinggeeks.com/cimg-biblioteka">Serbo-Croatian</a> language by <a href="http://webhostinggeeks.com/"> Web Geeks </a>.
-
-**/
+*/
+/*@{*/
 /*@}*/
 
 /*-----------------------------------
@@ -370,11 +362,7 @@
 
   -------------------------------------*/
 
-/** \addtogroup cimg_environment Setting Environment Variables */
-/*@{*/
-/**
-  \page environment_variables Setting Environment Variables
-
+/** \addtogroup cimg_environment Setting Environment Variables
   The CImg library is a multiplatform library, working on a wide variety of systems.
   This implies the existence of some \e environment \e variables that must be correctly defined
   depending on your current system.
@@ -428,15 +416,12 @@
 
   All these compilation variables can be checked, using the function cimg_library::cimg::info(), which
   displays a list of the different configuration variables and their values on the standard error output.
-**/
+*/
+/*@{*/
 /*@}*/
 
 
-/** \addtogroup cimg_visual2005 How to use CImg library with Visual C++ 2005 Express Edition ?. */
-/*@{*/
-/**
-  \page visual_cpp How to use CImg library with Visual C++ 2005 Express Edition ?
-
+/** \addtogroup cimg_visual2005 How to use CImg library with Visual C++ 2005 Express Edition ?.
   \section s13968 How to use CImg library with Visual C++ 2005 Express Edition ?
 
   This section has been written by Vincent Garcia and Alexandre Fournier from I3S/Sophia_Antipolis.
@@ -453,8 +438,8 @@
          - 6. 7. Remplace the line AdditionalDependencies="kernel32.lib" /> by AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib" />
    - Restart Visual C++
    - Import CImg library in your main file
-
-**/
+*/
+/*@{*/
 /*@}*/
 
 
@@ -464,11 +449,7 @@
 
   -------------------------------------*/
 
-/** \addtogroup cimg_tutorial Tutorial : Getting Started. */
-/*@{*/
-/**
-  \page tutorial Tutorial : Getting Started.
-
+/** \addtogroup cimg_tutorial Tutorial : Getting Started.
   Let's start to write our first program to get the idea. This will demonstrate how to load and create images, as well as handle image
   display and mouse events.
   Assume we want to load a color image <tt>lena.jpg</tt>, smooth it, display it in a windows, and enter an event loop so that clicking a
@@ -561,8 +542,8 @@
   Moreover, there is surely one example close to what you want to do.
   A good start will be to look at the file <tt>CImg_demo.cpp</tt> which contains small and various examples of what you can do
   with the %CImg Library. All CImg classes are used in this source, and the code can be easily modified to see what happens.
-
-**/
+*/
+/*@{*/
 /*@}*/
 
 /*-----------------------------------
@@ -571,10 +552,7 @@
 
   -------------------------------------*/
 
-/** \addtogroup cimg_loops Using Image Loops. */
-/*@{*/
-/**
-  \page loops_Using Image Loops.
+/** \addtogroup cimg_loops Using Image Loops.
   The %CImg Library provides different macros that define useful iterative loops over an image.
   Basically, it can be used to replace one or several <tt>for(..)</tt> instructions, but it also proposes
   interesting extensions to classical loops.
@@ -801,8 +779,8 @@
   \endcode
 
   As you can see, explaining the use of the CImg neighborhood macros is actually more difficult than using them !
-
-**/
+*/
+/*@{*/
 /*@}*/
 
 /*-----------------------------------
@@ -811,11 +789,7 @@
 
   -------------------------------------*/
 
-/** \addtogroup cimg_displays Using Display Windows. */
-/*@{*/
-/**
-  \page display Using Display Windows.
-
+/** \addtogroup cimg_displays Using Display Windows.
   When opening a display window, you can choose the way the pixel values will be normalized
   before being displayed on the screen. Screen displays only support color values between [0,255],
   and some
@@ -831,8 +805,8 @@
   not modified themselves, only displayed pixels are normalized.
   - \p 2 : Pixel value normalization is done for the first image display, then the
   normalization parameters are kept and used for all the next image displays.
-
-**/
+*/
+/*@{*/
 /*@}*/
 
 /*-----------------------------------
@@ -841,11 +815,7 @@
 
   -------------------------------------*/
 
-/** \addtogroup cimg_storage How pixel data are stored with CImg. */
-/*@{*/
-/**
-  \page storage How pixel data are stored with CImg?
-
+/** \addtogroup cimg_storage How pixel data are stored with CImg.
   First, CImg<T> are *very* basic structures, which means that there are no memory tricks, weird memory alignments or
   disk caches used to store pixel data of images. When an image is instanced, all its pixel values are stored in memory at
   the same time (yes, you should avoid working with huge images when dealing with CImg, if you have only 64kb of RAM).
@@ -888,8 +858,8 @@
 
   which just blur the red channel of the image, and mirror the two others along the X-axis.
   This is possible since channels of an image are not interleaved but are stored as different consecutive planes in memory, so you see that constructing a shared image is possible (and trivial).
-
-**/
+*/
+/*@{*/
 /*@}*/
 
 /*-----------------------------------
@@ -898,11 +868,7 @@
 
   -------------------------------------*/
 
-/** \addtogroup cimg_files_io Files IO in CImg. */
-/*@{*/
-/**
-  \page io Files IO in CImg.
-
+/** \addtogroup cimg_files_io Files IO in CImg.
   The %CImg Library can NATIVELY handle the following file formats :
   - RAW : consists in a very simple header (in ascii), then the image data.
   - ASC (Ascii)
@@ -914,8 +880,8 @@
   - DLM (Matlab ASCII)
 
   If ImageMagick is installed, The %CImg Library can save image in formats handled by ImageMagick : JPG, GIF, PNG, TIF,...
-
-**/
+*/
+/*@{*/
 /*@}*/
 
 /*-----------------------------------
@@ -924,11 +890,7 @@
 
   -------------------------------------*/
 
-/** \addtogroup cimg_options Retrieving Command Line Arguments. */
-/*@{*/
-/**
-  \page options Retrieving Command Line Arguments.
-
+/** \addtogroup cimg_options Retrieving Command Line Arguments.
    The CImg library offers facilities to retrieve command line arguments in a console-based
    program, as it is a commonly needed operation.
    Three macros \c cimg_usage(), \c cimg_help() and \c cimg_option() are defined for this purpose.
@@ -1015,5 +977,6 @@
    You should take a look at the examples <tt>examples/gmic.cpp</tt> provided in the %CImg Library package.
    This is a command line based image converter which intensively uses the \c cimg_option() and \c cimg_usage()
    macros to retrieve command line parameters.
-**/
+*/
+/*@{*/
 /*@}*/

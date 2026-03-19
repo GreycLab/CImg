@@ -28038,7 +28038,7 @@ namespace cimg_library {
         if (mp.is_fill && img._data==mp.imgout._data) {
           cimg::mutex(6,0);
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'resize()': "
-                                      "Cannot both fill and resize image (%u,%u,%u,%u) "
+                                      "Cannot both fill/eval and resize image (%u,%u,%u,%u) "
                                       "to new dimensions (%u,%u,%u,%u).",
                                       img.pixel_type(),img._width,img._height,img._depth,img._spectrum,w,h,d,s);
         }

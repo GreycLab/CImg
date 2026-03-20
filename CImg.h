@@ -31537,9 +31537,9 @@ namespace cimg_library {
 
     //! Pointwise min operator between instance image and a value.
     /**
-       \param val Value used as the reference argument of the min operator.
+       \param value Value used as the reference argument of the min operator.
        \note Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by
-       \f$\mathrm{min}(I_{(x,y,z,c)},\mathrm{val})\f$.
+       \f$ \mathrm{min}(I_{(x,y,z,c)},\mathrm{val}) \f$.
      **/
     CImg<T>& min(const T& value) {
       if (is_empty()) return *this;
@@ -31595,7 +31595,7 @@ namespace cimg_library {
 
     //! Pointwise max operator between instance image and a value.
     /**
-       \param val Value used as the reference argument of the max operator.
+       \param value Value used as the reference argument of the max operator.
        \note Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by
        \f$\mathrm{max}(I_{(x,y,z,c)},\mathrm{val})\f$.
      **/
@@ -31653,7 +31653,7 @@ namespace cimg_library {
 
     //! Pointwise minabs operator between instance image and a value.
     /**
-       \param val Value used as the reference argument of the minabs operator.
+       \param value Value used as the reference argument of the minabs operator.
        \note Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by
        \f$\mathrm{minabs}(I_{(x,y,z,c)},\mathrm{val})\f$.
      **/
@@ -31712,7 +31712,7 @@ namespace cimg_library {
 
     //! Pointwise maxabs operator between instance image and a value.
     /**
-       \param val Value used as the reference argument of the maxabs operator.
+       \param value Value used as the reference argument of the maxabs operator.
        \note Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by
        \f$\mathrm{maxabs}(I_{(x,y,z,c)},\mathrm{val})\f$.
      **/
@@ -32877,7 +32877,7 @@ namespace cimg_library {
 
     //! Solve a (possibly over- or under-determined) linear system using QR decomposition.
     /**
-       \brief Solve the matrix equation \f$ A\,X = B \f$, where the current instance \fs *this represents \f$ B \f$,
+       \brief Solve the matrix equation \f$ A\,X = B \f$, where the current instance \c *this represents \f$ B \f$,
        and the argument \c A is the system matrix. This method supports both over-determined and
        under-determined systems by internally performing a QR decomposition.
 
@@ -35427,7 +35427,7 @@ namespace cimg_library {
 
     //! Add random noise to pixel values.
     /**
-       \param sigma Amplitude of the random additive noise. If \p sigma<0, it stands for a percentage of the
+       \param amplitude Amplitude of the random additive noise. If \p sigma<0, it stands for a percentage of the
          global value range.
        \param noise_type Type of additive noise (can be \p 0=gaussian, \p 1=uniform, \p 2=Salt and Pepper,
          \p 3=Poisson or \p 4=Rician).
@@ -36815,7 +36815,7 @@ namespace cimg_library {
     //! Return palette \e "flag", containing 256 colors entries in RGB.
     /**
        \return The following \c 256x1x1x3 colormap is returned:
-       \image html ref_palette_flag.jpg
+       \image html ref_colormap_flag.jpg
     **/
     static const CImg<Tuchar>& flag_LUT256() {
       static CImg<Tuchar> palette;

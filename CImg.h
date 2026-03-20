@@ -57204,11 +57204,24 @@ namespace cimg_library {
       return CImg<T>().load_magick(filename);
     }
 
-    //! Load image from a PNG file.
+    //! Loads an image from a PNG file.
     /**
-       \param filename Filename, as a C-string.
+       This method reads a PNG file and loads its content into the current CImg<T> instance.
+
+       \param filename Path to the PNG file to load, as a C-string.
        \param[out] bits_per_value Number of bits used to store a scalar value in the image file.
-    **/
+       \return Reference to the current image instance, now containing the loaded image.
+
+
+       \code
+       // Example usage:
+       CImg<unsigned char> img;
+       img.load_png("image.png");
+       img.display();
+       \endcode
+
+       \warning Throws a CImgIOException if the file does not exist or is not a valid PNG.
+    */
     CImg<T>& load_png(const char *const filename, unsigned int *const bits_per_value=0) {
       return _load_png(0,filename,bits_per_value);
     }
@@ -59935,14 +59948,28 @@ namespace cimg_library {
 
 #endif
 
-    //! Load image from a camera stream, using OpenCV.
+    //! Captures an image from a connected camera device (requires OpenCV).
     /**
+       This method allows you to directly acquire an image from a camera device (e.g., webcam)
+       connected to the system. The captured image is stored in the current CImg<T> instance.
+
        \param camera_index Index of the camera to capture images from (from 0 to 63).
        \param capture_width Width of the desired image ('0' stands for default value).
        \param capture_height Height of the desired image ('0' stands for default value).
        \param skip_frames Number of frames to skip before the capture.
        \param release_camera Tells if the camera resource must be released at the end of the method.
-    **/
+       \return Reference to the current image instance, now containing the captured camera frame.
+
+       \code
+       // Example usage:
+       CImg<unsigned char> img;
+       img.load_camera(); // Capture an image from the default camera
+       img.display();
+       \endcode
+
+       \note Requires your code to be linked with the OpenCV library (macro \c cimg_use_opencv enabled).
+       \warning Throws a CImgIOException if no camera is found or if the capture fails.
+    */
     CImg<T>& load_camera(const unsigned int camera_index=0,
                          const unsigned int capture_width=0, const unsigned int capture_height=0,
                          const unsigned int skip_frames=0, const bool release_camera=true) {

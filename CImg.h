@@ -31537,9 +31537,9 @@ namespace cimg_library {
 
     //! Pointwise min operator between instance image and a value.
     /**
-       \param val Value used as the reference argument of the min operator.
+       \param value Value used as the reference argument of the min operator.
        \note Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by
-       \f$\mathrm{min}(I_{(x,y,z,c)},\mathrm{val})\f$.
+       \f$ \mathrm{min}(I_{(x,y,z,c)},\mathrm{val}) \f$.
      **/
     CImg<T>& min(const T& value) {
       if (is_empty()) return *this;
@@ -31595,7 +31595,7 @@ namespace cimg_library {
 
     //! Pointwise max operator between instance image and a value.
     /**
-       \param val Value used as the reference argument of the max operator.
+       \param value Value used as the reference argument of the max operator.
        \note Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by
        \f$\mathrm{max}(I_{(x,y,z,c)},\mathrm{val})\f$.
      **/
@@ -31653,7 +31653,7 @@ namespace cimg_library {
 
     //! Pointwise minabs operator between instance image and a value.
     /**
-       \param val Value used as the reference argument of the minabs operator.
+       \param value Value used as the reference argument of the minabs operator.
        \note Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by
        \f$\mathrm{minabs}(I_{(x,y,z,c)},\mathrm{val})\f$.
      **/
@@ -31712,7 +31712,7 @@ namespace cimg_library {
 
     //! Pointwise maxabs operator between instance image and a value.
     /**
-       \param val Value used as the reference argument of the maxabs operator.
+       \param value Value used as the reference argument of the maxabs operator.
        \note Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by
        \f$\mathrm{maxabs}(I_{(x,y,z,c)},\mathrm{val})\f$.
      **/
@@ -32877,7 +32877,7 @@ namespace cimg_library {
 
     //! Solve a (possibly over- or under-determined) linear system using QR decomposition.
     /**
-       \brief Solve the matrix equation \f$ A\,X = B \f$, where the current instance \fs *this represents \f$ B \f$,
+       \brief Solve the matrix equation \f$ A\,X = B \f$, where the current instance \c *this represents \f$ B \f$,
        and the argument \c A is the system matrix. This method supports both over-determined and
        under-determined systems by internally performing a QR decomposition.
 
@@ -35427,7 +35427,7 @@ namespace cimg_library {
 
     //! Add random noise to pixel values.
     /**
-       \param sigma Amplitude of the random additive noise. If \p sigma<0, it stands for a percentage of the
+       \param amplitude Amplitude of the random additive noise. If \p sigma<0, it stands for a percentage of the
          global value range.
        \param noise_type Type of additive noise (can be \p 0=gaussian, \p 1=uniform, \p 2=Salt and Pepper,
          \p 3=Poisson or \p 4=Rician).
@@ -36815,7 +36815,7 @@ namespace cimg_library {
     //! Return palette \e "flag", containing 256 colors entries in RGB.
     /**
        \return The following \c 256x1x1x3 colormap is returned:
-       \image html ref_palette_flag.jpg
+       \image html ref_colormap_flag.jpg
     **/
     static const CImg<Tuchar>& flag_LUT256() {
       static CImg<Tuchar> palette;
@@ -39870,7 +39870,7 @@ namespace cimg_library {
 
     //! Warp image content by a warping field.
     /**
-       \param warp Warping field.
+       \param p_warp Warping field.
        \param mode Can be { 0=backward-absolute | 1=backward-relative | 2=forward-absolute | 3=foward-relative }
        \param interpolation Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
        \param boundary_conditions Boundary conditions <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
@@ -41997,8 +41997,8 @@ namespace cimg_library {
        \param zsize Depth of the resulting image (~0U means 'instance_depth/zstride').
        \note
        - The correlation of the image instance \p *this by the kernel \p kernel is defined to be:
-       $res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x + \beta_x\;(i - c_x),\alpha_y\;y + \beta_y\;(j -
-                    c_y),\alpha_z\;z + \beta_z\;(k - c_z))*kernel(i,j,k).$
+       \f$ res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x + \beta_x\;(i - c_x),\alpha_y\;y + \beta_y\;(j -
+                    c_y),\alpha_z\;z + \beta_z\;(k - c_z))*kernel(i,j,k) \f$
     **/
     template<typename t>
     CImg<T>& correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
@@ -42469,8 +42469,8 @@ namespace cimg_library {
        \param zsize Depth of the resulting image (~0U means 'instance_depth/zstride').
        \note
        - The convolution of the image instance \p *this by the kernel \p kernel is defined to be:
-       res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x - \beta_x\;(i - c_x),\alpha_y\;y
-                    - \beta_y\;(j - c_y),\alpha_z\;z - \beta_z\;(k - c_z))*kernel(i,j,k).
+       \f$ res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x - \beta_x\;(i - c_x),\alpha_y\;y
+                    - \beta_y\;(j - c_y),\alpha_z\;z - \beta_z\;(k - c_z))*kernel(i,j,k) \f$.
     **/
     template<typename t>
     CImg<T>& convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
@@ -47502,6 +47502,7 @@ namespace cimg_library {
        \param[in,out] imag Imaginary part of the pixel values.
        \param axis Axis along which the FFT is computed.
        \param is_inverse Tells if the forward (\c false) or inverse (\c true) FFT is computed.
+       \param nb_threads Set the maximum number of threads used for FFT computation.
     **/
     static void FFT(CImg<T>& real, CImg<T>& imag, const char axis, const bool is_inverse=false,
                     const unsigned int nb_threads=0) {
@@ -49755,6 +49756,8 @@ namespace cimg_library {
        \param opacity Drawing opacity.
        \param pattern An integer whose bits describe the line pattern.
        \param init_hatch Tells if a reinitialization of the hash state must be done.
+       \param draw_last_pixel Tells if last pixel of the line must be drawn or not (e.g. can be disabled
+       when drawing multi-line curves with transparency).
        \note
        - Set \p init_hatch = false to draw consecutive hatched segments without breaking the line pattern.
        \par Example:
@@ -50832,9 +50835,9 @@ namespace cimg_library {
        \param y1 Y-coordinate of the second vertex in the image instance.
        \param x2 X-coordinate of the third vertex in the image instance.
        \param y2 Y-coordinate of the third vertex in the image instance.
-       \param color1 Pointer to \c spectrum() consecutive values of type \c T, defining the color of the first vertex.
-       \param color2 Pointer to \c spectrum() consecutive values of type \c T, defining the color of the second vertex.
-       \param color3 Pointer to \c spectrum() consecutive values of type \c T, defining the color of the third vertex.
+       \param color0 Pointer to \c spectrum() consecutive values of type \c T, defining the color of the first vertex.
+       \param color1 Pointer to \c spectrum() consecutive values of type \c T, defining the color of the second vertex.
+       \param color2 Pointer to \c spectrum() consecutive values of type \c T, defining the color of the third vertex.
        \param opacity Drawing opacity.
      **/
     template<typename tc>
@@ -52730,8 +52733,8 @@ namespace cimg_library {
        \param opacity Drawing opacity.
        \param font_height Height of the text font (exact match for 13,32,64,128, interpolated otherwise).
        \note To ensure thread-safety, this function uses mutex lock. For real multi-threading drawing of text,
-       use another version of `CImg<T>::draw_text()` with argument `font`, that must be a copy of what is returned
-       by `CImgList<T>::font()`.
+       use another version of \c CImg<T>::draw_text() with argument `font`, that must be a copy of what is returned
+       by \c CImgList<T>::font().
     **/
     template<typename tc1, typename tc2>
     CImg<T>& draw_text(const int x0, const int y0,

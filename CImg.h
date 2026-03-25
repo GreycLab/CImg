@@ -40727,7 +40727,8 @@ namespace cimg_library {
             Ncp = (-nc0 + spectrum() - 1)/spectrum(), Ncn = (res.spectrum() + nc0 + spectrum() - 1)/spectrum(),
             Nx = Nxp + Nxn, Ny = Nyp + Nyn, Nz = Nzp + Nzn, Nc = Ncp + Ncn,
             X0 = -nx0 - Nxp*width(), Y0 = -ny0 - Nyp*height(), Z0 = -nz0 - Nzp*depth(), C0 = -nc0 - Ncp*spectrum();
-          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(Nx*Ny*Nz*Nc>=(cimg_openmp_sizefactor)*16))
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3)
+                             cimg_openmp_if(Nx*Ny*Nz*Nc>=(cimg_openmp_sizefactor)*16))
           for (int c = 0; c<Nc; ++c)
             for (int z = 0; z<Nz; ++z)
               for (int y = 0; y<Ny; ++y) {

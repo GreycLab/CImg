@@ -40724,7 +40724,7 @@ namespace cimg_library {
             Nxp = (-nx0 + width() - 1)/width(), Nxn = (res.width() + nx0 + width() - 1)/width(),
             Nyp = (-ny0 + height() - 1)/height(), Nyn = (res.height() + ny0 + height() - 1)/height(),
             Nzp = (-nz0 + depth() - 1)/depth(), Nzn = (res.depth() + nz0 + depth() - 1)/depth(),
-            Ncp = (-nc0/ + spectrum() - 1)/spectrum(), Ncn = (res.spectrum() + nc0 + spectrum() - 1)/spectrum(),
+            Ncp = (-nc0 + spectrum() - 1)/spectrum(), Ncn = (res.spectrum() + nc0 + spectrum() - 1)/spectrum(),
             Nx = Nxp + Nxn, Ny = Nyp + Nyn, Nz = Nzp + Nzn, Nc = Ncp + Ncn,
             X0 = -nx0 - Nxp*width(), Y0 = -ny0 - Nyp*height(), Z0 = -nz0 - Nzp*depth(), C0 = -nc0 - Ncp*spectrum();
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(Nx*Ny*Nz*Nc>=(cimg_openmp_sizefactor)*16))
@@ -40732,7 +40732,8 @@ namespace cimg_library {
             for (int z = 0; z<Nz; ++z)
               for (int y = 0; y<Ny; ++y) {
                 const int C = C0 + c*spectrum(), Z = Z0 + z*depth(), Y = Y0 + y*height();
-                for (int x = 0; x<Nx; ++x) { const int X = X0 + x*width();
+                for (int x = 0; x<Nx; ++x) {
+                  const int X = X0 + x*width();
                   res.draw_image(X,Y,Z,C,*this);
                 }
               }

@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 374
+#define cimg_version 375
 
 /*-----------------------------------------------------------
  #
@@ -37694,79 +37694,7 @@ namespace cimg_library {
           yc = (int)(centering_y*((int)sy - height())),
           zc = (int)(centering_z*((int)sz - depth())),
           cc = (int)(centering_c*((int)sc - spectrum()));
-
-        switch (boundary_conditions) {
-        case 3 : { // Mirror
-          res.assign(sx,sy,sz,sc);
-          const int w2 = 2*width(), h2 = 2*height(), d2 = 2*depth(), s2 = 2*spectrum();
-          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1024*1024))
-          cimg_forXYZC(res,x,y,z,c) {
-            const int
-              mx = cimg::mod(x - xc,w2), my = cimg::mod(y - yc,h2),
-              mz = cimg::mod(z - zc,d2), mc = cimg::mod(c - cc,s2);
-            res(x,y,z,c) = (*this)(mx<width()?mx:w2 - mx - 1,
-                                   my<height()?my:h2 - my - 1,
-                                   mz<depth()?mz:d2 - mz - 1,
-                                   mc<spectrum()?mc:s2 - mc - 1);
-          }
-        } break;
-        case 2 : { // Periodic
-          res.assign(sx,sy,sz,sc);
-          const int
-            x0 = ((int)xc%width()) - width(),
-            y0 = ((int)yc%height()) - height(),
-            z0 = ((int)zc%depth()) - depth(),
-            c0 = ((int)cc%spectrum()) - spectrum(),
-            dx = width(), dy = height(), dz = depth(), dc = spectrum();
-          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1024*1024))
-          for (int c = c0; c<(int)sc; c+=dc)
-            for (int z = z0; z<(int)sz; z+=dz)
-              for (int y = y0; y<(int)sy; y+=dy)
-                for (int x = x0; x<(int)sx; x+=dx)
-                  res.draw_image(x,y,z,c,*this);
-        } break;
-        case 1 : { // Neumann
-          res.assign(sx,sy,sz,sc).draw_image(xc,yc,zc,cc,*this);
-          CImg<T> sprite;
-          if (xc>0) { // X-backward
-            res.get_crop(xc,yc,zc,cc,xc,yc + height() - 1,zc + depth() - 1,cc + spectrum() - 1).move_to(sprite);
-            for (int x = xc - 1; x>=0; --x) res.draw_image(x,yc,zc,cc,sprite);
-          }
-          if (xc + width()<(int)sx) { // X-forward
-            res.get_crop(xc + width() - 1,yc,zc,cc,xc + width() - 1,yc + height() - 1,
-                         zc + depth() - 1,cc + spectrum() - 1).move_to(sprite);
-            for (int x = xc + width(); x<(int)sx; ++x) res.draw_image(x,yc,zc,cc,sprite);
-          }
-          if (yc>0) { // Y-backward
-            res.get_crop(0,yc,zc,cc,sx - 1,yc,zc + depth() - 1,cc + spectrum() - 1).move_to(sprite);
-            for (int y = yc - 1; y>=0; --y) res.draw_image(0,y,zc,cc,sprite);
-          }
-          if (yc + height()<(int)sy) { // Y-forward
-            res.get_crop(0,yc + height() - 1,zc,cc,sx - 1,yc + height() - 1,
-                         zc + depth() - 1,cc + spectrum() - 1).move_to(sprite);
-            for (int y = yc + height(); y<(int)sy; ++y) res.draw_image(0,y,zc,cc,sprite);
-          }
-          if (zc>0) { // Z-backward
-            res.get_crop(0,0,zc,cc,sx - 1,sy - 1,zc,cc + spectrum() - 1).move_to(sprite);
-            for (int z = zc - 1; z>=0; --z) res.draw_image(0,0,z,cc,sprite);
-          }
-          if (zc + depth()<(int)sz) { // Z-forward
-            res.get_crop(0,0,zc  +depth() - 1,cc,sx - 1,sy - 1,zc + depth() - 1,cc + spectrum() - 1).move_to(sprite);
-            for (int z = zc + depth(); z<(int)sz; ++z) res.draw_image(0,0,z,cc,sprite);
-          }
-          if (cc>0) { // C-backward
-            res.get_crop(0,0,0,cc,sx - 1,sy - 1,sz - 1,cc).move_to(sprite);
-            for (int c = cc - 1; c>=0; --c) res.draw_image(0,0,0,c,sprite);
-          }
-          if (cc + spectrum()<(int)sc) { // C-forward
-            res.get_crop(0,0,0,cc + spectrum() - 1,sx - 1,sy - 1,sz - 1,cc + spectrum() - 1).move_to(sprite);
-            for (int c = cc + spectrum(); c<(int)sc; ++c) res.draw_image(0,0,0,c,sprite);
-          }
-        } break;
-        default : // Dirichlet
-          res.assign(sx,sy,sz,sc,(T)0).draw_image(xc,yc,zc,cc,*this);
-        }
-        break;
+        get_crop(-xc,-yc,-zc,-cc,sx - xc - 1,sy - yc - 1,sz - zc - 1,sc - cc - 1,boundary_conditions).move_to(res);
       } break;
 
         // Nearest neighbor interpolation.
@@ -40792,12 +40720,23 @@ namespace cimg_library {
           }
         } break;
         case 2 : { // Periodic
-          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*16 &&
-                                                                     _height*_depth*_spectrum>=4))
-          cimg_forXYZC(res,x,y,z,c) {
-            res(x,y,z,c) = (*this)(cimg::mod(nx0 + x,width()),cimg::mod(ny0 + y,height()),
-                                   cimg::mod(nz0 + z,depth()),cimg::mod(nc0 + c,spectrum()));
-          }
+          const int
+            Nxp = (-nx0 + width() - 1)/width(), Nxn = (res.width() + nx0 + width() - 1)/width(),
+            Nyp = (-ny0 + height() - 1)/height(), Nyn = (res.height() + ny0 + height() - 1)/height(),
+            Nzp = (-nz0 + depth() - 1)/depth(), Nzn = (res.depth() + nz0 + depth() - 1)/depth(),
+            Ncp = (-nc0 + spectrum() - 1)/spectrum(), Ncn = (res.spectrum() + nc0 + spectrum() - 1)/spectrum(),
+            Nx = Nxp + Nxn, Ny = Nyp + Nyn, Nz = Nzp + Nzn, Nc = Ncp + Ncn,
+            X0 = -nx0 - Nxp*width(), Y0 = -ny0 - Nyp*height(), Z0 = -nz0 - Nzp*depth(), C0 = -nc0 - Ncp*spectrum();
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(Nx*Ny*Nz*Nc>=(cimg_openmp_sizefactor)*16))
+          for (int c = 0; c<Nc; ++c)
+            for (int z = 0; z<Nz; ++z)
+              for (int y = 0; y<Ny; ++y) {
+                const int C = C0 + c*spectrum(), Z = Z0 + z*depth(), Y = Y0 + y*height();
+                for (int x = 0; x<Nx; ++x) {
+                  const int X = X0 + x*width();
+                  res.draw_image(X,Y,Z,C,*this);
+                }
+              }
         } break;
         case 1 : // Neumann
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*16 &&
@@ -57204,11 +57143,24 @@ namespace cimg_library {
       return CImg<T>().load_magick(filename);
     }
 
-    //! Load image from a PNG file.
+    //! Loads an image from a PNG file.
     /**
-       \param filename Filename, as a C-string.
+       This method reads a PNG file and loads its content into the current CImg<T> instance.
+
+       \param filename Path to the PNG file to load, as a C-string.
        \param[out] bits_per_value Number of bits used to store a scalar value in the image file.
-    **/
+       \return Reference to the current image instance, now containing the loaded image.
+
+
+       \code
+       // Example usage:
+       CImg<unsigned char> img;
+       img.load_png("image.png");
+       img.display();
+       \endcode
+
+       \warning Throws a CImgIOException if the file does not exist or is not a valid PNG.
+    */
     CImg<T>& load_png(const char *const filename, unsigned int *const bits_per_value=0) {
       return _load_png(0,filename,bits_per_value);
     }
@@ -59935,14 +59887,28 @@ namespace cimg_library {
 
 #endif
 
-    //! Load image from a camera stream, using OpenCV.
+    //! Captures an image from a connected camera device (requires OpenCV).
     /**
+       This method allows you to directly acquire an image from a camera device (e.g., webcam)
+       connected to the system. The captured image is stored in the current CImg<T> instance.
+
        \param camera_index Index of the camera to capture images from (from 0 to 63).
        \param capture_width Width of the desired image ('0' stands for default value).
        \param capture_height Height of the desired image ('0' stands for default value).
        \param skip_frames Number of frames to skip before the capture.
        \param release_camera Tells if the camera resource must be released at the end of the method.
-    **/
+       \return Reference to the current image instance, now containing the captured camera frame.
+
+       \code
+       // Example usage:
+       CImg<unsigned char> img;
+       img.load_camera(); // Capture an image from the default camera
+       img.display();
+       \endcode
+
+       \note Requires your code to be linked with the OpenCV library (macro \c cimg_use_opencv enabled).
+       \warning Throws a CImgIOException if no camera is found or if the capture fails.
+    */
     CImg<T>& load_camera(const unsigned int camera_index=0,
                          const unsigned int capture_width=0, const unsigned int capture_height=0,
                          const unsigned int skip_frames=0, const bool release_camera=true) {

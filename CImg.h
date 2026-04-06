@@ -24195,7 +24195,7 @@ namespace cimg_library {
                 if (is_vector(arg2)) {
                   arg3 = size(arg2);
                   arg4+=arg3;
-                  CImg<ulongT>::vector(arg3,arg4).move_to(l_opcode);
+                  CImg<ulongT>::vector(arg2,arg3).move_to(l_opcode);
                   const CImg<ulongT> &rcode_back = rcode.back();
                   is_sth&=p3>p1 && rcode_back[1]==arg2 &&
                     (rcode_back[0]==(ulongT)mp_string_init ||

@@ -56646,7 +56646,10 @@ namespace cimg_library {
                               (long)fsiz,filename?filename:"(FILE*)",dx,dy);
 
       CImg<intT> colormap;
-      if (bpp<16) { if (!nb_colors) nb_colors = 1<<bpp; } else nb_colors = 0;
+      if (bpp<16) {
+        const int max_colors = 1<<bpp;
+        if (nb_colors<=0 || nb_colors>max_colors) nb_colors = max_colors;
+      } else nb_colors = 0;
       if (nb_colors) { colormap.assign(nb_colors); cimg::fread(colormap._data,nb_colors,nfile); }
 
       const int xoffset = offset - 14 - header_size - 4*nb_colors;

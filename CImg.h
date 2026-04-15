@@ -56646,7 +56646,10 @@ namespace cimg_library {
                               (long)fsiz,filename?filename:"(FILE*)",dx,dy);
 
       CImg<intT> colormap;
-      if (bpp<16) { if (!nb_colors) nb_colors = 1<<bpp; } else nb_colors = 0;
+      if (bpp<16) {
+        const int max_colors = 1<<bpp;
+        if (nb_colors<=0 || nb_colors>max_colors) nb_colors = max_colors;
+      } else nb_colors = 0;
       if (nb_colors) { colormap.assign(nb_colors); cimg::fread(colormap._data,nb_colors,nfile); }
 
       const int xoffset = offset - 14 - header_size - 4*nb_colors;
@@ -57422,7 +57425,7 @@ namespace cimg_library {
 
       if (filename) { // Check that dimensions specified in file does not exceed the buffer dimension
         const cimg_int64 siz = cimg::fsize(filename);
-        if (W*H*D>siz)
+        if ((cimg_int64)W*H*D>siz)
           throw CImgIOException(_cimg_instance
                                 "load_pnm(): Specified image dimensions in file '%s' exceed file size.",
                                 cimg_instance,

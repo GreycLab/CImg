@@ -57422,7 +57422,7 @@ namespace cimg_library {
 
       if (filename) { // Check that dimensions specified in file does not exceed the buffer dimension
         const cimg_int64 siz = cimg::fsize(filename);
-        if (W*H*D>siz)
+        if ((cimg_int64)W*H*D>siz)
           throw CImgIOException(_cimg_instance
                                 "load_pnm(): Specified image dimensions in file '%s' exceed file size.",
                                 cimg_instance,

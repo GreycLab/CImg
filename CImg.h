@@ -12035,8 +12035,7 @@ namespace cimg_library {
     // SDL3-based implementation.
     //---------------------------
     // Note: This display system does *not* use a thread to manage events,
-    // because SDL3 retrieves and manages events only from the main thread.
-    // (this works somehow with the X11 binding, but not with others).
+    // because SDL3 can retrieve and manage events only from the main thread.
 #elif cimg_display==3
 
     SDL_Window *_window;

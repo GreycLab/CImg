@@ -38822,7 +38822,7 @@ namespace cimg_library {
     **/
     CImg<T>& shift(const int delta_x, const int delta_y=0, const int delta_z=0, const int delta_c=0,
                    const unsigned int boundary_conditions=0) {
-      if (is_empty()) return *this;
+      if (is_empty() || (!delta_x && !delta_y && !delta_z && !delta_c)) return *this;
       if (boundary_conditions==3)
         return get_crop(-delta_x,-delta_y,-delta_z,-delta_c,
                         width() - delta_x - 1,

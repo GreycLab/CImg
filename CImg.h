@@ -20098,7 +20098,16 @@ namespace cimg_library {
           switch (*ss) {
 
           case '_' :
-            if (!std::strncmp(ss,"_sort(",6)) { // Sort vector
+            if (!std::strncmp(ss,"_reverse(",9)) { // Vector reverse (in-place)
+              _cimg_mp_op("Function '_reverse()'");
+              arg1 = compile(ss + 9,se1,depth1,0,block_flags);
+              if (!is_vector(arg1)) _cimg_mp_same(arg1);
+              p1 = size(arg1);
+              CImg<ulongT>::vector((ulongT)_mp_reverse,_cimg_mp_slot_nan,arg1,p1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
+            if (!std::strncmp(ss,"_sort(",6)) { // Sort vector (in-place)
               _cimg_mp_op("Function '_sort()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1,depth1,0,block_flags); // X
@@ -20128,7 +20137,6 @@ namespace cimg_library {
               _cimg_mp_check_type(arg6,6,1,0);
               p1 = size(arg1);
               CImg<ulongT>::vector((ulongT)_mp_sort,_cimg_mp_slot_nan,arg1,p1,arg2,arg3,arg4,arg5,arg6).move_to(code);
-              return_comp = true;
               _cimg_mp_return_nan();
             }
             break;
@@ -29210,6 +29218,13 @@ namespace cimg_library {
         const double *const ptrs = &_mp_arg(2) + 1;
         const unsigned int siz = (unsigned int)mp.opcode[3];
         CImg<doubleT>(ptrd,siz,1,1,1,true) = CImg<doubleT>(ptrs,siz,1,1,1,true).get_mirror('x');
+        return cimg::type<double>::nan();
+      }
+
+      static double _mp_reverse(_cimg_math_parser& mp) { // In-place version
+        double *const ptrs = &_mp_arg(2) + 1;
+        const unsigned int siz = (unsigned int)mp.opcode[3];
+        CImg<doubleT>(ptrs,siz,1,1,1,true).mirror('x');
         return cimg::type<double>::nan();
       }
 

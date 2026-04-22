@@ -27173,11 +27173,11 @@ namespace cimg_library {
             _mp_debug(complex_pow_vv) _mp_debug(complex_sin) _mp_debug(complex_sinh) _mp_debug(complex_sqr)
             _mp_debug(complex_sqrt) _mp_debug(complex_tan) _mp_debug(complex_tanh) _mp_debug(continue)
             _mp_debug(convolve) _mp_debug(copy) _mp_debug(correlate) _mp_debug(cos) _mp_debug(cosh) _mp_debug(cov)
-            _mp_debug(critical) _mp_debug(cross) _mp_debug(cumulate) _mp_debug(cut)
+            _mp_debug(critical) _mp_debug(cross) _mp_debug(cumulate) _mp_debug(cumulate_ip) _mp_debug(cut)
             _mp_debug(da_back_or_pop) _mp_debug(da_freeze) _mp_debug(da_insert_or_push_n)
             _mp_debug(da_remove) _mp_debug(da_size) _mp_debug(date) _mp_debug(debug) _mp_debug(decrement)
             _mp_debug(deg2rad) _mp_debug(det) _mp_debug(diag) _mp_debug(div) _mp_debug(do) _mp_debug(dot)
-            _mp_debug(echo) _mp_debug(ellipse) _mp_debug(epoch) _mp_debug(eq) _mp_debug(equalize)
+            _mp_debug(echo) _mp_debug(ellipse) _mp_debug(epoch) _mp_debug(eq) _mp_debug(equalize) _mp_debug(equalize_ip)
             _mp_debug(erf) _mp_debug(erfinv) _mp_debug(exp) _mp_debug(expr) _mp_debug(eye)
             _mp_debug(f2ui) _mp_debug(factorial) _mp_debug(fft) _mp_debug(fibonacci) _mp_debug(find)
             _mp_debug(find_seq) _mp_debug(flood) _mp_debug(floor) _mp_debug(for) _mp_debug(frac)
@@ -27189,7 +27189,7 @@ namespace cimg_library {
             _mp_debug(image_find) _mp_debug(image_find_seq) _mp_debug(image_height)
             _mp_debug(image_is_shared) _mp_debug(image_median) _mp_debug(image_median_static)
             _mp_debug(image_norm) _mp_debug(image_norm_static) _mp_debug(image_print)
-            _mp_debug(image_resize) _mp_debug(image_shift) _mp_debug(image_sort) _mp_debug(image_spectrum)
+            _mp_debug(image_resize) _mp_debug(image_shift) _mp_debug(image_shift_ip) _mp_debug(image_spectrum)
             _mp_debug(image_stats) _mp_debug(image_stats_static) _mp_debug(image_std_static)
             _mp_debug(image_swap) _mp_debug(image_wh) _mp_debug(image_whd) _mp_debug(image_whds)
             _mp_debug(image_width) _mp_debug(increment) _mp_debug(index) _mp_debug(indexof)
@@ -27202,15 +27202,15 @@ namespace cimg_library {
             _mp_debug(matrix_qr) _mp_debug(matrix_svd) _mp_debug(max) _mp_debug(max2) _mp_debug(maxabs)
             _mp_debug(maxabs2) _mp_debug(med) _mp_debug(med2) _mp_debug(mem_copy) _mp_debug(mem_display)
             _mp_debug(min) _mp_debug(min2) _mp_debug(minabs) _mp_debug(minabs2) _mp_debug(minus)
-            _mp_debug(mirror) _mp_debug(modulo) _mp_debug(mproj) _mp_debug(mse) _mp_debug(mul)
+            _mp_debug(mirror) _mp_debug(mirror_ip) _mp_debug(modulo) _mp_debug(mproj) _mp_debug(mse) _mp_debug(mul)
             _mp_debug(mul_div) _mp_debug(mul_mul) _mp_debug(mul_sub) _mp_debug(name) _mp_debug(name)
-            _mp_debug(neq) _mp_debug(noise) _mp_debug(normalize) _mp_debug(normp) _mp_debug(o2c)
-            _mp_debug(permutations) _mp_debug(permute) _mp_debug(polygon) _mp_debug(pow)
-            _mp_debug(pow0_25) _mp_debug(pow3) _mp_debug(pow4) _mp_debug(print) _mp_debug(prod)
-            _mp_debug(prod2) _mp_debug(rad2deg) _mp_debug(rand_double) _mp_debug(rand_double_0_1)
+            _mp_debug(neq) _mp_debug(noise) _mp_debug(noise_ip) _mp_debug(normalize) _mp_debug(normalize_ip)
+            _mp_debug(normp) _mp_debug(o2c) _mp_debug(permutations) _mp_debug(permute) _mp_debug(permute_ip)
+            _mp_debug(polygon) _mp_debug(pow) _mp_debug(pow0_25) _mp_debug(pow3) _mp_debug(pow4) _mp_debug(print)
+            _mp_debug(prod) _mp_debug(prod2) _mp_debug(rad2deg) _mp_debug(rand_double) _mp_debug(rand_double_0_1)
             _mp_debug(rand_double_0_N) _mp_debug(rand_double_ext) _mp_debug(rand_double_gaussian)
             _mp_debug(rand_double_m1_1) _mp_debug(rand_int) _mp_debug(rand_int_0_1) _mp_debug(rand_int_0_N)
-            _mp_debug(rand_int_ext) _mp_debug(rand_int_m1_1) _mp_debug(repeat) _mp_debug(reverse)
+            _mp_debug(rand_int_ext) _mp_debug(rand_int_m1_1) _mp_debug(repeat) _mp_debug(reverse) _mp_debug(reverse_ip)
             _mp_debug(rol) _mp_debug(ror) _mp_debug(rot2d) _mp_debug(rot3d) _mp_debug(round)
             _mp_debug(run) _mp_debug(run) _mp_debug(s2v) _mp_debug(self_add) _mp_debug(self_bitwise_and)
             _mp_debug(self_bitwise_left_shift) _mp_debug(self_bitwise_or)
@@ -27221,7 +27221,7 @@ namespace cimg_library {
             _mp_debug(set_IJoff_v) _mp_debug(set_IJxyz_s) _mp_debug(set_IJxyz_v) _mp_debug(set_ijxyzc)
             _mp_debug(sigmoid) _mp_debug(sign) _mp_debug(sin) _mp_debug(sinc) _mp_debug(sinh)
             _mp_debug(size_list) _mp_debug(softargmax) _mp_debug(softargmin) _mp_debug(softmax)
-            _mp_debug(softmin) _mp_debug(solve) _mp_debug(sort) _mp_debug(sqr) _mp_debug(sqrt)
+            _mp_debug(softmin) _mp_debug(solve) _mp_debug(sort) _mp_debug(sort_ip) _mp_debug(sqr) _mp_debug(sqrt)
             _mp_debug(srand) _mp_debug(srand0) _mp_debug(std) _mp_debug(std2) _mp_debug(store)
             _mp_debug(store) _mp_debug(string) _mp_debug(string_init) _mp_debug(sub) _mp_debug(sub_div)
             _mp_debug(sub_mul) _mp_debug(sub_sub) _mp_debug(sum) _mp_debug(sum2) _mp_debug(swap) _mp_debug(tan)
@@ -27235,8 +27235,8 @@ namespace cimg_library {
             _mp_debug(vector_map_vv) _mp_debug(vector_neq) _mp_debug(vector_norm0) _mp_debug(vector_norm1)
             _mp_debug(vector_norm2) _mp_debug(vector_norminf) _mp_debug(vector_off) _mp_debug(vector_print)
             _mp_debug(vector_rand) _mp_debug(vector_resize) _mp_debug(vector_resize_ext)
-            _mp_debug(vector_set_off) _mp_debug(vector_shift) _mp_debug(vector_stats) _mp_debug(vkth)
-            _mp_debug(vmax) _mp_debug(vmaxabs) _mp_debug(vmedian) _mp_debug(vmin) _mp_debug(vminabs)
+            _mp_debug(vector_set_off) _mp_debug(vector_shift) _mp_debug(vector_shift_ip) _mp_debug(vector_stats)
+            _mp_debug(vkth) _mp_debug(vmax) _mp_debug(vmaxabs) _mp_debug(vmedian) _mp_debug(vmin) _mp_debug(vminabs)
             _mp_debug(vprod) _mp_debug(vstd) _mp_debug(vsum) _mp_debug(vvar) _mp_debug(warp)
             _mp_debug(wave) _mp_debug(while) "unknown";
 
@@ -28411,23 +28411,6 @@ namespace cimg_library {
         const double dx = _mp_arg(7), dy = _mp_arg(8), dz = _mp_arg(9), dc = _mp_arg(10);
         const unsigned int boundary_conditions = (unsigned int)cimg::cut(_mp_arg(11),0.,3.);
         CImg<doubleT>(ptrs,w,h,d,s,true).shift(dx,dy,dz,dc,boundary_conditions);
-        return cimg::type<double>::nan();
-      }
-
-      static double mp_image_sort(_cimg_math_parser& mp) {
-        mp_check_list(mp,"sort");
-        const bool is_increasing = (bool)_mp_arg(3);
-        const unsigned int
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width()),
-          axis = (unsigned int)_mp_arg(4);
-        cimg::mutex(6);
-        CImg<T> &img = mp.imglist[ind];
-        img.sort(is_increasing,
-                 axis==0 || axis=='x'?'x':
-                 axis==1 || axis=='y'?'y':
-                 axis==2 || axis=='z'?'z':
-                 axis==3 || axis=='c'?'c':0);
-        cimg::mutex(6,0);
         return cimg::type<double>::nan();
       }
 

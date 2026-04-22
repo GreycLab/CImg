@@ -20201,6 +20201,21 @@ namespace cimg_library {
               _cimg_mp_return_nan();
             }
 
+            if (!std::strncmp(ss,"_noise(",7)) { // Add noise (in-place)
+              _cimg_mp_op("Function '_noise()'");
+              s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss7,s1,depth1,0,block_flags);
+              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(s1,s2,depth1,0,block_flags);
+              arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0;
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_type(arg2,2,1,0);
+              _cimg_mp_check_type(arg3,3,1,0);
+              p1 = size(arg1);
+              CImg<ulongT>::vector((ulongT)mp_noise_ip,_cimg_mp_slot_nan,arg1,p1,arg2,arg3).move_to(code);
+              _cimg_mp_return_nan();
+            }
+
             if (!std::strncmp(ss,"_normalize(",11)) { // Normalize (in-place)
               _cimg_mp_op("Function '_normalize()'");
               s0 = ss + 11;
@@ -29269,6 +29284,16 @@ namespace cimg_library {
           *const ptrs = &_mp_arg(2) + 1,
           amplitude = _mp_arg(4);
         CImg<doubleT>(ptrd,siz,1,1,1,true) = CImg<doubleT>(ptrs,siz,1,1,1,true).get_noise(amplitude,noise_type);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_noise_ip(_cimg_math_parser& mp) { // In-place version
+        double *const ptrs = &_mp_arg(2) + 1;
+        const unsigned int
+          siz = (unsigned int)mp.opcode[3],
+          noise_type = (unsigned int)_mp_arg(5);
+        const double amplitude = _mp_arg(4);
+        CImg<doubleT>(ptrs,siz,1,1,1,true).noise(amplitude,noise_type);
         return cimg::type<double>::nan();
       }
 

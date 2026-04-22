@@ -20127,7 +20127,7 @@ namespace cimg_library {
               _cimg_mp_check_type(arg5,5,1,0);
               _cimg_mp_check_type(arg6,6,1,0);
               p1 = size(arg1);
-              CImg<ulongT>::vector((ulongT)mp__sort,_cimg_mp_slot_nan,arg1,p1,arg2,arg3,arg4,arg5,arg6).move_to(code);
+              CImg<ulongT>::vector((ulongT)_mp_sort,_cimg_mp_slot_nan,arg1,p1,arg2,arg3,arg4,arg5,arg6).move_to(code);
               return_comp = true;
               _cimg_mp_return_nan();
             }
@@ -29640,7 +29640,7 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp__sort(_cimg_math_parser& mp) { // In-place version
+      static double _mp_sort(_cimg_math_parser& mp) { // In-place version
         double *const ptrs = &_mp_arg(2) + 1;
         const int
           siz = (int)mp.opcode[3],

@@ -20098,6 +20098,10 @@ namespace cimg_library {
           switch (*ss) {
 
           case '_' :
+            // This section contains 'in-place' versions of the math functions that :
+            // 1. Act on a vector-valued object.
+            // 2. Cannot modify the size of this object.
+
             if (!std::strncmp(ss,"_cumulate(",10)) { // Cumulate (in-place)
               _cimg_mp_op("Function '_cumulate()'");
               s0 = ss + 10;

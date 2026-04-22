@@ -20098,6 +20098,42 @@ namespace cimg_library {
           switch (*ss) {
 
           case '_' :
+            if (!std::strncmp(ss,"_mirror(",8)) { // Mirror image (in-place)
+              _cimg_mp_op("Function '_mirror()'");
+              s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss8,s1,depth1,0,block_flags);
+              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(s1,s2,depth1,0,block_flags);
+              s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg3 = compile(s2,s1,depth1,0,block_flags);
+              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg4 = compile(s1,s2,depth1,0,block_flags);
+              s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg5 = compile(s2,s1,depth1,0,block_flags);
+              arg6 = compile(++s1,se1,depth1,0,block_flags);
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_const_scalar(arg2,2,3);
+              _cimg_mp_check_const_scalar(arg3,3,3);
+              _cimg_mp_check_const_scalar(arg4,4,3);
+              _cimg_mp_check_const_scalar(arg5,5,3);
+              p1 = size(arg1);
+              p2 = size(arg6);
+              arg2 = (unsigned int)mem[arg2];
+              arg3 = (unsigned int)mem[arg3];
+              arg4 = (unsigned int)mem[arg4];
+              arg5 = (unsigned int)mem[arg5];
+              if (arg2*arg3*arg4*arg5!=std::max(1U,p1)) {
+                _cimg_mp_strerr;
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Input vector size (%u values) and its specified "
+                                            "geometry (%u,%u,%u,%u) (%u values) do not match.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            std::max(p1,1U),arg2,arg3,arg4,arg5,arg2*arg3*arg4*arg5);
+              }
+              CImg<ulongT>::vector((ulongT)_mp_mirror,_cimg_mp_slot_nan,arg1,arg2,arg3,arg4,arg5,arg6,p2).move_to(code);
+              _cimg_mp_return_nan();
+            }
+
             if (!std::strncmp(ss,"_permute(",9)) { // Permute axes (in-place)
               _cimg_mp_op("Function '_permute()'");
               s1 = ss + 9; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -28927,6 +28963,23 @@ namespace cimg_library {
         str.back() = 0;
         CImg<doubleT>(ptrd,wA,hA,dA,sA,true) = CImg<doubleT>(ptrs,wA,hA,dA,sA,true).
           get_mirror(str);
+        return cimg::type<double>::nan();
+      }
+
+      static double _mp_mirror(_cimg_math_parser& mp) { // In-place version
+        double *const ptrs = &_mp_arg(2) + 1;
+        const double *const ptrp = &_mp_arg(7) + 1;
+        const unsigned int
+          wA = (unsigned int)mp.opcode[3],
+          hA = (unsigned int)mp.opcode[4],
+          dA = (unsigned int)mp.opcode[5],
+          sA = (unsigned int)mp.opcode[6],
+          sizp = (unsigned int)mp.opcode[8];
+        CImg<charT> str(std::max(1U,sizp) + 1);
+        if (!sizp) str[0] = _mp_arg(7);
+        else for (unsigned int p = 0; p<sizp; ++p) str[p] = (char)ptrp[p];
+        str.back() = 0;
+        CImg<doubleT>(ptrs,wA,hA,dA,sA,true).mirror(str);
         return cimg::type<double>::nan();
       }
 

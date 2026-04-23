@@ -20913,7 +20913,15 @@ namespace cimg_library {
             if (!std::strncmp(ss,"cos(",4)) { // Cosine
               _cimg_mp_op("Function 'cos()'");
               arg1 = compile(ss4,se1,depth1,0,block_flags);
-              if (is_vector(arg1)) _cimg_mp_vector1_v(cos,arg1);
+//              if (is_vector(arg1)) _cimg_mp_vector1_v(cos,arg1);
+              if (is_vector(arg1)) {
+                p1 = size(arg1);
+                pos = vector(p1);
+                CImg<ulongT>::vector((ulongT)mp_vector_cos,pos,arg1,p1).move_to(code);
+                _cimg_mp_return(pos);
+
+//                _cimg_mp_vector1_v(cos,arg1);
+              }
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(std::cos(mem[arg1]));
               _cimg_mp_scalar1(cos,arg1);
             }
@@ -26783,6 +26791,14 @@ namespace cimg_library {
 
       static double mp_cos(_cimg_math_parser& mp) {
         return std::cos(_mp_arg(2));
+      }
+
+      static double mp_vector_cos(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptrs = &_mp_arg(2) + 1;
+        const unsigned int siz = (unsigned int)mp.opcode[3];
+        for (unsigned int k = 0; k<siz; ++k) ptrd[k] = std::cos(ptrs[k]);
+        return cimg::type<double>::nan();
       }
 
       static double mp_cosh(_cimg_math_parser& mp) {

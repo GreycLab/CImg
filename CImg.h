@@ -19100,13 +19100,8 @@ namespace cimg_library {
             arg1 = compile(ss,s,depth1,0,block_flags);
             arg2 = compile(s + 1,se,depth1,0,block_flags);
             _cimg_mp_check_type(arg2,2,3,size(arg1));
-            if (is_vector(arg1) && is_vector(arg2))
-              _cimg_mp_vector2(bitwise_or,arg1,arg2);
-            if (is_vector(arg1) && is_scalar(arg2)) {
+            if (is_vector(arg1) || is_vector(arg2)) {
               if (!arg2) _cimg_mp_same(arg1);
-              _cimg_mp_vector2(bitwise_or,arg1,arg2);
-            }
-            if (is_scalar(arg1) && is_vector(arg2)) {
               if (!arg1) _cimg_mp_same(arg2);
               _cimg_mp_vector2(bitwise_or,arg1,arg2);
             }
@@ -19228,8 +19223,7 @@ namespace cimg_library {
             arg1 = compile(ss,s,depth1,0,block_flags);
             arg2 = compile(s + 2,se,depth1,0,block_flags);
             _cimg_mp_check_type(arg2,2,3,size(arg1));
-            if (is_vector(arg2)) _cimg_mp_vector2(bitwise_left_shift,arg1,arg2);
-            if (is_vector(arg1) && is_scalar(arg2)) {
+            if (is_vector(arg1) || is_vector(arg2)) {
               if (!arg2) _cimg_mp_same(arg1);
               _cimg_mp_vector2(bitwise_left_shift,arg1,arg2);
             }
@@ -19246,8 +19240,7 @@ namespace cimg_library {
             arg1 = compile(ss,s,depth1,0,block_flags);
             arg2 = compile(s + 2,se,depth1,0,block_flags);
             _cimg_mp_check_type(arg2,2,3,size(arg1));
-            if (is_vector(arg2)) _cimg_mp_vector2(bitwise_right_shift,arg1,arg2);
-            if (is_vector(arg1) && is_scalar(arg2)) {
+            if (is_vector(arg1) || is_vector(arg2)) {
               if (!arg2) _cimg_mp_same(arg1);
               _cimg_mp_vector2(bitwise_right_shift,arg1,arg2);
             }
@@ -19369,8 +19362,7 @@ namespace cimg_library {
             }
             _cimg_mp_check_type(arg2,2,3,size(arg1));
             if (!arg2) _cimg_mp_same(arg1);
-            if (is_vector(arg1)) _cimg_mp_vector2(sub,arg1,arg2);
-            if (is_scalar(arg1) && is_vector(arg2)) {
+            if (is_vector(arg1) || is_vector(arg2)) {
               if (!arg1) _cimg_mp_vector1(minus,arg2);
               _cimg_mp_vector2(sub,arg1,arg2);
             }

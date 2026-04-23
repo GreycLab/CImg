@@ -26101,7 +26101,7 @@ namespace cimg_library {
       unsigned int vector1(const mp_func op, const unsigned int siz,
                            const unsigned int arg1) {
         const unsigned int pos = is_comp_vector(arg1)?arg1:((return_comp = true), vector(siz));
-        CImg<ulongT>::vector((ulongT)op,pos,arg1,siz).move_to(code);
+        CImg<ulongT>::vector((ulongT)op,pos,siz,arg1).move_to(code);
         return pos;
       }
 
@@ -26238,8 +26238,8 @@ namespace cimg_library {
       static double mp_##nm(_cimg_math_parser& mp) { return (double)(fn(_mp_arg(2))); } \
       static double mp_vector_##nm(_cimg_math_parser& mp) { \
         double *ptrd = &_mp_arg(1) + 1; \
-        const double *ptrs = &_mp_arg(2) + 1; \
-        const unsigned int siz = (unsigned int)mp.opcode[3]; \
+        const unsigned int siz = (unsigned int)mp.opcode[2]; \
+        const double *ptrs = &_mp_arg(3) + 1; \
         for (unsigned int k = 0; k<siz; ++k) { ptrd[k] = (double)(fn(ptrs[k])); } \
         return cimg::type<double>::nan(); \
       }

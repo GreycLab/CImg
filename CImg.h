@@ -6597,6 +6597,18 @@ namespace cimg_library {
       return (T)std::log(x/(1. - x));
     }
 
+    // Convert radians to degrees.
+    template<typename T>
+    inline T rad2deg(const T& x) {
+      return (T)(x*180/cimg::PI);
+    }
+
+    // Convert degrees to radians.
+    template<typename T>
+    inline T deg2rad(const T& x) {
+      return (T)(x*cimg::PI/180);
+    }
+
     //! Return the sign of a value.
     template<typename T>
     inline T sign(const T& x) {
@@ -19376,7 +19388,7 @@ namespace cimg_library {
             if (is_vector(arg1) && is_vector(arg2)) _cimg_mp_vector2_vv(sub,arg1,arg2);
             if (is_vector(arg1) && is_scalar(arg2)) _cimg_mp_vector2_vs(sub,arg1,arg2);
             if (is_scalar(arg1) && is_vector(arg2)) {
-              if (!arg1) _cimg_mp_vector1_v(minus,arg2);
+              if (!arg1) _ncimg_mp_vector1_v(minus,arg2);
               _cimg_mp_vector2_sv(sub,arg1,arg2);
             }
             if (is_const_scalar(arg1) && is_const_scalar(arg2)) _cimg_mp_const_scalar(mem[arg1] - mem[arg2]);
@@ -19591,7 +19603,7 @@ namespace cimg_library {
           if (*ss=='-' && (*ss1!='-' || (ss2<se && *ss2>='0' && *ss2<='9'))) { // Unary minus ('-')
             _cimg_mp_op("Operator '-'");
             arg1 = compile(ss1,se,depth1,0,block_flags);
-            if (is_vector(arg1)) _cimg_mp_vector1_v(minus,arg1);
+            if (is_vector(arg1)) _ncimg_mp_vector1_v(minus,arg1);
             if (is_const_scalar(arg1)) _cimg_mp_const_scalar(-mem[arg1]);
             _cimg_mp_scalar1(minus,arg1);
           }
@@ -19605,7 +19617,7 @@ namespace cimg_library {
               _cimg_mp_scalar1(bool,arg1);
             }
             arg1 = compile(ss1,se,depth1,0,block_flags);
-            if (is_vector(arg1)) _cimg_mp_vector1_v(logical_not,arg1);
+            if (is_vector(arg1)) _ncimg_mp_vector1_v(logical_not,arg1);
             if (is_const_scalar(arg1)) _cimg_mp_const_scalar(!mem[arg1]);
             _cimg_mp_scalar1(logical_not,arg1);
           }
@@ -19686,7 +19698,7 @@ namespace cimg_library {
         // Degree to radian postfix operator ('°' in UTF-8).
         if (se2>ss && (unsigned char)*se2==0xC2 && (unsigned char)*se1==0xB0) {
           arg1 = compile(ss,se2,depth1,0,block_flags);
-          if (is_vector(arg1)) _cimg_mp_vector1_v(deg2rad,arg1);
+          if (is_vector(arg1)) _ncimg_mp_vector1_v(deg2rad,arg1);
           if (is_const_scalar(arg1)) _cimg_mp_const_scalar(mem[arg1]*cimg::PI/180);
           _cimg_mp_scalar1(deg2rad,arg1);
         }
@@ -21477,7 +21489,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"deg2rad(",8)) { // Degrees to radians
               _cimg_mp_op("Function 'deg2rad()'");
               arg1 = compile(ss8,se1,depth1,0,block_flags);
-              if (is_vector(arg1)) _cimg_mp_vector1_v(deg2rad,arg1);
+              if (is_vector(arg1)) _ncimg_mp_vector1_v(deg2rad,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(mem[arg1]*cimg::PI/180);
               _cimg_mp_scalar1(deg2rad,arg1);
             }
@@ -22706,7 +22718,7 @@ namespace cimg_library {
                 _cimg_mp_op("Function 'isinf()'");
                 if (ss6==se1) _cimg_mp_return(0);
                 arg1 = compile(ss6,se1,depth1,0,block_flags);
-                if (is_vector(arg1)) _cimg_mp_vector1_v(isinf,arg1);
+                if (is_vector(arg1)) _ncimg_mp_vector1_v(isinf,arg1);
                 if (is_const_scalar(arg1))
                   _cimg_mp_return((unsigned int)cimg::type<double>::is_inf(mem[arg1]));
                 _cimg_mp_scalar1(isinf,arg1);
@@ -22742,7 +22754,7 @@ namespace cimg_library {
                 _cimg_mp_op("Function 'isnan()'");
                 if (ss6==se1) _cimg_mp_return(0);
                 arg1 = compile(ss6,se1,depth1,0,block_flags);
-                if (is_vector(arg1)) _cimg_mp_vector1_v(isnan,arg1);
+                if (is_vector(arg1)) _ncimg_mp_vector1_v(isnan,arg1);
                 if (is_const_scalar(arg1))
                   _cimg_mp_return((unsigned int)cimg::type<double>::is_nan(mem[arg1]));
                 _cimg_mp_scalar1(isnan,arg1);
@@ -22823,7 +22835,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"log(",4)) { // Natural logarithm
               _cimg_mp_op("Function 'log()'");
               arg1 = compile(ss4,se1,depth1,0,block_flags);
-              if (is_vector(arg1)) _cimg_mp_vector1_v(log,arg1);
+              if (is_vector(arg1)) _ncimg_mp_vector1_v(log,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(std::log(mem[arg1]));
               _cimg_mp_scalar1(log,arg1);
             }
@@ -22831,7 +22843,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"log10(",6)) { // Base-10 logarithm
               _cimg_mp_op("Function 'log10()'");
               arg1 = compile(ss6,se1,depth1,0,block_flags);
-              if (is_vector(arg1)) _cimg_mp_vector1_v(log10,arg1);
+              if (is_vector(arg1)) _ncimg_mp_vector1_v(log10,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(std::log10(mem[arg1]));
               _cimg_mp_scalar1(log10,arg1);
             }
@@ -22839,7 +22851,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"log2(",5)) { // Base-2 logarithm
               _cimg_mp_op("Function 'log2()'");
               arg1 = compile(ss5,se1,depth1,0,block_flags);
-              if (is_vector(arg1)) _cimg_mp_vector1_v(log2,arg1);
+              if (is_vector(arg1)) _ncimg_mp_vector1_v(log2,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(cimg::log2(mem[arg1]));
               _cimg_mp_scalar1(log2,arg1);
             }
@@ -22847,7 +22859,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"logit(",6)) { // Logit
               _cimg_mp_op("Function 'logit()'");
               arg1 = compile(ss6,se1,depth1,0,block_flags);
-              if (is_vector(arg1)) _cimg_mp_vector1_v(logit,arg1);
+              if (is_vector(arg1)) _ncimg_mp_vector1_v(logit,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(cimg::logit(mem[arg1]));
               _cimg_mp_scalar1(logit,arg1);
             }
@@ -22855,7 +22867,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"lowercase(",10)) { // Lower case
               _cimg_mp_op("Function 'lowercase()'");
               arg1 = compile(ss + 10,se1,depth1,0,block_flags);
-              if (is_vector(arg1)) _cimg_mp_vector1_v(lowercase,arg1);
+              if (is_vector(arg1)) _ncimg_mp_vector1_v(lowercase,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(cimg::lowercase(mem[arg1]));
               _cimg_mp_scalar1(lowercase,arg1);
             }
@@ -23404,7 +23416,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"rad2deg(",8)) { // Degrees to radians
               _cimg_mp_op("Function 'rad2deg()'");
               arg1 = compile(ss8,se1,depth1,0,block_flags);
-              if (is_vector(arg1)) _cimg_mp_vector1_v(rad2deg,arg1);
+              if (is_vector(arg1)) _ncimg_mp_vector1_v(rad2deg,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(mem[arg1]*180/cimg::PI);
               _cimg_mp_scalar1(rad2deg,arg1);
             }
@@ -23890,7 +23902,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"sigmoid(",8)) { // Sigmoid
               _cimg_mp_op("Function 'sigmoid()'");
               arg1 = compile(ss8,se1,depth1,0,block_flags);
-              if (is_vector(arg1)) _cimg_mp_vector1_v(sigmoid,arg1);
+              if (is_vector(arg1)) _ncimg_mp_vector1_v(sigmoid,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(cimg::sigmoid(mem[arg1]));
               _cimg_mp_scalar1(sigmoid,arg1);
             }
@@ -23898,7 +23910,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"sign(",5)) { // Sign
               _cimg_mp_op("Function 'sign()'");
               arg1 = compile(ss5,se1,depth1,0,block_flags);
-              if (is_vector(arg1)) _cimg_mp_vector1_v(sign,arg1);
+              if (is_vector(arg1)) _ncimg_mp_vector1_v(sign,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(cimg::sign(mem[arg1]));
               _cimg_mp_scalar1(sign,arg1);
             }
@@ -23906,7 +23918,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"sin(",4)) { // Sine
               _cimg_mp_op("Function 'sin()'");
               arg1 = compile(ss4,se1,depth1,0,block_flags);
-              if (is_vector(arg1)) _cimg_mp_vector1_v(sin,arg1);
+              if (is_vector(arg1)) _ncimg_mp_vector1_v(sin,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(std::sin(mem[arg1]));
               _cimg_mp_scalar1(sin,arg1);
             }
@@ -23914,7 +23926,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"sinc(",5)) { // Sine cardinal
               _cimg_mp_op("Function 'sinc()'");
               arg1 = compile(ss5,se1,depth1,0,block_flags);
-              if (is_vector(arg1)) _cimg_mp_vector1_v(sinc,arg1);
+              if (is_vector(arg1)) _ncimg_mp_vector1_v(sinc,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(cimg::sinc(mem[arg1]));
               _cimg_mp_scalar1(sinc,arg1);
             }
@@ -23922,7 +23934,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"sinh(",5)) { // Hyperbolic sine
               _cimg_mp_op("Function 'sinh()'");
               arg1 = compile(ss5,se1,depth1,0,block_flags);
-              if (is_vector(arg1)) _cimg_mp_vector1_v(sinh,arg1);
+              if (is_vector(arg1)) _ncimg_mp_vector1_v(sinh,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(std::sinh(mem[arg1]));
               _cimg_mp_scalar1(sinh,arg1);
             }
@@ -24028,7 +24040,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"sqr(",4)) { // Square
               _cimg_mp_op("Function 'sqr()'");
               arg1 = compile(ss4,se1,depth1,0,block_flags);
-              if (is_vector(arg1)) _cimg_mp_vector1_v(sqr,arg1);
+              if (is_vector(arg1)) _ncimg_mp_vector1_v(sqr,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(cimg::sqr(mem[arg1]));
               _cimg_mp_scalar1(sqr,arg1);
             }
@@ -24036,7 +24048,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"sqrt(",5)) { // Square root
               _cimg_mp_op("Function 'sqrt()'");
               arg1 = compile(ss5,se1,depth1,0,block_flags);
-              if (is_vector(arg1)) _cimg_mp_vector1_v(sqrt,arg1);
+              if (is_vector(arg1)) _ncimg_mp_vector1_v(sqrt,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(std::sqrt(mem[arg1]));
               _cimg_mp_scalar1(sqrt,arg1);
             }
@@ -24323,7 +24335,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"tan(",4)) { // Tangent
               _cimg_mp_op("Function 'tan()'");
               arg1 = compile(ss4,se1,depth1,0,block_flags);
-              if (is_vector(arg1)) _cimg_mp_vector1_v(tan,arg1);
+              if (is_vector(arg1)) _ncimg_mp_vector1_v(tan,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(std::tan(mem[arg1]));
               _cimg_mp_scalar1(tan,arg1);
             }
@@ -24331,7 +24343,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"tanh(",5)) { // Hyperbolic tangent
               _cimg_mp_op("Function 'tanh()'");
               arg1 = compile(ss5,se1,depth1,0,block_flags);
-              if (is_vector(arg1)) _cimg_mp_vector1_v(tanh,arg1);
+              if (is_vector(arg1)) _ncimg_mp_vector1_v(tanh,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(std::tanh(mem[arg1]));
               _cimg_mp_scalar1(tanh,arg1);
             }
@@ -24373,7 +24385,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"ui2f(",5)) { // Special uint->float[16,32] conversion
               _cimg_mp_op("Function 'ui2f()'");
               arg1 = compile(ss5,se1,depth1,0,block_flags);
-              if (is_vector(arg1)) _cimg_mp_vector1_v(ui2f,arg1);
+              if (is_vector(arg1)) _ncimg_mp_vector1_v(ui2f,arg1);
               if (is_const_scalar(arg1))
                 _cimg_mp_const_scalar((double)cimg::uint2float(mem[arg1],(T)0));
               _cimg_mp_scalar1(ui2f,arg1);
@@ -24426,7 +24438,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"uppercase(",10)) { // Upper case
               _cimg_mp_op("Function 'uppercase()'");
               arg1 = compile(ss + 10,se1,depth1,0,block_flags);
-              if (is_vector(arg1)) _cimg_mp_vector1_v(uppercase,arg1);
+              if (is_vector(arg1)) _ncimg_mp_vector1_v(uppercase,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(cimg::uppercase(mem[arg1]));
               _cimg_mp_scalar1(uppercase,arg1);
             }
@@ -27256,9 +27268,7 @@ namespace cimg_library {
         return _mp_arg(2) - 1;
       }
 
-      static double mp_deg2rad(_cimg_math_parser& mp) {
-        return _mp_arg(2)*cimg::PI/180;
-      }
+      _cimg_mp_func1(deg2rad,cimg::deg2rad);
 
       static double mp_det(_cimg_math_parser& mp) {
         const double *ptrs = &_mp_arg(2) + 1;
@@ -28653,9 +28663,7 @@ namespace cimg_library {
         return res?1.:0.;
       }
 
-      static double mp_isinf(_cimg_math_parser& mp) {
-        return (double)cimg::type<double>::is_inf(_mp_arg(2));
-      }
+      _cimg_mp_func1(isinf,cimg::type<double>::is_inf);
 
       static double mp_isint(_cimg_math_parser& mp) {
         double val = _mp_arg(2), intpart;
@@ -28665,9 +28673,7 @@ namespace cimg_library {
         return is_int && val>=_mp_arg(3) && val<=_mp_arg(4);
       }
 
-      static double mp_isnan(_cimg_math_parser& mp) {
-        return (double)cimg::type<double>::is_nan(_mp_arg(2));
-      }
+      _cimg_mp_func1(isnan,cimg::type<double>::is_nan);
 
       static double mp_isvarname(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[3];
@@ -28741,17 +28747,9 @@ namespace cimg_library {
         return val0*(1 - t) + val1*t;
       }
 
-      static double mp_log(_cimg_math_parser& mp) {
-        return std::log(_mp_arg(2));
-      }
-
-      static double mp_log10(_cimg_math_parser& mp) {
-        return std::log10(_mp_arg(2));
-      }
-
-      static double mp_log2(_cimg_math_parser& mp) {
-        return cimg::log2(_mp_arg(2));
-      }
+      _cimg_mp_func1(log,std::log);
+      _cimg_mp_func1(log10,std::log10);
+      _cimg_mp_func1(log2,cimg::log2);
 
       static double mp_logical_and(_cimg_math_parser& mp) {
         const bool val_left = (bool)_mp_arg(2);
@@ -28763,9 +28761,7 @@ namespace cimg_library {
         return (double)(bool)mp.mem[mem_right];
       }
 
-      static double mp_logical_not(_cimg_math_parser& mp) {
-        return (double)!_mp_arg(2);
-      }
+      _cimg_mp_func1(logical_not,!);
 
       static double mp_logical_or(_cimg_math_parser& mp) {
         const bool val_left = (bool)_mp_arg(2);
@@ -28777,13 +28773,8 @@ namespace cimg_library {
         return (double)(bool)mp.mem[mem_right];
       }
 
-      static double mp_logit(_cimg_math_parser& mp) {
-        return cimg::logit(_mp_arg(2));
-      }
-
-      static double mp_lowercase(_cimg_math_parser& mp) {
-        return cimg::lowercase(_mp_arg(2));
-      }
+      _cimg_mp_func1(logit,cimg::logit);
+      _cimg_mp_func1(lowercase,cimg::lowercase);
 
       static double mp_lt(_cimg_math_parser& mp) {
         return (double)(_mp_arg(2)<_mp_arg(3));
@@ -29118,9 +29109,7 @@ namespace cimg_library {
         return cimg::minabs(_mp_arg(2),_mp_arg(3));
       }
 
-      static double mp_minus(_cimg_math_parser& mp) {
-        return -_mp_arg(2);
-      }
+      _cimg_mp_func1(minus,-);
 
       static double mp_mirror(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
@@ -29477,9 +29466,7 @@ namespace cimg_library {
         return _mp_arg(2)*_mp_arg(3);
       }
 
-      static double mp_rad2deg(_cimg_math_parser& mp) {
-        return _mp_arg(2)*180/cimg::PI;
-      }
+      _cimg_mp_func1(rad2deg,cimg::rad2deg);
 
       static double mp_repeat(_cimg_math_parser& mp) {
         const double nb_it = _mp_arg(2), nb_itm1 = nb_it - 1;
@@ -29851,25 +29838,11 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_sigmoid(_cimg_math_parser& mp) {
-        return cimg::sigmoid(_mp_arg(2));
-      }
-
-      static double mp_sign(_cimg_math_parser& mp) {
-        return cimg::sign(_mp_arg(2));
-      }
-
-      static double mp_sin(_cimg_math_parser& mp) {
-        return std::sin(_mp_arg(2));
-      }
-
-      static double mp_sinc(_cimg_math_parser& mp) {
-        return cimg::sinc(_mp_arg(2));
-      }
-
-      static double mp_sinh(_cimg_math_parser& mp) {
-        return std::sinh(_mp_arg(2));
-      }
+      _cimg_mp_func1(sigmoid,cimg::sigmoid);
+      _cimg_mp_func1(sign,cimg::sign);
+      _cimg_mp_func1(sin,std::sin);
+      _cimg_mp_func1(sinc,cimg::sinc);
+      _cimg_mp_func1(sinh,std::sinh);
 
       static double mp_size_list(_cimg_math_parser& mp) {
         return (double)mp.imglist.width();
@@ -29982,13 +29955,8 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_sqr(_cimg_math_parser& mp) {
-        return cimg::sqr(_mp_arg(2));
-      }
-
-      static double mp_sqrt(_cimg_math_parser& mp) {
-        return std::sqrt(_mp_arg(2));
-      }
+      _cimg_mp_func1(sqr,cimg::sqr);
+      _cimg_mp_func1(sqrt,cimg::sqrt);
 
       static double mp_srand(_cimg_math_parser& mp) {
         mp.rng = (cimg_uint64)_mp_arg(2);
@@ -30124,13 +30092,8 @@ namespace cimg_library {
         return _mp_arg(1);
       }
 
-      static double mp_tan(_cimg_math_parser& mp) {
-        return std::tan(_mp_arg(2));
-      }
-
-      static double mp_tanh(_cimg_math_parser& mp) {
-        return std::tanh(_mp_arg(2));
-      }
+      _cimg_mp_func1(tan,std::tan);
+      _cimg_mp_func1(tanh,std::tanh);
 
       static double mp_trace(_cimg_math_parser& mp) {
         const double *ptrs = &_mp_arg(2) + 1;
@@ -30233,9 +30196,8 @@ namespace cimg_library {
         return val<th?-1:val<2*th?0:1;
       }
 
-      static double mp_ui2f(_cimg_math_parser& mp) {
-        return (double)cimg::uint2float(_mp_arg(2),(T)0);
-      }
+      static double _mp_ui2f(const double val) { return (double)cimg::uint2float(val,(T)0); }
+      _cimg_mp_func1(ui2f,_mp_ui2f);
 
       static double mp_unitnorm(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[3];
@@ -30254,9 +30216,7 @@ namespace cimg_library {
         return val?(_mp_arg(2)?1:val):0;
       }
 
-      static double mp_uppercase(_cimg_math_parser& mp) {
-        return cimg::uppercase(_mp_arg(2));
-      }
+      _cimg_mp_func1(uppercase,cimg::uppercase);
 
       static double mp_v2s(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;

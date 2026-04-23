@@ -17907,7 +17907,11 @@ namespace cimg_library {
   while (cimg::is_blank(*s0)) ++s0; \
   cimg::strellipsize(s0,64)
 #define _cimg_mp_vector1(op,i1) _cimg_mp_return(vector1(mp_vector_##op,size(i1),i1))
-#define _cimg_mp_vector2(op,i1,i2) _cimg_mp_return(vector2(mp_vector_##op##_vv,std::max(size(i1),size(i2)),i1,i2))
+#define _cimg_mp_vector2(op,i1,i2) { \
+    const unsigned int _mp_si1 = size(i1), _mp_si2 = size(i2); \
+    _cimg_mp_return(vector2(!_mp_si1 && _mp_si2?mp_vector_##op##_sv:\
+                            _mp_si1 && !_mp_si2?mp_vector_##op##_vs:mp_vector_##op##_vv,\
+                            std::max(_mp_si1,_mp_si2),i1,i2)); }
 #define _cimg_mp_vector3_vss(op,i1,i2,i3) _cimg_mp_return(vector3_vss(mp_##op,i1,i2,i3))
 #define _cimg_mp_vector4_vsss(op,i1,i2,i3,i4) _cimg_mp_return(vector4_vsss(mp_##op,i1,i2,i3,i4))
 

@@ -24829,10 +24829,15 @@ namespace cimg_library {
               } else if (!arg1) _cimg_mp_return(scalar1(is_sth?mp_rand_int_0_N:mp_rand_double_0_N,arg2));
               _cimg_mp_return(scalar2(is_sth?mp_rand_int:mp_rand_double,arg1,arg2));
             } else { // Slower version (potentially an open set)
+              if (is_vector(arg1) || is_vector(arg2)) {
+                op = is_sth?mp_vector_rand_int_ext:mp_vector_rand_double_ext;
+                p1 = size(arg1); p2 = size(arg2); p3 = std::max(p1,p2);
+                if (p3) pos = vector(p3); else pos = scalar();
+                CImg<ulongT>::vector((ulongT)op,pos,arg1,p1,arg2,p2,arg3,arg4).move_to(code);
+                return_comp = true;
+                _cimg_mp_return(pos);
+              }
               op = is_sth?mp_rand_int_ext:mp_rand_double_ext;
-              if (is_vector(arg1) && is_vector(arg2)) _cimg_mp_return(vector4_vvss(op,arg1,arg2,arg3,arg4));
-              if (is_vector(arg1) && is_scalar(arg2)) _cimg_mp_return(vector4_vsss(op,arg1,arg2,arg3,arg4));
-              if (is_scalar(arg1) && is_vector(arg2)) _cimg_mp_return(vector4_svss(op,arg1,arg2,arg3,arg4));
               _cimg_mp_return(scalar4(op,arg1,arg2,arg3,arg4));
             }
           }
@@ -30146,16 +30151,52 @@ namespace cimg_library {
 
       static double mp_rand_double_ext(_cimg_math_parser& mp) {
         const double eps = 1e-5;
-        const bool
-          include_min = (bool)_mp_arg(4),
-          include_max = (bool)_mp_arg(5);
-        double
-          m = _mp_arg(2),
-          M = _mp_arg(3);
-        if (m>M) cimg::swap(m,M);
-        if (!include_min) m = m>0?m*(1 + eps):m<0?m*(1 - eps):eps;
-        if (!include_max) M = M>0?M*(1 - eps):M<0?M*(1 + eps):-eps;
+        const bool include_min = (bool)_mp_arg(4), include_max = (bool)_mp_arg(5);
+        double _m = _mp_arg(2), _M = _mp_arg(3);
+        if (_m>_M) cimg::swap(_m,_M);
+        const double
+          m = include_min?_m:_m>0?_m*(1 + eps):_m<0?_m*(1 - eps):eps,
+          M = include_max?_M:_M>0?_M*(1 - eps):_M<0?_M*(1 + eps):-eps;
         return m + (M - m)*(double)cimg::_rand(&mp.rng)/~0U;
+      }
+
+      static double mp_vector_rand_double_ext(_cimg_math_parser& mp) {
+        const double eps = 1e-5;
+        const unsigned int sizm = (unsigned int)mp.opcode[3], sizM = (unsigned int)mp.opcode[5];
+        const bool include_min = (bool)_mp_arg(6), include_max = (bool)_mp_arg(7);
+        double *const ptrd = &_mp_arg(1) + 1;
+        if (!sizm && sizM) { // sv
+          const double _m0 = _mp_arg(2), *const ptr1 = &_mp_arg(4) + 1;
+          for (unsigned int k = 0; k<sizM; ++k) {
+            double _m = _m0, _M = ptr1[k];
+            if (_m>_M) cimg::swap(_m,_M);
+            const double
+              m = include_min?_m:_m>0?_m*(1 + eps):_m<0?_m*(1 - eps):eps,
+              M = include_max?_M:_M>0?_M*(1 - eps):_M<0?_M*(1 + eps):-eps;
+            ptrd[k] = m + (M - m)*(double)cimg::_rand(&mp.rng)/~0U;
+          }
+        } else if (sizm && !sizM) { // vs
+          const double *const ptr0 = &_mp_arg(2) + 1, _M1 = _mp_arg(4);
+          for (unsigned int k = 0; k<sizm; ++k) {
+            double _m = ptr0[k], _M = _M1;
+            if (_m>_M) cimg::swap(_m,_M);
+            const double
+              m = include_min?_m:_m>0?_m*(1 + eps):_m<0?_m*(1 - eps):eps,
+              M = include_max?_M:_M>0?_M*(1 - eps):_M<0?_M*(1 + eps):-eps;
+            ptrd[k] = m + (M - m)*(double)cimg::_rand(&mp.rng)/~0U;
+          }
+        } else { // vv
+          const double *const ptr0 = &_mp_arg(2) + 1, *const ptr1 = &_mp_arg(4) + 1;
+          for (unsigned int k = 0; k<sizm; ++k) {
+            double _m = ptr0[k], _M = ptr1[k];
+            if (_m>_M) cimg::swap(_m,_M);
+            const double
+              m = include_min?_m:_m>0?_m*(1 + eps):_m<0?_m*(1 - eps):eps,
+              M = include_max?_M:_M>0?_M*(1 - eps):_M<0?_M*(1 + eps):-eps;
+            ptrd[k] = m + (M - m)*(double)cimg::_rand(&mp.rng)/~0U;
+          }
+        }
+        return cimg::type<double>::nan();
       }
 
       static double mp_rand_double_m1_1(_cimg_math_parser& mp) {
@@ -30195,15 +30236,51 @@ namespace cimg_library {
       _cimg_mp_func2(rand_int,mp._rand_int_m_M);
 
       static double mp_rand_int_ext(_cimg_math_parser& mp) {
-        const bool
-          include_min = (bool)_mp_arg(4),
-          include_max = (bool)_mp_arg(5);
         double _m = _mp_arg(2), _M = _mp_arg(3);
+        const bool include_min = (bool)_mp_arg(4), include_max = (bool)_mp_arg(5);
         if (_m>_M) cimg::swap(_m,_M);
         const int
           m = cimg::type<cimg_uint64>::cut(std::ceil(_m)) + (include_min?0:1),
           M = cimg::type<cimg_uint64>::cut(std::floor(_M)) - (include_max?0:1);
         return (double)(m + mp._rand_int_0_N(M - m));
+      }
+
+      static double mp_vector_rand_int_ext(_cimg_math_parser& mp) {
+        const unsigned int sizm = (unsigned int)mp.opcode[3], sizM = (unsigned int)mp.opcode[5];
+        const bool include_min = (bool)_mp_arg(6), include_max = (bool)_mp_arg(7);
+        double *const ptrd = &_mp_arg(1) + 1;
+        if (!sizm && sizM) { // svss
+          const double _m0 = _mp_arg(2), *const ptr1 = &_mp_arg(4) + 1;
+          for (unsigned int k = 0; k<sizM; ++k) {
+            double _m = _m0, _M = ptr1[k];
+            if (_m>_M) cimg::swap(_m,_M);
+            const int
+              m = cimg::type<cimg_uint64>::cut(std::ceil(_m)) + (include_min?0:1),
+              M = cimg::type<cimg_uint64>::cut(std::floor(_M)) - (include_max?0:1);
+            ptrd[k] = (double)(m + mp._rand_int_0_N(M - m));
+          }
+        } else if (sizm && !sizM) { // vsss
+          const double *const ptr0 = &_mp_arg(2) + 1, _M1 = _mp_arg(4);
+          for (unsigned int k = 0; k<sizm; ++k) {
+            double _m = ptr0[k], _M = _M1;
+            if (_m>_M) cimg::swap(_m,_M);
+            const int
+              m = cimg::type<cimg_uint64>::cut(std::ceil(_m)) + (include_min?0:1),
+              M = cimg::type<cimg_uint64>::cut(std::floor(_M)) - (include_max?0:1);
+            ptrd[k] = (double)(m + mp._rand_int_0_N(M - m));
+          }
+        } else { // vvss
+          const double *const ptr0 = &_mp_arg(2) + 1, *const ptr1 = &_mp_arg(4) + 1;
+          for (unsigned int k = 0; k<sizm; ++k) {
+            double _m = ptr0[k], _M = ptr1[k];
+            if (_m>_M) cimg::swap(_m,_M);
+            const int
+              m = cimg::type<cimg_uint64>::cut(std::ceil(_m)) + (include_min?0:1),
+              M = cimg::type<cimg_uint64>::cut(std::floor(_M)) - (include_max?0:1);
+            ptrd[k] = (double)(m + mp._rand_int_0_N(M - m));
+          }
+        }
+        return cimg::type<double>::nan();
       }
 
       static double mp_rand_int_m1_1(_cimg_math_parser& mp) {

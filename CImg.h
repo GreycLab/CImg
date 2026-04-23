@@ -17907,14 +17907,10 @@ namespace cimg_library {
   while (cimg::is_blank(*s0)) ++s0; \
   cimg::strellipsize(s0,64)
 #define _cimg_mp_vector1(op,i1) _cimg_mp_return(vector1(mp_vector_##op,size(i1),i1))
-#define _cimg_mp_vector2_sv(op,i1,i2) _cimg_mp_return(vector2_sv(mp_##op,i1,i2))
-#define _cimg_mp_vector2_vs(op,i1,i2) _cimg_mp_return(vector2_vs(mp_##op,i1,i2))
+#define _cimg_mp_vector2_sv(op,i1,i2) _cimg_mp_return(nvector2(mp_vector_##op##_vv,size(i2),i1,i2))
+#define _cimg_mp_vector2_vs(op,i1,i2) _cimg_mp_return(nvector2(mp_vector_##op##_vs,size(i1),i1,i2))
+#define _cimg_mp_vector2_vv(op,i1,i2) _cimg_mp_vector2_sv(op,i1,i2)
 
-#define _ncimg_mp_vector2_sv(op,i1,i2) _cimg_mp_return(nvector2(mp_vector_##op##_vv,size(i2),i1,i2))
-#define _ncimg_mp_vector2_vs(op,i1,i2) _cimg_mp_return(nvector2(mp_vector_##op##_vs,size(i1),i1,i2))
-#define _ncimg_mp_vector2_vv(op,i1,i2) _ncimg_mp_vector2_sv(op,i1,i2)
-
-#define _cimg_mp_vector2_vv(op,i1,i2) _cimg_mp_return(vector2_vv(mp_##op,i1,i2))
 #define _cimg_mp_vector3_vss(op,i1,i2,i3) _cimg_mp_return(vector3_vss(mp_##op,i1,i2,i3))
 #define _cimg_mp_vector4_vsss(op,i1,i2,i3,i4) _cimg_mp_return(vector4_vsss(mp_##op,i1,i2,i3,i4))
 
@@ -23683,7 +23679,10 @@ namespace cimg_library {
               arg1 = compile(ss4,s1,depth1,0,block_flags);
               arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):1;
               _cimg_mp_check_type(arg2,2,1,0);
-              if (is_vector(arg1)) _cimg_mp_return(vector2_vs(*ss2=='l'?mp_rol:mp_ror,arg1,arg2));
+              if (is_vector(arg1)) {
+                if (*ss2=='l') { _cimg_mp_vector2_vs(rol,arg1,arg2); }
+                else { _cimg_mp_vector2_vs(ror,arg1,arg2); }
+              }
               if (is_const_scalar(arg1) && is_const_scalar(arg2))
                 _cimg_mp_const_scalar(*ss2=='l'?cimg::rol(mem[arg1],(unsigned int)mem[arg2]):
                                       cimg::ror(mem[arg1],(unsigned int)mem[arg2]));
@@ -24673,7 +24672,7 @@ namespace cimg_library {
               arg1 = compile(ss5,s1,depth1,0,block_flags); // x
               arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):4; // type
               _cimg_mp_check_type(arg2,2,1,0);
-              if (is_vector(arg1)) _ncimg_mp_vector2_vs(wave,arg1,arg2);
+              if (is_vector(arg1)) _cimg_mp_vector2_vs(wave,arg1,arg2);
               if (is_const_scalar(arg1) && is_const_scalar(arg2)) // Optimize constant case
                 _cimg_mp_const_scalar(cimg::wave(mem[arg1],(unsigned int)mem[arg2]));
               _cimg_mp_scalar2(wave,arg1,arg2);
@@ -24853,16 +24852,21 @@ namespace cimg_library {
             _cimg_mp_check_type(arg3,3,1,0);
             _cimg_mp_check_type(arg4,4,1,0);
             if (arg3==1 && arg4==1) { // Fastest version (closed set)
-              op = is_sth?mp_rand_int:mp_rand_double;
-              if (is_vector(arg1) && is_vector(arg2)) _cimg_mp_return(vector2_vv(op,arg1,arg2));
-              if (is_vector(arg1) && is_scalar(arg2)) _cimg_mp_return(vector2_vs(op,arg1,arg2));
-              if (is_scalar(arg1) && is_vector(arg2)) _cimg_mp_return(vector2_sv(op,arg1,arg2));
+              if (is_vector(arg1) && is_vector(arg2)) {
+                if (is_sth) { _cimg_mp_vector2_vv(rand_int,arg1,arg2); } else { _cimg_mp_vector2_vv(rand_double,arg1,arg2); }
+              }
+              if (is_vector(arg1) && is_scalar(arg2)) {
+                if (is_sth) { _cimg_mp_vector2_vs(rand_int,arg1,arg2); } else { _cimg_mp_vector2_vs(rand_double,arg1,arg2); }
+              }
+              if (is_scalar(arg1) && is_vector(arg2)) {
+                if (is_sth) { _cimg_mp_vector2_sv(rand_int,arg1,arg2); } else { _cimg_mp_vector2_sv(rand_double,arg1,arg2); }
+              }
               if (arg1==arg2) _cimg_mp_same(arg1);
               if (arg2==1) {
                 if (!arg1) _cimg_mp_return(scalar0(is_sth?mp_rand_int_0_1:mp_rand_double_0_1));
                 if (arg1==11) _cimg_mp_return(scalar0(is_sth?mp_rand_int_m1_1:mp_rand_double_m1_1));
               } else if (!arg1) _cimg_mp_return(scalar1(is_sth?mp_rand_int_0_N:mp_rand_double_0_N,arg2));
-              _cimg_mp_return(scalar2(op,arg1,arg2));
+              _cimg_mp_return(scalar2(is_sth?mp_rand_int:mp_rand_double,arg1,arg2));
             } else { // Slower version (potentially an open set)
               op = is_sth?mp_rand_int_ext:mp_rand_double_ext;
               if (is_vector(arg1) && is_vector(arg2)) _cimg_mp_return(vector4_vvss(op,arg1,arg2,arg3,arg4));
@@ -26105,55 +26109,55 @@ namespace cimg_library {
         return pos;
       }
 
-      unsigned int vector2_vv(const mp_func op,
-                              const unsigned int arg1, const unsigned int arg2) {
-        const unsigned int
-          siz = size(arg1),
-          pos = is_comp_vector(arg1)?arg1:is_comp_vector(arg2)?arg2:
-          ((return_comp = true), vector(siz));
-        if (siz>24) CImg<ulongT>::vector((ulongT)mp_vector_map_vv,pos,2,siz,(ulongT)op,arg1,arg2).move_to(code);
-        else {
-          code.insert(siz);
-          for (unsigned int k = 1; k<=siz; ++k)
-            CImg<ulongT>::vector((ulongT)op,pos + k,arg1 + k,arg2 + k).move_to(code[code._width - 1 - siz + k]);
-        }
-        return pos;
-      }
+      // unsigned int vector2_vv(const mp_func op,
+      //                         const unsigned int arg1, const unsigned int arg2) {
+      //   const unsigned int
+      //     siz = size(arg1),
+      //     pos = is_comp_vector(arg1)?arg1:is_comp_vector(arg2)?arg2:
+      //     ((return_comp = true), vector(siz));
+      //   if (siz>24) CImg<ulongT>::vector((ulongT)mp_vector_map_vv,pos,2,siz,(ulongT)op,arg1,arg2).move_to(code);
+      //   else {
+      //     code.insert(siz);
+      //     for (unsigned int k = 1; k<=siz; ++k)
+      //       CImg<ulongT>::vector((ulongT)op,pos + k,arg1 + k,arg2 + k).move_to(code[code._width - 1 - siz + k]);
+      //   }
+      //   return pos;
+      // }
 
-      unsigned int vector2_vs(const mp_func op,
-                              const unsigned int arg1, const unsigned int arg2) {
-        const unsigned int
-          siz = size(arg1),
-          pos = is_comp_vector(arg1)?arg1:
-          ((return_comp = true), vector(siz));
-        if (siz>24) CImg<ulongT>::vector((ulongT)mp_vector_map_v,pos,2,siz,(ulongT)op,arg1,arg2).move_to(code);
-        else {
-          code.insert(siz);
-          for (unsigned int k = 1; k<=siz; ++k)
-            CImg<ulongT>::vector((ulongT)op,pos + k,arg1 + k,arg2).move_to(code[code._width - 1 - siz + k]);
-        }
-        return pos;
-      }
+      // unsigned int vector2_vs(const mp_func op,
+      //                         const unsigned int arg1, const unsigned int arg2) {
+      //   const unsigned int
+      //     siz = size(arg1),
+      //     pos = is_comp_vector(arg1)?arg1:
+      //     ((return_comp = true), vector(siz));
+      //   if (siz>24) CImg<ulongT>::vector((ulongT)mp_vector_map_v,pos,2,siz,(ulongT)op,arg1,arg2).move_to(code);
+      //   else {
+      //     code.insert(siz);
+      //     for (unsigned int k = 1; k<=siz; ++k)
+      //       CImg<ulongT>::vector((ulongT)op,pos + k,arg1 + k,arg2).move_to(code[code._width - 1 - siz + k]);
+      //   }
+      //   return pos;
+      // }
+
+      // unsigned int vector2_sv(const mp_func op,
+      //                         const unsigned int arg1, const unsigned int arg2) {
+      //   const unsigned int
+      //     siz = size(arg2),
+      //     pos = is_comp_vector(arg2)?arg2:
+      //     ((return_comp = true), vector(siz));
+      //   if (siz>24) CImg<ulongT>::vector((ulongT)mp_vector_map_sv,pos,2,siz,(ulongT)op,arg1,arg2).move_to(code);
+      //   else {
+      //     code.insert(siz);
+      //     for (unsigned int k = 1; k<=siz; ++k)
+      //       CImg<ulongT>::vector((ulongT)op,pos + k,arg1,arg2 + k).move_to(code[code._width - 1 - siz + k]);
+      //   }
+      //   return pos;
+      // }
 
       unsigned int nvector2(const mp_func op, const unsigned int siz,
                             const unsigned int arg1, const unsigned int arg2) {
         const unsigned int pos = is_comp_vector(arg1)?arg1:((return_comp = true), vector(siz));
         CImg<ulongT>::vector((ulongT)op,pos,siz,arg1,arg2).move_to(code);
-        return pos;
-      }
-
-      unsigned int vector2_sv(const mp_func op,
-                              const unsigned int arg1, const unsigned int arg2) {
-        const unsigned int
-          siz = size(arg2),
-          pos = is_comp_vector(arg2)?arg2:
-          ((return_comp = true), vector(siz));
-        if (siz>24) CImg<ulongT>::vector((ulongT)mp_vector_map_sv,pos,2,siz,(ulongT)op,arg1,arg2).move_to(code);
-        else {
-          code.insert(siz);
-          for (unsigned int k = 1; k<=siz; ++k)
-            CImg<ulongT>::vector((ulongT)op,pos + k,arg1,arg2 + k).move_to(code[code._width - 1 - siz + k]);
-        }
         return pos;
       }
 
@@ -26235,7 +26239,9 @@ namespace cimg_library {
 #define _mp_arg(x) mp.mem[mp.opcode[x]]
 
 #define _cimg_mp_func1(nm,fn) \
-      static double mp_##nm(_cimg_math_parser& mp) { return (double)(fn(_mp_arg(2))); } \
+      static double mp_##nm(_cimg_math_parser& mp) { \
+        return (double)(fn(_mp_arg(2))); \
+      } \
       static double mp_vector_##nm(_cimg_math_parser& mp) { \
         double *ptrd = &_mp_arg(1) + 1; \
         const unsigned int siz = (unsigned int)mp.opcode[2]; \
@@ -26245,13 +26251,30 @@ namespace cimg_library {
       }
 
 #define _cimg_mp_func2(nm,fn) \
-      static double mp_##nm(_cimg_math_parser& mp) { return (double)(fn(_mp_arg(2),_mp_arg(3))); } \
+      static double mp_##nm(_cimg_math_parser& mp) { \
+        return (double)(fn(_mp_arg(2),_mp_arg(3))); \
+      } \
+      static double mp_vector_##nm##_sv(_cimg_math_parser& mp) { \
+        double *const ptrd = &_mp_arg(1) + 1; \
+        const unsigned int siz = (unsigned int)mp.opcode[2]; \
+        const double arg0 = _mp_arg(3); \
+        const double *const ptr1 = &_mp_arg(4) + 1; \
+        for (unsigned int k = 0; k<siz; ++k) { ptrd[k] = (double)(fn(arg0,ptr1[k])); } \
+        return cimg::type<double>::nan(); \
+      } \
       static double mp_vector_##nm##_vs(_cimg_math_parser& mp) { \
-        double *ptrd = &_mp_arg(1) + 1; \
-        const double *ptrs = &_mp_arg(2) + 1; \
-        const unsigned int siz = (unsigned int)mp.opcode[3]; \
-        const double val = _mp_arg(4); \
-        for (unsigned int k = 0; k<siz; ++k) { ptrd[k] = (double)(fn(ptrs[k],val)); } \
+        double *const ptrd = &_mp_arg(1) + 1; \
+        const unsigned int siz = (unsigned int)mp.opcode[2]; \
+        const double *const ptr0 = &_mp_arg(3) + 1; \
+        const double arg1 = _mp_arg(4); \
+        for (unsigned int k = 0; k<siz; ++k) { ptrd[k] = (double)(fn(ptr0[k],arg1)); } \
+        return cimg::type<double>::nan(); \
+      } \
+      static double mp_vector_##nm##_vv(_cimg_math_parser& mp) { \
+        double *const ptrd = &_mp_arg(1) + 1; \
+        const unsigned int siz = (unsigned int)mp.opcode[2]; \
+        const double *const ptr0 = &_mp_arg(3) + 1, *const ptr1 = &_mp_arg(4) + 1; \
+        for (unsigned int k = 0; k<siz; ++k) { ptrd[k] = (double)(fn(ptr0[k],ptr1[k])); } \
         return cimg::type<double>::nan(); \
       }
 
@@ -26282,9 +26305,10 @@ namespace cimg_library {
       _cimg_mp_func1(acos,std::acos);
       _cimg_mp_func1(acosh,std::acosh);
 
-      static double mp_add(_cimg_math_parser& mp) {
-        return _mp_arg(2) + _mp_arg(3);
+      static double _mp_add(const double arg0, const double arg1) {
+        return arg0 + arg1;
       }
+      _cimg_mp_func2(add,_mp_add);
 
       static double mp_add_add(_cimg_math_parser& mp) {
         return _mp_arg(2) + _mp_arg(3) + _mp_arg(4);
@@ -26451,7 +26475,11 @@ namespace cimg_library {
       _cimg_mp_func1(asinh,std::asinh);
       _cimg_mp_func1(atan,std::atan);
 
-      static double mp_atan2(_cimg_math_parser& mp) { return std::atan2(_mp_arg(2),_mp_arg(3)); }
+      static double _mp_atan2(const double arg0, const double arg1) {
+        return std::atan2(arg0,arg1);
+      }
+      _cimg_mp_func2(atan2,_mp_atan2);
+
       _cimg_mp_func1(atanh,std::atanh);
 
       static double mp_avg(_cimg_math_parser& mp) {
@@ -26473,27 +26501,32 @@ namespace cimg_library {
         return (_mp_arg(2) + _mp_arg(3))/2;
       }
 
-      static double mp_bitwise_and(_cimg_math_parser& mp) {
-        return (double)((longT)_mp_arg(2) & (longT)_mp_arg(3));
+      static double _mp_bitwise_and(const double arg0, const double arg1) {
+        return (double)((longT)arg0 & (longT)arg1);
       }
+      _cimg_mp_func2(bitwise_and,_mp_bitwise_and);
 
-      static double mp_bitwise_left_shift(_cimg_math_parser& mp) {
-        return (double)((longT)_mp_arg(2)<<(unsigned int)_mp_arg(3));
+      static double _mp_bitwise_left_shift(const double arg0, const double arg1) {
+        return (double)((longT)arg0<<(unsigned int)arg1);
       }
+      _cimg_mp_func2(bitwise_left_shift,_mp_bitwise_left_shift);
 
       _cimg_mp_func1(bitwise_not,~(unsigned int));
 
-      static double mp_bitwise_or(_cimg_math_parser& mp) {
-        return (double)((longT)_mp_arg(2) | (longT)_mp_arg(3));
+      static double _mp_bitwise_or(const double arg0, const double arg1) {
+        return (double)((longT)arg0 | (longT)arg1);
       }
+      _cimg_mp_func2(bitwise_or,_mp_bitwise_or);
 
-      static double mp_bitwise_right_shift(_cimg_math_parser& mp) {
-        return (double)((longT)_mp_arg(2)>>(unsigned int)_mp_arg(3));
+      static double _mp_bitwise_right_shift(const double arg0, const double arg1) {
+        return (double)((longT)arg0>>(unsigned int)arg1);
       }
+      _cimg_mp_func2(bitwise_right_shift,_mp_bitwise_right_shift);
 
-      static double mp_bitwise_xor(_cimg_math_parser& mp) {
-        return (double)((longT)_mp_arg(2) ^ (longT)_mp_arg(3));
+      static double _mp_bitwise_xor(const double arg0, const double arg1) {
+        return (double)((longT)arg0 ^ (longT)arg1);
       }
+      _cimg_mp_func2(bitwise_xor,_mp_bitwise_xor);
 
       _cimg_mp_func1(bool,(bool));
 
@@ -27297,9 +27330,10 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_div(_cimg_math_parser& mp) {
-        return _mp_arg(2)/_mp_arg(3);
+      static double _mp_div(const double arg0, const double arg1) {
+        return arg0/arg1;
       }
+      _cimg_mp_func2(div,_mp_div);
 
       static double mp_div_add(_cimg_math_parser& mp) {
         return _mp_arg(2)/_mp_arg(3) + _mp_arg(4);
@@ -27791,13 +27825,15 @@ namespace cimg_library {
       static double mp_get(_cimg_math_parser& mp) { cimg::unused(mp); return cimg::type<double>::nan(); }
 #endif
 
-      static double mp_gt(_cimg_math_parser& mp) {
-        return (double)(_mp_arg(2)>_mp_arg(3));
+      static double _mp_gt(const double arg0, const double arg1) {
+        return (double)(arg0>arg1);
       }
+      _cimg_mp_func2(gt,_mp_gt);
 
-      static double mp_gte(_cimg_math_parser& mp) {
-        return (double)(_mp_arg(2)>=_mp_arg(3));
+      static double _mp_gte(const double arg0, const double arg1) {
+        return (double)(arg0>=arg1);
       }
+      _cimg_mp_func2(gte,_mp_gte);
 
       static double mp_histogram(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
@@ -28628,7 +28664,7 @@ namespace cimg_library {
 
       _cimg_mp_func1(int,(longT));
 
-      static double _mp_isbool(const double val) { return val==0. || val==1.; }
+      static double _mp_isbool(const double arg0) { return arg0==0. || arg0==1.; }
       _cimg_mp_func1(isbool,_mp_isbool);
 
       static double mp_isdir(_cimg_math_parser& mp) {
@@ -28787,13 +28823,15 @@ namespace cimg_library {
       _cimg_mp_func1(logit,cimg::logit);
       _cimg_mp_func1(lowercase,cimg::lowercase);
 
-      static double mp_lt(_cimg_math_parser& mp) {
-        return (double)(_mp_arg(2)<_mp_arg(3));
+      static double _mp_lt(const double arg0, const double arg1) {
+        return (double)(arg0<arg1);
       }
+      _cimg_mp_func2(lt,_mp_lt);
 
-      static double mp_lte(_cimg_math_parser& mp) {
-        return (double)(_mp_arg(2)<=_mp_arg(3));
+      static double _mp_lte(const double arg0, const double arg1) {
+        return (double)(arg0<=arg1);
       }
+      _cimg_mp_func2(lte,_mp_lte);
 
       static double mp_map(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1);
@@ -29159,9 +29197,10 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_modulo(_cimg_math_parser& mp) {
-        return cimg::mod(_mp_arg(2),_mp_arg(3));
+      static double _mp_modulo(const double arg0, const double arg1) {
+        return cimg::mod(arg0,arg1);
       }
+      _cimg_mp_func2(modulo,_mp_modulo);
 
       static double mp_mproj(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
@@ -29192,9 +29231,10 @@ namespace cimg_library {
           MSE(CImg<doubleT>(&_mp_arg(3) + off,1,siz,1,1,true));
       }
 
-      static double mp_mul(_cimg_math_parser& mp) {
-        return _mp_arg(2)*_mp_arg(3);
+      static double _mp_mul(const double arg0, const double arg1) {
+        return arg0*arg1;
       }
+      _cimg_mp_func2(mul,_mp_mul);
 
       static double mp_mul_div(_cimg_math_parser& mp) {
         return _mp_arg(2)*_mp_arg(3)/_mp_arg(4);
@@ -29419,10 +29459,10 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_pow(_cimg_math_parser& mp) {
-        const double v = _mp_arg(2), p = _mp_arg(3);
-        return std::pow(v,p);
+      static double _mp_pow(const double arg0, const double arg1) {
+        return std::pow(arg0,arg1);
       }
+      _cimg_mp_func2(pow,_mp_pow);
 
       static double mp_pow0_25(_cimg_math_parser& mp) {
         const double val = _mp_arg(2);
@@ -29529,13 +29569,15 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_rol(_cimg_math_parser& mp) {
-        return cimg::rol(_mp_arg(2),(unsigned int)_mp_arg(3));
+      static double _mp_rol(const double arg0, const double arg1) {
+        return cimg::rol(arg0,(unsigned int)arg1);
       }
+      _cimg_mp_func2(rol,_mp_rol);
 
-      static double mp_ror(_cimg_math_parser& mp) {
-        return cimg::ror(_mp_arg(2),(unsigned int)_mp_arg(3));
+      static double _mp_ror(const double arg0, const double arg1) {
+        return cimg::ror(arg0,(unsigned int)arg1);
       }
+      _cimg_mp_func2(ror,_mp_ror);
 
       static double mp_rot2d(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
@@ -30058,9 +30100,10 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_sub(_cimg_math_parser& mp) {
-        return _mp_arg(2) - _mp_arg(3);
+      static double _mp_sub(const double arg0, const double arg1) {
+        return arg0 - arg1;
       }
+      _cimg_mp_func2(sub,_mp_sub);
 
       static double mp_sub_div(_cimg_math_parser& mp) {
         return _mp_arg(2) - _mp_arg(3)/_mp_arg(4);
@@ -30122,9 +30165,10 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_rand_double(_cimg_math_parser& mp) {
-        return cimg::rand(_mp_arg(2),_mp_arg(3),&mp.rng);
+      double _mp_rand_double(const double arg0, const double arg1) {
+        return cimg::rand(arg0,arg1,&rng);
       }
+      _cimg_mp_func2(rand_double,mp._mp_rand_double);
 
       static double mp_rand_double_0_1(_cimg_math_parser& mp) {
         return (double)cimg::_rand(&mp.rng)/~0U;
@@ -30156,25 +30200,26 @@ namespace cimg_library {
         return cimg::grand(&mp.rng);
       }
 
-      static double _mp_rand_int(_cimg_math_parser& mp, const double delta) {
-        if (delta>=cimg::type<cimg_uint64>::max()) return cimg::round(cimg::rand(0,delta,&mp.rng));
+      double __mp_rand_int(const double delta) {
+        if (delta>=cimg::type<cimg_uint64>::max()) return cimg::round(cimg::rand(0,delta,&rng));
         const cimg_uint64 _delta = (cimg_uint64)delta;
         if (!_delta) return 0;
         cimg_uint64 val = 0;
-        do { val = (cimg_uint64)std::floor(cimg::rand(_delta + 1,&mp.rng)); } while (val>_delta);
+        do { val = (cimg_uint64)std::floor(cimg::rand(_delta + 1,rng)); } while (val>_delta);
         return val;
       }
 
-      static double mp_rand_int(_cimg_math_parser& mp) {
+      double _mp_rand_int(const double arg0, const double arg1) {
         double
-          _m = _mp_arg(2),
-          _M = _mp_arg(3);
+          _m = arg0,
+          _M = arg1;
         if (_m>_M) cimg::swap(_m,_M);
         const double
           m = cimg::type<cimg_int64>::cut(std::ceil(_m)),
           M = cimg::type<cimg_int64>::cut(std::floor(_M));
-        return (double)m + _mp_rand_int(mp,M - m);
+        return (double)m + __mp_rand_int(M - m);
       }
+      _cimg_mp_func2(rand_int,mp._mp_rand_int);
 
       static double mp_rand_int_0_1(_cimg_math_parser& mp) {
         return cimg::_rand(&mp.rng)<(~0U>>1);
@@ -30183,7 +30228,7 @@ namespace cimg_library {
       static double mp_rand_int_0_N(_cimg_math_parser& mp) {
         const double _M = _mp_arg(2);
         const int sgn = _M>=0?1:-1;
-        return sgn*_mp_rand_int(mp,_M*sgn);
+        return sgn*mp._mp_rand_int(0,_M*sgn);
       }
 
       static double mp_rand_int_ext(_cimg_math_parser& mp) {
@@ -30197,7 +30242,7 @@ namespace cimg_library {
         const int
           m = cimg::type<cimg_uint64>::cut(std::ceil(_m)) + (include_min?0:1),
           M = cimg::type<cimg_uint64>::cut(std::floor(_M)) - (include_max?0:1);
-        return (double)m + _mp_rand_int(mp,M - m);
+        return (double)m + mp._mp_rand_int(0,M - m);
       }
 
       static double mp_rand_int_m1_1(_cimg_math_parser& mp) {
@@ -30207,7 +30252,7 @@ namespace cimg_library {
         return val<th?-1:val<2*th?0:1;
       }
 
-      static double _mp_ui2f(const double val) { return (double)cimg::uint2float(val,(T)0); }
+      static double _mp_ui2f(const double arg0) { return (double)cimg::uint2float(arg0,(T)0); }
       _cimg_mp_func1(ui2f,_mp_ui2f);
 
       static double mp_unitnorm(_cimg_math_parser& mp) {

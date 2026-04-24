@@ -18977,8 +18977,8 @@ namespace cimg_library {
             }
 
             // Apply operator on a copy to prevent modifying a constant or a variable.
-            if (*ref && (is_const_scalar(arg1) || is_vector(arg1) || is_reserved(arg1)))
-              arg1 = copy(arg1);
+            // if (*ref && (is_const_scalar(arg1) || is_vector(arg1) || is_reserved(arg1)))
+            //   arg1 = copy(arg1);
 
             if (*ref==1) { // Vector value (scalar): V[k] += scalar
               _cimg_mp_check_type(arg2,2,1,0);
@@ -19728,8 +19728,8 @@ namespace cimg_library {
             compile(ss,se2,depth1,ref,block_flags); // Variable slot
 
           // Apply operator on a copy to prevent modifying a constant or a variable.
-          if (*ref && (is_const_scalar(arg1) || is_vector(arg1) || is_reserved(arg1)))
-            arg1 = copy(arg1);
+          //  if (*ref && (is_const_scalar(arg1) || is_vector(arg1) || is_reserved(arg1)))
+          //    arg1 = copy(arg1);
 
           pos = is_sth?arg1:copy(arg1); // Determine return index, depending on pre/post action
 

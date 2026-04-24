@@ -18404,8 +18404,7 @@ namespace cimg_library {
                   p_ref[1] = p1;
                   p_ref[2] = (unsigned int)is_relative;
                   p_ref[3] = arg1;
-                  if (is_vector(arg2))
-                    set_reserved_vector(arg2); // Prevent from being used in further optimization
+                  if (is_vector(arg2)) set_reserved_vector(arg2); // Prevent from being used in further optimization
                   else if (is_comp_scalar(arg2)) memtype[arg2] = -1;
                   if (is_comp_scalar(arg1)) memtype[arg1] = -1;
                 }
@@ -18481,8 +18480,7 @@ namespace cimg_library {
                   p_ref[4] = arg2;
                   p_ref[5] = arg3;
                   p_ref[6] = arg4;
-                  if (is_vector(arg5))
-                    set_reserved_vector(arg5); // Prevent from being used in further optimization
+                  if (is_vector(arg5)) set_reserved_vector(arg5); // Prevent from being used in further optimization
                   else if (is_comp_scalar(arg5)) memtype[arg5] = -1;
                   if (p1!=~0U && is_comp_scalar(p1)) memtype[p1] = -1;
                   if (is_comp_scalar(arg1)) memtype[arg1] = -1;

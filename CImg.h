@@ -26242,14 +26242,14 @@ namespace cimg_library {
         double &arg0 = _mp_arg(1); const double arg1 = _mp_arg(2); \
         return arg0 = (double)(fn); \
       } \
-      static double mp_self_vector_##nm##_vs(_cimg_math_parser& mp) { \
+      static double mp_self_vector_##nm##_s(_cimg_math_parser& mp) { \
         double *const ptr0 = &_mp_arg(1) + 1; \
         const unsigned int siz = (unsigned int)mp.opcode[2]; \
         const double arg1 = _mp_arg(3); \
         for (unsigned int k = 0; k<siz; ++k) { double &arg0 = ptr0[k]; arg0 = (double)(fn); } \
         return cimg::type<double>::nan(); \
       } \
-      static double mp_self_vector_##nm##_vv(_cimg_math_parser& mp) { \
+      static double mp_self_vector_##nm##_v(_cimg_math_parser& mp) { \
         double *const ptr0 = &_mp_arg(1) + 1, *const ptr1 = &_mp_arg(3) + 1; \
         const unsigned int siz = (unsigned int)mp.opcode[2]; \
         for (unsigned int k = 0; k<siz; ++k) { \
@@ -27197,13 +27197,13 @@ namespace cimg_library {
             _mp_debug(s2v) _mp_debug(self_add) _mp_debug(self_bitwise_and) _mp_debug(self_bitwise_left_shift)
             _mp_debug(self_bitwise_or) _mp_debug(self_bitwise_right_shift) _mp_debug(self_decrement) _mp_debug(self_div)
             _mp_debug(self_increment) _mp_debug(self_modulo) _mp_debug(self_mul) _mp_debug(self_pow) _mp_debug(self_sub)
-            _mp_debug(self_vector_bitwise_left_shift_vs) _mp_debug(self_vector_bitwise_left_shift_vv)
-            _mp_debug(self_vector_bitwise_or_vs) _mp_debug(self_vector_bitwise_or_vv)
-            _mp_debug(self_vector_bitwise_right_shift_vs) _mp_debug(self_vector_bitwise_right_shift_vv)
-            _mp_debug(self_vector_decrement) _mp_debug(self_vector_div_vs) _mp_debug(self_vector_div_vv)
-            _mp_debug(self_vector_increment) _mp_debug(self_vector_modulo_vs) _mp_debug(self_vector_modulo_vv)
-            _mp_debug(self_vector_mul_vs) _mp_debug(self_vector_mul_vv) _mp_debug(self_vector_pow_vs)
-            _mp_debug(self_vector_pow_vv) _mp_debug(self_vector_sub_vs) _mp_debug(self_vector_sub_vv)
+            _mp_debug(self_vector_bitwise_left_shift_s) _mp_debug(self_vector_bitwise_left_shift_v)
+            _mp_debug(self_vector_bitwise_or_s) _mp_debug(self_vector_bitwise_or_v)
+            _mp_debug(self_vector_bitwise_right_shift_s) _mp_debug(self_vector_bitwise_right_shift_v)
+            _mp_debug(self_vector_decrement) _mp_debug(self_vector_div_s) _mp_debug(self_vector_div_v)
+            _mp_debug(self_vector_increment) _mp_debug(self_vector_modulo_s) _mp_debug(self_vector_modulo_v)
+            _mp_debug(self_vector_mul_s) _mp_debug(self_vector_mul_v) _mp_debug(self_vector_pow_s)
+            _mp_debug(self_vector_pow_v) _mp_debug(self_vector_sub_s) _mp_debug(self_vector_sub_v)
             _mp_debug(set) _mp_debug(set) _mp_debug(set_ijoff) _mp_debug(set_IJoff_s) _mp_debug(set_IJoff_v)
             _mp_debug(set_IJxyz_s) _mp_debug(set_IJxyz_v) _mp_debug(set_ijxyzc) _mp_debug(sigmoid) _mp_debug(sign)
             _mp_debug(sin) _mp_debug(sinc) _mp_debug(sinh) _mp_debug(size_list) _mp_debug(softargmax)

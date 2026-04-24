@@ -26222,6 +26222,47 @@ namespace cimg_library {
       _cimg_mp_func2(rand_int,mp._rand_int_m_M(arg0,arg1));
       _cimg_mp_func2(wave,cimg::wave(arg0,(unsigned int)arg1));
 
+
+      static double mp_self_decrement(_cimg_math_parser& mp) {
+        return --_mp_arg(1);
+      }
+
+      static double mp_self_increment(_cimg_math_parser& mp) {
+        return ++_mp_arg(1);
+      }
+
+#define _cimg_mp_self_func1(nm,fn) \
+      static double mp_self_##nm(_cimg_math_parser& mp) { \
+        double &arg0 = _mp_arg(1); const double arg1 = _mp_arg(2); \
+        return arg0 = (double)(fn); \
+      } \
+      static double mp_self_vector_##nm##_vs(_cimg_math_parser& mp) { \
+        double *const ptr0 = &_mp_arg(1) + 1; \
+        const unsigned int siz = (unsigned int)mp.opcode[2]; \
+        const double arg1 = _mp_arg(3); \
+        for (unsigned int k = 0; k<siz; ++k) { double &arg0 = ptr0[k]; arg0 = (double)(fn); } \
+        return cimg::type<double>::nan(); \
+      } \
+      static double mp_self_vector_##nm##_vv(_cimg_math_parser& mp) { \
+        double *const ptr0 = &_mp_arg(1) + 1, *const ptr1 = &_mp_arg(3) + 1; \
+        const unsigned int siz = (unsigned int)mp.opcode[2]; \
+        for (unsigned int k = 0; k<siz; ++k) { \
+          double &arg0 = ptr0[k]; const double arg1 = ptr1[k]; arg0 = (double)(fn); \
+        } \
+        return cimg::type<double>::nan(); \
+      }
+
+      _cimg_mp_self_func1(add,arg0 + arg1);
+      _cimg_mp_self_func1(bitwise_and,(longT)arg0 & (longT)arg1);
+      _cimg_mp_self_func1(bitwise_left_shift,(longT)arg0<<(unsigned int)arg1);
+      _cimg_mp_self_func1(bitwise_or,(longT)arg0 | (longT)arg1);
+      _cimg_mp_self_func1(bitwise_right_shift,(longT)arg0>>(unsigned int)arg1);
+      _cimg_mp_self_func1(div,arg0/arg1);
+      _cimg_mp_self_func1(modulo,cimg::mod(arg0,arg1));
+      _cimg_mp_self_func1(mul,arg0*arg1);
+      _cimg_mp_self_func1(pow,std::pow(arg0,arg1));
+      _cimg_mp_self_func1(sub,arg0 - arg1);
+
 #ifdef cimg_mp_func_abort
       static double mp_abort(_cimg_math_parser& mp) {
         cimg::unused(mp);
@@ -29531,42 +29572,6 @@ namespace cimg_library {
         return val;
       }
 
-      static double mp_self_add(_cimg_math_parser& mp) {
-        return _mp_arg(1)+=_mp_arg(2);
-      }
-
-      static double mp_self_bitwise_and(_cimg_math_parser& mp) {
-        double &val = _mp_arg(1);
-        return val = (double)((longT)val & (longT)_mp_arg(2));
-      }
-
-      static double mp_self_bitwise_left_shift(_cimg_math_parser& mp) {
-        double &val = _mp_arg(1);
-        return val = (double)((longT)val<<(unsigned int)_mp_arg(2));
-      }
-
-      static double mp_self_bitwise_or(_cimg_math_parser& mp) {
-        double &val = _mp_arg(1);
-        return val = (double)((longT)val | (longT)_mp_arg(2));
-      }
-
-      static double mp_self_bitwise_right_shift(_cimg_math_parser& mp) {
-        double &val = _mp_arg(1);
-        return val = (double)((longT)val>>(unsigned int)_mp_arg(2));
-      }
-
-      static double mp_self_decrement(_cimg_math_parser& mp) {
-        return --_mp_arg(1);
-      }
-
-      static double mp_self_div(_cimg_math_parser& mp) {
-        return _mp_arg(1)/=_mp_arg(2);
-      }
-
-      static double mp_self_increment(_cimg_math_parser& mp) {
-        return ++_mp_arg(1);
-      }
-
       static double mp_self_map_vector_s(_cimg_math_parser& mp) { // Vector += scalar
         unsigned int
           ptrd = (unsigned int)mp.opcode[1] + 1,
@@ -29595,24 +29600,6 @@ namespace cimg_library {
         while (siz-->0) { target = ptrd++; argument = ptrs++; (*op)(mp); }
         l_opcode.swap(mp.opcode);
         return cimg::type<double>::nan();
-      }
-
-      static double mp_self_mul(_cimg_math_parser& mp) {
-        return _mp_arg(1)*=_mp_arg(2);
-      }
-
-      static double mp_self_modulo(_cimg_math_parser& mp) {
-        double &val = _mp_arg(1);
-        return val = cimg::mod(val,_mp_arg(2));
-      }
-
-      static double mp_self_pow(_cimg_math_parser& mp) {
-        double &val = _mp_arg(1);
-        return val = std::pow(val,_mp_arg(2));
-      }
-
-      static double mp_self_sub(_cimg_math_parser& mp) {
-        return _mp_arg(1)-=_mp_arg(2);
       }
 
 #ifdef cimg_mp_func_set

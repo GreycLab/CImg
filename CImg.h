@@ -17913,6 +17913,7 @@ namespace cimg_library {
                             _mp_si1 && !_mp_si2?mp_vector_##op##_vs:mp_vector_##op##_vv,\
                             std::max(_mp_si1,_mp_si2),i1,i2)); }
 #define _cimg_mp_vector3(op,i1,i2,i3) _cimg_mp_return(vector3(mp_vector_##op,size(i1),i1,i2,i3))
+#define _cimg_mp_self_vector(op,i1,i2) CImg<ulongT>::vector((ulongT)mp_self_vector_##op,i1,size(i1),i2).move_to(code)
 
       // Constructors / Destructors.
       ~_cimg_math_parser() {
@@ -18869,8 +18870,8 @@ namespace cimg_library {
                 CImg<ulongT>::vector((ulongT)mp_complex_pow_vv,arg1,arg1,arg2).move_to(code);
             } else { // Complex **= scalar
               if (arg2==1) _cimg_mp_return(arg1);
-              if (*ps=='*') self_vector_s(arg1,mp_self_mul,arg2);
-              else if (*ps=='/') self_vector_s(arg1,mp_self_div,arg2);
+              if (*ps=='*') _cimg_mp_self_vector(mul_s,arg1,arg2);
+              else if (*ps=='/') _cimg_mp_self_vector(div_s,arg1,arg2);
               else if (arg2==2) CImg<ulongT>::vector((ulongT)mp_complex_sqr,arg1,arg1 + 1,arg1 + 2).move_to(code);
               else CImg<ulongT>::vector((ulongT)mp_complex_pow_vs,arg1,arg1,arg2).move_to(code);
             }

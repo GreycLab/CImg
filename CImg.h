@@ -18914,7 +18914,7 @@ namespace cimg_library {
             switch (*ps) {
             case '+' :
               op = mp_self_add;
-              op_s = mp_self_vector_add_s; op_v = mp_self_vector_add_s;
+              op_s = mp_self_vector_add_s; op_v = mp_self_vector_add_v;
               _cimg_mp_op("Operator '+='");
               break;
             case '-' :

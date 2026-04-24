@@ -26222,14 +26222,20 @@ namespace cimg_library {
       _cimg_mp_func2(rand_int,mp._rand_int_m_M(arg0,arg1));
       _cimg_mp_func2(wave,cimg::wave(arg0,(unsigned int)arg1));
 
-
-      static double mp_self_decrement(_cimg_math_parser& mp) {
-        return --_mp_arg(1);
+#define _cimg_mp_self_func0(nm,fn) \
+      static double mp_self_##nm(_cimg_math_parser& mp) { \
+        double &arg0 = _mp_arg(1); \
+        return (double)(fn); \
+      } \
+      static double mp_self_vector_##nm(_cimg_math_parser& mp) { \
+        double *const ptr0 = &_mp_arg(1) + 1; \
+        const unsigned int siz = (unsigned int)mp.opcode[2]; \
+        for (unsigned int k = 0; k<siz; ++k) { double &arg0 = ptr0[k]; fn; } \
+        return cimg::type<double>::nan(); \
       }
 
-      static double mp_self_increment(_cimg_math_parser& mp) {
-        return ++_mp_arg(1);
-      }
+      _cimg_mp_self_func0(decrement,--arg0);
+      _cimg_mp_self_func0(increment,++arg0);
 
 #define _cimg_mp_self_func1(nm,fn) \
       static double mp_self_##nm(_cimg_math_parser& mp) { \

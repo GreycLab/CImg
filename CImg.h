@@ -24824,6 +24824,32 @@ namespace cimg_library {
             break;
 
           case 'x' :
+            if (*ss1=='m' && *ss2=='(') { // Image x-coordinate of minimum value
+              _cimg_mp_op("Function 'xm()'");
+              if (*ss3=='#') { // Index specified
+                p1 = compile(ss4,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,ss4);
+                _cimg_mp_check_list();
+              } else { if (ss3!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_image_stats_xm,pos,p1).move_to(code);
+              return_comp = true;
+              _cimg_mp_return(pos);
+            }
+
+            if (*ss1=='M' && *ss2=='(') { // Image x-coordinate of maximum value
+              _cimg_mp_op("Function 'xM()'");
+              if (*ss3=='#') { // Index specified
+                p1 = compile(ss4,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,ss4);
+                _cimg_mp_check_list();
+              } else { if (ss3!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_image_stats_xM,pos,p1).move_to(code);
+              return_comp = true;
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"xor(",4)) { // Xor
               _cimg_mp_op("Function 'xor()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -27280,6 +27306,7 @@ namespace cimg_library {
             _mp_debug(image_stats_id) _mp_debug(image_stats_id_static) _mp_debug(image_stats_im)
             _mp_debug(image_stats_iM) _mp_debug(image_stats_in) _mp_debug(image_stats_in_static)
             _mp_debug(image_stats_ip) _mp_debug(image_stats_is) _mp_debug(image_stats_static)
+            _mp_debug(image_stats_xm) _mp_debug(image_stats_xM)
             _mp_debug(image_swap) _mp_debug(image_wh) _mp_debug(image_whd)
             _mp_debug(image_whds) _mp_debug(image_width) _mp_debug(increment) _mp_debug(index) _mp_debug(indexof)
             _mp_debug(inrange) _mp_debug(int) _mp_debug(isbool) _mp_debug(isdir) _mp_debug(isfile) _mp_debug(isfinite)
@@ -28613,6 +28640,30 @@ namespace cimg_library {
           cimg::mutex(13,0);
         }
         return mp.list_stats[ind].is_empty()?cimg::type<double>::nan():mp.list_stats(ind,k);
+      }
+
+      static double mp_image_stats_xm(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) {
+          if (!mp.imglist.width()) return cimg::type<double>::nan();
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        }
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        int x;
+        img.contains(img.min(),x);
+        return (double)x;
+      }
+
+      static double mp_image_stats_xM(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) {
+          if (!mp.imglist.width()) return cimg::type<double>::nan();
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        }
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        int x;
+        img.contains(img.max(),x);
+        return (double)x;
       }
 
       static double mp_image_swap(_cimg_math_parser& mp) {

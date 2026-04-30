@@ -20757,6 +20757,32 @@ namespace cimg_library {
               _cimg_mp_return(pos);
             }
 
+            if (*ss1=='m' && *ss2=='(') { // Image c-coordinate of minimum value
+              _cimg_mp_op("Function 'cm()'");
+              if (*ss3=='#') { // Index specified
+                p1 = compile(ss4,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,ss4);
+                _cimg_mp_check_list();
+              } else { if (ss3!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_image_stats_cm,pos,p1).move_to(code);
+              return_comp = true;
+              _cimg_mp_return(pos);
+            }
+
+            if (*ss1=='M' && *ss2=='(') { // Image c-coordinate of maximum value
+              _cimg_mp_op("Function 'cM()'");
+              if (*ss3=='#') { // Index specified
+                p1 = compile(ss4,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,ss4);
+                _cimg_mp_check_list();
+              } else { if (ss3!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_image_stats_cM,pos,p1).move_to(code);
+              return_comp = true;
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"continue(",9)) { // Continue loop
               if (pexpr[se2 - expr._data]=='(') { // no arguments?
                 CImg<ulongT>::vector((ulongT)mp_continue,_cimg_mp_slot_nan).move_to(code);
@@ -27357,22 +27383,21 @@ namespace cimg_library {
             _mp_debug(ijxyzc3) _mp_debug(image_crop) _mp_debug(image_depth) _mp_debug(image_display)
             _mp_debug(image_draw) _mp_debug(image_find) _mp_debug(image_find_seq) _mp_debug(image_height)
             _mp_debug(image_is_shared) _mp_debug(image_print) _mp_debug(image_resize) _mp_debug(image_shift)
-            _mp_debug(image_shift_ip) _mp_debug(image_spectrum)
-            _mp_debug(image_stats) _mp_debug(image_stats_ia) _mp_debug(image_stats_ic) _mp_debug(image_stats_ic_static)
-            _mp_debug(image_stats_id) _mp_debug(image_stats_id_static) _mp_debug(image_stats_im)
-            _mp_debug(image_stats_iM) _mp_debug(image_stats_in) _mp_debug(image_stats_in_static)
-            _mp_debug(image_stats_ip) _mp_debug(image_stats_is) _mp_debug(image_stats_static)
-            _mp_debug(image_stats_xm) _mp_debug(image_stats_xM) _mp_debug(image_stats_ym) _mp_debug(image_stats_yM)
-            _mp_debug(image_stats_zm) _mp_debug(image_stats_zM)
-            _mp_debug(image_swap) _mp_debug(image_wh) _mp_debug(image_whd)
-            _mp_debug(image_whds) _mp_debug(image_width) _mp_debug(increment) _mp_debug(index) _mp_debug(indexof)
-            _mp_debug(inrange) _mp_debug(int) _mp_debug(isbool) _mp_debug(isdir) _mp_debug(isfile) _mp_debug(isfinite)
-            _mp_debug(isin) _mp_debug(isinf) _mp_debug(isint) _mp_debug(isnan) _mp_debug(isvarname) _mp_debug(kth)
-            _mp_debug(lcm) _mp_debug(lcm2) _mp_debug(lerp) _mp_debug(log) _mp_debug(log10) _mp_debug(log2)
-            _mp_debug(logical_and) _mp_debug(logical_not) _mp_debug(logical_or) _mp_debug(logit) _mp_debug(lowercase)
-            _mp_debug(lt) _mp_debug(lte) _mp_debug(map) _mp_debug(matrix_eigen) _mp_debug(matrix_invert)
-            _mp_debug(matrix_mul) _mp_debug(matrix_qr) _mp_debug(matrix_svd) _mp_debug(max) _mp_debug(max2)
-            _mp_debug(maxabs) _mp_debug(maxabs2) _mp_debug(med) _mp_debug(med2) _mp_debug(mem_copy)
+            _mp_debug(image_shift_ip) _mp_debug(image_spectrum) _mp_debug(image_stats) _mp_debug(image_stats_cm)
+            _mp_debug(image_stats_cM) _mp_debug(image_stats_ia) _mp_debug(image_stats_ic)
+            _mp_debug(image_stats_ic_static) _mp_debug(image_stats_id) _mp_debug(image_stats_id_static)
+            _mp_debug(image_stats_im) _mp_debug(image_stats_iM) _mp_debug(image_stats_in)
+            _mp_debug(image_stats_in_static) _mp_debug(image_stats_ip) _mp_debug(image_stats_is)
+            _mp_debug(image_stats_static) _mp_debug(image_stats_xm) _mp_debug(image_stats_xM) _mp_debug(image_stats_ym)
+            _mp_debug(image_stats_yM) _mp_debug(image_stats_zm) _mp_debug(image_stats_zM) _mp_debug(image_swap)
+            _mp_debug(image_wh) _mp_debug(image_whd) _mp_debug(image_whds) _mp_debug(image_width) _mp_debug(increment)
+            _mp_debug(index) _mp_debug(indexof) _mp_debug(inrange) _mp_debug(int) _mp_debug(isbool) _mp_debug(isdir)
+            _mp_debug(isfile) _mp_debug(isfinite) _mp_debug(isin) _mp_debug(isinf) _mp_debug(isint) _mp_debug(isnan)
+            _mp_debug(isvarname) _mp_debug(kth) _mp_debug(lcm) _mp_debug(lcm2) _mp_debug(lerp) _mp_debug(log)
+            _mp_debug(log10) _mp_debug(log2) _mp_debug(logical_and) _mp_debug(logical_not) _mp_debug(logical_or)
+            _mp_debug(logit) _mp_debug(lowercase) _mp_debug(lt) _mp_debug(lte) _mp_debug(map) _mp_debug(matrix_eigen)
+            _mp_debug(matrix_invert) _mp_debug(matrix_mul) _mp_debug(matrix_qr) _mp_debug(matrix_svd) _mp_debug(max)
+            _mp_debug(max2) _mp_debug(maxabs) _mp_debug(maxabs2) _mp_debug(med) _mp_debug(med2) _mp_debug(mem_copy)
             _mp_debug(mem_display) _mp_debug(min) _mp_debug(min2) _mp_debug(minabs) _mp_debug(minabs2)
             _mp_debug(minus) _mp_debug(mirror) _mp_debug(mirror_ip) _mp_debug(modulo) _mp_debug(mproj) _mp_debug(mse)
             _mp_debug(mul) _mp_debug(mul_div) _mp_debug(mul_mul) _mp_debug(mul_sub) _mp_debug(name) _mp_debug(name)
@@ -28559,6 +28584,30 @@ namespace cimg_library {
           CImg<doubleT>(ptrd,14,1,1,1,true) = mp.imglist[ind].get_stats();
         }
         return cimg::type<double>::nan();
+      }
+
+      static double mp_image_stats_cm(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) {
+          if (!mp.imglist.width()) return cimg::type<double>::nan();
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        }
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        int x, y, z, c;
+        img.contains(img.min(),x,y,z,c);
+        return (double)c;
+      }
+
+      static double mp_image_stats_cM(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) {
+          if (!mp.imglist.width()) return cimg::type<double>::nan();
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        }
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        int x, y, z, c;
+        img.contains(img.max(),x,y,z,c);
+        return (double)c;
       }
 
       static double mp_image_stats_ia(_cimg_math_parser& mp) {

@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 375
+#define cimg_version 376
 
 /*-----------------------------------------------------------
  #
@@ -22459,6 +22459,32 @@ namespace cimg_library {
               _cimg_mp_return(pos);
             }
 
+            if (*ss1=='m' && *ss2=='(') { // Image minimum value
+              _cimg_mp_op("Function 'im()'");
+              if (*ss3=='#') { // Index specified
+                p1 = compile(ss4,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,ss4);
+                _cimg_mp_check_list();
+              } else { if (ss3!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_image_im,pos,p1).move_to(code);
+              return_comp = true;
+              _cimg_mp_return(pos);
+            }
+
+            if (*ss1=='M' && *ss2=='(') { // Image maximum value
+              _cimg_mp_op("Function 'iM()'");
+              if (*ss3=='#') { // Index specified
+                p1 = compile(ss4,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,ss4);
+                _cimg_mp_check_list();
+              } else { if (ss3!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_image_iM,pos,p1).move_to(code);
+              return_comp = true;
+              _cimg_mp_return(pos);
+            }
+
             if (*ss1=='n' && *ss2=='(') { // Image norm
               _cimg_mp_op("Function 'in()'");
               if (*ss3=='#') { // Index specified
@@ -22467,7 +22493,7 @@ namespace cimg_library {
                 _cimg_mp_check_list();
               } else { if (ss3!=se1) break; p1 = ~0U; }
               pos = scalar();
-              CImg<ulongT>::vector((ulongT)mp_image_norm,pos,p1).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_image_in,pos,p1).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -25266,7 +25292,7 @@ namespace cimg_library {
                 if (!list_norm[p1]) CImg<doubleT>::vector(imglist[p1].magnitude(2)).move_to(list_norm[p1]);
                 _cimg_mp_const_scalar(*list_norm[p1]);
               }
-              _cimg_mp_scalar1(image_norm_static,arg1);
+              _cimg_mp_scalar1(image_in_static,arg1);
             }
 
             switch (*ss1) {
@@ -27183,8 +27209,8 @@ namespace cimg_library {
             _mp_debug(IJxyz1) _mp_debug(IJxyz2) _mp_debug(IJxyz3) _mp_debug(ijxyzc1) _mp_debug(ijxyzc2)
             _mp_debug(ijxyzc3) _mp_debug(image_crop) _mp_debug(image_depth) _mp_debug(image_display)
             _mp_debug(image_draw) _mp_debug(image_find) _mp_debug(image_find_seq) _mp_debug(image_height)
-            _mp_debug(image_is_shared) _mp_debug(image_median) _mp_debug(image_median_static) _mp_debug(image_norm)
-            _mp_debug(image_norm_static) _mp_debug(image_print) _mp_debug(image_resize) _mp_debug(image_shift)
+            _mp_debug(image_is_shared) _mp_debug(image_median) _mp_debug(image_median_static) _mp_debug(image_in)
+            _mp_debug(image_in_static) _mp_debug(image_print) _mp_debug(image_resize) _mp_debug(image_shift)
             _mp_debug(image_shift_ip) _mp_debug(image_spectrum) _mp_debug(image_stats) _mp_debug(image_stats_static)
             _mp_debug(image_std_static) _mp_debug(image_swap) _mp_debug(image_wh) _mp_debug(image_whd)
             _mp_debug(image_whds) _mp_debug(image_width) _mp_debug(increment) _mp_debug(index) _mp_debug(indexof)
@@ -28301,7 +28327,27 @@ namespace cimg_library {
         return *mp.list_median[ind];
       }
 
-      static double mp_image_norm(_cimg_math_parser& mp) {
+      static double mp_image_im(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) {
+          if (!mp.imglist.width()) return cimg::type<double>::nan();
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        }
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        return (double)img.min();
+      }
+
+      static double mp_image_iM(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) {
+          if (!mp.imglist.width()) return cimg::type<double>::nan();
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        }
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        return (double)img.max();
+      }
+
+      static double mp_image_in(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) {
           if (!mp.imglist.width()) return cimg::type<double>::nan();
@@ -28311,7 +28357,7 @@ namespace cimg_library {
         return (double)img.magnitude(2);
       }
 
-      static double mp_image_norm_static(_cimg_math_parser& mp) {
+      static double mp_image_in_static(_cimg_math_parser& mp) {
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         if (!mp.list_norm) mp.list_norm.assign(mp.imglist._width);
         if (!mp.list_norm[ind]) CImg<doubleT>::vector(mp.imglist[ind].magnitude(2)).move_to(mp.list_norm[ind]);

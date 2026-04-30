@@ -26119,7 +26119,6 @@ namespace cimg_library {
 #define _cimg_mp_func1(nm,fn) \
       static double mp_##nm(_cimg_math_parser& mp) { \
         const double arg0 = _mp_arg(2); \
-        cimg::unused(arg0); \
         return (double)(fn); \
       } \
       static double mp_vector_##nm(_cimg_math_parser& mp) { \
@@ -26159,7 +26158,7 @@ namespace cimg_library {
 #if cimg_use_cpp11==1
       _cimg_mp_func1(gamma,std::tgamma(arg0));
 #else
-      _cimg_mp_func1(gamma,cimg::type<double>::nan());
+      _cimg_mp_func1(gamma,cimg::unused(arg0),cimg::type<double>::nan());
 #endif
       _cimg_mp_func1(int,(longT)arg0);
       _cimg_mp_func1(isbool,arg0==0. || arg0==1.);

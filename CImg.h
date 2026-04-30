@@ -28378,110 +28378,6 @@ namespace cimg_library {
         return (double)mp.imglist[ind]._is_shared;
       }
 
-      static double mp_image_stats_ia(_cimg_math_parser& mp) {
-        unsigned int ind = (unsigned int)mp.opcode[2];
-        if (ind!=~0U) {
-          if (!mp.imglist.width()) return cimg::type<double>::nan();
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
-        }
-        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        return (double)img.mean();
-      }
-
-      static double mp_image_stats_ic(_cimg_math_parser& mp) {
-        unsigned int ind = (unsigned int)mp.opcode[2];
-        if (ind!=~0U) {
-          if (!mp.imglist.width()) return cimg::type<double>::nan();
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
-        }
-        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        return (double)img.median();
-      }
-
-      static double mp_image_stats_ic_static(_cimg_math_parser& mp) {
-        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
-        if (!mp.list_median) mp.list_median.assign(mp.imglist._width);
-        if (!mp.list_median[ind]) CImg<doubleT>::vector(mp.imglist[ind].median()).move_to(mp.list_median[ind]);
-        return *mp.list_median[ind];
-      }
-
-      static double mp_image_stats_id(_cimg_math_parser& mp) {
-        unsigned int ind = (unsigned int)mp.opcode[2];
-        if (ind!=~0U) {
-          if (!mp.imglist.width()) return cimg::type<double>::nan();
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
-        }
-        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        return (double)std::sqrt(img.variance());
-      }
-
-      static double mp_image_stats_im(_cimg_math_parser& mp) {
-        unsigned int ind = (unsigned int)mp.opcode[2];
-        if (ind!=~0U) {
-          if (!mp.imglist.width()) return cimg::type<double>::nan();
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
-        }
-        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        return (double)img.min();
-      }
-
-      static double mp_image_stats_iM(_cimg_math_parser& mp) {
-        unsigned int ind = (unsigned int)mp.opcode[2];
-        if (ind!=~0U) {
-          if (!mp.imglist.width()) return cimg::type<double>::nan();
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
-        }
-        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        return (double)img.max();
-      }
-
-      static double mp_image_stats_in(_cimg_math_parser& mp) {
-        unsigned int ind = (unsigned int)mp.opcode[2];
-        if (ind!=~0U) {
-          if (!mp.imglist.width()) return cimg::type<double>::nan();
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
-        }
-        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        return (double)img.magnitude(2);
-      }
-
-      static double mp_image_stats_in_static(_cimg_math_parser& mp) {
-        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
-        if (!mp.list_norm) mp.list_norm.assign(mp.imglist._width);
-        if (!mp.list_norm[ind]) CImg<doubleT>::vector(mp.imglist[ind].magnitude(2)).move_to(mp.list_norm[ind]);
-        return *mp.list_norm[ind];
-      }
-
-      static double mp_image_stats_ip(_cimg_math_parser& mp) {
-        unsigned int ind = (unsigned int)mp.opcode[2];
-        if (ind!=~0U) {
-          if (!mp.imglist.width()) return cimg::type<double>::nan();
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
-        }
-        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        return (double)img.product();
-      }
-
-      static double mp_image_stats_is(_cimg_math_parser& mp) {
-        unsigned int ind = (unsigned int)mp.opcode[2];
-        if (ind!=~0U) {
-          if (!mp.imglist.width()) return cimg::type<double>::nan();
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
-        }
-        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        return (double)img.sum();
-      }
-
-      static double mp_image_stats_iv(_cimg_math_parser& mp) {
-        unsigned int ind = (unsigned int)mp.opcode[2];
-        if (ind!=~0U) {
-          if (!mp.imglist.width()) return cimg::type<double>::nan();
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
-        }
-        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        return (double)img.variance();
-      }
-
       static double mp_image_print(_cimg_math_parser& mp) {
         mp_check_list(mp,"print");
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
@@ -28581,22 +28477,41 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_image_stats_static(_cimg_math_parser& mp) {
-        const unsigned int
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width()),
-          k = (unsigned int)mp.opcode[3];
-        bool get_stats = false;
-        cimg::mutex(13);
-        if (!mp.list_stats || mp.list_stats.size()!=mp.imglist._width) mp.list_stats.assign(mp.imglist._width);
-        if (!mp.list_stats[ind]) get_stats = true;
-        cimg::mutex(13,0);
-        if (get_stats) {
-          CImg<Tdouble> st = mp.imglist[ind].get_stats();
-          cimg::mutex(13);
-          st.move_to(mp.list_stats[ind]);
-          cimg::mutex(13,0);
+      static double mp_image_stats_ia(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) {
+          if (!mp.imglist.width()) return cimg::type<double>::nan();
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         }
-        return mp.list_stats[ind].is_empty()?cimg::type<double>::nan():mp.list_stats(ind,k);
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        return (double)img.mean();
+      }
+
+      static double mp_image_stats_ic(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) {
+          if (!mp.imglist.width()) return cimg::type<double>::nan();
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        }
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        return (double)img.median();
+      }
+
+      static double mp_image_stats_ic_static(_cimg_math_parser& mp) {
+        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        if (!mp.list_median) mp.list_median.assign(mp.imglist._width);
+        if (!mp.list_median[ind]) CImg<doubleT>::vector(mp.imglist[ind].median()).move_to(mp.list_median[ind]);
+        return *mp.list_median[ind];
+      }
+
+      static double mp_image_stats_id(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) {
+          if (!mp.imglist.width()) return cimg::type<double>::nan();
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        }
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        return (double)std::sqrt(img.variance());
       }
 
       static double mp_image_stats_id_static(_cimg_math_parser& mp) {
@@ -28613,6 +28528,91 @@ namespace cimg_library {
           cimg::mutex(13,0);
         }
         return mp.list_stats[ind].is_empty()?cimg::type<double>::nan():std::sqrt(mp.list_stats(ind,3));
+      }
+
+      static double mp_image_stats_im(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) {
+          if (!mp.imglist.width()) return cimg::type<double>::nan();
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        }
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        return (double)img.min();
+      }
+
+      static double mp_image_stats_iM(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) {
+          if (!mp.imglist.width()) return cimg::type<double>::nan();
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        }
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        return (double)img.max();
+      }
+
+      static double mp_image_stats_in(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) {
+          if (!mp.imglist.width()) return cimg::type<double>::nan();
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        }
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        return (double)img.magnitude(2);
+      }
+
+      static double mp_image_stats_in_static(_cimg_math_parser& mp) {
+        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        if (!mp.list_norm) mp.list_norm.assign(mp.imglist._width);
+        if (!mp.list_norm[ind]) CImg<doubleT>::vector(mp.imglist[ind].magnitude(2)).move_to(mp.list_norm[ind]);
+        return *mp.list_norm[ind];
+      }
+
+      static double mp_image_stats_ip(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) {
+          if (!mp.imglist.width()) return cimg::type<double>::nan();
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        }
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        return (double)img.product();
+      }
+
+      static double mp_image_stats_is(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) {
+          if (!mp.imglist.width()) return cimg::type<double>::nan();
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        }
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        return (double)img.sum();
+      }
+
+      static double mp_image_stats_iv(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) {
+          if (!mp.imglist.width()) return cimg::type<double>::nan();
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        }
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        return (double)img.variance();
+      }
+
+      static double mp_image_stats_static(_cimg_math_parser& mp) {
+        const unsigned int
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width()),
+          k = (unsigned int)mp.opcode[3];
+        bool get_stats = false;
+        cimg::mutex(13);
+        if (!mp.list_stats || mp.list_stats.size()!=mp.imglist._width) mp.list_stats.assign(mp.imglist._width);
+        if (!mp.list_stats[ind]) get_stats = true;
+        cimg::mutex(13,0);
+        if (get_stats) {
+          CImg<Tdouble> st = mp.imglist[ind].get_stats();
+          cimg::mutex(13);
+          st.move_to(mp.list_stats[ind]);
+          cimg::mutex(13,0);
+        }
+        return mp.list_stats[ind].is_empty()?cimg::type<double>::nan():mp.list_stats(ind,k);
       }
 
       static double mp_image_swap(_cimg_math_parser& mp) {

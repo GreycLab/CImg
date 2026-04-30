@@ -26158,7 +26158,7 @@ namespace cimg_library {
 #if cimg_use_cpp11==1
       _cimg_mp_func1(gamma,std::tgamma(arg0));
 #else
-      _cimg_mp_func1(gamma,(cimg::unused(arg0),cimg::type<double>::nan()));
+      _cimg_mp_func1(gamma,((double)arg0,cimg::type<double>::nan()));
 #endif
       _cimg_mp_func1(int,(longT)arg0);
       _cimg_mp_func1(isbool,arg0==0. || arg0==1.);

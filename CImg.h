@@ -28593,7 +28593,7 @@ namespace cimg_library {
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         }
         const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        int x, y, z, c;
+        int x = 0, y = 0, z = 0, c = 0;
         img.contains(img.min(),x,y,z,c);
         return (double)c;
       }
@@ -28605,7 +28605,7 @@ namespace cimg_library {
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         }
         const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        int x, y, z, c;
+        int x = 0, y = 0, z = 0, c = 0;
         img.contains(img.max(),x,y,z,c);
         return (double)c;
       }
@@ -28755,7 +28755,7 @@ namespace cimg_library {
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         }
         const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        int x;
+        int x = 0;
         img.contains(img.min(),x);
         return (double)x;
       }
@@ -28767,7 +28767,7 @@ namespace cimg_library {
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         }
         const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        int x;
+        int x = 0;
         img.contains(img.max(),x);
         return (double)x;
       }
@@ -28779,7 +28779,7 @@ namespace cimg_library {
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         }
         const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        int x, y;
+        int x = 0, y = 0;
         img.contains(img.min(),x,y);
         return (double)y;
       }
@@ -28791,7 +28791,7 @@ namespace cimg_library {
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         }
         const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        int x, y;
+        int x = 0, y = 0;
         img.contains(img.max(),x,y);
         return (double)y;
       }
@@ -28803,7 +28803,7 @@ namespace cimg_library {
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         }
         const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        int x, y, z;
+        int x = 0, y = 0, z = 0;
         img.contains(img.min(),x,y,z);
         return (double)z;
       }
@@ -28815,7 +28815,7 @@ namespace cimg_library {
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         }
         const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        int x, y, z;
+        int x = 0, y = 0, z = 0;
         img.contains(img.max(),x,y,z);
         return (double)z;
       }

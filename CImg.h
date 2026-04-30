@@ -22511,6 +22511,19 @@ namespace cimg_library {
               _cimg_mp_return(pos);
             }
 
+            if (*ss1=='v' && *ss2=='(') { // Image variance
+              _cimg_mp_op("Function 'iv()'");
+              if (*ss3=='#') { // Index specified
+                p1 = compile(ss4,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,ss4);
+                _cimg_mp_check_list();
+              } else { if (ss3!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_image_iv,pos,p1).move_to(code);
+              return_comp = true;
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"index(",6)) { // Index colors
               _cimg_mp_op("Function 'index()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -28385,6 +28398,16 @@ namespace cimg_library {
         if (!mp.list_norm) mp.list_norm.assign(mp.imglist._width);
         if (!mp.list_norm[ind]) CImg<doubleT>::vector(mp.imglist[ind].magnitude(2)).move_to(mp.list_norm[ind]);
         return *mp.list_norm[ind];
+      }
+
+      static double mp_image_iv(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) {
+          if (!mp.imglist.width()) return cimg::type<double>::nan();
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        }
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        return (double)img.variance();
       }
 
       static double mp_image_print(_cimg_math_parser& mp) {

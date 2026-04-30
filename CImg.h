@@ -26119,6 +26119,7 @@ namespace cimg_library {
 #define _cimg_mp_func1(nm,fn) \
       static double mp_##nm(_cimg_math_parser& mp) { \
         const double arg0 = _mp_arg(2); \
+        cimg::unused(arg0); \
         return (double)(fn); \
       } \
       static double mp_vector_##nm(_cimg_math_parser& mp) { \

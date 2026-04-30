@@ -18320,7 +18320,7 @@ namespace cimg_library {
           if (arg1!=~0U) {
             if (reserved_label[arg1]!=~0U) _cimg_mp_return(reserved_label[arg1]);
             if (!img_stats) {
-              img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
+              img_stats.assign(1,15,1,1,0).fill(imgin.get_stats(),false);
               mem_img_stats.assign(1,14,1,1,~0U);
             }
             if (mem_img_stats[arg2]==~0U) mem_img_stats[arg2] = const_scalar(img_stats[arg2]);
@@ -24224,7 +24224,7 @@ namespace cimg_library {
                                               pixel_type(),_cimg_mp_calling_function,s_op,
                                               std::max(p1,1U),arg2,arg3,arg4,arg5,p2);
                 }
-                pos = vector(14);
+                pos = vector(15);
                 CImg<ulongT>::vector((ulongT)mp_vector_stats,pos,arg1,arg2,arg3,arg4,arg5).move_to(code);
               } else { // Image
                 if (*ss6=='#') { // Index specified
@@ -24232,7 +24232,7 @@ namespace cimg_library {
                   _cimg_mp_check_notnan_index(p1,ss7);
                   _cimg_mp_check_list();
                 } else { if (ss6!=se1) break; p1 = ~0U; }
-                pos = vector(14);
+                pos = vector(15);
                 CImg<ulongT>::vector((ulongT)mp_image_stats,pos,p1).move_to(code);
               }
               return_comp = true;
@@ -25452,7 +25452,7 @@ namespace cimg_library {
               if (!imglist) _cimg_mp_return(0);
               if (is_const_scalar(arg1)) {
                 if (!list_stats) list_stats.assign(imglist._width);
-                if (!list_stats[p1]) list_stats[p1].assign(1,14,1,1,0).fill(imglist[p1].get_stats(),false);
+                if (!list_stats[p1]) list_stats[p1].assign(1,15,1,1,0).fill(imglist[p1].get_stats(),false);
                 _cimg_mp_const_scalar(std::sqrt(list_stats(p1,3)));
               }
               _cimg_mp_scalar1(image_stats_id_static,arg1);
@@ -25491,7 +25491,7 @@ namespace cimg_library {
             if (!imglist) _cimg_mp_return(0);
             if (is_const_scalar(arg1)) {
               if (!list_stats) list_stats.assign(imglist._width);
-              if (!list_stats[p1]) list_stats[p1].assign(1,14,1,1,0).fill(imglist[p1].get_stats(),false);
+              if (!list_stats[p1]) list_stats[p1].assign(1,15,1,1,0).fill(imglist[p1].get_stats(),false);
               _cimg_mp_const_scalar(list_stats(p1,arg2));
             }
             _cimg_mp_scalar2(image_stats_static,arg1,arg2);
@@ -28577,11 +28577,11 @@ namespace cimg_library {
         double *ptrd = &_mp_arg(1) + 1;
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind==~0U)
-          CImg<doubleT>(ptrd,14,1,1,1,true) = mp.imgout.get_stats();
+          CImg<doubleT>(ptrd,15,1,1,1,true) = mp.imgout.get_stats();
         else {
           if (!mp.imglist.width()) return cimg::type<double>::nan();
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
-          CImg<doubleT>(ptrd,14,1,1,1,true) = mp.imglist[ind].get_stats();
+          CImg<doubleT>(ptrd,15,1,1,1,true) = mp.imglist[ind].get_stats();
         }
         return cimg::type<double>::nan();
       }
@@ -31138,7 +31138,7 @@ namespace cimg_library {
           h = (unsigned int)mp.opcode[4],
           d = (unsigned int)mp.opcode[5],
           s = (unsigned int)mp.opcode[6];
-        CImg<doubleT>(ptrd,14,1,1,1,true) = CImg<doubleT>(ptrs,w,h,d,s,true).get_stats();
+        CImg<doubleT>(ptrd,15,1,1,1,true) = CImg<doubleT>(ptrs,w,h,d,s,true).get_stats();
         return cimg::type<double>::nan();
       }
 
@@ -33121,13 +33121,13 @@ namespace cimg_library {
     /**
        \param variance_method Method used to compute the variance (see variance(const unsigned int) const).
        \return Statistics vector as
-         <tt>[min, max, mean, variance, xmin, ymin, zmin, cmin, xmax, ymax, zmax, cmax, sum, product]</tt>.
+         <tt>[ min, max, mean, variance, xmin, ymin, zmin, cmin, xmax, ymax, zmax, cmax, sum, product, L2-norm ]</tt>.
     **/
     CImg<Tdouble> get_stats(const unsigned int variance_method=0) const {
       if (is_empty()) return CImg<doubleT>();
       const ulongT siz = size();
       const longT off_end = (longT)siz;
-      double avg = 0, S = 0, S2 = 0, P = 1;
+      double avg = 0, S = 0, S2 = 0, P = 1, N = 0;
       longT offm = 0, offM = 0, n = 0;
       T m = *_data, M = m;
       cimg_pragma_openmp(parallel reduction(+:S,S2) reduction(*:P)
@@ -33142,6 +33142,7 @@ namespace cimg_library {
           if (val>lM) { lM = val; loffM = off; }
           S+=_val;
           P*=_val;
+          N+=_val*_val;
           if (variance_method<1) {
            const double delta = _val - avg;
            avg+=delta/++n;
@@ -33163,10 +33164,10 @@ namespace cimg_library {
         xM = 0, yM = 0, zM = 0, cM = 0;
       contains(_data[offm],xm,ym,zm,cm);
       contains(_data[offM],xM,yM,zM,cM);
-      return CImg<Tdouble>(1,14).fill((double)m,(double)M,mean_value,variance_value,
+      return CImg<Tdouble>(1,15).fill((double)m,(double)M,mean_value,variance_value,
                                       (double)xm,(double)ym,(double)zm,(double)cm,
                                       (double)xM,(double)yM,(double)zM,(double)cM,
-                                      S,P);
+                                      S,P,std::sqrt(N));
     }
 
     //! Compute statistics vector from the pixel values \inplace.

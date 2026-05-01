@@ -25458,16 +25458,6 @@ namespace cimg_library {
               _cimg_mp_scalar1(image_stats_id_static,arg1);
             }
 
-            if (*ss1=='n') { // in#ind
-              if (!imglist) _cimg_mp_return(0);
-              if (is_const_scalar(arg1)) {
-                if (!list_norm) list_norm.assign(imglist._width);
-                if (!list_norm[p1]) CImg<doubleT>::vector(imglist[p1].magnitude(2)).move_to(list_norm[p1]);
-                _cimg_mp_const_scalar(*list_norm[p1]);
-              }
-              _cimg_mp_scalar1(image_stats_in_static,arg1);
-            }
-
             switch (*ss1) {
             case 'a' : arg2 = 2; break; // ia#ind
             case 'm' : arg2 = 0; break; // im#ind
@@ -25475,6 +25465,7 @@ namespace cimg_library {
             case 'p' : arg2 = 13; break; // ip#ind
             case 's' : arg2 = 12; break; // is#ind
             case 'v' : arg2 = 3; break; // iv#ind
+            case 'n' : arg2 = 14; break; // in#ind
             }
           } else if (*ss1=='m') switch (*ss) {
             case 'x' : arg2 = 4; break; // xm#ind

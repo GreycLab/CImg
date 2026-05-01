@@ -18321,7 +18321,7 @@ namespace cimg_library {
             if (reserved_label[arg1]!=~0U) _cimg_mp_return(reserved_label[arg1]);
             if (!img_stats) {
               img_stats.assign(1,15,1,1,0).fill(imgin.get_stats(),false);
-              mem_img_stats.assign(1,14,1,1,~0U);
+              mem_img_stats.assign(1,15,1,1,~0U);
             }
             if (mem_img_stats[arg2]==~0U) mem_img_stats[arg2] = const_scalar(img_stats[arg2]);
             if (arg1==8) _cimg_mp_const_scalar(std::sqrt(img_stats[arg2])); // id: std variation

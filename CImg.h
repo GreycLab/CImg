@@ -60690,12 +60690,13 @@ namespace cimg_library {
       }
       if (!is_empty() && display_stats)
         std::fprintf(cimg::output(),
-                     " ], %smin%s = %g, %smax%s = %g, %smean%s = %g, %sstd%s = %g, %scoords_min%s = (%u,%u,%u,%u), "
-                     "%scoords_max%s = (%u,%u,%u,%u).\n",
+                     " ], %smin%s = %g, %smax%s = %g, %smean%s = %g, %sstd%s = %g, %snorm%s = %g, "
+                     "%scoords_min%s = (%u,%u,%u,%u), %scoords_max%s = (%u,%u,%u,%u).\n",
                      cimg::t_bold,cimg::t_normal,st[0],
                      cimg::t_bold,cimg::t_normal,st[1],
                      cimg::t_bold,cimg::t_normal,st[2],
                      cimg::t_bold,cimg::t_normal,std::sqrt(st[3]),
+                     cimg::t_bold,cimg::t_normal,st[14],
                      cimg::t_bold,cimg::t_normal,xm,ym,zm,vm,
                      cimg::t_bold,cimg::t_normal,xM,yM,zM,vM);
       else std::fprintf(cimg::output(),"%s].\n",is_empty()?"":" ");

@@ -25462,10 +25462,10 @@ namespace cimg_library {
             case 'a' : arg2 = 2; break; // ia#ind
             case 'm' : arg2 = 0; break; // im#ind
             case 'M' : arg2 = 1; break; // iM#ind
+            case 'n' : arg2 = 14; break; // in#ind
             case 'p' : arg2 = 13; break; // ip#ind
             case 's' : arg2 = 12; break; // is#ind
             case 'v' : arg2 = 3; break; // iv#ind
-            case 'n' : arg2 = 14; break; // in#ind
             }
           } else if (*ss1=='m') switch (*ss) {
             case 'x' : arg2 = 4; break; // xm#ind

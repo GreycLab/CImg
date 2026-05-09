@@ -60303,7 +60303,10 @@ namespace cimg_library {
                                     cimg_instance);
       CImg<charT> command(1024), filename_tmp(256), body(256);
       do {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s.hdr",cimg::filenamerand());
+#pragma GCC diagnostic pop
       } while (cimg::path_exists(filename_tmp));
       cimg_snprintf(command,command._width,"\"%s\" -w -c anlz -o \"%s\" -f \"%s\"",
                     cimg::medcon_path(),
@@ -60325,7 +60328,10 @@ namespace cimg_library {
       load_analyze(command);
       std::remove(command);
       cimg::split_filename(command,body);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
       cimg_snprintf(command,command._width,"%s.img",body._data);
+#pragma GCC diagnostic pop
       std::remove(command);
       return *this;
     }
@@ -64286,7 +64292,10 @@ namespace cimg_library {
 
       CImg<charT> command(1024), filename_tmp(256), body(256);
       do {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s.hdr",cimg::filenamerand());
+#pragma GCC diagnostic pop
       } while (cimg::path_exists(filename_tmp));
       save_analyze(filename_tmp);
       cimg_snprintf(command,command._width,"\"%s\" -w -c dicom -o \"%s\" -f \"%s\"",

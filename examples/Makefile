@@ -100,6 +100,14 @@ endif
 ifneq ($(findstring icpc,$(notdir $(CXX))),)
 IS_ICPC = 1
 endif
+ifeq ($(IS_GCC)$(IS_CLANG)$(IS_ICPC),)
+CXX_ID := $(shell $(CXX) --version 2>&1 | head -n 1)
+ifneq ($(findstring clang,$(CXX_ID)),)
+IS_CLANG = 1
+else ifneq ($(findstring GCC,$(CXX_ID)),)
+IS_GCC = 1
+endif
+endif
 
 CXXVER := $(CXX)
 CFLAGS = -I.. -Wall -Wextra -Wfatal-errors -Werror=unknown-pragmas -Werror=unused-label

@@ -83,12 +83,11 @@ EXTRA_FILES = test_template_types use_tiff_stream use_jpeg_buffer
 #---------------------------------
 # Set correct variables and paths
 #---------------------------------
-VERSION = $(shell grep 'cimg_version\ ' ../CImg.h | tail -c4 | head -c3)
-VERSION1 = $(shell grep 'cimg_version\ ' ../CImg.h | tail -c4 | head -c1)
-VERSION2 = $(shell grep 'cimg_version\ ' ../CImg.h | tail -c3 | head -c1)
-VERSION3 = $(shell grep 'cimg_version\ ' ../CImg.h | tail -c2 | head -c1)
-SVERSION = $(VERSION1).$(VERSION2).$(VERSION3)
-
+VERSION = $(shell grep -oP 'cimg_version\s+\K[0-9]+' ../CImg.h)
+VERSION1 = $(shell grep -oP 'cimg_version\s+\K.' ../CImg.h)
+VERSION2 = $(shell grep -oP 'cimg_version\s+.\K.' ../CImg.h)
+VERSION3 = $(shell grep -oP 'cimg_version\s+..\K.' ../CImg.h)
+SVERSION=$(VERSION1).$(VERSION2).$(VERSION3)
 X11PATH = /usr/X11R6
 
 EXE_PRE =
@@ -319,6 +318,11 @@ endif
 #-------------------------
 # Define Makefile entries
 #-------------------------
+.PHONY: all clean menu linux dlinux olinux mlinux Mlinux \
+        macos dmacos omacos mmacos Mmacos \
+        windows dwindows owindows mwindows Mwindows \
+        travis custom
+
 .cpp:
 	@echo
 	@echo "** Compiling '$* ($(SVERSION))' with '$(CXXVER)'"
@@ -381,7 +385,7 @@ all $(EXTRA_FILES)
 
 # Linux/BSD/Mac OSX targets, with X11 display.
 
-#A target for Travis-CI
+# A target for Travis-CI
 travis:
 	@$(MAKE) \
 "CONF_CFLAGS = \

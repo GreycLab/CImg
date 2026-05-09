@@ -69169,7 +69169,10 @@ namespace cimg_library {
       cimglist_for(*this,l) {
         CImg<T>& src = _data[l];
         cimg_forZ(src,z) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
           cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_%.6u.ppm",filename_tmp._data,frame);
+#pragma GCC diagnostic pop
           CImg<charT>::string(filename_tmp2).move_to(filenames);
           CImg<T> _src = src._depth>1?src.get_slice(z):src.get_shared();
           if (_src._width%2 || _src._height%2) // Force output to have an even number of columns and rows

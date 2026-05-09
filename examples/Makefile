@@ -133,6 +133,8 @@ endif
 CFLAGS += -Wno-int-in-bool-context -Wno-bool-compare
 endif
 
+STRIP ?= strip
+
 #--------------------------------------------------
 # Set compilation flags allowing to customize CImg
 #--------------------------------------------------
@@ -330,9 +332,9 @@ WEBP_LIBS := $(shell pkg-config --libs libwebp 2>/dev/null || echo -lwebp)
 	@echo
 	@echo "** Compiling '$* ($(SVERSION))' with '$(CXXVER)'"
 	@echo
-	$(CXX) -o $@ $< $(CFLAGS) $(CONF_CFLAGS) $(LIBS) $(CONF_LIBS)
+	$(CXX) $(CFLAGS) $(CONF_CFLAGS) -o $@ $< $(LIBS) $(CONF_LIBS)
 ifeq ($(STRIP_EXE),true)
-	strip $@
+	$(STRIP) $@
 endif
 
 menu:

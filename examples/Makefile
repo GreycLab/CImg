@@ -137,7 +137,13 @@ ANSI_CFLAGS = -std=c++11 -pedantic
 endif
 
 # Flags to enable code debugging.
-DEBUG_CFLAGS = -Dcimg_verbosity=3 -Dcimg_strict_warnings -g -fsanitize=address
+DEBUG_CFLAGS = -Dcimg_verbosity=3 -Dcimg_strict_warnings -g
+ifdef IS_GCC
+DEBUG_CFLAGS += -fsanitize=address
+endif
+ifdef IS_CLANG
+DEBUG_CFLAGS += -fsanitize=address
+endif
 
 # Flags to enable color output messages.
 # (requires a VT100 compatible terminal)
@@ -212,37 +218,37 @@ SDL3_LIBS := $(shell pkg-config --libs sdl3 2>/dev/null || echo -L/usr/lib -lSDL
 # Flags to enable native support for PNG image files, using the PNG library.
 # ( http://www.libpng.org/ )
 PNG_DEFINE = -Dcimg_use_png
-PNG_INCDIR =
+PNG_INCDIR := $(shell pkg-config --cflags libpng 2>/dev/null)
 PNG_CFLAGS = $(PNG_DEFINE) $(PNG_INCDIR)
-PNG_LIBS = -lpng -lz
+PNG_LIBS := $(shell pkg-config --libs libpng 2>/dev/null || echo -lpng -lz)
 
 # Flags to enable native support for JPEG image files, using the JPEG library.
 # ( http://www.ijg.org/ )
 JPEG_DEFINE = -Dcimg_use_jpeg
-JPEG_INCDIR =
+JPEG_INCDIR := $(shell pkg-config --cflags libjpeg 2>/dev/null)
 JPEG_CFLAGS = $(JPEG_DEFINE) $(JPEG_INCDIR)
-JPEG_LIBS = -ljpeg
+JPEG_LIBS := $(shell pkg-config --libs libjpeg 2>/dev/null || echo -ljpeg)
 
 # Flags to enable native support for JPEG XL image files, using the JXL library.
 # ( https://github.com/libjxl/libjxl )
 JXL_DEFINE = -Dcimg_use_jxl
-JXL_INCDIR =
+JXL_INCDIR := $(shell pkg-config --cflags libjxl 2>/dev/null)
 JXL_CFLAGS = $(JXL_DEFINE) $(JXL_INCDIR)
-JXL_LIBS = -ljxl
+JXL_LIBS := $(shell pkg-config --libs libjxl 2>/dev/null || echo -ljxl)
 
 # Flags to enable native support for TIFF image files, using the TIFF library.
 # ( http://www.libtiff.org/ )
 TIFF_DEFINE = -Dcimg_use_tiff
-TIFF_INCDIR =
+TIFF_INCDIR := $(shell pkg-config --cflags libtiff-4 2>/dev/null)
 TIFF_CFLAGS = $(TIFF_DEFINE) $(TIFF_INCDIR)
-TIFF_LIBS = -ltiff
+TIFF_LIBS := $(shell pkg-config --libs libtiff-4 2>/dev/null || echo -ltiff)
 
 # Flags to enable native support for loading HEIF image files, using the libheif library.
 # ( https://github.com/strukturag/libheif )
 HEIF_DEFINE = -Dcimg_use_heif
-HEIF_INCDIR =
+HEIF_INCDIR := $(shell pkg-config --cflags libheif 2>/dev/null)
 HEIF_CFLAGS = $(HEIF_DEFINE) $(HEIF_INCDIR)
-HEIF_LIBS = -lheif
+HEIF_LIBS := $(shell pkg-config --libs libheif 2>/dev/null || echo -lheif)
 
 # Flags to enable native support for MINC2 image files, using the MINC2 library.
 # ( http://en.wikibooks.org/wiki/MINC/Reference/MINC2.0_Users_Guide )
@@ -261,9 +267,9 @@ OPENEXR_LIBS := $(shell pkg-config --libs OpenEXR 2>/dev/null || echo -lIlmImf -
 # Flags to enable native support for various video files, using the FFMPEG library.
 # ( http://www.ffmpeg.org/ )
 FFMPEG_DEFINE = -Dcimg_use_ffmpeg -D__STDC_CONSTANT_MACROS
-FFMPEG_INCDIR = -I/usr/include/libavcodec -I/usr/include/libavformat -I/usr/include/libswscale -I/usr/include/ffmpeg
+FFMPEG_INCDIR := $(shell pkg-config --cflags libavcodec libavformat libswscale 2>/dev/null || echo -I/usr/include/libavcodec -I/usr/include/libavformat -I/usr/include/libswscale -I/usr/include/ffmpeg)
 FFMPEG_CFLAGS = $(FFMPEG_DEFINE) $(FFMPEG_INCDIR)
-FFMPEG_LIBS = -lavcodec -lavformat -lswscale
+FFMPEG_LIBS := $(shell pkg-config --libs libavcodec libavformat libswscale 2>/dev/null || echo -lavcodec -lavformat -lswscale)
 
 # Flags to enable native support for compressed .cimgz files, using the Zlib library.
 # ( http://www.zlib.net/ )
@@ -275,9 +281,9 @@ ZLIB_LIBS := $(shell pkg-config --libs zlib 2>/dev/null || echo -lz)
 # Flags to enable native support for downloading files from the network.
 # ( http://curl.haxx.se/libcurl/ )
 CURL_DEFINE = -Dcimg_use_curl
-CURL_INCDIR =
+CURL_INCDIR := $(shell pkg-config --cflags libcurl 2>/dev/null)
 CURL_CFLAGS = $(CURL_DEFINE)
-CURL_LIBS = -lcurl
+CURL_LIBS := $(shell pkg-config --libs libcurl 2>/dev/null || echo -lcurl)
 
 # Flags to enable native support of most classical image file formats, using the Magick++ library.
 # ( http://www.imagemagick.org/Magick++/ )
@@ -351,7 +357,7 @@ menu:
 all: $(FILES)
 
 clean:
-	rm -rf *.exe *.o *.obj *~ \#* $(FILES) $(EXTRA_FILES)
+	$(RM) *.exe *.o *.obj *~ \#* $(FILES) $(EXTRA_FILES)
 
 # Custom user-defined target
 custom:
@@ -364,38 +370,38 @@ all $(EXTRA_FILES)
 
 # A target for Travis-CI
 travis:
-	@$(MAKE) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(ANSI_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS) $(FFTW3_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(CURL_CFLAGS) $(XSHM_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS) $(FFTW3_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(CURL_LIBS) $(XSHM_LIBS)" \
 all
 
 linux:
-	@$(MAKE) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(ANSI_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS) $(XSHM_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS) $(XSHM_LIBS)" \
 all
 
 dlinux:
-	@$(MAKE) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(ANSI_CFLAGS) $(DEBUG_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS) $(XSHM_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS) $(XSHM_LIBS)" \
 all
 
 olinux:
-	@$(MAKE) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(ANSI_CFLAGS) $(OPT_CFLAGS) $(OPENMP_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS) $(XSHM_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS) $(XSHM_LIBS)" \
 "STRIP_EXE=true" \
 all
 
 mlinux:
-	@$(MAKE) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(ANSI_CFLAGS) $(NODISPLAY_CFLAGS) $(OPT_CFLAGS)" \
 "STRIP_EXE=true" \
 all
 
 Mlinux:
-	@$(MAKE) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(OPT_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS) $(XSHM_CFLAGS) $(XRANDR_CFLAGS) $(TIFF_CFLAGS) $(HEIF_CFLAGS) $(OPENEXR_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(ZLIB_CFLAGS) $(CURL_CFLAGS) $(OPENCV_CFLAGS) $(MAGICK_CFLAGS) $(FFTW3_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS) $(XSHM_LIBS) $(XRANDR_LIBS) $(TIFF_LIBS) -ltiffxx $(HEIF_LIBS) $(OPENEXR_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(ZLIB_LIBS) $(CURL_LIBS) $(OPENCV_LIBS) $(MAGICK_LIBS) $(FFTW3_LIBS)" \
 "STRIP_EXE=true" \
@@ -403,62 +409,62 @@ all $(EXTRA_FILES)
 
 # MacOs targets, with X11 display.
 macos:
-	@$(MAKE) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(ANSI_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS)" \
 all
 
 dmacos:
-	@$(MAKE) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(ANSI_CFLAGS) $(DEBUG_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS)" \
 all
 
 omacos:
-	@$(MAKE) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(ANSI_CFLAGS) $(OPT_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS)" \
 all
 
 mmacos:
-	@$(MAKE) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(ANSI_CFLAGS) $(NODISPLAY_CFLAGS) $(OPT_CFLAGS)" \
 all
 
 Mmacos:
-	@$(MAKE) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(OPT_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS) $(TIFF_CFLAGS) $(HEIF_CFLAGS) $(MINC2_CFLAGS) $(OPENEXR_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(ZLIB_CFLAGS) $(OPENCV_CFLAGS) $(MAGICK_CFLAGS) $(FFTW3_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS) $(TIFF_LIBS) $(HEIF_LIBS) $(MINC2_LIBS) $(OPENEXR_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(ZLIB_LIBS) $(OPENCV_LIBS) $(MAGICK_LIBS) $(FFTW3_LIBS)" \
 all $(EXTRA_FILES)
 
 # Windows targets, with GDI32 display.
 windows:
-	@$(MAKE) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = " \
 "CONF_LIBS = $(GDI32_LIBS)" \
 all
 
 dwindows:
-	@$(MAKE) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(DEBUG_CFLAGS)" \
 "CONF_LIBS = $(GDI32_LIBS)" \
 all
 
 owindows:
-	@$(MAKE) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(OPT_CFLAGS)" \
 "CONF_LIBS = $(GDI32_LIBS)" \
 "STRIP_EXE=true" \
 all
 
 mwindows:
-	@$(MAKE) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(NODISPLAY_CFLAGS) $(OPT_CFLAGS)" \
 "STRIP_EXE=true" \
 all
 
 Mwindows:
-	@$(MAKE) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(OPT_CFLAGS) $(TIFF_CFLAGS) $(HEIF_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(ZLIB_CFLAGS) $(OPENCV_CFLAGS) $(FFTW3_CFLAGS)" \
 "CONF_LIBS = $(GDI32_LIBS) $(TIFF_LIBS) $(HEIF_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(ZLIB_LIBS) $(OPENCV_LIBS) $(FFTW3_LIBS)" \
 "STRIP_EXE=true" \

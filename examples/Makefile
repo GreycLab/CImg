@@ -182,7 +182,7 @@ NODISPLAY_CFLAGS = -Dcimg_display=0
 X11_DEFINE = -Dcimg_display=1
 X11_INCDIR := $(shell pkg-config --cflags x11 2>/dev/null || echo -I/usr/X11R6/include)
 X11_CFLAGS = $(X11_DEFINE) $(X11_INCDIR)
-X11_LIBS := $(shell pkg-config --libs x11 2>/dev/null || echo -L/usr/X11R6/lib -lX11) -lpthread
+X11_LIBS := $(shell pkg-config --libs x11 2>/dev/null || echo -L/usr/X11R6/lib -lX11) -pthread
 
 # Flags to enable fast image display, using the XSHM library (when using X11).
 # !!! Seems to randomly crash when used on MacOS and 64bits systems, so use it only when necessary !!!

@@ -204,9 +204,9 @@ XRANDR_CFLAGS = $(XRANDR_DEFINE) $(XRANDR_INCDIR)
 XRANDR_LIBS := $(shell pkg-config --libs xrandr 2>/dev/null || echo -lXrandr)
 
 # Flags to enable GDI32 display (Windows native).
-GDI32_DEFINE = -mwindows
+GDI32_DEFINE =
 GDI32_INCDIR =
-GDI32_CFLAGS = $(GDI32_DEFINE) $(GDI32_INCDIR)
+GDI32_CFLAGS = $(GDI32_DEFINE) $(GDI32_INCDIR) -mwindows
 GDI32_LIBS = -lgdi32
 
 # Flags to enable SDL3 display.
@@ -430,12 +430,14 @@ all
 mmacos:
 	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(ANSI_CFLAGS) $(NODISPLAY_CFLAGS) $(OPT_CFLAGS)" \
+"STRIP_EXE=true" \
 all
 
 Mmacos:
 	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(OPT_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS) $(TIFF_CFLAGS) $(HEIF_CFLAGS) $(MINC2_CFLAGS) $(OPENEXR_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(ZLIB_CFLAGS) $(OPENCV_CFLAGS) $(MAGICK_CFLAGS) $(FFTW3_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS) $(TIFF_LIBS) $(HEIF_LIBS) $(MINC2_LIBS) $(OPENEXR_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(ZLIB_LIBS) $(OPENCV_LIBS) $(MAGICK_LIBS) $(FFTW3_LIBS)" \
+"STRIP_EXE=true" \
 all $(EXTRA_FILES)
 
 # Windows targets, with GDI32 display.
@@ -447,13 +449,13 @@ all
 
 dwindows:
 	@$(MAKE) --no-print-directory \
-"CONF_CFLAGS = $(DEBUG_CFLAGS)" \
+"CONF_CFLAGS = $(DEBUG_CFLAGS) $(GDI32_CFLAGS)" \
 "CONF_LIBS = $(GDI32_LIBS)" \
 all
 
 owindows:
 	@$(MAKE) --no-print-directory \
-"CONF_CFLAGS = $(OPT_CFLAGS)" \
+"CONF_CFLAGS = $(OPT_CFLAGS) $(GDI32_CFLAGS)" \
 "CONF_LIBS = $(GDI32_LIBS)" \
 "STRIP_EXE=true" \
 all
@@ -466,7 +468,7 @@ all
 
 Mwindows:
 	@$(MAKE) --no-print-directory \
-"CONF_CFLAGS = $(OPT_CFLAGS) $(TIFF_CFLAGS) $(HEIF_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(ZLIB_CFLAGS) $(OPENCV_CFLAGS) $(FFTW3_CFLAGS)" \
+"CONF_CFLAGS = $(OPT_CFLAGS) $(GDI32_CFLAGS) $(TIFF_CFLAGS) $(HEIF_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(ZLIB_CFLAGS) $(OPENCV_CFLAGS) $(FFTW3_CFLAGS)" \
 "CONF_LIBS = $(GDI32_LIBS) $(TIFF_LIBS) $(HEIF_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(ZLIB_LIBS) $(OPENCV_LIBS) $(FFTW3_LIBS)" \
 "STRIP_EXE=true" \
 all $(EXTRA_FILES)

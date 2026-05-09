@@ -199,9 +199,9 @@ XSHM_LIBS := # $(shell pkg-config --libs xcb-shm 2>/dev/null || echo -L/usr/X11R
 # ( http://www.x.org/wiki/Projects/XRandR )
 # !!! Not supported by the X11 server on MacOS, so do not use it on MacOS !!!
 XRANDR_DEFINE = -Dcimg_use_xrandr
-XRANDR_INCDIR =
+XRANDR_INCDIR := $(shell pkg-config --cflags xrandr 2>/dev/null)
 XRANDR_CFLAGS = $(XRANDR_DEFINE) $(XRANDR_INCDIR)
-XRANDR_LIBS = -lXrandr
+XRANDR_LIBS := $(shell pkg-config --libs xrandr 2>/dev/null || echo -lXrandr)
 
 # Flags to enable GDI32 display (Windows native).
 GDI32_DEFINE = -mwindows
@@ -213,7 +213,7 @@ GDI32_LIBS = -lgdi32
 SDL3_DEFINE = -Dcimg_display=3
 SDL3_INCDIR := $(shell pkg-config --cflags sdl3 2>/dev/null || echo -I/usr/local/include)
 SDL3_CFLAGS = $(SDL3_DEFINE) $(SDL3_INCDIR)
-SDL3_LIBS := $(shell pkg-config --libs sdl3 2>/dev/null || echo -L/usr/lib -lSDL3 -Wl,-rpath,/usr/local/lib)
+SDL3_LIBS := $(shell pkg-config --libs sdl3 2>/dev/null || echo -L/usr/local/lib -lSDL3)
 
 # Flags to enable native support for PNG image files, using the PNG library.
 # ( http://www.libpng.org/ )
@@ -282,7 +282,7 @@ ZLIB_LIBS := $(shell pkg-config --libs zlib 2>/dev/null || echo -lz)
 # ( http://curl.haxx.se/libcurl/ )
 CURL_DEFINE = -Dcimg_use_curl
 CURL_INCDIR := $(shell pkg-config --cflags libcurl 2>/dev/null)
-CURL_CFLAGS = $(CURL_DEFINE)
+CURL_CFLAGS = $(CURL_DEFINE) $(CURL_INCDIR)
 CURL_LIBS := $(shell pkg-config --libs libcurl 2>/dev/null || echo -lcurl)
 
 # Flags to enable native support of most classical image file formats, using the Magick++ library.
@@ -295,7 +295,7 @@ MAGICK_LIBS := $(shell pkg-config --libs GraphicsMagick++ 2>/dev/null || echo -l
 # Flags to enable faster Discrete Fourier Transform computation, using the FFTW3 library
 # ( http://www.fftw.org/ )
 FFTW3_DEFINE = -Dcimg_use_fftw3
-FFTW3_INCDIR =
+FFTW3_INCDIR := $(shell pkg-config --cflags fftw3 2>/dev/null)
 FFTW3_CFLAGS = $(FFTW3_DEFINE) $(FFTW3_INCDIR)
 ifneq ($(filter MINGW32 MINGW64,$(MSYSTEM)),)
 FFTW3_LIBS = -lfftw3-3
@@ -361,7 +361,7 @@ clean:
 
 # Custom user-defined target
 custom:
-	@$(MAKE) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(ANSI_CFLAGS) $(VT100_CFLAGS) $(TIFF_CFLAGS) $(HEIF_CFLAGS) $(X11_CFLAGS) $(XSHM_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS) $(TIFF_LIBS) $(HEIF_LIBS) $(XSHM_LIBS)" \
 all $(EXTRA_FILES)
@@ -424,6 +424,7 @@ omacos:
 	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(ANSI_CFLAGS) $(OPT_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS)" \
+"STRIP_EXE=true" \
 all
 
 mmacos:
@@ -440,7 +441,7 @@ all $(EXTRA_FILES)
 # Windows targets, with GDI32 display.
 windows:
 	@$(MAKE) --no-print-directory \
-"CONF_CFLAGS = " \
+"CONF_CFLAGS = $(GDI32_CFLAGS)" \
 "CONF_LIBS = $(GDI32_LIBS)" \
 all
 

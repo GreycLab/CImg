@@ -56011,6 +56011,8 @@ namespace cimg_library {
         case cimg::keyS : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) {
             static unsigned int snap_number = 0;
             do {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
               cimg_snprintf(filename,filename._width,cimg_appname "_%.6u."
 #ifdef cimg_use_png
                             "png",
@@ -56018,6 +56020,7 @@ namespace cimg_library {
                             "bmp",
 #endif
                             snap_number++);
+#pragma GCC diagnostic pop
             } while (cimg::path_exists(filename));
             if (visu0) {
               (+visu0).__draw_text(" Saving snapshot...",font_size,(int)text_down).display(disp);
@@ -56030,11 +56033,14 @@ namespace cimg_library {
             static unsigned int snap_number = 0;
             do {
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
 #ifdef cimg_use_zlib
               cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.cimgz",snap_number++);
 #else
               cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.cimg",snap_number++);
 #endif
+#pragma GCC diagnostic pop
             } while (cimg::path_exists(filename));
             (+visu0).__draw_text(" Saving instance... ",font_size,(int)text_down).display(disp);
             save(filename);

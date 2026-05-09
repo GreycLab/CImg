@@ -83,14 +83,9 @@ EXTRA_FILES = test_template_types use_tiff_stream use_jpeg_buffer
 #---------------------------------
 # Set correct variables and paths
 #---------------------------------
-VERSION = $(shell grep -oP 'cimg_version\s+\K[0-9]+' ../CImg.h)
-VERSION1 = $(shell grep -oP 'cimg_version\s+\K.' ../CImg.h)
-VERSION2 = $(shell grep -oP 'cimg_version\s+.\K.' ../CImg.h)
-VERSION3 = $(shell grep -oP 'cimg_version\s+..\K.' ../CImg.h)
-SVERSION=$(VERSION1).$(VERSION2).$(VERSION3)
-X11PATH = /usr/X11R6
+VERSION  := $(shell awk '/cimg_version[[:space:]]/ {print $$3; exit}' ../CImg.h)
+SVERSION := $(shell awk '/cimg_version[[:space:]]/ {v=$$3; printf "%d.%d.%d", int(v/100), int((v%100)/10), v%10; exit}' ../CImg.h)
 
-EXE_PRE =
 EXE_EXT =
 ifneq ($(filter MINGW32 MINGW64,$(MSYSTEM)),)
 EXE_EXT = .exe
@@ -106,24 +101,24 @@ ifneq ($(findstring icpc,$(notdir $(CXX))),)
 IS_ICPC = 1
 endif
 
-CXXVER = $(CXX)
+CXXVER := $(CXX)
 CFLAGS = -I.. -Wall -Wextra -Wfatal-errors -Werror=unknown-pragmas -Werror=unused-label
 LIBS = -lm
 ifdef IS_GCC
-CXXVER = $(shell $(CXX) -v 2>&1 | tail -n 1)
+CXXVER := $(shell $(CXX) -v 2>&1 | tail -n 1)
 endif
 ifdef IS_CLANG
-CXXVER = $(shell $(CXX) -v 2>&1 | head -n 1)
+CXXVER := $(shell $(CXX) -v 2>&1 | head -n 1)
 endif
 ifdef IS_ICPC
-CXXVER = $(shell $(CXX) -v 2>&1)
+CXXVER := $(shell $(CXX) -v 2>&1)
 CFLAGS = -I..
 LIBS =
 endif
 
 ifdef IS_GCC
-GCC_MAJOR = $(shell $(CXX) -dumpversion | cut -d. -f1)
-GCC_VER_GTEQ5 = $(shell [ $(GCC_MAJOR) -ge 5 ] && echo 1 || echo 0)
+GCC_MAJOR := $(shell $(CXX) -dumpversion | cut -d. -f1)
+GCC_VER_GTEQ5 := $(shell [ $(GCC_MAJOR) -ge 5 ] && echo 1 || echo 0)
 ifeq ($(GCC_VER_GTEQ5),1)
 CFLAGS += -Wshadow
 endif
@@ -135,7 +130,7 @@ endif
 #--------------------------------------------------
 
 # Flags to enable strict code standards
-ifeq ($(notdir $(CXX)),icpc)
+ifdef IS_ICPC
 ANSI_CFLAGS = -std=c++11
 else
 ANSI_CFLAGS = -std=c++11 -pedantic
@@ -152,7 +147,7 @@ VT100_CFLAGS = -Dcimg_use_vt100
 OPT_CFLAGS = -O3
 ifdef IS_GCC
 # Add -mtune=generic for GCC if supported.
-NO_MTUNE_GENERIC = $(shell $(CXX) -mtune=generic -E - < /dev/null > /dev/null 2>&1; echo $$?)
+NO_MTUNE_GENERIC := $(shell $(CXX) -mtune=generic -E - < /dev/null > /dev/null 2>&1; echo $$?)
 ifeq ($(NO_MTUNE_GENERIC),0)
 OPT_CFLAGS += -mtune=generic
 endif
@@ -166,7 +161,8 @@ OPENMP_DEFINE = -Dcimg_use_openmp -fopenmp
 OPENMP_INCDIR =
 OPENMP_CFLAGS = $(OPENMP_DEFINE) $(OPENMP_INCDIR)
 ifdef IS_ICPC
-OPENMP_CFLAGS = #-Dcimg_use_openmp -openmp -i-static    # -> Seems to bug the compiler!
+# -Dcimg_use_openmp -openmp -i-static -> Seems to bug the compiler!
+OPENMP_CFLAGS =
 endif
 ifdef IS_CLANG
 OPENMP_CFLAGS =
@@ -174,9 +170,9 @@ endif
 
 # Flags to enable OpenCV support.
 OPENCV_DEFINE = -Dcimg_use_opencv
-OPENCV_INCDIR = $(shell pkg-config opencv --cflags || echo -I/usr/include/opencv) -I/usr/include/opencv -I/usr/include/opencv4
+OPENCV_INCDIR := $(shell pkg-config --cflags opencv4 2>/dev/null || pkg-config --cflags opencv 2>/dev/null || echo -I/usr/include/opencv4 -I/usr/include/opencv)
 OPENCV_CFLAGS = $(OPENCV_DEFINE) $(OPENCV_INCDIR)
-OPENCV_LIBS = $(shell pkg-config opencv --libs || echo -lopencv_core -lopencv_highgui -lopencv_videoio)
+OPENCV_LIBS := $(shell pkg-config --libs opencv4 2>/dev/null || pkg-config --libs opencv 2>/dev/null || echo -lopencv_core -lopencv_highgui -lopencv_videoio)
 
 # Flags used to disable display capablities of CImg
 NODISPLAY_CFLAGS = -Dcimg_display=0
@@ -184,14 +180,14 @@ NODISPLAY_CFLAGS = -Dcimg_display=0
 # Flags to enable the use of the X11 library.
 # (X11 is used by CImg to handle display windows)
 X11_DEFINE = -Dcimg_display=1
-X11_INCDIR = $(shell pkg-config --cflags x11 || echo -I/usr/X11R6/include)
+X11_INCDIR := $(shell pkg-config --cflags x11 2>/dev/null || echo -I/usr/X11R6/include)
 X11_CFLAGS = $(X11_DEFINE) $(X11_INCDIR)
-X11_LIBS = $(shell pkg-config --libs x11 || echo -L/usr/X11R6/lib -lX11) -lpthread
+X11_LIBS := $(shell pkg-config --libs x11 2>/dev/null || echo -L/usr/X11R6/lib -lX11) -lpthread
 
 # Flags to enable fast image display, using the XSHM library (when using X11).
 # !!! Seems to randomly crash when used on MacOS and 64bits systems, so use it only when necessary !!!
-XSHM_CFLAGS = # -Dcimg_use_xshm $(shell pkg-config --cflags xcb-shm)
-XSHM_LIBS = # $(shell pkg-config --libs xcb-shm || echo -L/usr/X11R6/lib -lXext)
+XSHM_CFLAGS := # -Dcimg_use_xshm $(shell pkg-config --cflags xcb-shm 2>/dev/null)
+XSHM_LIBS := # $(shell pkg-config --libs xcb-shm 2>/dev/null || echo -L/usr/X11R6/lib -lXext)
 
 # Flags to enable screen mode switching, using the XRandr library (when using X11).
 # ( http://www.x.org/wiki/Projects/XRandR )
@@ -209,9 +205,9 @@ GDI32_LIBS = -lgdi32
 
 # Flags to enable SDL3 display.
 SDL3_DEFINE = -Dcimg_display=3
-SDL3_INCDIR = $(shell pkg-config --cflags sdl3 || echo -I/usr/local/include)
+SDL3_INCDIR := $(shell pkg-config --cflags sdl3 2>/dev/null || echo -I/usr/local/include)
 SDL3_CFLAGS = $(SDL3_DEFINE) $(SDL3_INCDIR)
-SDL3_LIBS = $(shell pkg-config --libs sdl3 || echo -L/usr/lib -Wl,-rpath,/usr/local/lib)
+SDL3_LIBS := $(shell pkg-config --libs sdl3 2>/dev/null || echo -L/usr/lib -lSDL3 -Wl,-rpath,/usr/local/lib)
 
 # Flags to enable native support for PNG image files, using the PNG library.
 # ( http://www.libpng.org/ )
@@ -253,14 +249,14 @@ HEIF_LIBS = -lheif
 MINC2_DEFINE = -Dcimg_use_minc2
 MINC2_INCDIR = -I${HOME}/local/include
 MINC2_CFLAGS = $(MINC2_DEFINE) $(MINC2_INCDIR)
-MINC2_LIBS = -lminc_io -lvolume_io2 -lminc2 -lnetcdf -lhdf5 -lz -L${HOME}/local/lib
+MINC2_LIBS = -L${HOME}/local/lib -lminc_io -lvolume_io2 -lminc2 -lnetcdf -lhdf5 -lz
 
 # Flags to enable native support for EXR image files, using the OpenEXR library.
 # ( http://www.openexr.com/ )
 OPENEXR_DEFINE = -Dcimg_use_openexr
-OPENEXR_INCDIR = -I/usr/include/OpenEXR
+OPENEXR_INCDIR := $(shell pkg-config --cflags OpenEXR 2>/dev/null || echo -I/usr/include/OpenEXR)
 OPENEXR_CFLAGS = $(OPENEXR_DEFINE) $(OPENEXR_INCDIR)
-OPENEXR_LIBS = -lIlmImf -lHalf
+OPENEXR_LIBS := $(shell pkg-config --libs OpenEXR 2>/dev/null || echo -lIlmImf -lHalf)
 
 # Flags to enable native support for various video files, using the FFMPEG library.
 # ( http://www.ffmpeg.org/ )
@@ -272,9 +268,9 @@ FFMPEG_LIBS = -lavcodec -lavformat -lswscale
 # Flags to enable native support for compressed .cimgz files, using the Zlib library.
 # ( http://www.zlib.net/ )
 ZLIB_DEFINE = -Dcimg_use_zlib
-ZLIB_INCDIR = $(shell pkg-config --cflags zlib || echo -I/usr/include)
+ZLIB_INCDIR := $(shell pkg-config --cflags zlib 2>/dev/null || echo -I/usr/include)
 ZLIB_CFLAGS = $(ZLIB_DEFINE) $(ZLIB_INCDIR)
-ZLIB_LIBS = $(shell pkg-config --libs zlib || echo -lz)
+ZLIB_LIBS := $(shell pkg-config --libs zlib 2>/dev/null || echo -lz)
 
 # Flags to enable native support for downloading files from the network.
 # ( http://curl.haxx.se/libcurl/ )
@@ -286,16 +282,16 @@ CURL_LIBS = -lcurl
 # Flags to enable native support of most classical image file formats, using the Magick++ library.
 # ( http://www.imagemagick.org/Magick++/ )
 MAGICK_DEFINE = -Dcimg_use_magick
-MAGICK_INCDIR = $(shell pkg-config --cflags GraphicsMagick++ || echo -I/usr/include/GraphicsMagick)
+MAGICK_INCDIR := $(shell pkg-config --cflags GraphicsMagick++ 2>/dev/null || echo -I/usr/include/GraphicsMagick)
 MAGICK_CFLAGS = $(MAGICK_DEFINE) $(MAGICK_INCDIR)
-MAGICK_LIBS = $(shell pkg-config --libs GraphicsMagick++ || echo -lGraphicsMagick++)
+MAGICK_LIBS := $(shell pkg-config --libs GraphicsMagick++ 2>/dev/null || echo -lGraphicsMagick++)
 
 # Flags to enable faster Discrete Fourier Transform computation, using the FFTW3 library
 # ( http://www.fftw.org/ )
 FFTW3_DEFINE = -Dcimg_use_fftw3
 FFTW3_INCDIR =
 FFTW3_CFLAGS = $(FFTW3_DEFINE) $(FFTW3_INCDIR)
-ifeq ($(OSTYPE),msys)
+ifneq ($(filter MINGW32 MINGW64,$(MSYSTEM)),)
 FFTW3_LIBS = -lfftw3-3
 else
 FFTW3_LIBS = -lfftw3 -lfftw3_threads
@@ -304,14 +300,9 @@ endif
 # Enable native support of WebP image files, using the WebP library.
 # (https://chromium.googlesource.com/webm/libwebp/)
 WEBP_DEFINE = -Dcimg_use_webp
-WEBP_INCDIR = $(shell pkg-config --cflags libwebp)
+WEBP_INCDIR := $(shell pkg-config --cflags libwebp 2>/dev/null || echo -I/usr/include/webp)
 WEBP_CFLAGS = $(WEBP_DEFINE) $(WEBP_INCDIR)
-WEBP_LIBS = $(shell pkg-config --libs libwebp || echo -lwebp)
-
-# Flags to compile executable on Windows.
-ifeq ($(MSYSTEM),MINGW32)
-GIMP_CFLAGS = -mwindows
-endif
+WEBP_LIBS := $(shell pkg-config --libs libwebp 2>/dev/null || echo -lwebp)
 
 #-------------------------
 # Define Makefile entries
@@ -337,7 +328,7 @@ menu:
 	@echo "  > linux    : Linux/BSD target, X11 display, optimizations disabled."
 	@echo "  > dlinux   : Linux/BSD target, X11 display, debug mode."
 	@echo "  > olinux   : Linux/BSD target, X11 display, optimizations enabled."
-	@echo "  > mlinux   : Linus/BSD target, no display, minimal features, optimizations enabled."
+	@echo "  > mlinux   : Linux/BSD target, no display, minimal features, optimizations enabled."
 	@echo "  > Mlinux   : Linux/BSD target, X11 display, maximal features, optimizations enabled."
 	@echo
 	@echo "  > macos    : MacOS target, X11 display, optimizations disabled."
@@ -361,9 +352,6 @@ all: $(FILES)
 
 clean:
 	rm -rf *.exe *.o *.obj *~ \#* $(FILES) $(EXTRA_FILES)
-ifneq ($(EXE_PRE),)
-	rm -f $(EXE_PRE)*
-endif
 
 # Custom user-defined target
 custom:

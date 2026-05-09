@@ -224,7 +224,7 @@ JPEG_CFLAGS = $(JPEG_DEFINE) $(JPEG_INCDIR)
 JPEG_LIBS = -ljpeg
 
 # Flags to enable native support for JPEG XL image files, using the JXL library.
-# ( http://www.ijg.org/ )
+# ( https://github.com/libjxl/libjxl )
 JXL_DEFINE = -Dcimg_use_jxl
 JXL_INCDIR =
 JXL_CFLAGS = $(JXL_DEFINE) $(JXL_INCDIR)

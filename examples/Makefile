@@ -46,13 +46,13 @@
 
 # Files which do not necessarily require external libraries to run.
 FILES = CImg_demo \
-        captcha \
-        curve_editor2d \
-        dtmri_view3d \
+	captcha \
+	curve_editor2d \
+	dtmri_view3d \
 	edge_explorer2d \
 	fade_images \
 	gaussian_fit1d \
-        generate_loop_macros \
+	generate_loop_macros \
 	hough_transform2d \
 	image_registration2d \
 	image2ascii \
@@ -75,7 +75,7 @@ FILES = CImg_demo \
 	use_draw_gradient \
 	use_nlmeans \
 	use_skeleton \
-	use_RGBclass \
+	use_RGBclass
 
 # Files which requires external libraries to run.
 EXTRA_FILES = test_template_types use_tiff_stream use_jpeg_buffer
@@ -92,20 +92,17 @@ X11PATH = /usr/X11R6
 
 EXE_PRE =
 EXE_EXT =
-ifeq ($(MSYSTEM),MINGW32)
-EXE_EXT = .exe
-endif
-ifeq ($(MSYSTEM),MINGW64)
+ifneq ($(filter MINGW32 MINGW64,$(MSYSTEM)),)
 EXE_EXT = .exe
 endif
 
-ifeq ($(shell echo $(notdir $(CXX)) | head -c3),g++)
+ifneq ($(findstring g++,$(notdir $(CXX))),)
 IS_GCC = 1
 endif
-ifeq ($(shell echo $(notdir $(CXX)) | head -c7),clang++)
+ifneq ($(findstring clang++,$(notdir $(CXX))),)
 IS_CLANG = 1
 endif
-ifeq ($(shell echo $(notdir $(CXX)) | head -c4),icpc)
+ifneq ($(findstring icpc,$(notdir $(CXX))),)
 IS_ICPC = 1
 endif
 
@@ -125,7 +122,8 @@ LIBS =
 endif
 
 ifdef IS_GCC
-GCC_VER_GTEQ5 = $(shell expr `$(CXX) -dumpversion | cut -f1 -d.` \>= 5)
+GCC_MAJOR = $(shell $(CXX) -dumpversion | cut -d. -f1)
+GCC_VER_GTEQ5 = $(shell [ $(GCC_MAJOR) -ge 5 ] && echo 1 || echo 0)
 ifeq ($(GCC_VER_GTEQ5),1)
 CFLAGS += -Wshadow
 endif
@@ -151,7 +149,7 @@ DEBUG_CFLAGS = -Dcimg_verbosity=3 -Dcimg_strict_warnings -g -fsanitize=address
 VT100_CFLAGS = -Dcimg_use_vt100
 
 # Flags to enable code optimization by the compiler.
-OPT_CFLAGS = -Ofast
+OPT_CFLAGS = -O3
 ifdef IS_GCC
 # Add -mtune=generic for GCC if supported.
 NO_MTUNE_GENERIC = $(shell $(CXX) -mtune=generic -E - < /dev/null > /dev/null 2>&1; echo $$?)
@@ -193,7 +191,7 @@ X11_LIBS = $(shell pkg-config --libs x11 || echo -L/usr/X11R6/lib -lX11) -lpthre
 # Flags to enable fast image display, using the XSHM library (when using X11).
 # !!! Seems to randomly crash when used on MacOS and 64bits systems, so use it only when necessary !!!
 XSHM_CFLAGS = # -Dcimg_use_xshm $(shell pkg-config --cflags xcb-shm)
-XSHM_LIBS = # $(shell pkg-config --libs xcb-shm || echo -L$(USR)/X11R6/lib -lXext)
+XSHM_LIBS = # $(shell pkg-config --libs xcb-shm || echo -L/usr/X11R6/lib -lXext)
 
 # Flags to enable screen mode switching, using the XRandr library (when using X11).
 # ( http://www.x.org/wiki/Projects/XRandR )
@@ -213,7 +211,7 @@ GDI32_LIBS = -lgdi32
 SDL3_DEFINE = -Dcimg_display=3
 SDL3_INCDIR = $(shell pkg-config --cflags sdl3 || echo -I/usr/local/include)
 SDL3_CFLAGS = $(SDL3_DEFINE) $(SDL3_INCDIR)
-SDL3_LIBS = $(shell pkg-config --libs sdl3 || echo -L/usr/local/include -Wl,-rpath,/usr/local/lib)
+SDL3_LIBS = $(shell pkg-config --libs sdl3 || echo -L/usr/lib -Wl,-rpath,/usr/local/lib)
 
 # Flags to enable native support for PNG image files, using the PNG library.
 # ( http://www.libpng.org/ )
@@ -274,7 +272,7 @@ FFMPEG_LIBS = -lavcodec -lavformat -lswscale
 # Flags to enable native support for compressed .cimgz files, using the Zlib library.
 # ( http://www.zlib.net/ )
 ZLIB_DEFINE = -Dcimg_use_zlib
-ZLIB_INCDIR = $(shell pkg-config --cflags zlib || echo -I$(USR)/$(INCLUDE))
+ZLIB_INCDIR = $(shell pkg-config --cflags zlib || echo -I/usr/include)
 ZLIB_CFLAGS = $(ZLIB_DEFINE) $(ZLIB_INCDIR)
 ZLIB_LIBS = $(shell pkg-config --libs zlib || echo -lz)
 
@@ -288,7 +286,7 @@ CURL_LIBS = -lcurl
 # Flags to enable native support of most classical image file formats, using the Magick++ library.
 # ( http://www.imagemagick.org/Magick++/ )
 MAGICK_DEFINE = -Dcimg_use_magick
-MAGICK_INCDIR = $(shell pkg-config --cflags GraphicsMagick++ || echo -I$(USR)/$(INCLUDE)/GraphicsMagick)
+MAGICK_INCDIR = $(shell pkg-config --cflags GraphicsMagick++ || echo -I/usr/include/GraphicsMagick)
 MAGICK_CFLAGS = $(MAGICK_DEFINE) $(MAGICK_INCDIR)
 MAGICK_LIBS = $(shell pkg-config --libs GraphicsMagick++ || echo -lGraphicsMagick++)
 
@@ -323,14 +321,15 @@ endif
         windows dwindows owindows mwindows Mwindows \
         travis custom
 
-.cpp:
+%$(EXE_EXT): %.cpp
 	@echo
 	@echo "** Compiling '$* ($(SVERSION))' with '$(CXXVER)'"
 	@echo
-	$(CXX) -o $(EXE_PRE)$*$(EXE_EXT) $< $(CFLAGS) $(CONF_CFLAGS) $(LIBS) $(CONF_LIBS)
+	$(CXX) -o $@ $< $(CFLAGS) $(CONF_CFLAGS) $(LIBS) $(CONF_LIBS)
 ifeq ($(STRIP_EXE),true)
-	strip $(EXE_PRE)$*$(EXE_EXT)
+	strip $@
 endif
+
 menu:
 	@echo
 	@echo "CImg Library $(SVERSION) : Examples"
@@ -369,18 +368,8 @@ endif
 # Custom user-defined target
 custom:
 	@$(MAKE) \
-"CONF_CFLAGS = \
-$(ANSI_CFLAGS) \
-$(VT100_CFLAGS) \
-$(TIFF_CFLAGS) \
-$(HEIF_CFLAGS) \
-$(X11_CFLAGS) \
-$(XSHM_CFLAGS)" \
-"CONF_LIBS = \
-$(X11_LIBS) \
-$(TIFF_LIBS) \
-$(HEIF_LIBS) \
-$(XSHM_LIBS)" \
+"CONF_CFLAGS = $(ANSI_CFLAGS) $(VT100_CFLAGS) $(TIFF_CFLAGS) $(HEIF_CFLAGS) $(X11_CFLAGS) $(XSHM_CFLAGS)" \
+"CONF_LIBS = $(X11_LIBS) $(TIFF_LIBS) $(HEIF_LIBS) $(XSHM_LIBS)" \
 all $(EXTRA_FILES)
 
 # Linux/BSD/Mac OSX targets, with X11 display.
@@ -388,232 +377,102 @@ all $(EXTRA_FILES)
 # A target for Travis-CI
 travis:
 	@$(MAKE) \
-"CONF_CFLAGS = \
-$(ANSI_CFLAGS) \
-$(VT100_CFLAGS) \
-$(X11_CFLAGS) \
-$(FFTW3_CFLAGS) \
-$(PNG_CFLAGS) \
-$(JPEG_CFLAGS) \
-$(CURL_CFLAGS) \
-$(XSHM_CFLAGS)" \
-"CONF_LIBS = \
-$(X11_LIBS) \
-$(FFTW3_LIBS) \
-$(PNG_LIBS) \
-$(JPEG_LIBS) \
-$(CURL_LIBS) \
-$(XSHM_LIBS)" \
+"CONF_CFLAGS = $(ANSI_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS) $(FFTW3_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(CURL_CFLAGS) $(XSHM_CFLAGS)" \
+"CONF_LIBS = $(X11_LIBS) $(FFTW3_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(CURL_LIBS) $(XSHM_LIBS)" \
 all
 
 linux:
 	@$(MAKE) \
-"CONF_CFLAGS = \
-$(ANSI_CFLAGS) \
-$(VT100_CFLAGS) \
-$(X11_CFLAGS) \
-$(XSHM_CFLAGS)" \
-"CONF_LIBS = \
-$(X11_LIBS) \
-$(XSHM_LIBS)" \
+"CONF_CFLAGS = $(ANSI_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS) $(XSHM_CFLAGS)" \
+"CONF_LIBS = $(X11_LIBS) $(XSHM_LIBS)" \
 all
 
 dlinux:
 	@$(MAKE) \
-"CONF_CFLAGS = \
-$(ANSI_CFLAGS) \
-$(DEBUG_CFLAGS) \
-$(VT100_CFLAGS) \
-$(X11_CFLAGS) \
-$(XSHM_CFLAGS)" \
-"CONF_LIBS = \
-$(X11_LIBS) \
-$(XSHM_LIBS)" \
+"CONF_CFLAGS = $(ANSI_CFLAGS) $(DEBUG_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS) $(XSHM_CFLAGS)" \
+"CONF_LIBS = $(X11_LIBS) $(XSHM_LIBS)" \
 all
 
 olinux:
 	@$(MAKE) \
-"CONF_CFLAGS = \
-$(ANSI_CFLAGS) \
-$(OPT_CFLAGS) \
-$(OPENMP_CFLAGS) \
-$(VT100_CFLAGS) \
-$(X11_CFLAGS) \
-$(XSHM_CFLAGS)" \
-"CONF_LIBS = \
-$(X11_LIBS) \
-$(XSHM_LIBS)" \
+"CONF_CFLAGS = $(ANSI_CFLAGS) $(OPT_CFLAGS) $(OPENMP_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS) $(XSHM_CFLAGS)" \
+"CONF_LIBS = $(X11_LIBS) $(XSHM_LIBS)" \
 "STRIP_EXE=true" \
 all
 
 mlinux:
 	@$(MAKE) \
-"CONF_CFLAGS = \
-$(ANSI_CFLAGS) \
-$(NODISPLAY_CFLAGS) \
-$(OPT_CFLAGS)" \
+"CONF_CFLAGS = $(ANSI_CFLAGS) $(NODISPLAY_CFLAGS) $(OPT_CFLAGS)" \
 "STRIP_EXE=true" \
 all
 
 Mlinux:
 	@$(MAKE) \
-"CONF_CFLAGS = \
-$(OPT_CFLAGS) \
-$(VT100_CFLAGS) \
-$(X11_CFLAGS) \
-$(XSHM_CFLAGS) \
-$(XRANDR_CFLAGS) \
-$(TIFF_CFLAGS) \
-$(HEIF_CFLAGS) \
-$(OPENEXR_CFLAGS) \
-$(PNG_CFLAGS) \
-$(JPEG_CFLAGS) \
-$(ZLIB_CFLAGS) \
-$(CURL_CFLAGS) \
-$(OPENCV_CFLAGS) \
-$(MAGICK_CFLAGS) \
-$(FFTW3_CFLAGS)" \
-"CONF_LIBS = \
-$(X11_LIBS) \
-$(XSHM_LIBS) \
-$(XRANDR_LIBS) \
-$(TIFF_LIBS) -ltiffxx \
-$(HEIF_LIBS) \
-$(OPENEXR_LIBS) \
-$(PNG_LIBS) \
-$(JPEG_LIBS) \
-$(ZLIB_LIBS) \
-$(CURL_LIBS) \
-$(OPENCV_LIBS) \
-$(MAGICK_LIBS) \
-$(FFTW3_LIBS)" \
+"CONF_CFLAGS = $(OPT_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS) $(XSHM_CFLAGS) $(XRANDR_CFLAGS) $(TIFF_CFLAGS) $(HEIF_CFLAGS) $(OPENEXR_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(ZLIB_CFLAGS) $(CURL_CFLAGS) $(OPENCV_CFLAGS) $(MAGICK_CFLAGS) $(FFTW3_CFLAGS)" \
+"CONF_LIBS = $(X11_LIBS) $(XSHM_LIBS) $(XRANDR_LIBS) $(TIFF_LIBS) -ltiffxx $(HEIF_LIBS) $(OPENEXR_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(ZLIB_LIBS) $(CURL_LIBS) $(OPENCV_LIBS) $(MAGICK_LIBS) $(FFTW3_LIBS)" \
 "STRIP_EXE=true" \
 all $(EXTRA_FILES)
 
 # MacOs targets, with X11 display.
 macos:
 	@$(MAKE) \
-"CONF_CFLAGS = \
-$(ANSI_CFLAGS) \
-$(VT100_CFLAGS) \
-$(X11_CFLAGS)" \
-"CONF_LIBS = \
-$(X11_LIBS)" \
+"CONF_CFLAGS = $(ANSI_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS)" \
+"CONF_LIBS = $(X11_LIBS)" \
 all
 
 dmacos:
 	@$(MAKE) \
-"CONF_CFLAGS = \
-$(ANSI_CFLAGS) \
-$(DEBUG_CFLAGS) \
-$(VT100_CFLAGS) \
-$(X11_CFLAGS)" \
-"CONF_LIBS = \
-$(X11_LIBS)" \
+"CONF_CFLAGS = $(ANSI_CFLAGS) $(DEBUG_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS)" \
+"CONF_LIBS = $(X11_LIBS)" \
 all
 
 omacos:
 	@$(MAKE) \
-"CONF_CFLAGS = \
-$(ANSI_CFLAGS) \
-$(OPT_CFLAGS) \
-$(VT100_CFLAGS) \
-$(X11_CFLAGS)" \
-"CONF_LIBS = \
-$(X11_LIBS)" \
+"CONF_CFLAGS = $(ANSI_CFLAGS) $(OPT_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS)" \
+"CONF_LIBS = $(X11_LIBS)" \
 all
 
 mmacos:
 	@$(MAKE) \
-"CONF_CFLAGS = \
-$(ANSI_CFLAGS) \
-$(NODISPLAY_CFLAGS) \
-$(OPT_CFLAGS)" \
+"CONF_CFLAGS = $(ANSI_CFLAGS) $(NODISPLAY_CFLAGS) $(OPT_CFLAGS)" \
 all
 
 Mmacos:
 	@$(MAKE) \
-"CONF_CFLAGS = \
-$(OPT_CFLAGS) \
-$(VT100_CFLAGS) \
-$(X11_CFLAGS) \
-$(TIFF_CFLAGS) \
-$(HEIF_CFLAGS) \
-$(MINC2_CFLAGS) \
-$(OPENEXR_CFLAGS) \
-$(PNG_CFLAGS) \
-$(JPEG_CFLAGS) \
-$(ZLIB_CFLAGS) \
-$(OPENCV_CFLAGS) \
-$(MAGICK_CFLAGS) \
-$(FFTW3_CFLAGS)" \
-"CONF_LIBS = \
-$(X11_LIBS) \
-$(TIFF_LIBS) \
-$(HEIF_LIBS) \
-$(MINC2_LIBS) \
-$(OPENEXR_LIBS) \
-$(PNG_LIBS) \
-$(JPEG_LIBS) \
-$(ZLIB_LIBS) \
-$(OPENCV_LIBS) \
-$(MAGICK_LIBS) \
-$(FFTW3_LIBS)" \
+"CONF_CFLAGS = $(OPT_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS) $(TIFF_CFLAGS) $(HEIF_CFLAGS) $(MINC2_CFLAGS) $(OPENEXR_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(ZLIB_CFLAGS) $(OPENCV_CFLAGS) $(MAGICK_CFLAGS) $(FFTW3_CFLAGS)" \
+"CONF_LIBS = $(X11_LIBS) $(TIFF_LIBS) $(HEIF_LIBS) $(MINC2_LIBS) $(OPENEXR_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(ZLIB_LIBS) $(OPENCV_LIBS) $(MAGICK_LIBS) $(FFTW3_LIBS)" \
 all $(EXTRA_FILES)
 
 # Windows targets, with GDI32 display.
 windows:
 	@$(MAKE) \
 "CONF_CFLAGS = " \
-"CONF_LIBS = \
-$(GDI32_LIBS)" \
+"CONF_LIBS = $(GDI32_LIBS)" \
 all
 
 dwindows:
 	@$(MAKE) \
-"CONF_CFLAGS = \
-$(DEBUG_CFLAGS)" \
-"CONF_LIBS = \
-$(GDI32_LIBS)" \
+"CONF_CFLAGS = $(DEBUG_CFLAGS)" \
+"CONF_LIBS = $(GDI32_LIBS)" \
 all
 
 owindows:
 	@$(MAKE) \
-"CONF_CFLAGS = \
-$(OPT_CFLAGS)" \
-"CONF_LIBS = \
-$(GDI32_LIBS)" \
+"CONF_CFLAGS = $(OPT_CFLAGS)" \
+"CONF_LIBS = $(GDI32_LIBS)" \
 "STRIP_EXE=true" \
 all
 
 mwindows:
 	@$(MAKE) \
-"CONF_CFLAGS = \
-$(NODISPLAY_CFLAGS) \
-$(OPT_CFLAGS)" \
+"CONF_CFLAGS = $(NODISPLAY_CFLAGS) $(OPT_CFLAGS)" \
 "STRIP_EXE=true" \
 all
 
 Mwindows:
 	@$(MAKE) \
-"CONF_CFLAGS = \
-$(OPT_CFLAGS) \
-$(TIFF_CFLAGS) \
-$(HEIF_CFLAGS) \
-$(PNG_CFLAGS) \
-$(JPEG_CFLAGS) \
-$(ZLIB_CFLAGS) \
-$(OPENCV_CFLAGS) \
-$(FFTW3_CFLAGS)" \
-"CONF_LIBS = \
-$(GDI32_LIBS) \
-$(TIFF_LIBS) \
-$(HEIF_LIBS) \
-$(PNG_LIBS) \
-$(JPEG_LIBS) \
-$(ZLIB_LIBS) \
-$(OPENCV_LIBS) \
-$(FFTW3_LIBS)" \
+"CONF_CFLAGS = $(OPT_CFLAGS) $(TIFF_CFLAGS) $(HEIF_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(ZLIB_CFLAGS) $(OPENCV_CFLAGS) $(FFTW3_CFLAGS)" \
+"CONF_LIBS = $(GDI32_LIBS) $(TIFF_LIBS) $(HEIF_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(ZLIB_LIBS) $(OPENCV_LIBS) $(FFTW3_LIBS)" \
 "STRIP_EXE=true" \
 all $(EXTRA_FILES)
 

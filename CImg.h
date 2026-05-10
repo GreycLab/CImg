@@ -68516,8 +68516,11 @@ namespace cimg_library {
 #define _cimg_save_gif_extension "ppm"
 #endif
       do {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
                       cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+#pragma GCC diagnostic pop
         cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_000001." _cimg_save_gif_extension,filename_tmp._data);
       } while (cimg::path_exists(filename_tmp2));
       cimglist_for(*this,l) {

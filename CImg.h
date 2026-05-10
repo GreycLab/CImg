@@ -31005,10 +31005,7 @@ namespace cimg_library {
             for (unsigned int k = 0; k<siz0; ++k) str[k] = (char)mp.mem[ptr++];
             str[siz0] = 0;
             cimg::strellipsize(str,1024,false);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-overflow"
             std::fprintf(cimg::output()," ] = '%s' (size: %u)",str._data,siz0);
-#pragma GCC diagnostic pop
           } else std::fprintf(cimg::output()," ] (size: %u)",siz0);
           std::fflush(cimg::output());
           cimg::mutex(6,0);
@@ -56014,8 +56011,6 @@ namespace cimg_library {
         case cimg::keyS : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) {
             static unsigned int snap_number = 0;
             do {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-truncation"
               cimg_snprintf(filename,filename._width,cimg_appname "_%.6u."
 #ifdef cimg_use_png
                             "png",
@@ -56023,7 +56018,6 @@ namespace cimg_library {
                             "bmp",
 #endif
                             snap_number++);
-#pragma GCC diagnostic pop
             } while (cimg::path_exists(filename));
             if (visu0) {
               (+visu0).__draw_text(" Saving snapshot...",font_size,(int)text_down).display(disp);
@@ -56036,14 +56030,11 @@ namespace cimg_library {
             static unsigned int snap_number = 0;
             do {
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-truncation"
 #ifdef cimg_use_zlib
               cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.cimgz",snap_number++);
 #else
               cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.cimg",snap_number++);
 #endif
-#pragma GCC diagnostic pop
             } while (cimg::path_exists(filename));
             (+visu0).__draw_text(" Saving instance... ",font_size,(int)text_down).display(disp);
             save(filename);
@@ -60312,10 +60303,7 @@ namespace cimg_library {
                                     cimg_instance);
       CImg<charT> command(1024), filename_tmp(256), body(256);
       do {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-truncation"
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s.hdr",cimg::filenamerand());
-#pragma GCC diagnostic pop
       } while (cimg::path_exists(filename_tmp));
       cimg_snprintf(command,command._width,"\"%s\" -w -c anlz -o \"%s\" -f \"%s\"",
                     cimg::medcon_path(),
@@ -60323,10 +60311,7 @@ namespace cimg_library {
                     CImg<charT>::string(filename)._system_strescape().data());
       cimg::system(command,cimg::medcon_path());
       cimg::split_filename(filename_tmp,body);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-truncation"
       cimg_snprintf(command,command._width,"%s.hdr",body._data);
-#pragma GCC diagnostic pop
       if (!cimg::path_exists(command)) {
         cimg_snprintf(command,command._width,"m000-%s.hdr",body._data);
         if (!cimg::path_exists(command)) {
@@ -60339,10 +60324,7 @@ namespace cimg_library {
       load_analyze(command);
       std::remove(command);
       cimg::split_filename(command,body);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-truncation"
       cimg_snprintf(command,command._width,"%s.img",body._data);
-#pragma GCC diagnostic pop
       std::remove(command);
       return *this;
     }
@@ -64303,10 +64285,7 @@ namespace cimg_library {
 
       CImg<charT> command(1024), filename_tmp(256), body(256);
       do {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-truncation"
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s.hdr",cimg::filenamerand());
-#pragma GCC diagnostic pop
       } while (cimg::path_exists(filename_tmp));
       save_analyze(filename_tmp);
       cimg_snprintf(command,command._width,"\"%s\" -w -c dicom -o \"%s\" -f \"%s\"",
@@ -67953,10 +67932,7 @@ namespace cimg_library {
                       cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
         cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_000001.ppm",filename_tmp._data);
       } while (cimg::path_exists(filename_tmp2));
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-truncation"
       cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_%%6d.ppm",filename_tmp._data);
-#pragma GCC diagnostic pop
       cimg_snprintf(command,command._width,"\"%s\" -v -8 -i \"%s\" \"%s\"",
                     cimg::ffmpeg_path(),
                     CImg<charT>::string(filename)._system_strescape().data(),
@@ -68516,11 +68492,8 @@ namespace cimg_library {
 #define _cimg_save_gif_extension "ppm"
 #endif
       do {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-truncation"
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
                       cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
-#pragma GCC diagnostic pop
         cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_000001." _cimg_save_gif_extension,filename_tmp._data);
       } while (cimg::path_exists(filename_tmp2));
       cimglist_for(*this,l) {
@@ -69186,10 +69159,7 @@ namespace cimg_library {
       cimglist_for(*this,l) {
         CImg<T>& src = _data[l];
         cimg_forZ(src,z) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-truncation"
           cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_%.6u.ppm",filename_tmp._data,frame);
-#pragma GCC diagnostic pop
           CImg<charT>::string(filename_tmp2).move_to(filenames);
           CImg<T> _src = src._depth>1?src.get_slice(z):src.get_shared();
           if (_src._width%2 || _src._height%2) // Force output to have an even number of columns and rows

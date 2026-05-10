@@ -60320,8 +60320,10 @@ namespace cimg_library {
                     CImg<charT>::string(filename)._system_strescape().data());
       cimg::system(command,cimg::medcon_path());
       cimg::split_filename(filename_tmp,body);
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
       cimg_snprintf(command,command._width,"%s.hdr",body._data);
+#pragma GCC diagnostic pop
       if (!cimg::path_exists(command)) {
         cimg_snprintf(command,command._width,"m000-%s.hdr",body._data);
         if (!cimg::path_exists(command)) {

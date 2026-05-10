@@ -391,6 +391,7 @@ hr {
     margin-right: auto;
     position: relative;
     padding-top: 15px;
+    border-radius: 16px 16px 0 0;
 }
 
 .header h1 {

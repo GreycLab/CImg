@@ -31005,7 +31005,10 @@ namespace cimg_library {
             for (unsigned int k = 0; k<siz0; ++k) str[k] = (char)mp.mem[ptr++];
             str[siz0] = 0;
             cimg::strellipsize(str,1024,false);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-overflow"
             std::fprintf(cimg::output()," ] = '%s' (size: %u)",str._data,siz0);
+#pragma GCC diagnostic pop
           } else std::fprintf(cimg::output()," ] (size: %u)",siz0);
           std::fflush(cimg::output());
           cimg::mutex(6,0);

@@ -9,6 +9,7 @@ body {
     color: #222222;
     background-color: #707090;
     font-family: 'Open Sans', sans-serif;
+    font-size: 1.15em;
     margin-left: auto;
     margin-right: auto;
 }
@@ -390,6 +391,7 @@ hr {
     margin-right: auto;
     position: relative;
     padding-top: 15px;
+    border-radius: 16px 16px 0 0;
 }
 
 .header h1 {

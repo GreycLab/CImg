@@ -18714,7 +18714,7 @@ namespace cimg_library {
                       if (pop.size()==4 && pop[1]==arg3 && pop[3]==arg1) {
                         // Spot cases 'X = f(X)' -> in-place modification of vector X
                         pop[1] = arg1;
-                        if (mempos==arg3 + 1) memtype[--mempos] = 0;
+                        if (mempos==arg3 + size(arg3) + 1) mempos-=size(arg3) + 1;
                       } else
                         CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg3,(ulongT)size(arg1)).
                           move_to(code);

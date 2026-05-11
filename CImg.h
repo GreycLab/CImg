@@ -29062,15 +29062,15 @@ namespace cimg_library {
         const unsigned int siz = (unsigned int)mp.opcode[2];
         const double
           *const ptrs = &_mp_arg(3) + 1,
-          imin = mp.opcode[3]==~0U?0:_mp_arg(4),
-          imax = mp.opcode[4]==~0U?0:_mp_arg(5);
+          imin = mp.opcode[4]==~0U?0:_mp_arg(4),
+          imax = mp.opcode[5]==~0U?0:_mp_arg(5);
         double intpart;
         for (unsigned int k = 0; k<siz; ++k) {
           double val = ptrs[k];
           const bool is_int = std::modf(val,&intpart)==0;
-          if (mp.opcode[3]==~0U) val = (double)is_int;
-          else if (mp.opcode[4]==~0U) val = (double)(is_int && val>=imin);
-          else val = (double)(is_int && val>=_mp_arg(3) && val<=imax);
+          if (mp.opcode[4]==~0U) val = (double)is_int;
+          else if (mp.opcode[5]==~0U) val = (double)(is_int && val>=imin);
+          else val = (double)(is_int && val>=imin && val<=imax);
           ptrd[k] = val;
         }
         return cimg::type<double>::nan();

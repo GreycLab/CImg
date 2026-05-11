@@ -18708,28 +18708,38 @@ namespace cimg_library {
                 }
                 _cimg_mp_check_type(arg3,2,is_vector(arg1)?3:1,size(arg1));
                 if (is_vector(arg1)) { // Vector
-                  if (is_vector(arg3)) // From vector
-                    CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg3,(ulongT)size(arg1)).
-                      move_to(code);
-                  else // From scalar
+                  if (is_vector(arg3)) { // From vector
+                    if (arg1!=arg3) {
+                      CImg<ulongT> &pop = code.back();
+                      if (pop.size()==4 && pop[1]==arg3 && pop[3]==arg1) {
+                        // Spot cases 'X = f(X)' -> in-place modification of vector X
+                        pop[1] = arg1;
+                        if (mempos==arg3 + size(arg3) + 1) mempos-=size(arg3) + 1;
+                      } else
+                        CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg3,(ulongT)size(arg1)).
+                          move_to(code);
+                    }
+                  } else // From scalar
                     CImg<ulongT>::vector((ulongT)mp_vector_init,arg1,(ulongT)size(arg1),1,arg3,0).
                       move_to(code);
                 } else { // Scalar
-                  CImg<ulongT> &pop = code.back();
-                  if (pop.size()==3 && pop[1]==arg3 && pop[2]==arg1) {
-                    // Spot cases 'x = f(x)' -> in-place modification of x
-                    pop[1] = arg1;
-                    if (mempos==arg3 + 1) memtype[--mempos] = 0;
-                  } else if (pop.size()==4 && pop[1]==arg3 && pop[2]==arg1 && pop[3]!=arg3) {
-                    // Spot cases 'x = f(x,y)' -> in-place modification of x
-                    pop[1] = arg1;
-                    if (mempos==arg3 + 1) memtype[--mempos] = 0;
-                  } else if (pop.size()==4 && pop[1]==arg3 && pop[3]==arg1 && pop[2]!=arg3) {
-                    // Spot case 'y = f(x,y)' -> in-place modification of y
-                    pop[1] = arg1;
-                    if (mempos==arg3 + 1) memtype[--mempos] = 0;
-                  } else
-                    CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg3).move_to(code);
+                  if (arg1!=arg3) {
+                    CImg<ulongT> &pop = code.back();
+                    if (pop.size()==3 && pop[1]==arg3 && pop[2]==arg1) {
+                      // Spot cases 'x = f(x)' -> in-place modification of scalar x
+                      pop[1] = arg1;
+                      if (mempos==arg3 + 1) memtype[--mempos] = 0;
+                    } else if (pop.size()==4 && pop[1]==arg3 && pop[2]==arg1 && pop[3]!=arg3) {
+                      // Spot cases 'x = f(x,y)' -> in-place modification of scalar x
+                      pop[1] = arg1;
+                      if (mempos==arg3 + 1) memtype[--mempos] = 0;
+                    } else if (pop.size()==4 && pop[1]==arg3 && pop[3]==arg1 && pop[2]!=arg3) {
+                      // Spot case 'y = f(x,y)' -> in-place modification of scalar y
+                      pop[1] = arg1;
+                      if (mempos==arg3 + 1) memtype[--mempos] = 0;
+                    } else
+                      CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg3).move_to(code);
+                  }
                 }
               }
               return_comp = false;
@@ -18746,7 +18756,7 @@ namespace cimg_library {
               arg1 = compile(ss,s,depth1,ref,block_flags); // Lvalue slot
               arg2 = compile(s + 1,se,depth1,0,block_flags); // Value to assign
 
-              if (*ref==1) { // Vector value (scalar): V[k] = scalar
+              if (*ref==1) { // Vector value (scalar): (V[k]) = scalar
                 _cimg_mp_check_type(arg2,2,1,0);
                 arg3 = ref[1]; // Vector slot
                 arg4 = ref[2]; // Index
@@ -18756,7 +18766,7 @@ namespace cimg_library {
                 _cimg_mp_return(arg2);
               }
 
-              if (*ref==2) { // Image value (scalar): i/j[_#ind,off] = scalar
+              if (*ref==2) { // Image value (scalar): (i/j[_#ind,off]) = scalar
                 if (!is_inside_critical) is_parallelizable = false;
                 _cimg_mp_check_type(arg2,2,1,0);
                 p1 = ref[1]; // Index
@@ -18769,7 +18779,7 @@ namespace cimg_library {
                 _cimg_mp_return(arg2);
               }
 
-              if (*ref==3) { // Image value (scalar): i/j(_#ind,_x,_y,_z,_c) = scalar
+              if (*ref==3) { // Image value (scalar): (i/j(_#ind,_x,_y,_z,_c)) = scalar
                 if (!is_inside_critical) is_parallelizable = false;
                 _cimg_mp_check_type(arg2,2,1,0);
                 p1 = ref[1]; // Index
@@ -18785,7 +18795,7 @@ namespace cimg_library {
                 _cimg_mp_return(arg2);
               }
 
-              if (*ref==4) { // Image value (vector): I/J[_#ind,off] = value
+              if (*ref==4) { // Image value (vector): (I/J[_#ind,off]) = value
                 if (!is_inside_critical) is_parallelizable = false;
                 _cimg_mp_check_type(arg2,2,3,size(arg1));
                 p1 = ref[1]; // Index
@@ -18805,7 +18815,7 @@ namespace cimg_library {
                 _cimg_mp_return(arg2);
               }
 
-              if (*ref==5) { // Image value (vector): I/J(_#ind,_x,_y,_z,_c) = value
+              if (*ref==5) { // Image value (vector): (I/J(_#ind,_x,_y,_z,_c)) = value
                 if (!is_inside_critical) is_parallelizable = false;
                 _cimg_mp_check_type(arg2,2,3,size(arg1));
                 p1 = ref[1]; // Index
@@ -18827,7 +18837,7 @@ namespace cimg_library {
                 _cimg_mp_return(arg2);
               }
 
-              if (is_vector(arg1)) { // Vector variable: V = value
+              if (is_vector(arg1)) { // Vector variable: (V) = value
                 _cimg_mp_check_type(arg2,2,3,size(arg1));
                 if (is_vector(arg2)) // From vector
                   CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg2,(ulongT)size(arg1)).
@@ -18838,11 +18848,28 @@ namespace cimg_library {
                 _cimg_mp_return(arg1);
               }
 
-              if (is_reserved(arg1) && arg1>_cimg_mp_slot_c) { // Scalar variable: s = scalar
+              if (is_reserved(arg1) && arg1>_cimg_mp_slot_c) { // Scalar variable: (s) = scalar
                 _cimg_mp_check_type(arg2,2,1,0);
-                CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg2).move_to(code);
-                _cimg_mp_return(arg1);
+                if (arg1!=arg2) {
+                  CImg<ulongT> &pop = code.back();
+                  if (pop.size()==3 && pop[1]==arg2 && pop[2]==arg1) {
+                    // Spot cases '(x) = f(x)' -> in-place modification of scalar x
+                    pop[1] = arg1;
+                    if (mempos==arg2 + 1) memtype[--mempos] = 0;
+                  } else if (pop.size()==4 && pop[1]==arg2 && pop[2]==arg1 && pop[3]!=arg2) {
+                    // Spot cases '(x) = f(x,y)' -> in-place modification of scalar x
+                    pop[1] = arg1;
+                    if (mempos==arg2 + 1) memtype[--mempos] = 0;
+                  } else if (pop.size()==4 && pop[1]==arg2 && pop[3]==arg1 && pop[2]!=arg2) {
+                    // Spot case '(y) = f(x,y)' -> in-place modification of scalar y
+                    pop[1] = arg1;
+                    if (mempos==arg2 + 1) memtype[--mempos] = 0;
+                  } else
+                    CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg2).move_to(code);
+                }
               }
+              return_comp = false;
+              _cimg_mp_return(arg1);
             }
 
             // No assignment expressions match -> error.
@@ -29035,15 +29062,15 @@ namespace cimg_library {
         const unsigned int siz = (unsigned int)mp.opcode[2];
         const double
           *const ptrs = &_mp_arg(3) + 1,
-          imin = mp.opcode[3]==~0U?0:_mp_arg(4),
-          imax = mp.opcode[4]==~0U?0:_mp_arg(5);
+          imin = mp.opcode[4]==~0U?0:_mp_arg(4),
+          imax = mp.opcode[5]==~0U?0:_mp_arg(5);
         double intpart;
         for (unsigned int k = 0; k<siz; ++k) {
           double val = ptrs[k];
           const bool is_int = std::modf(val,&intpart)==0;
-          if (mp.opcode[3]==~0U) val = (double)is_int;
-          else if (mp.opcode[4]==~0U) val = (double)(is_int && val>=imin);
-          else val = (double)(is_int && val>=_mp_arg(3) && val<=imax);
+          if (mp.opcode[4]==~0U) val = (double)is_int;
+          else if (mp.opcode[5]==~0U) val = (double)(is_int && val>=imin);
+          else val = (double)(is_int && val>=imin && val<=imax);
           ptrd[k] = val;
         }
         return cimg::type<double>::nan();

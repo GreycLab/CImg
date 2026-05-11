@@ -18709,10 +18709,14 @@ namespace cimg_library {
                 _cimg_mp_check_type(arg3,2,is_vector(arg1)?3:1,size(arg1));
                 if (is_vector(arg1)) { // Vector
                   if (is_vector(arg3)) { // From vector
-                    CImg<ulongT> &pop = code.back();
-                    if (false && pop.size()==4) {
+
+/*                    CImg<ulongT> &pop = code.back();
+                    if (pop.size()==4 && pop[1]==arg3 && pop[3]==arg1) {
                       // Spot cases 'X = f(X)' -> in-place modification of vector X
+                      pop[1] = arg1;
+                      if (mempos==arg3 + 1) memtype[--mempos] = 0;
                     } else
+*/
                       CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg3,(ulongT)size(arg1)).
                         move_to(code);
                   } else // From scalar
@@ -18858,7 +18862,7 @@ namespace cimg_library {
                   } else if (pop.size()==4 && pop[1]==arg2 && pop[3]==arg1 && pop[2]!=arg2) {
                     // Spot case '(y) = f(x,y)' -> in-place modification of scalar y
                     pop[1] = arg1;
-                    if (mempos==arg3 + 1) memtype[--mempos] = 0;
+                    if (mempos==arg2 + 1) memtype[--mempos] = 0;
                   } else
                     CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg2).move_to(code);
                 }

@@ -18708,25 +18708,29 @@ namespace cimg_library {
                 }
                 _cimg_mp_check_type(arg3,2,is_vector(arg1)?3:1,size(arg1));
                 if (is_vector(arg1)) { // Vector
-                  if (is_vector(arg3)) // From vector
-                    CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg3,(ulongT)size(arg1)).
-                      move_to(code);
-                  else // From scalar
+                  if (is_vector(arg3)) { // From vector
+                    CImg<ulongT> &pop = code.back();
+                    if (false && pop.size()==4) {
+                      // Spot cases 'X = f(X)' -> in-place modification of vector X
+                    } else
+                      CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg3,(ulongT)size(arg1)).
+                        move_to(code);
+                  } else // From scalar
                     CImg<ulongT>::vector((ulongT)mp_vector_init,arg1,(ulongT)size(arg1),1,arg3,0).
                       move_to(code);
                 } else { // Scalar
                   if (arg1!=arg3) {
                     CImg<ulongT> &pop = code.back();
                     if (pop.size()==3 && pop[1]==arg3 && pop[2]==arg1) {
-                      // Spot cases 'x = f(x)' -> in-place modification of x
+                      // Spot cases 'x = f(x)' -> in-place modification of scalar x
                       pop[1] = arg1;
                       if (mempos==arg3 + 1) memtype[--mempos] = 0;
                     } else if (pop.size()==4 && pop[1]==arg3 && pop[2]==arg1 && pop[3]!=arg3) {
-                      // Spot cases 'x = f(x,y)' -> in-place modification of x
+                      // Spot cases 'x = f(x,y)' -> in-place modification of scalar x
                       pop[1] = arg1;
                       if (mempos==arg3 + 1) memtype[--mempos] = 0;
                     } else if (pop.size()==4 && pop[1]==arg3 && pop[3]==arg1 && pop[2]!=arg3) {
-                      // Spot case 'y = f(x,y)' -> in-place modification of y
+                      // Spot case 'y = f(x,y)' -> in-place modification of scalar y
                       pop[1] = arg1;
                       if (mempos==arg3 + 1) memtype[--mempos] = 0;
                     } else
@@ -18734,7 +18738,6 @@ namespace cimg_library {
                   }
                 }
               }
-              return_comp = false;
               _cimg_mp_return(arg1);
             }
 
@@ -18829,7 +18832,7 @@ namespace cimg_library {
                 _cimg_mp_return(arg2);
               }
 
-              if (is_vector(arg1)) { // Vector variable: V = value
+              if (is_vector(arg1)) { // Vector variable: (V) = value
                 _cimg_mp_check_type(arg2,2,3,size(arg1));
                 if (is_vector(arg2)) // From vector
                   CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg2,(ulongT)size(arg1)).
@@ -18840,11 +18843,27 @@ namespace cimg_library {
                 _cimg_mp_return(arg1);
               }
 
-              if (is_reserved(arg1) && arg1>_cimg_mp_slot_c) { // Scalar variable: s = scalar
+              if (is_reserved(arg1) && arg1>_cimg_mp_slot_c) { // Scalar variable: (s) = scalar
                 _cimg_mp_check_type(arg2,2,1,0);
-                CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg2).move_to(code);
-                _cimg_mp_return(arg1);
+                if (arg1!=arg2) {
+                  CImg<ulongT> &pop = code.back();
+                  if (pop.size()==3 && pop[1]==arg2 && pop[2]==arg1) {
+                    // Spot cases '(x) = f(x)' -> in-place modification of scalar x
+                    pop[1] = arg1;
+                    if (mempos==arg2 + 1) memtype[--mempos] = 0;
+                  } else if (pop.size()==4 && pop[1]==arg2 && pop[2]==arg1 && pop[3]!=arg2) {
+                    // Spot cases '(x) = f(x,y)' -> in-place modification of scalar x
+                    pop[1] = arg1;
+                    if (mempos==arg2 + 1) memtype[--mempos] = 0;
+                  } else if (pop.size()==4 && pop[1]==arg2 && pop[3]==arg1 && pop[2]!=arg2) {
+                    // Spot case '(y) = f(x,y)' -> in-place modification of scalar y
+                    pop[1] = arg1;
+                    if (mempos==arg3 + 1) memtype[--mempos] = 0;
+                  } else
+                    CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg2).move_to(code);
+                }
               }
+              _cimg_mp_return(arg1);
             }
 
             // No assignment expressions match -> error.

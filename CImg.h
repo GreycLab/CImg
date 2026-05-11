@@ -18714,8 +18714,23 @@ namespace cimg_library {
                   else // From scalar
                     CImg<ulongT>::vector((ulongT)mp_vector_init,arg1,(ulongT)size(arg1),1,arg3,0).
                       move_to(code);
-                } else // Scalar
-                  CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg3).move_to(code);
+                } else { // Scalar
+                  CImg<ulongT> &pop = code.back();
+                  if (pop.size()==3 && pop[1]==arg3 && pop[2]==arg1) {
+                    // Spot cases 'x = f(x)' -> in-place modification of x
+                    pop[1] = arg1;
+                    if (mempos==arg3 + 1) memtype[--mempos] = 0;
+                  } else if (pop.size()==4 && pop[1]==arg3 && pop[2]==arg1 && pop[3]!=arg3) {
+                    // Spot cases 'x = f(x,y)' -> in-place modification of x
+                    pop[1] = arg1;
+                    if (mempos==arg3 + 1) memtype[--mempos] = 0;
+                  } else if (pop.size()==4 && pop[1]==arg3 && pop[3]==arg1 && pop[2]!=arg3) {
+                    // Spot case 'y = f(x,y)' -> in-place modification of y
+                    pop[1] = arg1;
+                    if (mempos==arg3 + 1) memtype[--mempos] = 0;
+                  } else
+                    CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg3).move_to(code);
+                }
               }
               return_comp = false;
               _cimg_mp_return(arg1);

@@ -18712,7 +18712,7 @@ namespace cimg_library {
                     if (arg1!=arg3) {
                       CImg<ulongT> &pop = code.back();
                       mp_func fn = (mp_func)pop[0];
-                      if ((fn==mp_cumulate || fn==mp_equalize || fn==mp_mirror || fn==mp_noise || fn==mp_normalize ||
+/*                      if ((fn==mp_cumulate || fn==mp_equalize || fn==mp_mirror || fn==mp_noise || fn==mp_normalize ||
                            fn==mp_permute || fn==mp_reverse || fn==mp_shift || fn==mp_sort) &&
                           pop[1]==arg3 && pop[2]==arg1) {
                         // Spot case 'X = func(X)' -> call in-place version of 'func'.
@@ -18727,8 +18727,9 @@ namespace cimg_library {
                                           mp_sort_ip);
                         pop[1] = (ulongT)_cimg_mp_slot_nan;
                         if (mempos==arg3 + size(arg3) + 1) mempos-=size(arg3) + 1;
-                      } else if (pop.size()==4 && pop[1]==arg3 && pop[3]==arg1) {
-                        // Spot cases 'X = f(X)' -> in-place modification of vector X
+                      } else */
+                      if (pop.size()==4 && pop[1]==arg3 && pop[3]==arg1) {
+                        // Spot cases 'X = f(X)' -> in-place modification of vector X.
                         pop[1] = arg1;
                         if (mempos==arg3 + size(arg3) + 1) mempos-=size(arg3) + 1;
                       } else
@@ -18742,15 +18743,15 @@ namespace cimg_library {
                   if (arg1!=arg3) {
                     CImg<ulongT> &pop = code.back();
                     if (pop.size()==3 && pop[1]==arg3 && pop[2]==arg1) {
-                      // Spot cases 'x = f(x)' -> in-place modification of scalar x
+                      // Spot cases 'x = f(x)' -> in-place modification of scalar x.
                       pop[1] = arg1;
                       if (mempos==arg3 + 1) memtype[--mempos] = 0;
                     } else if (pop.size()==4 && pop[1]==arg3 && pop[2]==arg1 && pop[3]!=arg3) {
-                      // Spot cases 'x = f(x,y)' -> in-place modification of scalar x
+                      // Spot cases 'x = f(x,y)' -> in-place modification of scalar x.
                       pop[1] = arg1;
                       if (mempos==arg3 + 1) memtype[--mempos] = 0;
                     } else if (pop.size()==4 && pop[1]==arg3 && pop[3]==arg1 && pop[2]!=arg3) {
-                      // Spot case 'y = f(x,y)' -> in-place modification of scalar y
+                      // Spot case 'y = f(x,y)' -> in-place modification of scalar y.
                       pop[1] = arg1;
                       if (mempos==arg3 + 1) memtype[--mempos] = 0;
                     } else
@@ -18859,7 +18860,7 @@ namespace cimg_library {
                   if (arg1!=arg2) {
                     CImg<ulongT> &pop = code.back();
                     if (pop.size()==4 && pop[1]==arg2 && pop[3]==arg1) {
-                      // Spot cases '(X) = f(X)' -> in-place modification of vector X
+                      // Spot cases '(X) = f(X)' -> in-place modification of vector X.
                       pop[1] = arg1;
                       if (mempos==arg2 + size(arg2) + 1) mempos-=size(arg2) + 1;
                     } else
@@ -18877,15 +18878,15 @@ namespace cimg_library {
                 if (arg1!=arg2) {
                   CImg<ulongT> &pop = code.back();
                   if (pop.size()==3 && pop[1]==arg2 && pop[2]==arg1) {
-                    // Spot cases '(x) = f(x)' -> in-place modification of scalar x
+                    // Spot cases '(x) = f(x)' -> in-place modification of scalar x.
                     pop[1] = arg1;
                     if (mempos==arg2 + 1) memtype[--mempos] = 0;
                   } else if (pop.size()==4 && pop[1]==arg2 && pop[2]==arg1 && pop[3]!=arg2) {
-                    // Spot cases '(x) = f(x,y)' -> in-place modification of scalar x
+                    // Spot cases '(x) = f(x,y)' -> in-place modification of scalar x.
                     pop[1] = arg1;
                     if (mempos==arg2 + 1) memtype[--mempos] = 0;
                   } else if (pop.size()==4 && pop[1]==arg2 && pop[3]==arg1 && pop[2]!=arg2) {
-                    // Spot case '(y) = f(x,y)' -> in-place modification of scalar y
+                    // Spot case '(y) = f(x,y)' -> in-place modification of scalar y.
                     pop[1] = arg1;
                     if (mempos==arg2 + 1) memtype[--mempos] = 0;
                   } else
@@ -19368,7 +19369,7 @@ namespace cimg_library {
             p3 = code.size();
             arg1 = compile(ss,s,depth1,0,block_flags);
 
-            // Spot potential cases '(a + b) + c', '(a - b) + c', '(a*b) + c' and '(a/b) + c'.
+            // Spot cases '(a + b) + c', '(a - b) + c', '(a*b) + c' and '(a/b) + c'.
             if (is_scalar(arg1) && code.size()>p3) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
@@ -19380,7 +19381,7 @@ namespace cimg_library {
             p3 = code.size();
             arg2 = compile(s + 1,se,depth1,0,block_flags);
 
-            // Spot potential cases 'a + (b - c)', 'a + (b*c)' and 'a + (b/c)'.
+            // Spot cases 'a + (b - c)', 'a + (b*c)' and 'a + (b/c)'.
             if (!ptr1 && is_scalar(arg2) && code.size()>p3) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
@@ -19444,7 +19445,7 @@ namespace cimg_library {
             p3 = code.size();
             arg1 = compile(ss,s,depth1,0,block_flags);
 
-            // Spot potential cases '(a - b) - c', '(a*b) - c' and '(a/b) - c'.
+            // Spot cases '(a - b) - c', '(a*b) - c' and '(a/b) - c'.
             if (is_scalar(arg1) && code.size()>p3) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
@@ -19456,7 +19457,7 @@ namespace cimg_library {
             p3 = code.size();
             arg2 = compile(s + 1,se,depth1,0,block_flags);
 
-            // Spot potential cases 'a - (b*c)' and 'a - (b/c)'.
+            // Spot cases 'a - (b*c)' and 'a - (b/c)'.
             if (!ptr1 && is_scalar(arg2) && code.size()>p3) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
@@ -19555,7 +19556,7 @@ namespace cimg_library {
             p3 = code.size();
             arg1 = compile(ss,s,depth1,0,block_flags);
 
-            // Spot potential cases '(a*b)*c' and '(a/b)*c'.
+            // Spot cases '(a*b)*c' and '(a/b)*c'.
             if (is_scalar(arg1) && code.size()>p3) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
@@ -19566,7 +19567,7 @@ namespace cimg_library {
             }
             arg2 = compile(s + 1,se,depth1,0,block_flags);
 
-            // Spot potential case 'a*(b/c)'.
+            // Spot case 'a*(b/c)'.
             if (!ptr1 && is_scalar(arg2) && code.size()>p3) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
@@ -19627,7 +19628,7 @@ namespace cimg_library {
             p3 = code.size();
             arg1 = compile(ss,s,depth1,0,block_flags);
 
-            // Spot potential case 'a/b/c'.
+            // Spot case 'a/b/c'.
             if (is_scalar(arg1) && code.size()>p3) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;

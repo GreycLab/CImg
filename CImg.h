@@ -20491,8 +20491,11 @@ namespace cimg_library {
               arg1 = compile(ss6,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) CImg<ulongT>::vector((ulongT)mp_complex_conj,pos,arg1,0).move_to(code);
-              else CImg<ulongT>::vector((ulongT)mp_complex_conj,pos,arg1 + 1,arg1 + 2).move_to(code);
+              if (is_scalar(arg1)) {
+                CImg<ulongT>::vector((ulongT)mp_vector_init,pos,2,2,0,arg1,0,0).move_to(code);
+                arg1 = pos;
+              }
+              CImg<ulongT>::vector((ulongT)mp_complex_conj,pos,2,arg1).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -20516,8 +20519,11 @@ namespace cimg_library {
               arg1 = compile(ss6,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) CImg<ulongT>::vector((ulongT)mp_complex_cosh,pos,arg1,0).move_to(code);
-              else CImg<ulongT>::vector((ulongT)mp_complex_cosh,pos,arg1 + 1,arg1 + 2).move_to(code);
+              if (is_scalar(arg1)) {
+                CImg<ulongT>::vector((ulongT)mp_vector_init,pos,2,2,0,arg1,0,0).move_to(code);
+                arg1 = pos;
+              }
+              CImg<ulongT>::vector((ulongT)mp_complex_cosh,pos,2,arg1).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -20535,8 +20541,11 @@ namespace cimg_library {
               arg1 = compile(ss5,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) CImg<ulongT>::vector((ulongT)mp_complex_exp,pos,arg1,0).move_to(code);
-              else CImg<ulongT>::vector((ulongT)mp_complex_exp,pos,arg1 + 1,arg1 + 2).move_to(code);
+              if (is_scalar(arg1)) {
+                CImg<ulongT>::vector((ulongT)mp_vector_init,pos,2,2,0,arg1,0,0).move_to(code);
+                arg1 = pos;
+              }
+              CImg<ulongT>::vector((ulongT)mp_complex_exp,pos,2,arg1).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -20546,8 +20555,11 @@ namespace cimg_library {
               arg1 = compile(ss5,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) CImg<ulongT>::vector((ulongT)mp_complex_log,pos,arg1,0).move_to(code);
-              else CImg<ulongT>::vector((ulongT)mp_complex_log,pos,arg1 + 1,arg1 + 2).move_to(code);
+              if (is_scalar(arg1)) {
+                CImg<ulongT>::vector((ulongT)mp_vector_init,pos,2,2,0,arg1,0,0).move_to(code);
+                arg1 = pos;
+              }
+              CImg<ulongT>::vector((ulongT)mp_complex_log,pos,2,arg1).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -21023,8 +21035,11 @@ namespace cimg_library {
               arg1 = compile(ss5,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) CImg<ulongT>::vector((ulongT)mp_complex_sin,pos,arg1,0).move_to(code);
-              else CImg<ulongT>::vector((ulongT)mp_complex_sin,pos,arg1 + 1,arg1 + 2).move_to(code);
+              if (is_scalar(arg1)) {
+                CImg<ulongT>::vector((ulongT)mp_vector_init,pos,2,2,0,arg1,0,0).move_to(code);
+                arg1 = pos;
+              }
+              CImg<ulongT>::vector((ulongT)mp_complex_sin,pos,2,arg1).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -21034,8 +21049,11 @@ namespace cimg_library {
               arg1 = compile(ss6,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) CImg<ulongT>::vector((ulongT)mp_complex_sinh,pos,arg1,0).move_to(code);
-              else CImg<ulongT>::vector((ulongT)mp_complex_sinh,pos,arg1 + 1,arg1 + 2).move_to(code);
+              if (is_scalar(arg1)) {
+                CImg<ulongT>::vector((ulongT)mp_vector_init,pos,2,2,0,arg1,0,0).move_to(code);
+                arg1 = pos;
+              }
+              CImg<ulongT>::vector((ulongT)mp_complex_sinh,pos,2,arg1).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -21045,8 +21063,11 @@ namespace cimg_library {
               arg1 = compile(ss5,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) CImg<ulongT>::vector((ulongT)mp_complex_sqr,pos,arg1,0).move_to(code);
-              else CImg<ulongT>::vector((ulongT)mp_complex_sqr,pos,arg1 + 1,arg1 + 2).move_to(code);
+              if (is_scalar(arg1)) {
+                CImg<ulongT>::vector((ulongT)mp_vector_init,pos,2,2,0,arg1,0,0).move_to(code);
+                arg1 = pos;
+              }
+              CImg<ulongT>::vector((ulongT)mp_complex_sqr,pos,2,arg1).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -21056,8 +21077,11 @@ namespace cimg_library {
               arg1 = compile(ss6,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) CImg<ulongT>::vector((ulongT)mp_complex_sqrt,pos,arg1,0).move_to(code);
-              else CImg<ulongT>::vector((ulongT)mp_complex_sqrt,pos,arg1 + 1,arg1 + 2).move_to(code);
+              if (is_scalar(arg1)) {
+                CImg<ulongT>::vector((ulongT)mp_vector_init,pos,2,2,0,arg1,0,0).move_to(code);
+                arg1 = pos;
+              }
+              CImg<ulongT>::vector((ulongT)mp_complex_sqrt,pos,2,arg1).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -21067,8 +21091,11 @@ namespace cimg_library {
               arg1 = compile(ss5,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) CImg<ulongT>::vector((ulongT)mp_complex_tan,pos,arg1,0).move_to(code);
-              else CImg<ulongT>::vector((ulongT)mp_complex_tan,pos,arg1 + 1,arg1 + 2).move_to(code);
+              if (is_scalar(arg1)) {
+                CImg<ulongT>::vector((ulongT)mp_vector_init,pos,2,2,0,arg1,0,0).move_to(code);
+                arg1 = pos;
+              }
+              CImg<ulongT>::vector((ulongT)mp_complex_tan,pos,2,arg1).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -21078,8 +21105,11 @@ namespace cimg_library {
               arg1 = compile(ss6,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) CImg<ulongT>::vector((ulongT)mp_complex_tanh,pos,arg1,0).move_to(code);
-              else CImg<ulongT>::vector((ulongT)mp_complex_tanh,pos,arg1 + 1,arg1 + 2).move_to(code);
+              if (is_scalar(arg1)) {
+                CImg<ulongT>::vector((ulongT)mp_vector_init,pos,2,2,0,arg1,0,0).move_to(code);
+                arg1 = pos;
+              }
+              CImg<ulongT>::vector((ulongT)mp_complex_tanh,pos,2,arg1).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -26508,8 +26538,8 @@ namespace cimg_library {
       }
 
       static double mp_complex_conj(_cimg_math_parser& mp) {
-        const double real = _mp_arg(2), imag = _mp_arg(3);
         double *ptrd = &_mp_arg(1) + 1;
+        const double *const ptrs = &_mp_arg(3) + 1, real = ptrs[0], imag = ptrs[1];
         ptrd[0] = real;
         ptrd[1] = -imag;
         return cimg::type<double>::nan();
@@ -26517,17 +26547,15 @@ namespace cimg_library {
 
       static double mp_complex_cos(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
-        const double
-          *const ptrs = &_mp_arg(3) + 1,
-          real = ptrs[0], imag = ptrs[1];
+        const double *const ptrs = &_mp_arg(3) + 1, real = ptrs[0], imag = ptrs[1];
         ptrd[0] = std::cos(real)*std::cosh(imag);
         ptrd[1] = -std::sin(real)*std::sinh(imag);
         return cimg::type<double>::nan();
       }
 
       static double mp_complex_cosh(_cimg_math_parser& mp) {
-        const double real = _mp_arg(2), imag = _mp_arg(3);
         double *ptrd = &_mp_arg(1) + 1;
+        const double *const ptrs = &_mp_arg(3) + 1, real = ptrs[0], imag = ptrs[1];
         ptrd[0] = std::cosh(real)*std::cos(imag);
         ptrd[1] = std::sinh(real)*std::sin(imag);
         return cimg::type<double>::nan();
@@ -26558,16 +26586,17 @@ namespace cimg_library {
       }
 
       static double mp_complex_exp(_cimg_math_parser& mp) {
-        const double real = _mp_arg(2), imag = _mp_arg(3), exp_real = std::exp(real);
         double *ptrd = &_mp_arg(1) + 1;
+        const double *const ptrs = &_mp_arg(3) + 1, real = ptrs[0], imag = ptrs[1],
+          exp_real = std::exp(real);
         ptrd[0] = exp_real*std::cos(imag);
         ptrd[1] = exp_real*std::sin(imag);
         return cimg::type<double>::nan();
       }
 
       static double mp_complex_log(_cimg_math_parser& mp) {
-        const double real = _mp_arg(2), imag = _mp_arg(3);
         double *ptrd = &_mp_arg(1) + 1;
+        const double *const ptrs = &_mp_arg(3) + 1, real = ptrs[0], imag = ptrs[1];
         ptrd[0] = 0.5*std::log(real*real + imag*imag);
         ptrd[1] = std::atan2(imag,real);
         return cimg::type<double>::nan();
@@ -26651,51 +26680,51 @@ namespace cimg_library {
       }
 
       static double mp_complex_sin(_cimg_math_parser& mp) {
-        const double real = _mp_arg(2), imag = _mp_arg(3);
         double *ptrd = &_mp_arg(1) + 1;
+        const double *const ptrs = &_mp_arg(3) + 1, real = ptrs[0], imag = ptrs[1];
         ptrd[0] = std::sin(real)*std::cosh(imag);
         ptrd[1] = std::cos(real)*std::sinh(imag);
         return cimg::type<double>::nan();
       }
 
       static double mp_complex_sinh(_cimg_math_parser& mp) {
-        const double real = _mp_arg(2), imag = _mp_arg(3);
         double *ptrd = &_mp_arg(1) + 1;
+        const double *const ptrs = &_mp_arg(3) + 1, real = ptrs[0], imag = ptrs[1];
         ptrd[0] = std::sinh(real)*std::cos(imag);
         ptrd[1] = std::cosh(real)*std::sin(imag);
         return cimg::type<double>::nan();
       }
 
       static double mp_complex_sqr(_cimg_math_parser& mp) {
-        const double real = _mp_arg(2), imag = _mp_arg(3);
         double *ptrd = &_mp_arg(1) + 1;
+        const double *const ptrs = &_mp_arg(3) + 1, real = ptrs[0], imag = ptrs[1];
         ptrd[0] = cimg::sqr(real) - cimg::sqr(imag);
         ptrd[1] = 2*real*imag;
         return cimg::type<double>::nan();
       }
 
       static double mp_complex_sqrt(_cimg_math_parser& mp) {
-        const double
-          real = _mp_arg(2), imag = _mp_arg(3),
-          r = std::sqrt(cimg::hypot(real,imag)),
-          theta = std::atan2(imag,real)/2;
         double *ptrd = &_mp_arg(1) + 1;
+        const double *const ptrs = &_mp_arg(3) + 1, real = ptrs[0], imag = ptrs[1],
+          r = std::sqrt(cimg::hypot(real,imag)), theta = std::atan2(imag,real)/2;
         ptrd[0] = r*std::cos(theta);
         ptrd[1] = r*std::sin(theta);
         return cimg::type<double>::nan();
       }
 
       static double mp_complex_tan(_cimg_math_parser& mp) {
-        const double real = _mp_arg(2), imag = _mp_arg(3), denom = std::cos(2*real) + std::cosh(2*imag);
         double *ptrd = &_mp_arg(1) + 1;
+        const double *const ptrs = &_mp_arg(3) + 1, real = ptrs[0], imag = ptrs[1],
+          denom = std::cos(2*real) + std::cosh(2*imag);
         ptrd[0] = std::sin(2*real)/denom;
         ptrd[1] = std::sinh(2*imag)/denom;
         return cimg::type<double>::nan();
       }
 
       static double mp_complex_tanh(_cimg_math_parser& mp) {
-        const double real = _mp_arg(2), imag = _mp_arg(3), denom = std::cosh(2*real) + std::cos(2*imag);
         double *ptrd = &_mp_arg(1) + 1;
+        const double *const ptrs = &_mp_arg(3) + 1, real = ptrs[0], imag = ptrs[1],
+          denom = std::cosh(2*real) + std::cos(2*imag);
         ptrd[0] = std::sinh(2*real)/denom;
         ptrd[1] = std::sin(2*imag)/denom;
         return cimg::type<double>::nan();

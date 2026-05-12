@@ -18715,7 +18715,7 @@ namespace cimg_library {
                       if ((fn==mp_cumulate || fn==mp_equalize || fn==mp_mirror || fn==mp_noise || fn==mp_normalize ||
                            fn==mp_permute || fn==mp_reverse || fn==mp_shift || fn==mp_sort) &&
                           pop[1]==arg3 && pop[2]==arg1) {
-                        // Spot cases 'X = func(X)' -> call in-place version of 'func'.
+                        // Spot cases 'X = func(X)' -> call in-place version of 'func()'.
                         pop[0] = (ulongT)(fn==mp_cumulate?mp_cumulate_ip:
                                           fn==mp_equalize?mp_equalize_ip:
                                           fn==mp_mirror?mp_mirror_ip:
@@ -18726,7 +18726,10 @@ namespace cimg_library {
                                           fn==mp_shift?mp_shift_ip:
                                           mp_sort_ip);
                         pop[1] = (ulongT)_cimg_mp_slot_nan;
-//                        if (mempos==arg3 + size(arg3) + 1) mempos-=size(arg3) + 1;
+                        if (mempos==arg3 + size(arg3) + 1) {
+                          mempos-=size(arg3) + 1;
+                          std::memset(&memtype[mempos],0,sizeof(int)*size(arg3) + 1);
+                        }
                       } else if (pop.size()==4 && pop[1]==arg3 && pop[3]==arg1) {
                         // Spot cases 'X = f(X)' -> in-place modification of vector X.
                         pop[1] = arg1;
@@ -18863,7 +18866,7 @@ namespace cimg_library {
                     if ((fn==mp_cumulate || fn==mp_equalize || fn==mp_mirror || fn==mp_noise || fn==mp_normalize ||
                          fn==mp_permute || fn==mp_reverse || fn==mp_shift || fn==mp_sort) &&
                         pop[1]==arg2 && pop[2]==arg1) {
-                      // Spot cases 'X = func(X)' -> call in-place version of 'func'.
+                      // Spot cases 'X = func(X)' -> call in-place version of 'func()'.
                       pop[0] = (ulongT)(fn==mp_cumulate?mp_cumulate_ip:
                                         fn==mp_equalize?mp_equalize_ip:
                                         fn==mp_mirror?mp_mirror_ip:
@@ -18874,7 +18877,10 @@ namespace cimg_library {
                                         fn==mp_shift?mp_shift_ip:
                                         mp_sort_ip);
                       pop[1] = (ulongT)_cimg_mp_slot_nan;
-                      //                        if (mempos==arg3 + size(arg3) + 1) mempos-=size(arg3) + 1;
+                      if (mempos==arg2 + size(arg2) + 1) {
+                        mempos-=size(arg2) + 1;
+                        std::memset(&memtype[mempos],0,sizeof(int)*size(arg2) + 1);
+                      }
                     } else if (pop.size()==4 && pop[1]==arg2 && pop[3]==arg1) {
                       // Spot cases '(X) = f(X)' -> in-place modification of vector X.
                       pop[1] = arg1;

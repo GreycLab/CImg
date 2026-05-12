@@ -18712,7 +18712,7 @@ namespace cimg_library {
                     if (arg1!=arg3) {
                       CImg<ulongT> &pop = code.back();
                       mp_func fn = (mp_func)pop[0];
-/*                      if ((fn==mp_cumulate || fn==mp_equalize || fn==mp_mirror || fn==mp_noise || fn==mp_normalize ||
+                      if ((fn==mp_cumulate || fn==mp_equalize || fn==mp_mirror || fn==mp_noise || fn==mp_normalize ||
                            fn==mp_permute || fn==mp_reverse || fn==mp_shift || fn==mp_sort) &&
                           pop[1]==arg3 && pop[2]==arg1) {
                         // Spot case 'X = func(X)' -> call in-place version of 'func'.
@@ -18726,9 +18726,8 @@ namespace cimg_library {
                                           fn==mp_shift?mp_shift_ip:
                                           mp_sort_ip);
                         pop[1] = (ulongT)_cimg_mp_slot_nan;
-                        if (mempos==arg3 + size(arg3) + 1) mempos-=size(arg3) + 1;
-                      } else */
-                      if (pop.size()==4 && pop[1]==arg3 && pop[3]==arg1) {
+//                        if (mempos==arg3 + size(arg3) + 1) mempos-=size(arg3) + 1;
+                      } else if (pop.size()==4 && pop[1]==arg3 && pop[3]==arg1) {
                         // Spot cases 'X = f(X)' -> in-place modification of vector X.
                         pop[1] = arg1;
                         if (mempos==arg3 + size(arg3) + 1) mempos-=size(arg3) + 1;

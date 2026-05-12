@@ -18715,7 +18715,7 @@ namespace cimg_library {
                       if ((fn==mp_cumulate || fn==mp_equalize || fn==mp_mirror || fn==mp_noise || fn==mp_normalize ||
                            fn==mp_permute || fn==mp_reverse || fn==mp_shift || fn==mp_sort) &&
                           pop[1]==arg3 && pop[2]==arg1) {
-                        // Spot case 'X = func(X)' -> call in-place version of 'func'.
+                        // Spot cases 'X = func(X)' -> call in-place version of 'func'.
                         pop[0] = (ulongT)(fn==mp_cumulate?mp_cumulate_ip:
                                           fn==mp_equalize?mp_equalize_ip:
                                           fn==mp_mirror?mp_mirror_ip:
@@ -18856,9 +18856,26 @@ namespace cimg_library {
               if (is_vector(arg1)) { // Vector variable: (V) = value
                 _cimg_mp_check_type(arg2,2,3,size(arg1));
                 if (is_vector(arg2)) { // From vector
+
                   if (arg1!=arg2) {
                     CImg<ulongT> &pop = code.back();
-                    if (pop.size()==4 && pop[1]==arg2 && pop[3]==arg1) {
+                    mp_func fn = (mp_func)pop[0];
+                    if ((fn==mp_cumulate || fn==mp_equalize || fn==mp_mirror || fn==mp_noise || fn==mp_normalize ||
+                         fn==mp_permute || fn==mp_reverse || fn==mp_shift || fn==mp_sort) &&
+                        pop[1]==arg2 && pop[2]==arg1) {
+                      // Spot cases 'X = func(X)' -> call in-place version of 'func'.
+                      pop[0] = (ulongT)(fn==mp_cumulate?mp_cumulate_ip:
+                                        fn==mp_equalize?mp_equalize_ip:
+                                        fn==mp_mirror?mp_mirror_ip:
+                                        fn==mp_noise?mp_noise_ip:
+                                        fn==mp_normalize?mp_normalize_ip:
+                                        fn==mp_permute?mp_permute_ip:
+                                        fn==mp_reverse?mp_reverse_ip:
+                                        fn==mp_shift?mp_shift_ip:
+                                        mp_sort_ip);
+                      pop[1] = (ulongT)_cimg_mp_slot_nan;
+                      //                        if (mempos==arg3 + size(arg3) + 1) mempos-=size(arg3) + 1;
+                    } else if (pop.size()==4 && pop[1]==arg2 && pop[3]==arg1) {
                       // Spot cases '(X) = f(X)' -> in-place modification of vector X.
                       pop[1] = arg1;
                       if (mempos==arg2 + size(arg2) + 1) mempos-=size(arg2) + 1;

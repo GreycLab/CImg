@@ -18733,7 +18733,10 @@ namespace cimg_library {
                       } else if (pop.size()==4 && pop[1]==arg3 && pop[3]==arg1) {
                         // Spot cases 'X = f(X)' -> in-place modification of vector X.
                         pop[1] = arg1;
-                        if (mempos==arg3 + size(arg3) + 1) mempos-=size(arg3) + 1;
+                        if (mempos==arg3 + size(arg3) + 1) {
+                          mempos-=size(arg3) + 1;
+                          std::memset(&memtype[mempos],0,sizeof(int)*size(arg3) + 1);
+                        }
                       } else
                         CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg3,(ulongT)size(arg1)).
                           move_to(code);
@@ -18884,7 +18887,10 @@ namespace cimg_library {
                     } else if (pop.size()==4 && pop[1]==arg2 && pop[3]==arg1) {
                       // Spot cases '(X) = f(X)' -> in-place modification of vector X.
                       pop[1] = arg1;
-                      if (mempos==arg2 + size(arg2) + 1) mempos-=size(arg2) + 1;
+                      if (mempos==arg2 + size(arg2) + 1) {
+                        mempos-=size(arg2) + 1;
+                        std::memset(&memtype[mempos],0,sizeof(int)*size(arg2) + 1);
+                      }
                     } else
                       CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg2,(ulongT)size(arg1)).
                         move_to(code);

@@ -18760,12 +18760,9 @@ namespace cimg_library {
                       // Spot cases 'x = f(x)' -> in-place modification of scalar x.
                       pop[1] = arg1;
                       if (mempos==arg3 + 1) memtype[--mempos] = 0;
-                    } else if (pop.size()==4 && pop[1]==arg3 && pop[2]==arg1 && pop[3]!=arg3) {
+                    } else if (pop.size()==4 && pop[1]==arg3 && ((pop[2]==arg1 && pop[3]!=arg3) ||
+                                                                 (pop[3]==arg1 && pop[2]!=arg3))) {
                       // Spot cases 'x = f(x,y)' -> in-place modification of scalar x.
-                      pop[1] = arg1;
-                      if (mempos==arg3 + 1) memtype[--mempos] = 0;
-                    } else if (pop.size()==4 && pop[1]==arg3 && pop[3]==arg1 && pop[2]!=arg3) {
-                      // Spot case 'y = f(x,y)' -> in-place modification of scalar y.
                       pop[1] = arg1;
                       if (mempos==arg3 + 1) memtype[--mempos] = 0;
                     } else
@@ -18927,12 +18924,9 @@ namespace cimg_library {
                     // Spot cases '(x) = f(x)' -> in-place modification of scalar x.
                     pop[1] = arg1;
                     if (mempos==arg2 + 1) memtype[--mempos] = 0;
-                  } else if (pop.size()==4 && pop[1]==arg2 && pop[2]==arg1 && pop[3]!=arg2) {
+                  } else if (pop.size()==4 && pop[1]==arg2 && ((pop[2]==arg1 && pop[3]!=arg2) ||
+                                                               (pop[3]==arg1 && pop[2]!=arg2))) {
                     // Spot cases '(x) = f(x,y)' -> in-place modification of scalar x.
-                    pop[1] = arg1;
-                    if (mempos==arg2 + 1) memtype[--mempos] = 0;
-                  } else if (pop.size()==4 && pop[1]==arg2 && pop[3]==arg1 && pop[2]!=arg2) {
-                    // Spot case '(y) = f(x,y)' -> in-place modification of scalar y.
                     pop[1] = arg1;
                     if (mempos==arg2 + 1) memtype[--mempos] = 0;
                   } else

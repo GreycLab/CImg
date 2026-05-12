@@ -18730,7 +18730,16 @@ namespace cimg_library {
                           mempos-=size(arg3) + 1;
                           std::memset(&memtype[mempos],0,sizeof(int)*size(arg3) + 1);
                         }
-                      } else if (pop.size()==4 && pop[1]==arg3 && pop[3]==arg1) {
+                      } else if ((fn==mp_complex_mul || fn==mp_complex_div_vv || fn==mp_complex_pow_vv) &&
+                                 size(arg1)==2 && pop[1]==arg3 && pop[2]==arg1) {
+                        // Spot cases 'X = X**Y' -> in-place modification of vector X by complex arithmetic operator.
+                        pop[1] = arg1;
+                        if (mempos==arg3 + size(arg3) + 1) {
+                          mempos-=size(arg3) + 1;
+                          std::memset(&memtype[mempos],0,sizeof(int)*size(arg3) + 1);
+                        }
+                      } else if ((pop.size()==4 || pop.size()==5) &&
+                                 pop[1]==arg3 && pop[2]==size(arg3) && pop[3]==arg1) {
                         // Spot cases 'X = f(X)' -> in-place modification of vector X.
                         pop[1] = arg1;
                         if (mempos==arg3 + size(arg3) + 1) {
@@ -18884,7 +18893,16 @@ namespace cimg_library {
                         mempos-=size(arg2) + 1;
                         std::memset(&memtype[mempos],0,sizeof(int)*size(arg2) + 1);
                       }
-                    } else if (pop.size()==4 && pop[1]==arg2 && pop[3]==arg1) {
+                    } else if ((fn==mp_complex_mul || fn==mp_complex_div_vv || fn==mp_complex_pow_vv) &&
+                               size(arg1)==2 && pop[1]==arg2 && pop[2]==arg1) {
+                      // Spot cases '(X) = X**Y' -> in-place modification of vector X by complex arithmetic operator.
+                      pop[1] = arg1;
+                      if (mempos==arg2 + size(arg2) + 1) {
+                        mempos-=size(arg2) + 1;
+                        std::memset(&memtype[mempos],0,sizeof(int)*size(arg2) + 1);
+                      }
+                    } else if ((pop.size()==4 || pop.size()==5) &&
+                               pop[1]==arg2 && pop[2]==size(arg2) && pop[3]==arg1) {
                       // Spot cases '(X) = f(X)' -> in-place modification of vector X.
                       pop[1] = arg1;
                       if (mempos==arg2 + size(arg2) + 1) {

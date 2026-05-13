@@ -18756,13 +18756,10 @@ namespace cimg_library {
                 } else { // Scalar
                   if (arg1!=arg3) {
                     CImg<ulongT> &pop = code.back();
-                    if (pop.size()==3 && pop[1]==arg3 && pop[2]==arg1) {
-                      // Spot cases 'x = f(x)' -> in-place modification of scalar x.
-                      pop[1] = arg1;
-                      if (mempos==arg3 + 1) memtype[--mempos] = 0;
-                    } else if (pop.size()==4 && pop[1]==arg3 && ((pop[2]==arg1 && pop[3]!=arg3) ||
-                                                                 (pop[3]==arg1 && pop[2]!=arg3))) {
-                      // Spot cases 'x = f(x,y)' -> in-place modification of scalar x.
+                    bool is_ok = is_comp_scalar(arg3) && pop[1]==arg3;
+                    if (is_ok) for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg3) { is_ok = false; break; }
+                    if (is_ok) {
+                      // Spot case 'x = f(...)' -> make 'f()' write directly in variable slot.
                       pop[1] = arg1;
                       if (mempos==arg3 + 1) memtype[--mempos] = 0;
                     } else
@@ -18920,13 +18917,10 @@ namespace cimg_library {
                 _cimg_mp_check_type(arg2,2,1,0);
                 if (arg1!=arg2) {
                   CImg<ulongT> &pop = code.back();
-                  if (pop.size()==3 && pop[1]==arg2 && pop[2]==arg1) {
-                    // Spot cases '(x) = f(x)' -> in-place modification of scalar x.
-                    pop[1] = arg1;
-                    if (mempos==arg2 + 1) memtype[--mempos] = 0;
-                  } else if (pop.size()==4 && pop[1]==arg2 && ((pop[2]==arg1 && pop[3]!=arg2) ||
-                                                               (pop[3]==arg1 && pop[2]!=arg2))) {
-                    // Spot cases '(x) = f(x,y)' -> in-place modification of scalar x.
+                  bool is_ok = is_comp_scalar(arg2) && pop[1]==arg2;
+                  if (is_ok) for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg2) { is_ok = false; break; }
+                  if (is_ok) {
+                    // Spot case '(x) = f(...)' -> make 'f()' write directly in variable slot.
                     pop[1] = arg1;
                     if (mempos==arg2 + 1) memtype[--mempos] = 0;
                   } else

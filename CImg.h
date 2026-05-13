@@ -18732,7 +18732,8 @@ namespace cimg_library {
                         }
                       } else {
                         is_sth = is_comp_vector(arg3) && pop[1]==arg3;
-                        if (is_sth) for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg3) { is_sth = false; break; }
+                        if (is_sth)
+                          for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg3) { is_sth = false; break; }
                         if (is_sth) {
                           // Spot case 'X = f(...)' -> make 'f()' write directly into variable slot.
                           pop[1] = arg1;
@@ -18752,7 +18753,8 @@ namespace cimg_library {
                   if (arg1!=arg3) {
                     CImg<ulongT> &pop = code.back();
                     is_sth = is_comp_scalar(arg3) && pop[1]==arg3;
-                    if (is_sth) for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg3) { is_sth = false; break; }
+                    if (is_sth)
+                      for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg3) { is_sth = false; break; }
                     if (is_sth) {
                       // Spot case 'x = f(...)' -> make 'f()' write directly into variable slot.
                       pop[1] = arg1;
@@ -18883,7 +18885,8 @@ namespace cimg_library {
                       }
                     } else {
                       is_sth = is_comp_vector(arg2) && pop[1]==arg2;
-                      if (is_sth) for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg2) { is_sth = false; break; }
+                      if (is_sth)
+                        for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg2) { is_sth = false; break; }
                       if (is_sth) {
                         // Spot case '(X) = f(...)' -> make 'f()' write directly into variable slot.
                         pop[1] = arg1;
@@ -18907,7 +18910,8 @@ namespace cimg_library {
                 if (arg1!=arg2) {
                   CImg<ulongT> &pop = code.back();
                   is_sth = is_comp_scalar(arg2) && pop[1]==arg2;
-                  if (is_sth) for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg2) { is_sth = false; break; }
+                  if (is_sth)
+                    for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg2) { is_sth = false; break; }
                   if (is_sth) {
                     // Spot case '(x) = f(...)' -> make 'f()' write directly into variable slot.
                     pop[1] = arg1;

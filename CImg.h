@@ -116,7 +116,7 @@
 #define cimg_time __TIME__
 #endif
 
-// Disable silly warnings on some Microsoft VC++ compilers.
+// Disable silly warnings on some Microsoft and GCC compilers.
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable:4127)
@@ -146,6 +146,12 @@
 #ifndef _CRT_NONSTDC_NO_DEPRECATE
 #define _CRT_NONSTDC_NO_DEPRECATE 1
 #endif
+#endif
+
+#if __GNUC__>10
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#pragma GCC diagnostic ignored "-Wformat-overflow"
 #endif
 
 // Define correct string functions for each compiler and OS.
@@ -18730,13 +18736,21 @@ namespace cimg_library {
                           mempos-=size(arg3) + 1;
                           std::memset(&memtype[mempos],0,sizeof(int)*size(arg3) + 1);
                         }
-                      } else if (pop.size()==4 && pop[1]==arg3 && pop[3]==arg1) {
-                        // Spot cases 'X = f(X)' -> in-place modification of vector X.
-                        pop[1] = arg1;
-                        if (mempos==arg3 + size(arg3) + 1) mempos-=size(arg3) + 1;
-                      } else
-                        CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg3,(ulongT)size(arg1)).
-                          move_to(code);
+                      } else {
+                        is_sth = is_comp_vector(arg3) && pop[1]==arg3;
+                        if (is_sth)
+                          for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg3) { is_sth = false; break; }
+                        if (is_sth) {
+                          // Spot case 'X = f(...)' -> make 'f()' write directly into variable slot.
+                          pop[1] = arg1;
+                          if (mempos==arg3 + size(arg3) + 1) {
+                            mempos-=size(arg3) + 1;
+                            std::memset(&memtype[mempos],0,sizeof(int)*size(arg3) + 1);
+                          }
+                        } else
+                          CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg3,(ulongT)size(arg1)).
+                            move_to(code);
+                      }
                     }
                   } else // From scalar
                     CImg<ulongT>::vector((ulongT)mp_vector_init,arg1,(ulongT)size(arg1),1,arg3,0).
@@ -18744,16 +18758,11 @@ namespace cimg_library {
                 } else { // Scalar
                   if (arg1!=arg3) {
                     CImg<ulongT> &pop = code.back();
-                    if (pop.size()==3 && pop[1]==arg3 && pop[2]==arg1) {
-                      // Spot cases 'x = f(x)' -> in-place modification of scalar x.
-                      pop[1] = arg1;
-                      if (mempos==arg3 + 1) memtype[--mempos] = 0;
-                    } else if (pop.size()==4 && pop[1]==arg3 && pop[2]==arg1 && pop[3]!=arg3) {
-                      // Spot cases 'x = f(x,y)' -> in-place modification of scalar x.
-                      pop[1] = arg1;
-                      if (mempos==arg3 + 1) memtype[--mempos] = 0;
-                    } else if (pop.size()==4 && pop[1]==arg3 && pop[3]==arg1 && pop[2]!=arg3) {
-                      // Spot case 'y = f(x,y)' -> in-place modification of scalar y.
+                    is_sth = is_comp_scalar(arg3) && pop[1]==arg3;
+                    if (is_sth)
+                      for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg3) { is_sth = false; break; }
+                    if (is_sth) {
+                      // Spot case 'x = f(...)' -> make 'f()' write directly into variable slot.
                       pop[1] = arg1;
                       if (mempos==arg3 + 1) memtype[--mempos] = 0;
                     } else
@@ -18859,7 +18868,6 @@ namespace cimg_library {
               if (is_vector(arg1)) { // Vector variable: (V) = value
                 _cimg_mp_check_type(arg2,2,3,size(arg1));
                 if (is_vector(arg2)) { // From vector
-
                   if (arg1!=arg2) {
                     CImg<ulongT> &pop = code.back();
                     mp_func fn = (mp_func)pop[0];
@@ -18881,13 +18889,21 @@ namespace cimg_library {
                         mempos-=size(arg2) + 1;
                         std::memset(&memtype[mempos],0,sizeof(int)*size(arg2) + 1);
                       }
-                    } else if (pop.size()==4 && pop[1]==arg2 && pop[3]==arg1) {
-                      // Spot cases '(X) = f(X)' -> in-place modification of vector X.
-                      pop[1] = arg1;
-                      if (mempos==arg2 + size(arg2) + 1) mempos-=size(arg2) + 1;
-                    } else
-                      CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg2,(ulongT)size(arg1)).
-                        move_to(code);
+                    } else {
+                      is_sth = is_comp_vector(arg2) && pop[1]==arg2;
+                      if (is_sth)
+                        for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg2) { is_sth = false; break; }
+                      if (is_sth) {
+                        // Spot case '(X) = f(...)' -> make 'f()' write directly into variable slot.
+                        pop[1] = arg1;
+                        if (mempos==arg2 + size(arg2) + 1) {
+                          mempos-=size(arg2) + 1;
+                          std::memset(&memtype[mempos],0,sizeof(int)*size(arg2) + 1);
+                        }
+                      } else
+                        CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg2,(ulongT)size(arg1)).
+                          move_to(code);
+                    }
                   }
                 } else // From scalar
                   CImg<ulongT>::vector((ulongT)mp_vector_init,arg1,(ulongT)size(arg1),1,arg2,0).
@@ -18899,16 +18915,11 @@ namespace cimg_library {
                 _cimg_mp_check_type(arg2,2,1,0);
                 if (arg1!=arg2) {
                   CImg<ulongT> &pop = code.back();
-                  if (pop.size()==3 && pop[1]==arg2 && pop[2]==arg1) {
-                    // Spot cases '(x) = f(x)' -> in-place modification of scalar x.
-                    pop[1] = arg1;
-                    if (mempos==arg2 + 1) memtype[--mempos] = 0;
-                  } else if (pop.size()==4 && pop[1]==arg2 && pop[2]==arg1 && pop[3]!=arg2) {
-                    // Spot cases '(x) = f(x,y)' -> in-place modification of scalar x.
-                    pop[1] = arg1;
-                    if (mempos==arg2 + 1) memtype[--mempos] = 0;
-                  } else if (pop.size()==4 && pop[1]==arg2 && pop[3]==arg1 && pop[2]!=arg2) {
-                    // Spot case '(y) = f(x,y)' -> in-place modification of scalar y.
+                  is_sth = is_comp_scalar(arg2) && pop[1]==arg2;
+                  if (is_sth)
+                    for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg2) { is_sth = false; break; }
+                  if (is_sth) {
+                    // Spot case '(x) = f(...)' -> make 'f()' write directly into variable slot.
                     pop[1] = arg1;
                     if (mempos==arg2 + 1) memtype[--mempos] = 0;
                   } else
@@ -18960,7 +18971,7 @@ namespace cimg_library {
               if (arg2==1) _cimg_mp_return(arg1);
               if (*ps=='*') _cimg_mp_self_vector2(mp_self_vector_mul_s,arg1,arg2);
               else if (*ps=='/') _cimg_mp_self_vector2(mp_self_vector_div_s,arg1,arg2);
-              else if (arg2==2) CImg<ulongT>::vector((ulongT)mp_complex_sqr,arg1,arg1 + 1,arg1 + 2).move_to(code);
+              else if (arg2==2) CImg<ulongT>::vector((ulongT)mp_complex_sqr,arg1,2,arg1).move_to(code);
               else CImg<ulongT>::vector((ulongT)mp_complex_pow_vs,arg1,arg1,arg2).move_to(code);
             }
 
@@ -19739,8 +19750,11 @@ namespace cimg_library {
             pos = vector(2);
             if (!arg2) CImg<ulongT>::vector((ulongT)mp_complex_one,pos).move_to(code);
             else if (arg2==2) {
-              if (is_scalar(arg1)) CImg<ulongT>::vector((ulongT)mp_complex_sqr,pos,arg1,0).move_to(code);
-              else CImg<ulongT>::vector((ulongT)mp_complex_sqr,pos,arg1 + 1,arg1 + 2).move_to(code);
+              if (is_scalar(arg1)) {
+                CImg<ulongT>::vector((ulongT)mp_vector_init,pos,2,2,0,arg1,0,0).move_to(code);
+                arg1 = pos;
+              }
+              CImg<ulongT>::vector((ulongT)mp_complex_sqr,pos,2,arg1).move_to(code);
             } else {
               if (is_vector(arg1) && is_vector(arg2))
                 CImg<ulongT>::vector((ulongT)mp_complex_pow_vv,pos,arg1,arg2).move_to(code);
@@ -70873,6 +70887,9 @@ namespace cil = cimg_library;
 #endif
 #ifdef _MSC_VER
 #pragma warning(pop)
+#endif
+#if __GNUC__>10
+#pragma GCC diagnostic pop
 #endif
 
 #endif

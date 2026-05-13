@@ -116,7 +116,7 @@
 #define cimg_time __TIME__
 #endif
 
-// Disable silly warnings on some Microsoft VC++ compilers.
+// Disable silly warnings on some Microsoft and GCC compilers.
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable:4127)
@@ -146,6 +146,12 @@
 #ifndef _CRT_NONSTDC_NO_DEPRECATE
 #define _CRT_NONSTDC_NO_DEPRECATE 1
 #endif
+#endif
+
+#if __GNUC__>10
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#pragma GCC diagnostic ignored "-Wformat-overflow"
 #endif
 
 // Define correct string functions for each compiler and OS.
@@ -70881,6 +70887,9 @@ namespace cil = cimg_library;
 #endif
 #ifdef _MSC_VER
 #pragma warning(pop)
+#endif
+#if __GNUC__>10
+#pragma GCC diagnostic pop
 #endif
 
 #endif

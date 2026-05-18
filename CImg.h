@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 376
+#define cimg_version 377
 
 /*-----------------------------------------------------------
  #
@@ -39177,7 +39177,7 @@ namespace cimg_library {
     **/
     CImg<T>& mirror(const char axis) {
       if (is_empty()) return *this;
-      T *pf, *pb, *buf = 0;
+      T *pf, *pb, *buffer = 0;
       switch (cimg::lowercase(axis)) {
       case 'x' : {
         pf = _data; pb = data(_width - 1);
@@ -39189,14 +39189,15 @@ namespace cimg_library {
         }
       } break;
       case 'y' : {
-        buf = new T[_width];
+        CImg<T> _buffer(_width);
+        buffer = _buffer._data;
         pf = _data; pb = data(0,_height - 1);
         const unsigned int height2 = _height/2;
         for (unsigned int zv = 0; zv<_depth*_spectrum; ++zv) {
           for (unsigned int y = 0; y<height2; ++y) {
-            std::memcpy(buf,pf,_width*sizeof(T));
+            std::memcpy(buffer,pf,_width*sizeof(T));
             std::memcpy(pf,pb,_width*sizeof(T));
-            std::memcpy(pb,buf,_width*sizeof(T));
+            std::memcpy(pb,buffer,_width*sizeof(T));
             pf+=_width;
             pb-=_width;
           }
@@ -39205,14 +39206,15 @@ namespace cimg_library {
         }
       } break;
       case 'z' : {
-        buf = new T[(ulongT)_width*_height];
+        CImg<T> _buffer(_width,_height);
+        buffer = _buffer._data;
         pf = _data; pb = data(0,0,_depth - 1);
         const unsigned int depth2 = _depth/2;
         cimg_forC(*this,c) {
           for (unsigned int z = 0; z<depth2; ++z) {
-            std::memcpy(buf,pf,_width*_height*sizeof(T));
+            std::memcpy(buffer,pf,_width*_height*sizeof(T));
             std::memcpy(pf,pb,_width*_height*sizeof(T));
-            std::memcpy(pb,buf,_width*_height*sizeof(T));
+            std::memcpy(pb,buffer,_width*_height*sizeof(T));
             pf+=(ulongT)_width*_height;
             pb-=(ulongT)_width*_height;
           }
@@ -39221,13 +39223,14 @@ namespace cimg_library {
         }
       } break;
       case 'c' : {
-        buf = new T[(ulongT)_width*_height*_depth];
+        CImg<T> _buffer(_width,_height,_depth);
+        buffer = _buffer._data;
         pf = _data; pb = data(0,0,0,_spectrum - 1);
         const unsigned int _spectrum2 = _spectrum/2;
         for (unsigned int v = 0; v<_spectrum2; ++v) {
-          std::memcpy(buf,pf,_width*_height*_depth*sizeof(T));
+          std::memcpy(buffer,pf,_width*_height*_depth*sizeof(T));
           std::memcpy(pf,pb,_width*_height*_depth*sizeof(T));
-          std::memcpy(pb,buf,_width*_height*_depth*sizeof(T));
+          std::memcpy(pb,buffer,_width*_height*_depth*sizeof(T));
           pf+=(ulongT)_width*_height*_depth;
           pb-=(ulongT)_width*_height*_depth;
         }
@@ -39238,7 +39241,6 @@ namespace cimg_library {
                                     cimg_instance,
                                     axis);
       }
-      delete[] buf;
       return *this;
     }
 
@@ -58696,13 +58698,14 @@ namespace cimg_library {
       unsigned int header_size;
       cimg::fread(&header_size,1,nfile_header);
       if (header_size>=4096) { endian = true; cimg::invert_endianness(header_size); }
-      if (header_size<128)
+      const ulongT fsiz = file?(ulongT)cimg_max_buf_size:(ulongT)cimg::fsize(filename);
+      if (header_size<128 || (ulongT)header_size>fsiz)
         throw CImgIOException(_cimg_instance
                               "load_analyze(): Invalid header size (%u) specified in file '%s'.",
                               cimg_instance,
                               header_size,filename?filename:"(FILE*)");
-
-      unsigned char *const header = new unsigned char[header_size];
+      CImg<ucharT> _header(header_size);
+      unsigned char *const header = _header._data;
       const size_t header_size_read = cimg::fread(header + 4,header_size - 4,nfile_header);
       if (header_size_read!=header_size - 4)
         throw CImgIOException(_cimg_instance
@@ -58748,45 +58751,44 @@ namespace cimg_library {
         const float *vsize = (float*)(header + 76);
         voxel_size[0] = vsize[1]; voxel_size[1] = vsize[2]; voxel_size[2] = vsize[3];
       }
-      delete[] header;
 
       // Read pixel data.
       assign(dimx,dimy,dimz,dimv);
       const size_t pdim = (size_t)dimx*dimy*dimz*dimv;
       switch (datatype) {
       case 2 : {
-        unsigned char *const buffer = new unsigned char[pdim];
+        CImg<ucharT> _buffer(pdim);
+        unsigned char *const buffer = _buffer._data;
         cimg::fread(buffer,pdim,nfile);
         cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
-        delete[] buffer;
       } break;
       case 4 : {
-        short *const buffer = new short[pdim];
+        CImg<shortT> _buffer(pdim);
+        short *const buffer = _buffer._data;
         cimg::fread(buffer,pdim,nfile);
         if (endian) cimg::invert_endianness(buffer,pdim);
         cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
-        delete[] buffer;
       } break;
       case 8 : {
-        int *const buffer = new int[pdim];
+        CImg<intT> _buffer(pdim);
+        int *const buffer = _buffer._data;
         cimg::fread(buffer,pdim,nfile);
         if (endian) cimg::invert_endianness(buffer,pdim);
         cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
-        delete[] buffer;
       } break;
       case 16 : {
-        float *const buffer = new float[pdim];
+        CImg<floatT> _buffer(pdim);
+        float *const buffer = _buffer._data;
         cimg::fread(buffer,pdim,nfile);
         if (endian) cimg::invert_endianness(buffer,pdim);
         cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
-        delete[] buffer;
       } break;
       case 64 : {
-        double *const buffer = new double[pdim];
+        CImg<doubleT> _buffer(pdim);
+        double *const buffer = _buffer._data;
         cimg::fread(buffer,pdim,nfile);
         if (endian) cimg::invert_endianness(buffer,pdim);
         cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
-        delete[] buffer;
       } break;
       default :
         if (!file) cimg::fclose(nfile);
@@ -59105,9 +59107,7 @@ namespace cimg_library {
         cimg::fread(buffer,siz,nfile); \
         if (endian) cimg::invert_endianness(buffer,siz); \
         T *ptrd = _data; \
-        cimg_foroff(*this,off) *(ptrd++) = (T)*(buffer++); \
-        buffer-=siz; \
-        delete[] buffer
+        cimg_foroff(*this,off) *(ptrd++) = (T)*(buffer++);
 
 #define _cimg_load_pandore_case(nbdim,nwidth,nheight,ndepth,dim,stype1,stype2,stype3,ltype) { \
         if (sizeof(stype1)==ltype) { __cimg_load_pandore_case(nbdim,nwidth,nheight,ndepth,dim,stype1); } \
@@ -59156,29 +59156,26 @@ namespace cimg_library {
         assign(dims[1],1,1,1);
         const unsigned siz = size();
         if (dims[2]<256) {
-          unsigned char *buffer = new unsigned char[siz];
+          CImg<ucharT> _buffer(siz);
+          unsigned char *buffer = _buffer._data;
           cimg::fread(buffer,siz,nfile);
           T *ptrd = _data;
           cimg_foroff(*this,off) *(ptrd++) = (T)*(buffer++);
-          buffer-=siz;
-          delete[] buffer;
         } else {
           if (dims[2]<65536) {
-            unsigned short *buffer = new unsigned short[siz];
+            CImg<ushortT> _buffer(siz);
+            unsigned short *buffer = _buffer._data;
             cimg::fread(buffer,siz,nfile);
             if (endian) cimg::invert_endianness(buffer,siz);
             T *ptrd = _data;
             cimg_foroff(*this,off) *(ptrd++) = (T)*(buffer++);
-            buffer-=siz;
-            delete[] buffer;
           } else {
-            unsigned int *buffer = new unsigned int[siz];
+            CImg<uintT> _buffer(siz);
+            unsigned int *buffer = _buffer._data;
             cimg::fread(buffer,siz,nfile);
             if (endian) cimg::invert_endianness(buffer,siz);
             T *ptrd = _data;
             cimg_foroff(*this,off) *(ptrd++) = (T)*(buffer++);
-            buffer-=siz;
-            delete[] buffer;
           }
         }
       }
@@ -59189,29 +59186,26 @@ namespace cimg_library {
         assign(dims[2],dims[1],1,1);
         const size_t siz = size();
         if (dims[3]<256) {
-          unsigned char *buffer = new unsigned char[siz];
+          CImg<ucharT> _buffer(siz);
+          unsigned char *buffer = _buffer._data;
           cimg::fread(buffer,siz,nfile);
           T *ptrd = _data;
           cimg_foroff(*this,off) *(ptrd++) = (T)*(buffer++);
-          buffer-=siz;
-          delete[] buffer;
         } else {
           if (dims[3]<65536) {
-            unsigned short *buffer = new unsigned short[siz];
+            CImg<ushortT> _buffer(siz);
+            unsigned short *buffer = _buffer._data;
             cimg::fread(buffer,siz,nfile);
             if (endian) cimg::invert_endianness(buffer,siz);
             T *ptrd = _data;
             cimg_foroff(*this,off) *(ptrd++) = (T)*(buffer++);
-            buffer-=siz;
-            delete[] buffer;
           } else {
-            unsigned int *buffer = new unsigned int[siz];
+            CImg<uintT> _buffer(siz);
+            unsigned int *buffer = _buffer._data;
             cimg::fread(buffer,siz,nfile);
             if (endian) cimg::invert_endianness(buffer,siz);
             T *ptrd = _data;
             cimg_foroff(*this,off) *(ptrd++) = (T)*(buffer++);
-            buffer-=siz;
-            delete[] buffer;
           }
         }
       }
@@ -59222,29 +59216,26 @@ namespace cimg_library {
         assign(dims[3],dims[2],dims[1],1);
         const size_t siz = size();
         if (dims[4]<256) {
-          unsigned char *buffer = new unsigned char[siz];
+          CImg<ucharT> _buffer(siz);
+          unsigned char *buffer = _buffer._data;
           cimg::fread(buffer,siz,nfile);
           T *ptrd = _data;
           cimg_foroff(*this,off) *(ptrd++) = (T)*(buffer++);
-          buffer-=siz;
-          delete[] buffer;
         } else {
           if (dims[4]<65536) {
-            unsigned short *buffer = new unsigned short[siz];
+            CImg<ushortT> _buffer(siz);
+            unsigned short *buffer = _buffer._data;
             cimg::fread(buffer,siz,nfile);
             if (endian) cimg::invert_endianness(buffer,siz);
             T *ptrd = _data;
             cimg_foroff(*this,off) *(ptrd++) = (T)*(buffer++);
-            buffer-=siz;
-            delete[] buffer;
           } else {
-            unsigned int *buffer = new unsigned int[siz];
+            CImg<uintT> _buffer(siz);
+            unsigned int *buffer = _buffer._data;
             cimg::fread(buffer,siz,nfile);
             if (endian) cimg::invert_endianness(buffer,siz);
             T *ptrd = _data;
             cimg_foroff(*this,off) *(ptrd++) = (T)*(buffer++);
-            buffer-=siz;
-            delete[] buffer;
           }
         }
       }
@@ -59396,10 +59387,10 @@ namespace cimg_library {
       assign(_size_x,_size_y,_size_z,_size_c,0);
 
       if (is_bool) { // Boolean data (bitwise)
-        unsigned char *const buf = new unsigned char[siz];
-        cimg::fread(buf,siz,nfile);
-        _uchar2bool(buf,siz,is_multiplexed);
-        delete[] buf;
+        CImg<ucharT> _buffer(siz);
+        unsigned char *const buffer = _buffer._data;
+        cimg::fread(buffer,siz,nfile);
+        _uchar2bool(buffer,siz,is_multiplexed);
       } else { // Non-boolean data
         if (siz && (!is_multiplexed || size_c==1)) { // Non-multiplexed
           cimg::fread(_data,siz,nfile);
@@ -62871,7 +62862,8 @@ namespace cimg_library {
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
       const ulongT wh = (ulongT)_width*_height;
-      unsigned char *const buffer = new unsigned char[3*wh], *nbuffer = buffer;
+      CImg<ucharT> _buffer(3*wh);
+      unsigned char *const buffer = _buffer._data, *nbuffer = buffer;
       const T
         *ptr1 = data(0,0,0,0),
         *ptr2 = _spectrum>1?data(0,0,0,1):0,
@@ -62902,7 +62894,6 @@ namespace cimg_library {
       }
       cimg::fwrite(buffer,3*wh,nfile);
       if (!file) cimg::fclose(nfile);
-      delete[] buffer;
       return *this;
     }
 
@@ -62933,7 +62924,8 @@ namespace cimg_library {
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
       const ulongT wh = (ulongT)_width*_height;
-      unsigned char *const buffer = new unsigned char[4*wh], *nbuffer = buffer;
+      CImg<ucharT> _buffer(4*wh);
+      unsigned char *const buffer = _buffer._data, *nbuffer = buffer;
       const T
         *ptr1 = data(0,0,0,0),
         *ptr2 = _spectrum>1?data(0,0,0,1):0,
@@ -62976,7 +62968,6 @@ namespace cimg_library {
       }
       cimg::fwrite(buffer,4*wh,nfile);
       if (!file) cimg::fclose(nfile);
-      delete[] buffer;
       return *this;
     }
 
@@ -63526,14 +63517,12 @@ namespace cimg_library {
 
     const CImg<T>& _save_pandore(std::FILE *const file, const char *const filename,
                                  const unsigned int colorspace) const {
-
 #define __cimg_save_pandore_case(dtype) \
-       dtype *buffer = new dtype[size()]; \
+       CImg<dtype> _buffer(size()); \
+       dtype *buffer = _buffer._data; \
        const T *ptrs = _data; \
        cimg_foroff(*this,off) *(buffer++) = (dtype)(*(ptrs++)); \
-       buffer-=size(); \
-       cimg::fwrite(buffer,size(),nfile); \
-       delete[] buffer
+       cimg::fwrite(_buffer._data,size(),nfile)
 
 #define _cimg_save_pandore_case(sy,sz,sv,stype,id) \
       if (!saved && (sy?(sy==_height):true) && (sz?(sz==_depth):true) && \
@@ -63555,18 +63544,18 @@ namespace cimg_library {
                                    cimg_instance, \
                                    filename?filename:"(FILE*)"); \
         if (id==2 || id==5 || id==8 || id==16 || id==19 || id==22 || id==26 || id==30) { \
-          __cimg_save_pandore_case(unsigned char); \
+          __cimg_save_pandore_case(ucharT); \
         } else if (id==3 || id==6 || id==9 || id==17 || id==20 || id==23 || id==27 || id==31) { \
-          if (sizeof(unsigned long)==4) { __cimg_save_pandore_case(unsigned long); } \
-          else if (sizeof(unsigned int)==4) { __cimg_save_pandore_case(unsigned int); } \
-          else if (sizeof(unsigned short)==4) { __cimg_save_pandore_case(unsigned short); } \
+          if (sizeof(unsigned long)==4) { __cimg_save_pandore_case(ulongT); } \
+          else if (sizeof(unsigned int)==4) { __cimg_save_pandore_case(uintT); } \
+          else if (sizeof(unsigned short)==4) { __cimg_save_pandore_case(ushortT); } \
           else throw CImgIOException(_cimg_instance \
                                      "save_pandore(): Unsupported datatype for file '%s'.",\
                                      cimg_instance, \
                                      filename?filename:"(FILE*)"); \
         } else if (id==4 || id==7 || id==10 || id==18 || id==21 || id==25 || id==29 || id==33) { \
-          if (sizeof(double)==4) { __cimg_save_pandore_case(double); } \
-          else if (sizeof(float)==4) { __cimg_save_pandore_case(float); } \
+          if (sizeof(double)==4) { __cimg_save_pandore_case(doubleT); } \
+          else if (sizeof(float)==4) { __cimg_save_pandore_case(floatT); } \
           else throw CImgIOException(_cimg_instance \
                                      "save_pandore(): Unsupported datatype for file '%s'.",\
                                      cimg_instance, \

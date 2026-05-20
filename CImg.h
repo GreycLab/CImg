@@ -59103,7 +59103,8 @@ namespace cimg_library {
                                 (int)nwidth,(int)nheight,(int)ndepth,(int)ndim); \
         assign(nwidth,nheight,ndepth,ndim); \
         const size_t siz = size(); \
-        stype *buffer = new stype[siz]; \
+        CImg<stype> _buffer(_width,_height,_depth,_spectrum); \
+        stype *buffer = _buffer._data; \
         cimg::fread(buffer,siz,nfile); \
         if (endian) cimg::invert_endianness(buffer,siz); \
         T *ptrd = _data; \
@@ -59141,36 +59142,36 @@ namespace cimg_library {
       cimg::fread(header._data,20,nfile);
 
       switch (imageid) {
-      case 2 : _cimg_load_pandore_case(2,dims[1],1,1,1,unsigned char,unsigned char,unsigned char,1); break;
-      case 3 : _cimg_load_pandore_case(2,dims[1],1,1,1,long,int,short,4); break;
-      case 4 : _cimg_load_pandore_case(2,dims[1],1,1,1,double,float,float,4); break;
-      case 5 : _cimg_load_pandore_case(3,dims[2],dims[1],1,1,unsigned char,unsigned char,unsigned char,1); break;
-      case 6 : _cimg_load_pandore_case(3,dims[2],dims[1],1,1,long,int,short,4); break;
-      case 7 : _cimg_load_pandore_case(3,dims[2],dims[1],1,1,double,float,float,4); break;
-      case 8 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],1,unsigned char,unsigned char,unsigned char,1); break;
-      case 9 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],1,long,int,short,4); break;
-      case 10 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],1,double,float,float,4); break;
+      case 2 : _cimg_load_pandore_case(2,dims[1],1,1,1,ucharT,ucharT,ucharT,1); break;
+      case 3 : _cimg_load_pandore_case(2,dims[1],1,1,1,longT,intT,shortT,4); break;
+      case 4 : _cimg_load_pandore_case(2,dims[1],1,1,1,doubleT,floatT,floatT,4); break;
+      case 5 : _cimg_load_pandore_case(3,dims[2],dims[1],1,1,ucharT,ucharT,ucharT,1); break;
+      case 6 : _cimg_load_pandore_case(3,dims[2],dims[1],1,1,longT,intT,shortT,4); break;
+      case 7 : _cimg_load_pandore_case(3,dims[2],dims[1],1,1,doubleT,floatT,floatT,4); break;
+      case 8 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],1,ucharT,ucharT,ucharT,1); break;
+      case 9 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],1,longT,intT,shortT,4); break;
+      case 10 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],1,doubleT,floatT,floatT,4); break;
       case 11 : { // Region 1D
         cimg::fread(dims,3,nfile);
         if (endian) cimg::invert_endianness(dims,3);
         assign(dims[1],1,1,1);
-        const unsigned siz = size();
+        const ulongT siz = size();
         if (dims[2]<256) {
-          CImg<ucharT> _buffer(siz);
+          CImg<ucharT> _buffer(_width,_height,_depth,_spectrum);
           unsigned char *buffer = _buffer._data;
           cimg::fread(buffer,siz,nfile);
           T *ptrd = _data;
           cimg_foroff(*this,off) *(ptrd++) = (T)*(buffer++);
         } else {
           if (dims[2]<65536) {
-            CImg<ushortT> _buffer(siz);
+            CImg<ushortT> _buffer(_width,_height,_depth,_spectrum);
             unsigned short *buffer = _buffer._data;
             cimg::fread(buffer,siz,nfile);
             if (endian) cimg::invert_endianness(buffer,siz);
             T *ptrd = _data;
             cimg_foroff(*this,off) *(ptrd++) = (T)*(buffer++);
           } else {
-            CImg<uintT> _buffer(siz);
+            CImg<uintT> _buffer(_width,_height,_depth,_spectrum);
             unsigned int *buffer = _buffer._data;
             cimg::fread(buffer,siz,nfile);
             if (endian) cimg::invert_endianness(buffer,siz);
@@ -59186,21 +59187,21 @@ namespace cimg_library {
         assign(dims[2],dims[1],1,1);
         const size_t siz = size();
         if (dims[3]<256) {
-          CImg<ucharT> _buffer(siz);
+          CImg<ucharT> _buffer(_width,_height,_depth,_spectrum);
           unsigned char *buffer = _buffer._data;
           cimg::fread(buffer,siz,nfile);
           T *ptrd = _data;
           cimg_foroff(*this,off) *(ptrd++) = (T)*(buffer++);
         } else {
           if (dims[3]<65536) {
-            CImg<ushortT> _buffer(siz);
+            CImg<ushortT> _buffer(_width,_height,_depth,_spectrum);
             unsigned short *buffer = _buffer._data;
             cimg::fread(buffer,siz,nfile);
             if (endian) cimg::invert_endianness(buffer,siz);
             T *ptrd = _data;
             cimg_foroff(*this,off) *(ptrd++) = (T)*(buffer++);
           } else {
-            CImg<uintT> _buffer(siz);
+            CImg<uintT> _buffer(_width,_height,_depth,_spectrum);
             unsigned int *buffer = _buffer._data;
             cimg::fread(buffer,siz,nfile);
             if (endian) cimg::invert_endianness(buffer,siz);
@@ -59216,21 +59217,21 @@ namespace cimg_library {
         assign(dims[3],dims[2],dims[1],1);
         const size_t siz = size();
         if (dims[4]<256) {
-          CImg<ucharT> _buffer(siz);
+          CImg<ucharT> _buffer(_width,_height,_depth,_spectrum);
           unsigned char *buffer = _buffer._data;
           cimg::fread(buffer,siz,nfile);
           T *ptrd = _data;
           cimg_foroff(*this,off) *(ptrd++) = (T)*(buffer++);
         } else {
           if (dims[4]<65536) {
-            CImg<ushortT> _buffer(siz);
+            CImg<ushortT> _buffer(_width,_height,_depth,_spectrum);
             unsigned short *buffer = _buffer._data;
             cimg::fread(buffer,siz,nfile);
             if (endian) cimg::invert_endianness(buffer,siz);
             T *ptrd = _data;
             cimg_foroff(*this,off) *(ptrd++) = (T)*(buffer++);
           } else {
-            CImg<uintT> _buffer(siz);
+            CImg<uintT> _buffer(_width,_height,_depth,_spectrum);
             unsigned int *buffer = _buffer._data;
             cimg::fread(buffer,siz,nfile);
             if (endian) cimg::invert_endianness(buffer,siz);
@@ -59240,26 +59241,26 @@ namespace cimg_library {
         }
       }
         break;
-      case 16 : _cimg_load_pandore_case(4,dims[2],dims[1],1,3,unsigned char,unsigned char,unsigned char,1); break;
-      case 17 : _cimg_load_pandore_case(4,dims[2],dims[1],1,3,long,int,short,4); break;
-      case 18 : _cimg_load_pandore_case(4,dims[2],dims[1],1,3,double,float,float,4); break;
-      case 19 : _cimg_load_pandore_case(5,dims[3],dims[2],dims[1],3,unsigned char,unsigned char,unsigned char,1); break;
-      case 20 : _cimg_load_pandore_case(5,dims[3],dims[2],dims[1],3,long,int,short,4); break;
-      case 21 : _cimg_load_pandore_case(5,dims[3],dims[2],dims[1],3,double,float,float,4); break;
-      case 22 : _cimg_load_pandore_case(2,dims[1],1,1,dims[0],unsigned char,unsigned char,unsigned char,1); break;
-      case 23 : _cimg_load_pandore_case(2,dims[1],1,1,dims[0],long,int,short,4); break;
-      case 24 : _cimg_load_pandore_case(2,dims[1],1,1,dims[0],unsigned long,unsigned int,unsigned short,4); break;
-      case 25 : _cimg_load_pandore_case(2,dims[1],1,1,dims[0],double,float,float,4); break;
-      case 26 : _cimg_load_pandore_case(3,dims[2],dims[1],1,dims[0],unsigned char,unsigned char,unsigned char,1); break;
-      case 27 : _cimg_load_pandore_case(3,dims[2],dims[1],1,dims[0],long,int,short,4); break;
-      case 28 : _cimg_load_pandore_case(3,dims[2],dims[1],1,dims[0],unsigned long,unsigned int,unsigned short,4); break;
-      case 29 : _cimg_load_pandore_case(3,dims[2],dims[1],1,dims[0],double,float,float,4); break;
-      case 30 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],dims[0],unsigned char,unsigned char,unsigned char,1);
+      case 16 : _cimg_load_pandore_case(4,dims[2],dims[1],1,3,ucharT,ucharT,ucharT,1); break;
+      case 17 : _cimg_load_pandore_case(4,dims[2],dims[1],1,3,longT,intT,shortT,4); break;
+      case 18 : _cimg_load_pandore_case(4,dims[2],dims[1],1,3,doubleT,floatT,floatT,4); break;
+      case 19 : _cimg_load_pandore_case(5,dims[3],dims[2],dims[1],3,ucharT,ucharT,ucharT,1); break;
+      case 20 : _cimg_load_pandore_case(5,dims[3],dims[2],dims[1],3,longT,intT,shortT,4); break;
+      case 21 : _cimg_load_pandore_case(5,dims[3],dims[2],dims[1],3,doubleT,floatT,floatT,4); break;
+      case 22 : _cimg_load_pandore_case(2,dims[1],1,1,dims[0],ucharT,ucharT,ucharT,1); break;
+      case 23 : _cimg_load_pandore_case(2,dims[1],1,1,dims[0],longT,intT,shortT,4); break;
+      case 24 : _cimg_load_pandore_case(2,dims[1],1,1,dims[0],ulongT,uintT,ushortT,4); break;
+      case 25 : _cimg_load_pandore_case(2,dims[1],1,1,dims[0],doubleT,floatT,floatT,4); break;
+      case 26 : _cimg_load_pandore_case(3,dims[2],dims[1],1,dims[0],ucharT,ucharT,ucharT,1); break;
+      case 27 : _cimg_load_pandore_case(3,dims[2],dims[1],1,dims[0],longT,intT,shortT,4); break;
+      case 28 : _cimg_load_pandore_case(3,dims[2],dims[1],1,dims[0],ulongT,uintT,ushortT,4); break;
+      case 29 : _cimg_load_pandore_case(3,dims[2],dims[1],1,dims[0],doubleT,floatT,floatT,4); break;
+      case 30 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],dims[0],ucharT,ucharT,ucharT,1);
         break;
-      case 31 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],dims[0],long,int,short,4); break;
-      case 32 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],dims[0],unsigned long,unsigned int,unsigned short,4);
+      case 31 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],dims[0],longT,intT,shortT,4); break;
+      case 32 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],dims[0],ulongT,uintT,ushortT,4);
         break;
-      case 33 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],dims[0],double,float,float,4); break;
+      case 33 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],dims[0],doubleT,floatT,floatT,4); break;
       case 34 : { // Points 1D
         cimg::fread(ptbuf,1,nfile);
         if (endian) cimg::invert_endianness(ptbuf,1);

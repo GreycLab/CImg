@@ -59102,7 +59102,7 @@ namespace cimg_library {
                                 (long)fsiz,filename?filename:"(FILE*)",\
                                 (int)nwidth,(int)nheight,(int)ndepth,(int)ndim); \
         assign(nwidth,nheight,ndepth,ndim); \
-        const size_t siz = size(); \
+        const ulongT siz = size(); \
         CImg<stype> _buffer(_width,_height,_depth,_spectrum); \
         stype *buffer = _buffer._data; \
         cimg::fread(buffer,siz,nfile); \
@@ -59185,7 +59185,7 @@ namespace cimg_library {
         cimg::fread(dims,4,nfile);
         if (endian) cimg::invert_endianness(dims,4);
         assign(dims[2],dims[1],1,1);
-        const size_t siz = size();
+        const ulongT siz = size();
         if (dims[3]<256) {
           CImg<ucharT> _buffer(_width,_height,_depth,_spectrum);
           unsigned char *buffer = _buffer._data;
@@ -59215,7 +59215,7 @@ namespace cimg_library {
         cimg::fread(dims,5,nfile);
         if (endian) cimg::invert_endianness(dims,5);
         assign(dims[3],dims[2],dims[1],1);
-        const size_t siz = size();
+        const ulongT siz = size();
         if (dims[4]<256) {
           CImg<ucharT> _buffer(_width,_height,_depth,_spectrum);
           unsigned char *buffer = _buffer._data;

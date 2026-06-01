@@ -46211,7 +46211,7 @@ namespace cimg_library {
         min_siz = is_3d?cimg::min(_width,_height,_depth):std::min(_width,_height),
         _nb_scales = nb_scales>0?nb_scales:(unsigned int)cimg::round(std::log(min_siz)/std::log(scale_factor)) - 1;
 
-      CImg<floatT> U, C;  // U: vector field, C: constraints field (at current scale)
+      CImg<floatT> U, V, C;  // U: vector field, V: velocity field (-gradient), C: constraints field (at current scale)
       for (int scale = (int)_nb_scales - 1; scale>=0; --scale) {
         const float
           fact = (float)std::pow(scale_factor,(double)scale);
@@ -46228,7 +46228,7 @@ namespace cimg_library {
           sigma_end = 0.5f,
           sigma = sigma_start*omt + sigma_end*t,
           __precision = _precision/fact;
-        CImg<Tfloat>
+        const CImg<Tfloat>
           R = reference.get_resize(sw,sh,sd,-100,2).blur(sigma).normalize(0,1),
           I = get_resize(R,2).blur(sigma).normalize(0,1);
 
@@ -46251,6 +46251,9 @@ namespace cimg_library {
           } else U.assign(I._width,I._height,I._depth,spectrum_U,0);
         }
 
+        // Allocate V.
+        V.assign(U._width,U._height,U._depth,U._spectrum);
+
         float dt = 0.25;
         double energy = cimg::type<float>::max();
         const CImgList<Tfloat> grad = is_forward?I.get_gradient():R.get_gradient();
@@ -46260,7 +46263,6 @@ namespace cimg_library {
         for (unsigned int iteration = 0; iteration<_iteration_max; ++iteration) {
           cimg_abort_test;
           double _energy = 0;
-          CImg<floatT> V(U._width,U._height,U._depth,U._spectrum);
           if (is_3d) { // 3D version
             cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
                                cimg_openmp_if(_height*_depth>=(cimg_openmp_sizefactor)*8 &&

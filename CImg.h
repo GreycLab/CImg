@@ -46423,7 +46423,7 @@ namespace cimg_library {
 
           const double d_energy = (_energy - energy)/(I._width*I._height*I._depth);
           if ((d_energy<=0 && -d_energy<__precision) || _energy<__precision) break;
-          if (d_energy>0) { dt*=0.5f; --iteration; }
+          if (d_energy>0) { dt*=0.5f; if (dt<1e-8) break; }
           energy = _energy;
         }
       }

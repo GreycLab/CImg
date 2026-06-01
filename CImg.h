@@ -46254,7 +46254,7 @@ namespace cimg_library {
         // Allocate V.
         V.assign(U._width,U._height,U._depth,U._spectrum);
 
-        float dt = 0.25, _dt = dt;
+        float dt = 0.25;
         double energy = cimg::type<float>::max();
         const CImgList<Tfloat> grad = is_forward?I.get_gradient():R.get_gradient();
         cimg_abort_init;
@@ -46337,7 +46337,7 @@ namespace cimg_library {
 
             // Update displacement field.
             float Vmin,Vmax = V.max_min(Vmin);
-            _dt = dt/cimg::max(1e-8f,cimg::abs(Vmin),cimg::abs(Vmax));
+            const float _dt = dt/cimg::max(1e-8f,cimg::abs(Vmin),cimg::abs(Vmax));
             cimg_openmp_for(U,*ptr + _dt*V[ptr - U._data],32768,float);
 
             if (C) // Apply constraints
@@ -46408,7 +46408,7 @@ namespace cimg_library {
 
             // Update displacement field.
             float Vmin,Vmax = V.max_min(Vmin);
-            _dt = dt/cimg::max(1e-8f,cimg::abs(Vmin),cimg::abs(Vmax));
+            const float _dt = dt/cimg::max(1e-8f,cimg::abs(Vmin),cimg::abs(Vmax));
             cimg_openmp_for(U,*ptr + _dt*V[ptr - U._data],32768,float);
 
             if (C) // Apply constraints

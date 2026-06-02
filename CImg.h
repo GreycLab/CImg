@@ -46186,6 +46186,12 @@ namespace cimg_library {
                                     cimg_instance,
                                     reference._width,reference._height,reference._depth,reference._spectrum,
                                     reference._data);
+      if (smoothness<0)
+        throw CImgArgumentException(_cimg_instance
+                                    "displacement(): Invalid specified smoothness %g "
+                                    "(should be >=0)",
+                                    cimg_instance,
+                                    smoothness);
       if (precision<0)
         throw CImgArgumentException(_cimg_instance
                                     "displacement(): Invalid specified precision %g "
@@ -46205,7 +46211,6 @@ namespace cimg_library {
                                     guide._width,guide._height,guide._depth,guide._spectrum,guide._data);
       const float
         scale_factor = 2.f,
-        abs_smoothness = cimg::abs(smoothness),
         _precision = (float)std::pow(10.,-(double)precision);
       const unsigned int
         min_siz = is_3d?cimg::min(_width,_height,_depth):std::min(_width,_height),
@@ -46294,7 +46299,7 @@ namespace cimg_library {
                   V(x,y,z,0) = veloc_u;
                   V(x,y,z,1) = veloc_v;
                   V(x,y,z,2) = veloc_w;
-                } else if (smoothness>=0) cimg_forC(U,c) { // Isotropic regularization
+                } else cimg_forC(U,c) { // Isotropic regularization
                     const float
                       uccc = U(x,y,z,c),
                       upcc = U(_p1x,y,z,c), uncc = U(_n1x,y,z,c),
@@ -46305,33 +46310,8 @@ namespace cimg_library {
                       veloc = c==0?veloc_u:c==1?veloc_v:veloc_w;
                     V(x,y,z,c) = veloc + smoothness*regul;
                     _energy_regul+=ux*ux + uy*uy + uz*uz;
-
-                  } else cimg_forC(U,c) { // TV regularization
-                    CImg_3x3x3(u,float);
-                    cimg_get3x3x3(U,x,y,z,c,u,float);
-                    const float
-                      ux = 0.5f*(uncc - upcc), uy = 0.5f*(ucnc - ucpc), uz = 0.5f*(uccn - uccp),
-                      N2 = ux*ux + uy*uy + uz*uz,
-                      N = std::sqrt(N2),
-                      N3 = 1e-5f + N2*N,
-                      coef_a = (uy*uy + uz*uz)/N3,
-                      coef_b = -2*ux*uy/N3,
-                      coef_c = -2*ux*uz/N3,
-                      coef_d = (ux*ux + uz*uz)/N3,
-                      coef_e = -2*uy*uz/N3,
-                      coef_f = (ux*ux + uy*uy)/N3,
-                      uxx = uncc + upcc - 2*uccc,
-                      uyy = ucnc + ucpc - 2*uccc,
-                      uzz = uccn + uccp - 2*uccc,
-                      uxy = 0.25f*(unnc + uppc - unpc - upnc),
-                      uxz = 0.25f*(uncn + upcp - uncp - upcn),
-                      uyz = 0.25f*(ucnn + ucpp - ucnp - ucpn),
-                      regul = coef_a*uxx + coef_b*uxy + coef_c*uxz + coef_d*uyy + coef_e*uyz + coef_f*uzz,
-                      veloc = c==0?veloc_u:c==1?veloc_v:veloc_w;
-                    V(x,y,z,c) = veloc + abs_smoothness*regul;
-                    _energy_regul+=N;
                   }
-                if (not_constrained) _energy+=_energy_data + abs_smoothness*_energy_regul;
+                if (not_constrained) _energy+=_energy_data + smoothness*_energy_regul;
               }
             }
 
@@ -46373,7 +46353,7 @@ namespace cimg_library {
                 if (smoothness==0) { // No regularization
                   V(x,y,0) = veloc_u;
                   V(x,y,1) = veloc_v;
-                } else if (smoothness>=0) cimg_forC(U,c) { // Isotropic regularization
+                } else cimg_forC(U,c) { // Isotropic regularization
                     const float
                       ucc = U(x,y,c),
                       upc = U(_p1x,y,c), unc = U(_n1x,y,c),
@@ -46383,26 +46363,8 @@ namespace cimg_library {
                       veloc = c==0?veloc_u:veloc_v;
                     V(x,y,c) = veloc + smoothness*regul;
                     _energy_regul+=ux*ux + uy*uy;
-                  } else cimg_forC(U,c) { // TV regularization
-                    CImg_3x3(u,float);
-                    cimg_get3x3(U,x,y,0,c,u,float);
-                    const float
-                      ux = 0.5f*(unc - upc), uy = 0.5f*(ucn - ucp),
-                      N2 = ux*ux + uy*uy,
-                      N = std::sqrt(N2),
-                      N3 = 1e-5f + N2*N,
-                      coef_a = uy*uy/N3,
-                      coef_b = -2*ux*uy/N3,
-                      coef_c = ux*ux/N3,
-                      uxx = unc + upc - 2*ucc,
-                      uyy = ucn + ucp - 2*ucc,
-                      uxy = 0.25f*(unn + upp - unp - upn),
-                      regul = coef_a*uxx + coef_b*uxy + coef_c*uyy,
-                      veloc = c==0?veloc_u:veloc_v;
-                    V(x,y,c) = veloc + smoothness*regul;
-                    _energy_regul+=N;
                   }
-                if (not_constrained) _energy+=_energy_data + abs_smoothness*_energy_regul;
+                if (not_constrained) _energy+=_energy_data + smoothness*_energy_regul;
               }
             }
 

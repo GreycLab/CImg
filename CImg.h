@@ -46264,8 +46264,8 @@ namespace cimg_library {
         const CImgList<Tfloat> grad = is_forward?I.get_gradient():R.get_gradient();
         cimg_abort_init;
 
-        const unsigned int _iteration_max = (unsigned int)(iteration_max*fact);
-        for (unsigned int iteration = 0; iteration<_iteration_max; ++iteration) {
+        const unsigned int iteration_max_scale = (unsigned int)(iteration_max*fact);
+        for (unsigned int iteration = 0; iteration<iteration_max_scale; ++iteration) {
           cimg_abort_test;
           double energy = 0;
           if (is_3d) { // 3D version
@@ -46383,9 +46383,11 @@ namespace cimg_library {
               }
           }
 
-          const double d_energy = (energy - prev_energy)/swhd;
-          if ((d_energy<=0 && -d_energy<precision_scale) || energy<precision_scale) break;
-          if (d_energy>0) { dt*=0.5f; if (dt<1e-8) break; }
+          if (iteration) {
+            const double d_energy = (energy - prev_energy)/swhd;
+            if (energy/swhd<precision_scale || (d_energy<=0 && -d_energy<precision_scale)) break;
+            if (d_energy>0) { dt*=0.5f; if (dt<1e-8) break; }
+          }
           prev_energy = energy;
         }
       }

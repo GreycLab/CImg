@@ -46152,7 +46152,7 @@ namespace cimg_library {
       return CImg<Tfloat>(*this,false).diffusion_tensors(sharpness,anisotropy,alpha,sigma,is_sqrt);
     }
 
-    //! Estimate displacement field between two images.
+    //! Estimate displacement field between instance and given reference images.
     /**
        \param reference Reference image R.
        \param smoothness Smoothness of estimated displacement field.

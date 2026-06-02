@@ -46199,6 +46199,7 @@ namespace cimg_library {
                                     cimg_instance,
                                     precision);
 
+      const float _precision = (float)std::pow(10.,-(double)precision);
       const bool is_3d = reference._depth>1;
       const unsigned int spectrum_U = is_3d?3:2;
 
@@ -46209,21 +46210,20 @@ namespace cimg_library {
                                     "has invalid dimensions.",
                                     cimg_instance,
                                     guide._width,guide._height,guide._depth,guide._spectrum,guide._data);
-      const float
-        scale_factor = 2.f,
-        _precision = (float)std::pow(10.,-(double)precision);
+
       const unsigned int
         min_siz = is_3d?cimg::min(_width,_height,_depth):std::min(_width,_height),
-        _nb_scales = nb_scales>0?nb_scales:(unsigned int)cimg::round(std::log(min_siz)/std::log(scale_factor)) - 1;
+        _nb_scales = nb_scales>0?nb_scales:(unsigned int)cimg::round(std::log2(min_siz)) - 1;
 
       CImg<floatT> U, V, C;  // U: vector field, V: velocity field (-gradient), C: constraints field (at current scale)
       for (int scale = (int)_nb_scales - 1; scale>=0; --scale) {
         const float
-          fact = (float)std::pow(scale_factor,(double)scale);
+          fact = (float)std::pow(2,(double)scale);
         const unsigned int
           sw = std::max(1U,(unsigned int)cimg::round(_width/fact)),
           sh = std::max(1U,(unsigned int)cimg::round(_height/fact)),
-          sd = std::max(1U,(unsigned int)cimg::round(_depth/fact));
+          sd = std::max(1U,(unsigned int)cimg::round(_depth/fact)),
+          swhd = sw*sh*sd;
         if (sw<4 && sh<4 && (!is_3d || sd<4)) continue; // Skip too small scales
 
         const float
@@ -46232,7 +46232,7 @@ namespace cimg_library {
           sigma_start = 1.25f,
           sigma_end = 0.5f,
           sigma = sigma_start*omt + sigma_end*t,
-          __precision = _precision/fact;
+          precision_scale = _precision/fact;
         const CImg<Tfloat>
           R = reference.get_resize(sw,sh,sd,-100,2).blur(sigma).normalize(0,1),
           I = get_resize(R,2).blur(sigma).normalize(0,1);
@@ -46246,7 +46246,7 @@ namespace cimg_library {
           const float vfact = cimg::min((float)I._width/U._width,
                                         (float)I._height/U._height,
                                         is_3d?(float)I._depth/U._depth:cimg::type<float>::inf());
-          // ^^ 'vfact' should be close to 'scale_factor', but slightly more precise.
+          // ^^ 'vfact' should be close to '2', but slightly more precise.
           (U*=vfact).resize(I._width,I._height,I._depth,-100,3);
         }
         else { // Initialize U
@@ -46260,19 +46260,19 @@ namespace cimg_library {
         V.assign(U._width,U._height,U._depth,U._spectrum);
 
         float dt = 0.25;
-        double energy = cimg::type<float>::max();
+        double prev_energy = cimg::type<float>::max();
         const CImgList<Tfloat> grad = is_forward?I.get_gradient():R.get_gradient();
         cimg_abort_init;
 
         const unsigned int _iteration_max = (unsigned int)(iteration_max*fact);
         for (unsigned int iteration = 0; iteration<_iteration_max; ++iteration) {
           cimg_abort_test;
-          double _energy = 0;
+          double energy = 0;
           if (is_3d) { // 3D version
             cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
                                cimg_openmp_if(_height*_depth>=(cimg_openmp_sizefactor)*8 &&
                                               _width>=(cimg_openmp_sizefactor)*16)
-                               reduction(+:_energy))
+                               reduction(+:energy))
             cimg_forYZ(U,y,z) {
               const int
                 _p1y = y?y - 1:0, _n1y = y<U.height() - 1?y + 1:y,
@@ -46285,14 +46285,14 @@ namespace cimg_library {
                 const bool not_constrained = C?C(x,y,z,3)==0:true;
 
                 float veloc_u = 0, veloc_v = 0, veloc_w = 0;
-                double _energy_data = 0, _energy_regul = 0;
+                double energy_data = 0, energy_regul = 0;
                 cimg_forC(I,c) {
                   const float delta = (float)(is_forward?R(x,y,z,c) - I._linear_atXYZ(X,Y,Z,c):
                                               R._linear_atXYZ(X,Y,Z,c) - I(x,y,z,c));
                   veloc_u+=delta*grad[0].linear_atXYZ(X,Y,Z,c,0);
                   veloc_v+=delta*grad[1].linear_atXYZ(X,Y,Z,c,0);
                   veloc_w+=delta*grad[2].linear_atXYZ(X,Y,Z,c,0);
-                  _energy_data+=delta*delta;
+                  energy_data+=delta*delta;
                 }
 
                 if (smoothness==0) { // No regularization
@@ -46309,9 +46309,9 @@ namespace cimg_library {
                       regul = uncc + upcc + ucnc + ucpc + uccn + uccp - 6*uccc,
                       veloc = c==0?veloc_u:c==1?veloc_v:veloc_w;
                     V(x,y,z,c) = veloc + smoothness*regul;
-                    _energy_regul+=ux*ux + uy*uy + uz*uz;
+                    energy_regul+=ux*ux + uy*uy + uz*uz;
                   }
-                if (not_constrained) _energy+=_energy_data + smoothness*_energy_regul;
+                if (not_constrained) energy+=energy_data + smoothness*energy_regul;
               }
             }
 
@@ -46332,7 +46332,7 @@ namespace cimg_library {
 
           } else { // 2D version
             cimg_pragma_openmp(parallel for cimg_openmp_if(_height>=(cimg_openmp_sizefactor)*8 &&
-                                                           _width>=(cimg_openmp_sizefactor)*16) reduction(+:_energy))
+                                                           _width>=(cimg_openmp_sizefactor)*16) reduction(+:energy))
             cimg_forY(U,y) {
               const int _p1y = y?y - 1:0, _n1y = y<U.height() - 1?y + 1:y;
               cimg_for3X(U,x) {
@@ -46341,13 +46341,13 @@ namespace cimg_library {
                   Y = is_forward?y + U(x,y,1):y - U(x,y,1);
                 const bool not_constrained = C?C(x,y,2)==0:true;
                 float veloc_u = 0, veloc_v = 0;
-                double _energy_data = 0, _energy_regul = 0;
+                double energy_data = 0, energy_regul = 0;
                 cimg_forC(I,c) {
                   const float delta = (float)(is_forward?R(x,y,c) - I._linear_atXY(X,Y,0,c):
                                               R._linear_atXY(X,Y,0,c) - I(x,y,c));
                   veloc_u+=delta*grad[0].linear_atXY(X,Y,0,c,0);
                   veloc_v+=delta*grad[1].linear_atXY(X,Y,0,c,0);
-                  _energy_data+=delta*delta;
+                  energy_data+=delta*delta;
                 }
 
                 if (smoothness==0) { // No regularization
@@ -46362,9 +46362,9 @@ namespace cimg_library {
                       regul = unc + upc + ucn + ucp - 4*ucc,
                       veloc = c==0?veloc_u:veloc_v;
                     V(x,y,c) = veloc + smoothness*regul;
-                    _energy_regul+=ux*ux + uy*uy;
+                    energy_regul+=ux*ux + uy*uy;
                   }
-                if (not_constrained) _energy+=_energy_data + smoothness*_energy_regul;
+                if (not_constrained) energy+=energy_data + smoothness*energy_regul;
               }
             }
 
@@ -46383,10 +46383,10 @@ namespace cimg_library {
               }
           }
 
-          const double d_energy = (_energy - energy)/(I._width*I._height*I._depth);
-          if ((d_energy<=0 && -d_energy<__precision) || _energy<__precision) break;
+          const double d_energy = (energy - prev_energy)/swhd;
+          if ((d_energy<=0 && -d_energy<precision_scale) || energy<precision_scale) break;
           if (d_energy>0) { dt*=0.5f; if (dt<1e-8) break; }
-          energy = _energy;
+          prev_energy = energy;
         }
       }
       return U;

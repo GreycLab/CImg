@@ -46387,7 +46387,7 @@ namespace cimg_library {
           if (iteration) {
             const double d_energy = energy - prev_energy;
             if (energy<precision_scale || (d_energy<=0 && -d_energy<precision_scale)) break;
-            if (d_energy>0) { dt*=0.5f; if (dt<1e-8) break; }
+            if (d_energy>0) { dt*=0.5f; if (dt<1e-8f) break; }
             else dt = std::min(0.25f,1.25f*dt);
           }
           prev_energy = energy;

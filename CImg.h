@@ -46383,9 +46383,10 @@ namespace cimg_library {
               }
           }
 
+          energy/=swhd;
           if (iteration) {
-            const double d_energy = (energy - prev_energy)/swhd;
-            if (energy/swhd<precision_scale || (d_energy<=0 && -d_energy<precision_scale)) break;
+            const double d_energy = energy - prev_energy;
+            if (energy<precision_scale || (d_energy<=0 && -d_energy<precision_scale)) break;
             if (d_energy>0) { dt*=0.5f; if (dt<1e-8) break; }
           }
           prev_energy = energy;

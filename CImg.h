@@ -46306,7 +46306,7 @@ namespace cimg_library {
                       ucpc = U(x,_p1y,z,c), ucnc = U(x,_n1y,z,c),
                       uccp = U(x,y,_p1z,c), uccn = U(x,y,_n1z,c),
                       ux = 0.5f*(uncc - upcc), uy = 0.5f*(ucnc - ucpc), uz = 0.5f*(uccn - uccp),
-                      regul = uncc + upcc + ucnc + ucpc + uccn + uccp - 6*uccc,
+                      regul = upcc + uncc + ucpc + ucnc + uccp + uccn - 6*uccc,
                       veloc = c==0?veloc_u:c==1?veloc_v:veloc_w;
                     V(x,y,z,c) = veloc + smoothness*regul;
                     energy_regul+=ux*ux + uy*uy + uz*uz;
@@ -46360,7 +46360,7 @@ namespace cimg_library {
                       upc = U(_p1x,y,c), unc = U(_n1x,y,c),
                       ucp = U(x,_p1y,c), ucn = U(x,_n1y,c),
                       ux = 0.5f*(unc - upc), uy = 0.5f*(ucn - ucp),
-                      regul = unc + upc + ucn + ucp - 4*ucc,
+                      regul = upc + unc + ucp + ucn - 4*ucc,
                       veloc = c==0?veloc_u:veloc_v;
                     V(x,y,c) = veloc + smoothness*regul;
                     energy_regul+=ux*ux + uy*uy;

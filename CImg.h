@@ -46250,10 +46250,10 @@ namespace cimg_library {
           (U*=vfact).resize(I._width,I._height,I._depth,-100,3);
         }
         else { // Initialize U
-          if (guide) {
-            guide.get_shared_channels(0,spectrum_U - 1).get_resize(I._width,I._height,I._depth,-100,2).move_to(U);
-            U/=fact;
-          } else U.assign(I._width,I._height,I._depth,spectrum_U,0);
+          if (guide)
+            guide.get_shared_channels(0,spectrum_U - 1).get_resize(I._width,I._height,I._depth,-100,2).move_to(U)/=fact;
+          else
+            U.assign(I._width,I._height,I._depth,spectrum_U,0);
         }
 
         // Allocate V.
@@ -46282,7 +46282,7 @@ namespace cimg_library {
                   X = is_forward?x + U(x,y,z,0):x - U(x,y,z,0),
                   Y = is_forward?y + U(x,y,z,1):y - U(x,y,z,1),
                   Z = is_forward?z + U(x,y,z,2):z - U(x,y,z,2);
-                const bool not_constrained = C?C(x,y,z,3)==0:true;
+                const bool is_constrained = C && C(x,y,z,3)>0;
 
                 float veloc_u = 0, veloc_v = 0, veloc_w = 0;
                 double energy_data = 0, energy_regul = 0;
@@ -46311,7 +46311,8 @@ namespace cimg_library {
                     V(x,y,z,c) = veloc + smoothness*regul;
                     energy_regul+=ux*ux + uy*uy + uz*uz;
                   }
-                if (not_constrained) energy+=energy_data + smoothness*energy_regul;
+                energy+=energy_data + smoothness*energy_regul;
+                if (is_constrained) cimg_forC(U,c) energy+=100*C(x,y,z,3)*cimg::sqr(U(x,y,z,c) - C(x,y,z,c));
               }
             }
 
@@ -46323,7 +46324,7 @@ namespace cimg_library {
             if (C) // Apply constraints
               cimg_forXYZ(C,x,y,z) {
                 const float m = C(x,y,z,3), om = 1 - m;
-                if (m>1e-5f) {
+                if (m>1e-8f) {
                   U(x,y,z,0) = m*C(x,y,z,0) + om*U(x,y,z,0);
                   U(x,y,z,1) = m*C(x,y,z,1) + om*U(x,y,z,1);
                   U(x,y,z,2) = m*C(x,y,z,2) + om*U(x,y,z,2);
@@ -46339,7 +46340,7 @@ namespace cimg_library {
                 const float
                   X = is_forward?x + U(x,y,0):x - U(x,y,0),
                   Y = is_forward?y + U(x,y,1):y - U(x,y,1);
-                const bool not_constrained = C?C(x,y,2)==0:true;
+                const bool is_constrained = C && C(x,y,2)!=0;
                 float veloc_u = 0, veloc_v = 0;
                 double energy_data = 0, energy_regul = 0;
                 cimg_forC(I,c) {
@@ -46364,7 +46365,8 @@ namespace cimg_library {
                     V(x,y,c) = veloc + smoothness*regul;
                     energy_regul+=ux*ux + uy*uy;
                   }
-                if (not_constrained) energy+=energy_data + smoothness*energy_regul;
+                energy+=energy_data + smoothness*energy_regul;
+                if (is_constrained) cimg_forC(U,c) energy+=100*C(x,y,2)*cimg::sqr(U(x,y,c) - C(x,y,c));
               }
             }
 
@@ -46376,7 +46378,7 @@ namespace cimg_library {
             if (C) // Apply constraints
               cimg_forXY(C,x,y) {
                 const float m = C(x,y,2), om = 1 - m;
-                if (m>1e-5f) {
+                if (m>1e-8f) {
                   U(x,y,0) = m*C(x,y,0) + om*U(x,y,0);
                   U(x,y,1) = m*C(x,y,1) + om*U(x,y,1);
                 }

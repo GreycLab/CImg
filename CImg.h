@@ -46215,7 +46215,7 @@ namespace cimg_library {
         min_siz = is_3d?cimg::min(_width,_height,_depth):std::min(_width,_height),
         _nb_scales = nb_scales?nb_scales:std::max(1U,(unsigned int)std::log2(min_siz) - 1U);
 
-      CImg<Tfloat> U, V, C, Cv, Cm;  // U: vector field, V: velocity field (-gradient), C: constraints field (at current scale)
+      CImg<Tfloat> U, V, C, Cv, Cm;  // U: vector field, V: velocity (-grad), C: constraints field (at current scale)
       for (int scale = (int)_nb_scales - 1; scale>=0; --scale) {
         const unsigned int
           fact = 1U<<scale,

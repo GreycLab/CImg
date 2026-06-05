@@ -46307,7 +46307,7 @@ namespace cimg_library {
 
                 // Guide term.
                 if (C) {
-                  const double w = C(x,y,z,3);
+                  const double w = Cm(x,y,z);
                   if (w>0) cimg_forC(U,c) {
                       const double diff = U(x,y,z,c) - C(x,y,z,c);
                       energy+=lambda*w*diff*diff;
@@ -46355,7 +46355,7 @@ namespace cimg_library {
 
                 // Guide term.
                 if (C) {
-                  const double w = C(x,y,2);
+                  const double w = Cm(x,y);
                   if (w>0) cimg_forC(U,c) {
                       const double diff = U(x,y,c) - C(x,y,c);
                       energy+=lambda*w*diff*diff;

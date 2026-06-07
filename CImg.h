@@ -21888,13 +21888,12 @@ namespace cimg_library {
               arg1 = compile(ss5,s1,depth1,0,block_flags); // formula
               _cimg_mp_check_type(arg1,1,2,0);
               p1 = size(arg1);
-              arg2 = arg3 = arg4 = arg5 = 0; arg6 = ~0U;
+              arg2 = arg3 = arg4 = arg5 = 1; arg6 = ~0U;
               if (s1<se1) {
                 s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
                 arg2 = compile(s1,s2,depth1,0,block_flags); // w
                 _cimg_mp_check_const_scalar(arg2,2,3);
                 arg2 = (unsigned int)mem[arg2];
-                if (arg2) arg3 = arg4 = arg5 = 1;
                 if (s2<se1) {
                   s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                   arg3 = compile(s2,s1,depth1,0,block_flags); // h
@@ -21915,6 +21914,7 @@ namespace cimg_library {
                   }
                 }
               }
+
               p2 = arg2*arg3*arg4; // whd
               p3 = p2*arg5; // whds
 

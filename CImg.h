@@ -69920,15 +69920,13 @@ namespace cimg_library {
 #endif
         winformat_string(s_path);
 
-        // Put path between double quotes and append ' convert' to it if necessary.
+        // Put path between double quotes.
         const unsigned int siz = (unsigned int)std::strlen(s_path);
-        const bool is_magick = std::strstr(s_path,"magick")?true:false;
-        CImg<char> s_path2(3 + siz + (is_magick?8:0));
+        CImg<char> s_path2(3 + siz);
         char *s = s_path2._data;
         *(s++) = '\"';
         std::memcpy(s,s_path._data,siz); s+=siz;
         *(s++) = '\"';
-        if (is_magick) { std::memcpy(s," convert",8); s+=8; }
         *s = 0;
         s_path2.move_to(s_path);
       }

@@ -46233,12 +46233,11 @@ namespace cimg_library {
         iM = (Tfloat)R.max_min(im);
         R/=std::max(std::abs(im),std::abs(iM));
 
-        if (guide._spectrum>spectrum_U) { // Guide has constraints
+        if (guide) {
           guide.get_resize(sw,sh,sd,-100,2).move_to(C);
-          Cv.assign(); Cv = C.get_shared_channels(0,spectrum_U - 1);
-          Cm.assign(); Cm = C.get_shared_channel(spectrum_U);
-          Cv/=fact;
-          Cm.normalize(0,1);
+          Cv.assign() = C.get_shared_channels(0,spectrum_U - 1)/=fact;
+          if (guide._spectrum>spectrum_U) // Guide has constraints
+            Cm.assign() = C.get_shared_channel(spectrum_U).normalize(0,1);
         }
 
         if (U) { // Upscale U
@@ -46248,10 +46247,7 @@ namespace cimg_library {
           // ^^ 'vfact' should be close to '2', but slightly more precise.
           (U*=vfact).resize(sw,sh,sd,-100,3);
         } else { // Initialize U
-          if (guide)
-            guide.get_shared_channels(0,spectrum_U - 1).get_resize(sw,sh,sd,-100,2).move_to(U)/=fact;
-          else
-            U.assign(sw,sh,sd,spectrum_U,0);
+          if (Cv) U = Cv; else U.assign(sw,sh,sd,spectrum_U,0);
         }
 
         V.assign(sw,sh,sd,U._spectrum); // Allocate V.

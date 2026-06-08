@@ -46296,7 +46296,7 @@ namespace cimg_library {
                       upcc = U(_p1x,y,z,c), uncc = U(_n1x,y,z,c),
                       ucpc = U(x,_p1y,z,c), ucnc = U(x,_n1y,z,c),
                       uccp = U(x,y,_p1z,c), uccn = U(x,y,_n1z,c),
-                      ux = 0.5f*(uncc - upcc), uy = 0.5f*(ucnc - ucpc), uz = 0.5f*(uccn - uccp);
+                      ux = 0.5*(uncc - upcc), uy = 0.5*(ucnc - ucpc), uz = 0.5*(uccn - uccp);
                     energy+=smoothness*(ux*ux + uy*uy + uz*uz);
                     _V[c]+=smoothness*(upcc + uncc + ucpc + ucnc + uccp + uccn - 6*uccc);
                   }
@@ -46344,7 +46344,7 @@ namespace cimg_library {
                       ucc = U(x,y,c),
                       upc = U(_p1x,y,c), unc = U(_n1x,y,c),
                       ucp = U(x,_p1y,c), ucn = U(x,_n1y,c),
-                      ux = 0.5f*(unc - upc), uy = 0.5f*(ucn - ucp);
+                      ux = 0.5*(unc - upc), uy = 0.5*(ucn - ucp);
                     energy+=smoothness*(ux*ux + uy*uy);
                     _V[c]+=smoothness*(upc + unc + ucp + ucn - 4*ucc);
                   }
@@ -46369,7 +46369,7 @@ namespace cimg_library {
 
           // Update displacement field.
           Tfloat Vmin,Vmax = V.max_min(Vmin);
-          const double dt_iteration = dt/cimg::max((Tfloat)1e-8f,cimg::abs(Vmin),cimg::abs(Vmax));
+          const double dt_iteration = dt/cimg::max((Tfloat)1e-8,cimg::abs(Vmin),cimg::abs(Vmax));
           cimg_openmp_for(U,*ptr + dt_iteration*V[ptr - U._data],32768,float);
 
           if (C) U.draw_image(0,0,0,0,Cv,Cm,1,1); // Force constraints even a bit more to speed up convergence

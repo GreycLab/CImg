@@ -46163,12 +46163,14 @@ namespace cimg_library {
        \param guide Image used as the initial correspondence estimate for the algorithm.
        'guide' may have a last channel with boolean values (0=false | other=true) that
        tells for each pixel if its correspondence vector is constrained to its initial value (constraint mask).
+       \param lambda Weight of the constraint term.
     **/
     CImg<T>& displacement(const CImg<T>& reference, const float smoothness=0.1f, const float precision=7.f,
                           const unsigned int nb_scales=0, const unsigned int iteration_max=1000,
                           const bool is_forward=false,
-                          const CImg<floatT>& guide=CImg<floatT>::const_empty()) {
-      return get_displacement(reference,smoothness,precision,nb_scales,iteration_max,is_forward,guide).
+                          const CImg<floatT>& guide=CImg<floatT>::const_empty(),
+                          const float lambda=1000) {
+      return get_displacement(reference,smoothness,precision,nb_scales,iteration_max,is_forward,guide,lambda).
         move_to(*this);
     }
 
@@ -46177,7 +46179,8 @@ namespace cimg_library {
                                   const float smoothness=0.1f, const float precision=7.f,
                                   const unsigned int nb_scales=0, const unsigned int iteration_max=1000,
                                   const bool is_forward=false,
-                                  const CImg<floatT>& guide=CImg<floatT>::const_empty()) const {
+                                  const CImg<floatT>& guide=CImg<floatT>::const_empty(),
+                                  const float lambda=1000) const {
       if (is_empty() || !reference) return +*this;
       if (!is_sameXYZC(reference))
         throw CImgArgumentException(_cimg_instance
@@ -46198,6 +46201,12 @@ namespace cimg_library {
                                     "(should be >=0)",
                                     cimg_instance,
                                     precision);
+      if (lambda<0)
+        throw CImgArgumentException(_cimg_instance
+                                    "displacement(): Invalid specified lambda %g "
+                                    "(should be >=0)",
+                                    cimg_instance,
+                                    lambda);
 
       const double _precision = std::pow(10.,-(double)precision);
       const bool is_3d = _depth>1;
@@ -46233,12 +46242,11 @@ namespace cimg_library {
         iM = (Tfloat)R.max_min(im);
         R/=std::max(std::abs(im),std::abs(iM));
 
-        if (guide._spectrum>spectrum_U) { // Guide has constraints
+        if (guide) {
           guide.get_resize(sw,sh,sd,-100,2).move_to(C);
-          Cv.assign(); Cv = C.get_shared_channels(0,spectrum_U - 1);
-          Cm.assign(); Cm = C.get_shared_channel(spectrum_U);
-          Cv/=fact;
-          Cm.normalize(0,1);
+          Cv.assign() = C.get_shared_channels(0,spectrum_U - 1)/=fact;
+          if (guide._spectrum>spectrum_U) // Guide has constraints
+            Cm.assign() = C.get_shared_channel(spectrum_U).normalize(0,1);
         }
 
         if (U) { // Upscale U
@@ -46248,17 +46256,13 @@ namespace cimg_library {
           // ^^ 'vfact' should be close to '2', but slightly more precise.
           (U*=vfact).resize(sw,sh,sd,-100,3);
         } else { // Initialize U
-          if (guide)
-            guide.get_shared_channels(0,spectrum_U - 1).get_resize(sw,sh,sd,-100,2).move_to(U)/=fact;
-          else
-            U.assign(sw,sh,sd,spectrum_U,0);
+          if (Cv) U = Cv; else U.assign(sw,sh,sd,spectrum_U,0);
         }
 
         V.assign(sw,sh,sd,U._spectrum); // Allocate V.
         const CImgList<Tfloat> grad = (is_forward?I:R).get_gradient(is_3d?"xyz":"xy",0);
 
         double prev_energy = cimg::type<float>::max(), dt = 0.5;
-        const double lambda = 100;
 
         const unsigned int nb_iterations = iteration_max==~0U?~0U:(iteration_max*fact);
         cimg_abort_init;
@@ -46300,7 +46304,7 @@ namespace cimg_library {
                       upcc = U(_p1x,y,z,c), uncc = U(_n1x,y,z,c),
                       ucpc = U(x,_p1y,z,c), ucnc = U(x,_n1y,z,c),
                       uccp = U(x,y,_p1z,c), uccn = U(x,y,_n1z,c),
-                      ux = 0.5f*(uncc - upcc), uy = 0.5f*(ucnc - ucpc), uz = 0.5f*(uccn - uccp);
+                      ux = 0.5*(uncc - upcc), uy = 0.5*(ucnc - ucpc), uz = 0.5*(uccn - uccp);
                     energy+=smoothness*(ux*ux + uy*uy + uz*uz);
                     _V[c]+=smoothness*(upcc + uncc + ucpc + ucnc + uccp + uccn - 6*uccc);
                   }
@@ -46309,7 +46313,7 @@ namespace cimg_library {
                 if (C) {
                   const double w = Cm(x,y,z);
                   if (w>0) cimg_forC(U,c) {
-                      const double diff = U(x,y,z,c) - C(x,y,z,c);
+                      const double diff = (double)C(x,y,z,c) - U(x,y,z,c);
                       energy+=lambda*w*diff*diff;
                       _V[c]+=lambda*w*diff;
                     }
@@ -46348,7 +46352,7 @@ namespace cimg_library {
                       ucc = U(x,y,c),
                       upc = U(_p1x,y,c), unc = U(_n1x,y,c),
                       ucp = U(x,_p1y,c), ucn = U(x,_n1y,c),
-                      ux = 0.5f*(unc - upc), uy = 0.5f*(ucn - ucp);
+                      ux = 0.5*(unc - upc), uy = 0.5*(ucn - ucp);
                     energy+=smoothness*(ux*ux + uy*uy);
                     _V[c]+=smoothness*(upc + unc + ucp + ucn - 4*ucc);
                   }
@@ -46357,7 +46361,7 @@ namespace cimg_library {
                 if (C) {
                   const double w = Cm(x,y);
                   if (w>0) cimg_forC(U,c) {
-                      const double diff = U(x,y,c) - C(x,y,c);
+                      const double diff = (double)C(x,y,c) - U(x,y,c);
                       energy+=lambda*w*diff*diff;
                       _V[c]+=lambda*w*diff;
                     }
@@ -46373,7 +46377,7 @@ namespace cimg_library {
 
           // Update displacement field.
           Tfloat Vmin,Vmax = V.max_min(Vmin);
-          const double dt_iteration = dt/cimg::max((Tfloat)1e-8f,cimg::abs(Vmin),cimg::abs(Vmax));
+          const double dt_iteration = dt/cimg::max((Tfloat)1e-8,cimg::abs(Vmin),cimg::abs(Vmax));
           cimg_openmp_for(U,*ptr + dt_iteration*V[ptr - U._data],32768,float);
 
           if (C) U.draw_image(0,0,0,0,Cv,Cm,1,1); // Force constraints even a bit more to speed up convergence
@@ -69920,15 +69924,13 @@ namespace cimg_library {
 #endif
         winformat_string(s_path);
 
-        // Put path between double quotes and append ' convert' to it if necessary.
+        // Put path between double quotes.
         const unsigned int siz = (unsigned int)std::strlen(s_path);
-        const bool is_magick = std::strstr(s_path,"magick")?true:false;
-        CImg<char> s_path2(3 + siz + (is_magick?8:0));
+        CImg<char> s_path2(3 + siz);
         char *s = s_path2._data;
         *(s++) = '\"';
         std::memcpy(s,s_path._data,siz); s+=siz;
         *(s++) = '\"';
-        if (is_magick) { std::memcpy(s," convert",8); s+=8; }
         *s = 0;
         s_path2.move_to(s_path);
       }

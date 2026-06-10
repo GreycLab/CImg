@@ -46310,7 +46310,7 @@ namespace cimg_library {
                   }
 
                 // Guide term.
-                if (C) {
+                if (C && lambda>0) {
                   const double w = Cm(x,y,z);
                   if (w>0) cimg_forC(U,c) {
                       const double diff = (double)C(x,y,z,c) - U(x,y,z,c);
@@ -46358,7 +46358,7 @@ namespace cimg_library {
                   }
 
                 // Guide term.
-                if (C) {
+                if (C && lambda>0) {
                   const double w = Cm(x,y);
                   if (w>0) cimg_forC(U,c) {
                       const double diff = (double)C(x,y,c) - U(x,y,c);
@@ -46380,7 +46380,8 @@ namespace cimg_library {
           const double dt_iteration = dt/cimg::max((Tfloat)1e-8,cimg::abs(Vmin),cimg::abs(Vmax));
           cimg_openmp_for(U,*ptr + dt_iteration*V[ptr - U._data],32768,float);
 
-          if (C) U.draw_image(0,0,0,0,Cv,Cm,1,1); // Force constraints even a bit more to speed up convergence
+          // Force guided constraints even a bit more to speed up convergence.
+          if (C && lambda>0) U.draw_image(0,0,0,0,Cv,Cm,1,1);
 
           // Test convergence.
           if (iteration) {

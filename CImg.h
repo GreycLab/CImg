@@ -46163,14 +46163,12 @@ namespace cimg_library {
        \param guide Image used as the initial correspondence estimate for the algorithm.
        'guide' may have a last channel with boolean values (0=false | other=true) that
        tells for each pixel if its correspondence vector is constrained to its initial value (constraint mask).
-       \param lambda Weight of the constraint term.
     **/
     CImg<T>& displacement(const CImg<T>& reference, const float smoothness=0.1f, const float precision=7.f,
                           const unsigned int nb_scales=0, const unsigned int iteration_max=1000,
                           const bool is_forward=false,
-                          const CImg<floatT>& guide=CImg<floatT>::const_empty(),
-                          const float lambda=1000) {
-      return get_displacement(reference,smoothness,precision,nb_scales,iteration_max,is_forward,guide,lambda).
+                          const CImg<floatT>& guide=CImg<floatT>::const_empty()) {
+      return get_displacement(reference,smoothness,precision,nb_scales,iteration_max,is_forward,guide).
         move_to(*this);
     }
 
@@ -46179,8 +46177,7 @@ namespace cimg_library {
                                   const float smoothness=0.1f, const float precision=7.f,
                                   const unsigned int nb_scales=0, const unsigned int iteration_max=1000,
                                   const bool is_forward=false,
-                                  const CImg<floatT>& guide=CImg<floatT>::const_empty(),
-                                  const float lambda=1000) const {
+                                  const CImg<floatT>& guide=CImg<floatT>::const_empty()) const {
       if (is_empty() || !reference) return +*this;
       if (!is_sameXYZC(reference))
         throw CImgArgumentException(_cimg_instance
@@ -46201,12 +46198,6 @@ namespace cimg_library {
                                     "(should be >=0)",
                                     cimg_instance,
                                     precision);
-      if (lambda<0)
-        throw CImgArgumentException(_cimg_instance
-                                    "displacement(): Invalid specified lambda %g "
-                                    "(should be >=0)",
-                                    cimg_instance,
-                                    lambda);
 
       const double _precision = std::pow(10.,-(double)precision);
       const bool is_3d = _depth>1;
@@ -46310,12 +46301,12 @@ namespace cimg_library {
                   }
 
                 // Guide term.
-                if (C && lambda>0) {
+                if (C) {
                   const double w = Cm(x,y,z);
                   if (w>0) cimg_forC(U,c) {
                       const double diff = (double)C(x,y,z,c) - U(x,y,z,c);
-                      energy+=lambda*w*diff*diff;
-                      _V[c]+=lambda*w*diff;
+                      energy+=w*diff*diff;
+                      _V[c]+=w*diff;
                     }
                 }
 
@@ -46358,12 +46349,12 @@ namespace cimg_library {
                   }
 
                 // Guide term.
-                if (C && lambda>0) {
+                if (C) {
                   const double w = Cm(x,y);
                   if (w>0) cimg_forC(U,c) {
                       const double diff = (double)C(x,y,c) - U(x,y,c);
-                      energy+=lambda*w*diff*diff;
-                      _V[c]+=lambda*w*diff;
+                      energy+=w*diff*diff;
+                      _V[c]+=w*diff;
                     }
                 }
 
@@ -46381,7 +46372,7 @@ namespace cimg_library {
           cimg_openmp_for(U,*ptr + dt_iteration*V[ptr - U._data],32768,float);
 
           // Force guided constraints even a bit more to speed up convergence.
-          if (C && lambda>0) U.draw_image(0,0,0,0,Cv,Cm,1,1);
+          if (C) U.draw_image(0,0,0,0,Cv,Cm,1,1);
 
           // Test convergence.
           if (iteration) {

@@ -46377,7 +46377,7 @@ namespace cimg_library {
                       uxx = unc + upc - 2*ucc,
                       uxy = 0.25*(upp + unn - upn - unp),
                       uyy = ucn + ucp - 2*ucc,
-                      uee = -nuy*nuy*uxx + nux*nux*uyy - 2*nux*nuy*uxy;
+                      uee = nuy*nuy*uxx + nux*nux*uyy - 2*nux*nuy*uxy;
                     energy-=smoothness*gn;
                     _V[c]-=smoothness*(uee/gn);
                   }

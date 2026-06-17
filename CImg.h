@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 377
+#define cimg_version 380
 
 /*-----------------------------------------------------------
  #
@@ -46156,6 +46156,8 @@ namespace cimg_library {
     /**
        \param reference Reference image R.
        \param smoothness Smoothness of estimated displacement field.
+       If smoothness is positive, Tikhonov regularization is applied, otherwise TV regularization is applied,
+       with specified strength (absolute value of the smoothnes).
        \param precision Precision required for algorithm convergence.
        \param nb_scales Number of scales used to estimate the displacement field.
        \param iteration_max Maximum number of iterations allowed for one scale.
@@ -46186,12 +46188,6 @@ namespace cimg_library {
                                     cimg_instance,
                                     reference._width,reference._height,reference._depth,reference._spectrum,
                                     reference._data);
-      if (smoothness<0)
-        throw CImgArgumentException(_cimg_instance
-                                    "displacement(): Invalid specified smoothness %g "
-                                    "(should be >=0)",
-                                    cimg_instance,
-                                    smoothness);
       if (precision<0)
         throw CImgArgumentException(_cimg_instance
                                     "displacement(): Invalid specified precision %g "
@@ -46289,7 +46285,7 @@ namespace cimg_library {
                 }
 
                 // Regularization term.
-                if (smoothness>0) cimg_forC(U,c) {
+                if (smoothness>0) cimg_forC(U,c) { // Tikhonov
                     const double
                       uccc = U(x,y,z,c),
                       upcc = U(_p1x,y,z,c), uncc = U(_n1x,y,z,c),
@@ -46298,6 +46294,30 @@ namespace cimg_library {
                       ux = 0.5*(uncc - upcc), uy = 0.5*(ucnc - ucpc), uz = 0.5*(uccn - uccp);
                     energy+=smoothness*(ux*ux + uy*uy + uz*uz);
                     _V[c]+=smoothness*(upcc + uncc + ucpc + ucnc + uccp + uccn - 6*uccc);
+                  } else if (smoothness<0) cimg_forC(U,c) { // Total variation
+                    const double
+                      ucpp = U(x,_p1y,_p1z,c),
+                      upcp = U(_p1x,y,_p1z,c), uccp = U(x,y,_p1z,c), uncp = U(_n1x,y,_p1z,c),
+                      ucnp = U(x,_n1y,_p1z,c),
+                      uppc = U(_p1x,_p1y,z,c), ucpc = U(x,_p1y,z,c), unpc = U(_n1x,_p1y,z,c),
+                      upcc = U(_p1x,y,z,c), uccc = U(x,y,z,c), uncc = U(_n1x,y,z,c),
+                      upnc = U(_p1x,_n1y,z,c), ucnc = U(x,_n1y,z,c), unnc = U(_n1x,_n1y,z,c),
+                      ucpn = U(x,_p1y,_n1z,c),
+                      upcn = U(_p1x,y,_n1z,c), uccn = U(x,y,_n1z,c), uncn = U(_n1x,y,_n1z,c),
+                      ucnn = U(x,_n1y,_n1z,c),
+                      ux = 0.5*(uncc - upcc), uy = 0.5*(ucnc - ucpc), uz = 0.5*(uccn - uccp),
+                      gn = 1e-8 + std::sqrt(ux*ux + uy*uy + uz*uz),
+                      nux = ux/gn, nuy = uy/gn, nuz = uz/gn,
+                      uxx = uncc + upcc - 2*uccc,
+                      uxy = 0.25*(uppc + unnc - upnc - unpc),
+                      uxz = 0.25*(upcp + uncn - upcn - uncp),
+                      uyy = ucnc + ucpc - 2*uccc,
+                      uyz = 0.25*(ucpp + ucnn - ucpn - ucnp),
+                      uzz = uccn + uccp - 2*uccc,
+                      unn = nux*nux*uxx + nuy*nuy*uyy + nuz*nuz*uzz + 2*(nux*nuy*uxy + nux*nuz*uxz + nuy*nuz*uyz),
+                      uee = uxx + uyy + uzz - unn;
+                    energy-=smoothness*gn;
+                    _V[c]-=smoothness*(uee/gn);
                   }
 
                 // Guide term.
@@ -46338,7 +46358,7 @@ namespace cimg_library {
                 }
 
                 // Regularization term.
-                if (smoothness>0) cimg_forC(U,c) {
+                if (smoothness>0) cimg_forC(U,c) { // Tikhonov
                     const double
                       ucc = U(x,y,c),
                       upc = U(_p1x,y,c), unc = U(_n1x,y,c),
@@ -46346,6 +46366,20 @@ namespace cimg_library {
                       ux = 0.5*(unc - upc), uy = 0.5*(ucn - ucp);
                     energy+=smoothness*(ux*ux + uy*uy);
                     _V[c]+=smoothness*(upc + unc + ucp + ucn - 4*ucc);
+                  } else if (smoothness<0) cimg_forC(U,c) { // Total variation
+                    const double
+                      upp = U(_p1x,_p1y,c), ucp = U(x,_p1y,c), unp = U(_n1x,_p1y,c),
+                      upc = U(_p1x,y,c), ucc = U(x,y,c), unc = U(_n1x,y,c),
+                      upn = U(_p1x,_n1y,c), ucn = U(x,_n1y,c), unn = U(_n1x,_n1y,c),
+                      ux = 0.5*(unc - upc), uy = 0.5*(ucn - ucp),
+                      gn = 1e-8 + std::sqrt(ux*ux + uy*uy),
+                      nux = ux/gn, nuy = uy/gn,
+                      uxx = unc + upc - 2*ucc,
+                      uxy = 0.25*(upp + unn - upn - unp),
+                      uyy = ucn + ucp - 2*ucc,
+                      uee = nuy*nuy*uxx + nux*nux*uyy - 2*nux*nuy*uxy;
+                    energy-=smoothness*gn;
+                    _V[c]-=smoothness*(uee/gn);
                   }
 
                 // Guide term.

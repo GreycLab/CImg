@@ -18759,7 +18759,8 @@ namespace cimg_library {
                   if (arg1!=arg3) {
                     CImg<ulongT> &pop = code.back();
                     mp_func fn = (mp_func)pop[0];
-                    is_sth = is_comp_scalar(arg3) && pop[1]==arg3 && fn!=mp_set_ijoff && fn!=mp_set_ijxyzc;
+                    is_sth = is_comp_scalar(arg3) && pop[1]==arg3 &&
+                      fn!=mp_set_ijoff && fn!=mp_set_ijxyzc && fn!=mp_set_IJoff_s && fn!=mp_set_IJxyz_s;
                     if (is_sth)
                       for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg3) { is_sth = false; break; }
                     if (is_sth) {

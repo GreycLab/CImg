@@ -18737,7 +18737,8 @@ namespace cimg_library {
                           std::memset(&memtype[mempos],0,sizeof(int)*size(arg3) + 1);
                         }
                       } else {
-                        is_sth = is_comp_vector(arg3) && pop[1]==arg3;
+                        is_sth = is_comp_vector(arg3) && pop[1]==arg3 &&
+                          fn!=mp_set_IJoff_v && fn!=mp_set_IJxyz_v;
                         if (is_sth)
                           for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg3) { is_sth = false; break; }
                         if (is_sth) {
@@ -18758,7 +18759,9 @@ namespace cimg_library {
                 } else { // Scalar
                   if (arg1!=arg3) {
                     CImg<ulongT> &pop = code.back();
-                    is_sth = is_comp_scalar(arg3) && pop[1]==arg3;
+                    mp_func fn = (mp_func)pop[0];
+                    is_sth = is_comp_scalar(arg3) && pop[1]==arg3 &&
+                      fn!=mp_set_ijoff && fn!=mp_set_ijxyzc && fn!=mp_set_IJoff_s && fn!=mp_set_IJxyz_s;
                     if (is_sth)
                       for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg3) { is_sth = false; break; }
                     if (is_sth) {
@@ -18890,7 +18893,8 @@ namespace cimg_library {
                         std::memset(&memtype[mempos],0,sizeof(int)*size(arg2) + 1);
                       }
                     } else {
-                      is_sth = is_comp_vector(arg2) && pop[1]==arg2;
+                      is_sth = is_comp_vector(arg2) && pop[1]==arg2 &&
+                        fn!=mp_set_IJoff_v && fn!=mp_set_IJxyz_v;
                       if (is_sth)
                         for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg2) { is_sth = false; break; }
                       if (is_sth) {
@@ -18915,7 +18919,9 @@ namespace cimg_library {
                 _cimg_mp_check_type(arg2,2,1,0);
                 if (arg1!=arg2) {
                   CImg<ulongT> &pop = code.back();
-                  is_sth = is_comp_scalar(arg2) && pop[1]==arg2;
+                  mp_func fn = (mp_func)pop[0];
+                  is_sth = is_comp_scalar(arg2) && pop[1]==arg2 &&
+                    fn!=mp_set_ijoff && fn!=mp_set_ijxyzc && fn!=mp_set_IJoff_s && fn!=mp_set_IJxyz_s;
                   if (is_sth)
                     for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg2) { is_sth = false; break; }
                   if (is_sth) {

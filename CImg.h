@@ -64902,7 +64902,7 @@ namespace cimg_library {
     CImgList<t>& move_to(CImgList<t>& list) {
       list.assign(_width);
       bool is_one_shared_element = false;
-      cimglist_for(*this,l) is_one_shared_element|=_data[l]._is_shared;
+      cimglist_for(*this,l) if (_data[l]._is_shared) { is_one_shared_element = true; break; }
       if (is_one_shared_element) cimglist_for(*this,l) list[l].assign(_data[l]);
       else cimglist_for(*this,l) _data[l].move_to(list[l]);
       assign();
@@ -64922,7 +64922,7 @@ namespace cimg_library {
       const unsigned int npos = pos>list._width?list._width:pos;
       list.insert(_width,npos);
       bool is_one_shared_element = false;
-      cimglist_for(*this,l) is_one_shared_element|=_data[l]._is_shared;
+      cimglist_for(*this,l) if (_data[l]._is_shared) { is_one_shared_element = true; break; }
       if (is_one_shared_element) cimglist_for(*this,l) list[npos + l].assign(_data[l]);
       else cimglist_for(*this,l) _data[l].move_to(list[npos + l]);
       assign();

@@ -18671,6 +18671,7 @@ namespace cimg_library {
               s0+=6; while (cimg::is_blank(*s0)) ++s0;
               variable_name.resize(variable_name.end() - s0,1,1,1,0,0,1);
             }
+
             if (cimg::is_varname(variable_name)) { // Valid variable name
 
               // Assign variable (direct).
@@ -18912,6 +18913,7 @@ namespace cimg_library {
                 } else // From scalar
                   CImg<ulongT>::vector((ulongT)mp_vector_init,arg1,(ulongT)size(arg1),1,arg2,0).
                     move_to(code);
+                return_comp = false;
                 _cimg_mp_return(arg1);
               }
 
@@ -18931,9 +18933,9 @@ namespace cimg_library {
                   } else
                     CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg2).move_to(code);
                 }
+                return_comp = false;
+                _cimg_mp_return(arg1);
               }
-              return_comp = false;
-              _cimg_mp_return(arg1);
             }
 
             // No assignment expressions match -> error.

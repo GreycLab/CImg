@@ -18671,6 +18671,7 @@ namespace cimg_library {
               s0+=6; while (cimg::is_blank(*s0)) ++s0;
               variable_name.resize(variable_name.end() - s0,1,1,1,0,0,1);
             }
+
             if (cimg::is_varname(variable_name)) { // Valid variable name
 
               // Assign variable (direct).
@@ -18912,6 +18913,7 @@ namespace cimg_library {
                 } else // From scalar
                   CImg<ulongT>::vector((ulongT)mp_vector_init,arg1,(ulongT)size(arg1),1,arg2,0).
                     move_to(code);
+                return_comp = false;
                 _cimg_mp_return(arg1);
               }
 
@@ -18931,9 +18933,9 @@ namespace cimg_library {
                   } else
                     CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg2).move_to(code);
                 }
+                return_comp = false;
+                _cimg_mp_return(arg1);
               }
-              return_comp = false;
-              _cimg_mp_return(arg1);
             }
 
             // No assignment expressions match -> error.
@@ -64901,10 +64903,8 @@ namespace cimg_library {
     template<typename t>
     CImgList<t>& move_to(CImgList<t>& list) {
       list.assign(_width);
-      bool is_one_shared_element = false;
-      cimglist_for(*this,l) is_one_shared_element|=_data[l]._is_shared;
-      if (is_one_shared_element) cimglist_for(*this,l) list[l].assign(_data[l]);
-      else cimglist_for(*this,l) _data[l].move_to(list[l]);
+      cimglist_for(*this,l) if (_data[l]._is_shared) { list[l].assign(_data[l]); _data[l].assign(); }
+      cimglist_for(*this,l) if (_data[l]) _data[l].move_to(list[l]);
       assign();
       return list;
     }
@@ -64921,10 +64921,8 @@ namespace cimg_library {
       if (is_empty()) return list;
       const unsigned int npos = pos>list._width?list._width:pos;
       list.insert(_width,npos);
-      bool is_one_shared_element = false;
-      cimglist_for(*this,l) is_one_shared_element|=_data[l]._is_shared;
-      if (is_one_shared_element) cimglist_for(*this,l) list[npos + l].assign(_data[l]);
-      else cimglist_for(*this,l) _data[l].move_to(list[npos + l]);
+      cimglist_for(*this,l) if (_data[l]._is_shared) { list[npos + l].assign(_data[l]); _data[l].assign(); }
+      cimglist_for(*this,l) if (_data[l]) _data[l].move_to(list[npos + l]);
       assign();
       return list;
     }

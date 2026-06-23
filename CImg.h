@@ -2371,7 +2371,19 @@ namespace cimg_library {
 
     //! Avoid warning messages due to unused parameters. Do nothing actually.
     template<typename T>
-    inline void unused(const T&, ...) {}
+    inline void unused(const T&) {}
+
+    template<typename T1,typename T2>
+    inline void unused(const T1&, const T2&) {}
+
+    template<typename T1,typename T2, typename T3>
+    inline void unused(const T1&, const T2&, const T3&) {}
+
+    template<typename T1,typename T2, typename T3, typename T4>
+    inline void unused(const T1&, const T2&, const T3&, const T4&) {}
+
+    template<typename T1,typename T2, typename T3, typename T4, typename T5>
+    inline void unused(const T1&, const T2&, const T3&, const T4&, const T5&) {}
 
     // [internal] Lock/unlock a mutex for managing concurrent threads.
     // 'lock_mode' can be { 0=unlock | 1=lock | 2=trylock }.

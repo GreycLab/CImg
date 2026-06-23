@@ -2385,6 +2385,9 @@ namespace cimg_library {
     template<typename T1,typename T2, typename T3, typename T4, typename T5>
     inline void unused(const T1&, const T2&, const T3&, const T4&, const T5&) {}
 
+    template<typename T1,typename T2, typename T3, typename T4, typename T5, typename T6>
+    inline void unused(const T1&, const T2&, const T3&, const T4&, const T5&, const T6&) {}
+
     // [internal] Lock/unlock a mutex for managing concurrent threads.
     // 'lock_mode' can be { 0=unlock | 1=lock | 2=trylock }.
     // 'n' can be in [0,31] but mutex range [0,15] is reserved by CImg.
@@ -70663,8 +70666,8 @@ namespace cimg_library {
                       const char *const button5_label, const char *const button6_label,
                       const CImg<t>& logo, const bool is_centered=false) {
 #if cimg_display==0
-      cimg::unused(title,msg,button1_label,button2_label,button3_label,button4_label,button5_label,button6_label,
-                   logo._data,is_centered);
+      cimg::unused(title,msg,logo._data,is_centered);
+      cimg::unused(button1_label,button2_label,button3_label,button4_label,button5_label,button6_label);
       throw CImgIOException("cimg::dialog(): No display available.");
 #else
       static const unsigned char

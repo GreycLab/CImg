@@ -33099,9 +33099,10 @@ namespace cimg_library {
       }
       default : {
         CImg<doubleT> Q, R;
-        QR(Q,R,true);
+        QR(Q,R,false);
         double res = 1;
         cimg_forX(R,i) res*=R(i,i);
+        cimg_forX(R,i) if (R(i,i)<0) res = -res;
         return res;
       }
       }
@@ -33349,16 +33350,18 @@ namespace cimg_library {
       return get_solve((*this)*get_transpose()).transpose();
     }
 
-    //! Solve a (possibly over- or under-determined) linear system using QR decomposition.
+//! Solve a (possibly over- or under-determined) linear system using QR decomposition.
     /**
        \brief Solve the matrix equation \f$ A\,X = B \f$, where the current instance \c *this represents \f$ B \f$,
        and the argument \c A is the system matrix. This method supports both over-determined and
-       under-determined systems by internally performing a QR decomposition.
+       under-determined systems by internally performing a QR decomposition with column pivoting,
+       which improves numerical stability and correctly handles rank-deficient matrices.
 
        - If \f$ A \f$ has more rows than columns (\f$ m \ge n \f$), the system is square or over-determined,
-       and the least-squares solution minimizing \f$ \|A\,X - B\|_2 \f$ is computed.
+         and the least-squares solution minimizing \f$ \|A\,X - B\|_2 \f$ is computed.
        - If \f$ A \f$ has more columns than rows (\f$ m < n \f$), the system is under-determined.
-       The solution of minimal norm is computed using the QR decomposition of the transposed system.
+         The minimum-norm solution is computed using QR decomposition with column pivoting
+         of the transposed system.
 
        The computation is performed in double precision for numerical stability.
     **/
@@ -33387,37 +33390,68 @@ namespace cimg_library {
 
       const int m = A.height(), n = A.width(), p = width();
       CImg<doubleT> Q, R;
+      CImg<uintT> perm;
 
       // m>=n: Over-determined or square system.
       if (m>=n) {
-        A.QR(Q,R,true); // Reduced QR decomposition
+        A.QR(Q,R,true,true,&perm); // Reduced QR decomposition with column pivoting
+
+        // Compute y = Q^T * b
         const CImg<doubleT> y = Q.get_transpose()*(*this);
 
-        // Solve R*x = y (R is upper triangular).
-        CImg<doubleT> x(p,n);
+        // Detect numerical rank via diagonal of R.
+        const double pivtol = 1e-15*std::abs(R(0,0));
+        int rank = 0;
+        while (rank<n && std::abs(R(rank,rank))>pivtol) ++rank;
+
+        // Solve R(0:rank,0:rank) * x_perm(0:rank) = y(0:rank) by back substitution.
+        CImg<doubleT> x(p,n,1,1,0);
         cimg_forX(x,k) {
-          cimg_rofY(x,i) {
+          for (int i = rank - 1; i>=0; --i) {
             double sum = y(k,i);
-            for (int j = i + 1; j<n; ++j) sum-=R(j,i)*x(k,j);
+            for (int j = i + 1; j<rank; ++j) sum-=R(j,i)*x(k,j);
             x(k,i) = sum/R(i,i);
           }
         }
-        return x;
+
+        // Apply inverse permutation: x_unperm[perm[i]] = x_perm[i].
+        CImg<doubleT> xout(p,n,1,1,0);
+        cimg_forY(xout,i) cimg_forX(xout,k) xout(k,perm[i]) = x(k,i);
+        return xout;
       }
 
-      // m<n -> under-determined system.
-      A.get_transpose().QR(Q,R,true);
+      // m<n: Under-determined system.
+      // Solve via QR with pivoting of A^T: A^T * P = Q * R, so A * P = R^T * Q^T.
+      // Minimum-norm solution: x = P * R^{-T} * Q^T * b (zero-padded for rank-deficient cases).
+      A.get_transpose().QR(Q,R,true,true,&perm);
 
-      // Solve R^T*z = b, where z = Q^T*x.
-      CImg<doubleT> z(p,m);
+      // Detect numerical rank.
+      const double pivtol = 1e-15*std::abs(R(0,0));
+      int rank = 0;
+      while (rank<m && std::abs(R(rank,rank))>pivtol) ++rank;
+
+      // Solve R^T * z = b by forward substitution, restricted to detected rank.
+      CImg<doubleT> z(p,rank,1,1,0);
       cimg_forX(*this,k) {
-        cimg_forY(z,i) {
+        for (int i = 0; i<rank; ++i) {
           double sum = (*this)(k,i);
           for (int j = 0; j<i; ++j) sum-=R(i,j)*z(k,j);
           z(k,i) = sum/R(i,i);
         }
       }
-      return Q*z;
+
+      // Compute x_perm = Q * z (zero-padded to size m if rank < m).
+      CImg<doubleT> Qz(p,m,1,1,0);
+      cimg_forX(Qz,k) {
+        for (int i = 0; i<m; ++i)
+          for (int j = 0; j<rank; ++j)
+            Qz(k,i)+=Q(j,i)*z(k,j);
+      }
+
+      // Apply inverse permutation: xout[perm[i]] = Qz[i].
+      CImg<doubleT> xout(p,n,1,1,0);
+      cimg_forY(Qz,i) cimg_forX(Qz,k) xout(k,perm[i]) = Qz(k,i);
+      return xout;
     }
 
     //! Solve a tridiagonal system of linear equations.
@@ -33943,14 +33977,19 @@ namespace cimg_library {
     //! Compute the QR decomposition of the instance matrix.
     /**
        Given an instance matrix (*this) of size m×n (m rows, n columns),
-       fill the matrices Q and R, so that *this = Q*R.
+       fill the matrices Q and R, so that *this = Q*R (without pivoting) or *this*P = Q*R (with pivoting).
        - Q is an orthogonal matrix, of size 'm×m' if 'is_reduced_form==false', or 'm×min(m,n)' otherwise.
-       - R is an upper-trianguler matrix of size 'm×n' if 'is_reduced_form==false' or 'min(m,n)×n' otherwise.
+       - R is an upper-triangular matrix of size 'm×n' if 'is_reduced_form==false' or 'min(m,n)×n' otherwise.
        - Q^T*Q = Id.
        - If n>m, only the first m×m part of R is upper triangular.
+       - If 'is_pivoting==true', column pivoting is applied and the permutation is stored in 'perm',
+       so that the matrix 'A_perm' formed by reordering the columns of *this according to 'perm'
+       satisfies A_perm = Q*R, where A_perm(col,row) = (*this)(perm[col],row).
+       If 'is_pivoting==false', 'perm' is left unchanged.
     **/
     template<typename t>
-    const CImg<T>& QR(CImg<t>& Q, CImg<t>& R, const bool is_reduced_form=true) const {
+    const CImg<T>& QR(CImg<t>& Q, CImg<t>& R, const bool is_reduced_form=true,
+                      const bool is_pivoting=false, CImg<uintT> *const perm=0) const {
       if (is_empty()) { Q.assign(); R.assign(); return *this; }
       if (_depth!=1 || _spectrum!=1)
         throw CImgInstanceException(_cimg_instance
@@ -33960,7 +33999,29 @@ namespace cimg_library {
       const int m = height(), n = width(), k = std::min(m,n);
       CImg<doubleT> _R(*this,false), _Q = CImg<doubleT>::identity_matrix(m);
 
+      // Initialize permutation vector.
+      CImg<uintT> _perm;
+      if (is_pivoting) {
+        _perm.assign(n);
+        cimg_forX(_perm,i) _perm[i] = (unsigned int)i;
+      }
+
       for (int j = 0; j<k; ++j) {
+
+        // Apply column pivoting: swap column j with the column of maximum norm among j..n-1.
+        if (is_pivoting) {
+          int pivot = j;
+          double maxnorm = 0;
+          for (int col = j; col<n; ++col) {
+            double norm = 0;
+            for (int i = j; i<m; ++i) norm+=_R(col,i)*_R(col,i);
+            if (norm>maxnorm) { maxnorm = norm; pivot = col; }
+          }
+          if (pivot!=j) {
+            for (int i = 0; i<m; ++i) cimg::swap(_R(j,i),_R(pivot,i));
+            cimg::swap(_perm[j],_perm[pivot]);
+          }
+        }
 
         // Build the Householder vector v.
         CImg<doubleT> x = _R.get_crop(j,j,j,m);
@@ -33969,7 +34030,7 @@ namespace cimg_library {
         x[0]+=(x[0]>=0?1:-1)*normx;
         x/=x.magnitude();
 
-        // Apply reflection to R
+        // Apply reflection to R.
         cimg_pragma_openmp(parallel for cimg_openmp_if(m*(n - j)>=512*512))
         for (int col = j; col<n; ++col) {
           double dot = 0;
@@ -33994,6 +34055,7 @@ namespace cimg_library {
       }
       _Q.move_to(Q);
       _R.move_to(R);
+      if (is_pivoting && perm) _perm.move_to(*perm);
       return *this;
     }
 

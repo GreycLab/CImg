@@ -70564,10 +70564,10 @@ namespace cimg_library {
           curl_easy_setopt(curl,CURLOPT_SSL_VERIFYHOST,0L);
           curl_easy_setopt(curl,CURLOPT_FOLLOWLOCATION,1L);
           curl_easy_setopt(curl,CURLOPT_MAXREDIRS,20L);
+          curl_easy_setopt(curl,CURLOPT_USERAGENT,_user_agent);
           if (timeout) curl_easy_setopt(curl,CURLOPT_TIMEOUT,(long)timeout);
           if (std::strchr(url,'?')) curl_easy_setopt(curl,CURLOPT_HTTPGET,1L);
           if (referer) curl_easy_setopt(curl,CURLOPT_REFERER,referer);
-          curl_easy_setopt(curl,CURLOPT_USERAGENT,_user_agent);
           res = curl_easy_perform(curl);
           curl_easy_cleanup(curl);
           cimg::fseek(file,0,SEEK_END); // Check if file size is 0

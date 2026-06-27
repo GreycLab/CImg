@@ -2393,10 +2393,82 @@ namespace cimg_library {
     // 'n' can be in [0,31] but mutex range [0,15] is reserved by CImg.
     inline int mutex(const unsigned int n, const int lock_mode=1);
 
-    inline unsigned int& exception_mode(const unsigned int value, const bool is_set) {
-      static unsigned int mode = cimg_verbosity;
-      if (is_set) { cimg::mutex(0); mode = value<4?value:4; cimg::mutex(0,0); }
-      return mode;
+    inline unsigned int& exception_mode(const unsigned int mode, const bool is_set) {
+      static unsigned int value = cimg_verbosity;
+      if (is_set) { cimg::mutex(0); value = mode<4?mode:4; cimg::mutex(0,0); }
+      return value;
+    }
+
+    //! Set current \CImg exception mode.
+    /**
+       The way error messages are handled by \CImg can be changed dynamically, using this function.
+       \param mode Desired exception mode. Possible values are:
+       - \c 0: Hide library messages (quiet mode).
+       - \c 1: Print library messages on the console.
+       - \c 2: Display library messages on a dialog window.
+       - \c 3: Do as \c 1 + add extra debug warnings (slow down the code!).
+       - \c 4: Do as \c 2 + add extra debug warnings (slow down the code!).
+     **/
+    inline unsigned int& exception_mode(const unsigned int mode) {
+      return exception_mode(mode,true);
+    }
+
+    //! Return current \CImg exception mode.
+    /**
+       \note By default, return the value of configuration macro \c cimg_verbosity
+    **/
+    inline unsigned int& exception_mode() {
+      return exception_mode(0,false);
+    }
+
+    inline unsigned int openmp_mode(const unsigned int mode, const bool is_set) {
+#if cimg_use_openmp!=0
+      static unsigned int value = 2;
+      if (is_set)  { cimg::mutex(0); value = mode<2?mode:2; cimg::mutex(0,0); }
+      return value;
+#else
+      cimg::unused(mode,is_set);
+      return 0;
+#endif
+    }
+
+    //! Set current \CImg openmp mode.
+    /**
+       The way openmp-based methods are handled by \CImg can be changed dynamically, using this function.
+       \param mode Desired openmp mode. Possible values are:
+       - \c 0: Never parallelize.
+       - \c 1: Always parallelize.
+       - \c 2: Adaptive parallelization mode (default behavior).
+     **/
+    inline unsigned int openmp_mode(const unsigned int mode) {
+      return openmp_mode(mode,true);
+    }
+
+    //! Return current \CImg openmp mode.
+    inline unsigned int openmp_mode() {
+      return openmp_mode(0,false);
+    }
+
+    // Get or set load from network mode (can be { 0=disabled | 1=enabled }).
+    inline bool& network_mode(const bool mode, const bool is_set) {
+      static bool value = true;
+      if (is_set) { cimg::mutex(0); value = mode; cimg::mutex(0,0); }
+      return value;
+    }
+
+    inline bool& network_mode(const bool mode) {
+      return network_mode(mode,true);
+    }
+
+    inline bool& network_mode() {
+      return network_mode(false,false);
+    }
+
+    // Set/Get a global user_agent value.
+    inline const char* user_agent(const char *const str=0) {
+      static const char *value = "CImg";
+      if (str) { cimg::mutex(0); value = str; cimg::mutex(0,0); }
+      return value;
     }
 
     // Functions to return standard streams 'stdin', 'stdout' and 'stderr'.
@@ -2454,56 +2526,6 @@ namespace cimg_library {
       return result;
     }
 #endif
-
-    //! Set current \CImg exception mode.
-    /**
-       The way error messages are handled by \CImg can be changed dynamically, using this function.
-       \param mode Desired exception mode. Possible values are:
-       - \c 0: Hide library messages (quiet mode).
-       - \c 1: Print library messages on the console.
-       - \c 2: Display library messages on a dialog window.
-       - \c 3: Do as \c 1 + add extra debug warnings (slow down the code!).
-       - \c 4: Do as \c 2 + add extra debug warnings (slow down the code!).
-     **/
-    inline unsigned int& exception_mode(const unsigned int mode) {
-      return exception_mode(mode,true);
-    }
-
-    //! Return current \CImg exception mode.
-    /**
-       \note By default, return the value of configuration macro \c cimg_verbosity
-    **/
-    inline unsigned int& exception_mode() {
-      return exception_mode(0,false);
-    }
-
-    inline unsigned int openmp_mode(const unsigned int value, const bool is_set) {
-#if cimg_use_openmp!=0
-      static unsigned int mode = 2;
-      if (is_set)  { cimg::mutex(0); mode = value<2?value:2; cimg::mutex(0,0); }
-      return mode;
-#else
-      cimg::unused(value,is_set);
-      return 0;
-#endif
-    }
-
-    //! Set current \CImg openmp mode.
-    /**
-       The way openmp-based methods are handled by \CImg can be changed dynamically, using this function.
-       \param mode Desired openmp mode. Possible values are:
-       - \c 0: Never parallelize.
-       - \c 1: Always parallelize.
-       - \c 2: Adaptive parallelization mode (default behavior).
-     **/
-    inline unsigned int openmp_mode(const unsigned int mode) {
-      return openmp_mode(mode,true);
-    }
-
-    //! Return current \CImg openmp mode.
-    inline unsigned int openmp_mode() {
-      return openmp_mode(0,false);
-    }
 
 #ifndef cimg_openmp_sizefactor
 #define cimg_openmp_sizefactor 1
@@ -8029,17 +8051,6 @@ namespace cimg_library {
 
     // Try to guess format from an image file.
     inline const char *ftype(std::FILE *const file, const char *const filename);
-
-    // Get or set load from network mode (can be { 0=disabled | 1=enabled }).
-    inline bool& network_mode(const bool value, const bool is_set) {
-      static bool mode = true;
-      if (is_set) { cimg::mutex(0); mode = value; cimg::mutex(0,0); }
-      return mode;
-    }
-
-    inline bool& network_mode() {
-      return network_mode(false,false);
-    }
 
     // Load file from network as a local temporary file.
     inline char *load_network(const char *const url, char *const filename_local,
@@ -70524,7 +70535,10 @@ namespace cimg_library {
       if (!network_mode())
         throw CImgIOException("cimg::load_network(): Loading files from network is disabled.");
 
-      const char *const __ext = cimg::split_filename(url), *const _ext = (*__ext && __ext>url)?__ext - 1:__ext;
+      const char
+        *const _user_agent = user_agent?user_agent:cimg::user_agent(),
+        *const __ext = cimg::split_filename(url),
+        *const _ext = (*__ext && __ext>url)?__ext - 1:__ext;
       CImg<char> ext = CImg<char>::string(_ext);
       *filename_local = 0;
       if (ext._width>16 || !cimg::strncasecmp(ext,"cgi",3)) *ext = 0;
@@ -70553,7 +70567,7 @@ namespace cimg_library {
           if (timeout) curl_easy_setopt(curl,CURLOPT_TIMEOUT,(long)timeout);
           if (std::strchr(url,'?')) curl_easy_setopt(curl,CURLOPT_HTTPGET,1L);
           if (referer) curl_easy_setopt(curl,CURLOPT_REFERER,referer);
-          if (user_agent) curl_easy_setopt(curl,CURLOPT_USERAGENT,user_agent);
+          curl_easy_setopt(curl,CURLOPT_USERAGENT,_user_agent);
           res = curl_easy_perform(curl);
           curl_easy_cleanup(curl);
           cimg::fseek(file,0,SEEK_END); // Check if file size is 0
@@ -70568,7 +70582,7 @@ namespace cimg_library {
       if (!try_fallback) throw CImgIOException("cimg::load_network(): Failed to load file '%s' with libcurl.",url);
 #endif
 
-      CImg<char> command((unsigned int)std::strlen(url) + 1024), s_referer, s_user_agent, s_timeout;
+      CImg<char> command((unsigned int)std::strlen(url) + 1024), s_referer, s_timeout;
       cimg::unused(try_fallback);
 
       // Try with 'curl' first.
@@ -70576,11 +70590,9 @@ namespace cimg_library {
       else s_timeout.assign(1,1,1,1,0);
       if (referer) cimg_snprintf(s_referer.assign(1024),1024,"-e %s ",referer);
       else s_referer.assign(1,1,1,1,0);
-      if (user_agent) cimg_snprintf(s_user_agent.assign(1024),1024,"-A \"%s\" ",user_agent);
-      else s_user_agent.assign(1,1,1,1,0);
       cimg_snprintf(command,command._width,
-                    "\"%s\" -L --max-redirs 20 %s%s%s-f --silent --compressed -o \"%s\" \"%s\"",
-                    cimg::curl_path(),s_timeout._data,s_referer._data,s_user_agent._data,filename_local,
+                    "\"%s\" -L --max-redirs 20 %s%s-A \"%s\" -f --silent --compressed -o \"%s\" \"%s\"",
+                    cimg::curl_path(),s_timeout._data,s_referer._data,_user_agent,filename_local,
                     CImg<char>::string(url)._system_strescape().data());
       cimg::system(command,cimg::curl_path());
 
@@ -70590,11 +70602,10 @@ namespace cimg_library {
         else s_timeout.assign(1,1,1,1,0);
         if (referer) cimg_snprintf(s_referer.assign(1024),1024,"-Headers @{'Referer'='%s'} ",referer);
         else s_referer.assign(1,1,1,1,0);
-        if (user_agent) cimg_snprintf(s_user_agent.assign(1024),1024,"-UserAgent \"%s\" ",user_agent);
-        else s_user_agent.assign(1,1,1,1,0);
         cimg_snprintf(command,command._width,
-                      "\"%s\" -NonInteractive -Command Invoke-WebRequest %s%s%s-OutFile \"%s\" -Uri \"%s\"",
-                      cimg::powershell_path(),s_timeout._data,s_referer._data,s_user_agent._data,filename_local,
+                      "\"%s\" -NonInteractive -Command Invoke-WebRequest %s%s-UserAgent \"%s\" -OutFile \"%s\" "
+                      "-Uri \"%s\"",
+                      cimg::powershell_path(),s_timeout._data,s_referer._data,_user_agent,filename_local,
                       CImg<char>::string(url)._system_strescape().data());
         cimg::system(command,cimg::powershell_path());
       }
@@ -70605,11 +70616,9 @@ namespace cimg_library {
         else s_timeout.assign(1,1,1,1,0);
         if (referer) cimg_snprintf(s_referer.assign(1024),1024,"--referer=%s ",referer);
         else s_referer.assign(1,1,1,1,0);
-        if (user_agent) cimg_snprintf(s_user_agent.assign(1024),1024,"--user-agent=\"%s\" ",user_agent);
-        else s_user_agent.assign(1,1,1,1,0);
         cimg_snprintf(command,command._width,
-                      "\"%s\" --max-redirect=20 %s%s%s-q -r -l 0 --no-cache -O \"%s\" \"%s\"",
-                      cimg::wget_path(),s_timeout._data,s_referer._data,s_user_agent._data,filename_local,
+                      "\"%s\" --max-redirect=20 %s%s--user-agent=\"%s\" -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
+                      cimg::wget_path(),s_timeout._data,s_referer._data,_user_agent,filename_local,
                       CImg<char>::string(url)._system_strescape().data());
         cimg::system(command,cimg::wget_path());
 

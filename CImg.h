@@ -7417,9 +7417,9 @@ namespace cimg_library {
     /**
        \param[in,out] str C-string to work with (modified at output).
        \param delimiter Delimiter character code to remove.
-       \param is_symmetric Tells if the removal is done only if delimiters are symmetric
+       \param is_symmetric Indicates whether the removal is done only if delimiters are symmetric
        (both at the beginning and the end of \c s).
-       \param is_iterative Tells if the removal is done if several iterations are possible.
+       \param is_iterative Indicates whether the removal is done if several iterations are possible.
        \return \c true if delimiters have been removed, \c false otherwise.
    **/
     inline bool strpare(char *const str, const char delimiter,
@@ -8629,8 +8629,8 @@ namespace cimg_library {
         \param title Window title.
         \param normalization Normalization type
         (<tt>0</tt>=none, <tt>1</tt>=always, <tt>2</tt>=once, <tt>3</tt>=pixel type-dependent, see normalization()).
-        \param is_fullscreen Tells if fullscreen mode is enabled.
-        \param is_closed Tells if associated window is initially visible or not.
+        \param is_fullscreen Indicates whether fullscreen mode is enabled.
+        \param is_closed Indicates whether associated window is initially visible.
         \note A black background is initially displayed on the associated window.
     **/
     CImgDisplay(const unsigned int width, const unsigned int height,
@@ -8652,8 +8652,8 @@ namespace cimg_library {
         \param title Window title.
         \param normalization Normalization type
         (<tt>0</tt>=none, <tt>1</tt>=always, <tt>2</tt>=once, <tt>3</tt>=pixel type-dependent, see normalization()).
-        \param is_fullscreen Tells if fullscreen mode is enabled.
-        \param is_closed Tells if associated window is initially visible or not.
+        \param is_fullscreen Indicates whether fullscreen mode is enabled.
+        \param is_closed Indicates whether associated window is initially visible.
         \note The pixels of the input image are initially displayed on the associated window.
     **/
     template<typename T>
@@ -8676,8 +8676,8 @@ namespace cimg_library {
         \param title Window title.
         \param normalization Normalization type
         (<tt>0</tt>=none, <tt>1</tt>=always, <tt>2</tt>=once, <tt>3</tt>=pixel type-dependent, see normalization()).
-        \param is_fullscreen Tells if fullscreen mode is enabled.
-        \param is_closed Tells if associated window is initially visible or not.
+        \param is_fullscreen Indicates whether fullscreen mode is enabled.
+        \param is_closed Indicates whether associated window is initially visible.
         \note All images of the list, appended along the X-axis, are initially displayed on the associated window.
     **/
     template<typename T>
@@ -9047,7 +9047,7 @@ namespace cimg_library {
     /**
        \param keycodes_sequence Buffer of keycodes to test.
        \param length Number of keys in the \c keycodes_sequence buffer.
-       \param remove_sequence Tells if the key sequence must be removed from the key history, if found.
+       \param remove_sequence Indicates whether the key sequence must be removed from the key history, if found.
        \note Keycode constants are defined in the cimg namespace and are architecture-dependent. Use them to ensure
        your code stay portable (see cimg::keyESC).
        \par Example
@@ -9507,7 +9507,7 @@ namespace cimg_library {
 
     //! Resize display to the size of the associated window.
     /**
-       \param force_redraw Tells if the previous window content must be updated and refreshed as well.
+       \param force_redraw Indicates whether the previous window content must be updated and refreshed as well.
        \note
        - Calling this method ensures that width() and window_width() become equal, as well as height() and
        window_height().
@@ -9524,7 +9524,7 @@ namespace cimg_library {
     /**
        \param width Requested display width.
        \param height Requested display height.
-       \param force_redraw Tells if the previous window content must be updated and refreshed as well.
+       \param force_redraw Indicates whether the previous window content must be updated and refreshed as well.
        \note The associated window is also resized to specified dimensions.
     **/
     CImgDisplay& resize(const int width, const int height, const bool force_redraw=true) {
@@ -9536,7 +9536,7 @@ namespace cimg_library {
     //! Resize display to the size of an input image.
     /**
        \param img Input image to take size from.
-       \param force_redraw Tells if the previous window content must be resized and updated as well.
+       \param force_redraw Indicates whether the previous window content must be resized and updated as well.
        \note
        - Calling this method ensures that width() and <tt>img.width()</tt> become equal, as well as height() and
        <tt>img.height()</tt>.
@@ -9550,7 +9550,7 @@ namespace cimg_library {
     //! Resize display to the size of another CImgDisplay instance.
     /**
        \param disp Input display to take size from.
-       \param force_redraw Tells if the previous window content must be resized and updated as well.
+       \param force_redraw Indicates whether the previous window content must be resized and updated as well.
        \note
        - Calling this method ensures that width() and <tt>disp.width()</tt> become equal, as well as height() and
        <tt>disp.height()</tt>.
@@ -9631,8 +9631,8 @@ namespace cimg_library {
 
     //! Enable or disable fullscreen mode.
     /**
-       \param is_fullscreen Tells is the fullscreen mode must be activated or not.
-       \param force_redraw Tells if the previous window content must be displayed as well.
+       \param is_fullscreen Indicates whether the fullscreen mode must be activated.
+       \param force_redraw Indicates whether the previous window content must be displayed as well.
        \note
        - When the fullscreen mode is enabled, the associated window fills the entire screen but the size of the
        current display is not modified.
@@ -9650,7 +9650,7 @@ namespace cimg_library {
 
     //! Toggle fullscreen mode.
     /**
-       \param force_redraw Tells if the previous window content must be displayed as well.
+       \param force_redraw Indicates whether the previous window content must be displayed as well.
        \note Enable fullscreen mode if it was not enabled, and disable it otherwise.
     **/
     CImgDisplay& toggle_fullscreen(const bool force_redraw=true) {
@@ -9704,7 +9704,7 @@ namespace cimg_library {
     //! Simulate a mouse button press or release event.
     /**
        \param button Buttons event code, where each button is associated to a single bit.
-       \param is_pressed Tells if the mouse button is considered as pressed or released.
+       \param is_pressed Indicates whether the mouse button is considered as pressed or released.
     **/
     CImgDisplay& set_button(const unsigned int button, const bool is_pressed=true) {
       const unsigned int buttoncode = button==1U?1U:button==2U?2U:button==3U?4U:0U;
@@ -9784,7 +9784,7 @@ namespace cimg_library {
     //! Simulate a keyboard press/release event.
     /**
        \param keycode Keycode of the associated key.
-       \param is_pressed Tells if the key is considered as pressed or released.
+       \param is_pressed Indicates whether the key is considered as pressed or released.
        \note Keycode constants are defined in the cimg namespace and are architecture-dependent. Use them to ensure
        your code stay portable (see cimg::keyESC).
     **/
@@ -13082,7 +13082,7 @@ namespace cimg_library {
        \param size_z Image depth().
        \param size_c Image spectrum() (number of channels).
        \param { value0, value1, ... } Initialization list
-       \param repeat_values Tells if the value filling process is repeated over the image.
+       \param repeat_values Indicates whether the value filling process is repeated over the image.
 
        \note
        - Similar to CImg(unsigned int,unsigned int,unsigned int,unsigned int), but it also fills
@@ -13209,7 +13209,7 @@ namespace cimg_library {
        \param size_z Image depth().
        \param size_c Image spectrum() (number of channels).
        \param values Value string describing the way pixel values are set.
-       \param repeat_values Tells if the value filling process is repeated over the image.
+       \param repeat_values Indicates whether the value filling process is repeated over the image.
        \note
        - Similar to CImg(unsigned int,unsigned int,unsigned int,unsigned int), but it also fills
          the pixel buffer with values described in the value string \c values.
@@ -13256,7 +13256,7 @@ namespace cimg_library {
        \param size_y Image height().
        \param size_z Image depth().
        \param size_c Image spectrum() (number of channels).
-       \param is_shared Tells if input memory buffer must be shared by the current instance.
+       \param is_shared Indicates whether input memory buffer must be shared by the current instance.
        \note
        - If \c is_shared is \c false, the image instance allocates its own pixel buffer,
          and values from the specified input buffer are copied to the instance buffer.
@@ -15422,8 +15422,7 @@ namespace cimg_library {
     //! Return a pointer to a located pixel value.
     /**
        Return a \c T*, or a \c const \c T* pointer to the value located at (\c x,\c y,\c z,\c c) in the pixel buffer
-       of the image instance,
-       whether the instance is \c const or not.
+       of the image instance, whether the instance is \c const or not.
        \param x X-coordinate of the pixel value.
        \param y Y-coordinate of the pixel value.
        \param z Z-coordinate of the pixel value.
@@ -16880,8 +16879,8 @@ namespace cimg_library {
        \param y Y-coordinate of the pixel value.
        \param z Z-coordinate of the pixel value.
        \param c C-coordinate of the pixel value.
-       \param is_added Tells if the pixel value is added to (\c true), or simply replace (\c false) the current image
-         pixel(s).
+       \param is_added Indicates whether the pixel value is added to (\c true), or simply replace (\c false)
+         the current image pixel(s).
        \return A reference to the current image instance.
        \note
        - Calling this method with out-of-bounds coordinates does nothing.
@@ -17483,7 +17482,7 @@ namespace cimg_library {
        \param primitives List of primitives of the 3D object.
        \param colors List of colors of the 3D object.
        \param opacities List (or image) of opacities of the 3D object.
-       \param full_check Tells if full checking of the 3D object must be performed.
+       \param full_check Indicates whether full checking of the 3D object must be performed.
        \param[out] error_message C-string to contain the error message, if the test does not succeed
                    (at least 256 bytes).
        \note
@@ -17636,7 +17635,7 @@ namespace cimg_library {
     //! Test if image instance represents a valid serialization of a 3D object.
     /**
        Return \c true if the image instance represents a valid serialization of a 3D object, and \c false otherwise.
-       \param full_check Tells if full checking of the instance must be performed.
+       \param full_check Indicates whether full checking of the instance must be performed.
        \param[out] error_message C-string to contain the error message, if the test does not succeed.
        \note
        - Set \c full_check to \c false to speed-up the 3D object checking. In this case, only the size of
@@ -33621,7 +33620,8 @@ namespace cimg_library {
     //! Sort pixel values and get sorting permutations.
     /**
        \param[out] permutations Permutation map used for the sorting.
-       \param is_increasing Tells if pixel values are sorted in an increasing (\c true) or decreasing (\c false) way.
+       \param is_increasing Indicates whether pixel values are sorted in an increasing (\c true) or
+         decreasing (\c false) way.
     **/
     template<typename t>
     CImg<T>& sort(CImg<t>& permutations, const bool is_increasing=true) {
@@ -33639,8 +33639,9 @@ namespace cimg_library {
 
     //! Sort pixel values.
     /**
-       \param is_increasing Tells if pixel values are sorted in an increasing (\c true) or decreasing (\c false) way.
-       \param axis Tells if the value sorting must be done along a specific axis. Can be:
+       \param is_increasing Indicates whether pixel values are sorted in an increasing (\c true) or
+         decreasing (\c false) way.
+       \param axis Indicates whether the value sorting must be done along a specific axis. Can be:
        - \c 0: All pixel values are sorted, independently on their initial position.
        - \c 'x': Image columns are sorted, according to the first value in each column.
        - \c 'y': Image rows are sorted, according to the first value in each row.
@@ -33761,7 +33762,7 @@ namespace cimg_library {
        \param[out] S Coefficients of the second (diagonal) matrix of the SVD product.
          These coefficients are stored as a vector.
        \param[out] V Third matrix of the SVD product.
-       \param sorting Tells if the diagonal coefficients are sorted (in decreasing order).
+       \param sorting Indicates whether the diagonal coefficients are sorted (in decreasing order).
        \param max_iteration Maximum number of iterations considered for the algorithm convergence.
        \param lambda Epsilon used for the algorithm convergence.
        \note The instance matrix can be computed from \c U,\c S and \c V by
@@ -34318,7 +34319,7 @@ namespace cimg_library {
     //! Return an image containing the character codes of specified string.
     /**
        \param str input C-string to encode as an image.
-       \param is_last_zero Tells if the ending \c '0' character appear in the resulting image.
+       \param is_last_zero Indicates whether the ending \c '0' character appear in the resulting image.
        \param is_shared Return result that shares its buffer with \p str.
     **/
     static CImg<T> string(const char *const str, const bool is_last_zero=true, const bool is_shared=false) {
@@ -35569,7 +35570,7 @@ namespace cimg_library {
     //! Fill sequentially pixel values according to a value sequence, given as a string.
     /**
        \param values C-string describing a sequence of values.
-       \param repeat_values Tells if this sequence must be repeated when filling.
+       \param repeat_values Indicates whether this sequence must be repeated when filling.
     **/
     CImg<T>& fill_from_values(const char *const values, const bool repeat_values) {
       if (_fill_from_values(values,repeat_values))
@@ -36314,7 +36315,7 @@ namespace cimg_library {
     //! Uniformly quantize pixel values.
     /**
        \param nb_levels Number of quantization levels.
-       \param keep_range Tells if resulting values keep the same range as the original ones.
+       \param keep_range Indicates whether resulting values keep the same range as the original ones.
        \par Example
        \code
        const CImg<float> img("reference.jpg"), res = img.get_quantize(4);
@@ -36381,8 +36382,8 @@ namespace cimg_library {
     //! Threshold pixel values.
     /**
        \param value Threshold value
-       \param soft_threshold Tells if soft thresholding must be applied (instead of hard one).
-       \param strict_threshold Tells if threshold value is strict.
+       \param soft_threshold Indicates whether soft thresholding must be applied (instead of hard one).
+       \param strict_threshold Indicates whether threshold value is strict.
        \par Example
        \code
        const CImg<float> img("reference.jpg"), res = img.get_threshold(128);
@@ -41624,8 +41625,8 @@ namespace cimg_library {
        \param dl Streamline length increment.
        \param interpolation_type Type of interpolation.
          Can be <tt>{ 0=nearest int | 1=linear | 2=2nd-order RK | 3=4th-order RK. }</tt>.
-       \param is_backward_tracking Tells if the streamline is estimated forward or backward.
-       \param is_oriented_only Tells if the direction of the vectors must be ignored.
+       \param is_backward_tracking Indicates whether the streamline is estimated forward or backward.
+       \param is_oriented_only Indicates whether the direction of the vectors must be ignored.
        \param x0 X-coordinate of the first bounding-box vertex.
        \param y0 Y-coordinate of the first bounding-box vertex.
        \param z0 Z-coordinate of the first bounding-box vertex.
@@ -42222,7 +42223,7 @@ namespace cimg_library {
     /**
        \param values Splitting value sequence.
        \param axis Axis along which the splitting is performed. Can be '0' to ignore axis.
-       \param keep_values Tells if the splitting sequence must be kept in the split blocks.
+       \param keep_values Indicates whether the splitting sequence must be kept in the split blocks.
      **/
     template<typename t>
     CImgList<T> get_split(const CImg<t>& values, const char axis=0, const bool keep_values=true) const {
@@ -44454,7 +44455,7 @@ namespace cimg_library {
        \param sigma_z Standard deviation of the blur, along the Z-axis.
        \param boundary_conditions Boundary conditions.
          Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
-       \param is_gaussian Tells if the blur uses a gaussian (\c true) or quasi-gaussian (\c false) kernel.
+       \param is_gaussian Indicates whether the blur uses a gaussian (\c true) or quasi-gaussian (\c false) kernel.
        \note
        - The blur is computed as a 0-order Vanvliet (gaussian) or Deriche filter (quasi-gaussian).
        - This is a recursive algorithm, not depending on the values of the standard deviations.
@@ -44509,7 +44510,7 @@ namespace cimg_library {
        \param gauss_prec Precision of the diffusion process.
        \param interpolation_type Interpolation scheme.
          Can be <tt>{ 0=nearest-neighbor | 1=linear | 2=Runge-Kutta }</tt>.
-       \param is_fast_approx Tells if a fast approximation of the gaussian function is used or not.
+       \param is_fast_approx Indicates whether a fast approximation of the gaussian function is used.
     **/
     template<typename t>
     CImg<T>& blur_anisotropic(const CImg<t>& G,
@@ -44803,7 +44804,7 @@ namespace cimg_library {
        \param gauss_prec Precision of the diffusion process.
        \param interpolation_type Interpolation scheme.
          Can be <tt>{ 0=nearest-neighbor | 1=linear | 2=Runge-Kutta }</tt>.
-       \param is_fast_approx Tells if a fast approximation of the gaussian function is used or not.
+       \param is_fast_approx Indicates whether a fast approximation of the gaussian function is used.
      **/
     CImg<T>& blur_anisotropic(const float amplitude, const float sharpness=0.7f, const float anisotropy=0.6f,
                               const float alpha=0.6f, const float sigma=1.1f, const float dl=0.8f, const float da=30,
@@ -45238,7 +45239,7 @@ namespace cimg_library {
        \param patch_size Size of the patches.
        \param lookup_size Size of the window to search similar patches.
        \param smoothness Smoothness for the patch comparison.
-       \param is_fast_approx Tells if a fast approximation of the gaussian function is used or not.
+       \param is_fast_approx Indicates whether a fast approximation of the gaussian function is used.
     **/
     template<typename t>
     CImg<T>& blur_patch(const CImg<t>& guide,
@@ -46179,7 +46180,7 @@ namespace cimg_library {
        \param anisotropy Anisotropy
        \param alpha Standard deviation of the gradient blur.
        \param sigma Standard deviation of the structure tensor blur.
-       \param is_sqrt Tells if the square root of the tensor field is computed instead.
+       \param is_sqrt Indicates whether the square root of the tensor field is computed instead.
     **/
     CImg<T>& diffusion_tensors(const float sharpness=0.7f, const float anisotropy=0.6f,
                                const float alpha=0.6f, const float sigma=1.1f, const bool is_sqrt=false) {
@@ -47285,7 +47286,7 @@ namespace cimg_library {
     /**
        \param value Reference value.
        \param metric Field of distance potentials.
-       \param is_high_connectivity Tells if the algorithm uses low or high connectivity.
+       \param is_high_connectivity Indicates whether the algorithm uses low or high connectivity.
        \param[out] return_path An image containing the nodes of the minimal path.
      **/
     template<typename t, typename to>
@@ -47961,7 +47962,7 @@ namespace cimg_library {
     //! Compute 1D Fast Fourier Transform, along a specified axis.
     /**
        \param axis Axis along which the FFT is computed.
-       \param is_inverse Tells if the forward (\c false) or inverse (\c true) FFT is computed.
+       \param is_inverse Indicates whether the forward (\c false) or inverse (\c true) FFT is computed.
     **/
     CImgList<Tfloat> get_FFT(const char axis, const bool is_inverse=false) const {
       CImgList<Tfloat> res(*this,CImg<Tfloat>());
@@ -47971,7 +47972,7 @@ namespace cimg_library {
 
     //! Compute n-D Fast Fourier Transform.
     /*
-      \param is_inverse Tells if the forward (\c false) or inverse (\c true) FFT is computed.
+      \param is_inverse Indicates whether the forward (\c false) or inverse (\c true) FFT is computed.
     **/
     CImgList<Tfloat> get_FFT(const bool is_inverse=false) const {
       CImgList<Tfloat> res(*this,CImg<Tfloat>());
@@ -47984,7 +47985,7 @@ namespace cimg_library {
        \param[in,out] real Real part of the pixel values.
        \param[in,out] imag Imaginary part of the pixel values.
        \param axis Axis along which the FFT is computed.
-       \param is_inverse Tells if the forward (\c false) or inverse (\c true) FFT is computed.
+       \param is_inverse Indicates whether the forward (\c false) or inverse (\c true) FFT is computed.
        \param nb_threads Set the maximum number of threads used for FFT computation.
     **/
     static void FFT(CImg<T>& real, CImg<T>& imag, const char axis, const bool is_inverse=false,
@@ -48257,7 +48258,7 @@ namespace cimg_library {
     /**
        \param[in,out] real Real part of the pixel values.
        \param[in,out] imag Imaginary part of the pixel values.
-       \param is_inverse Tells if the forward (\c false) or inverse (\c true) FFT is computed.
+       \param is_inverse Indicates whether the forward (\c false) or inverse (\c true) FFT is computed.
        \param nb_threads Number of parallel threads used for the computation.
          Use \c 0 to set this to the number of available cpus.
     **/
@@ -48617,7 +48618,7 @@ namespace cimg_library {
        \param x0 X-coordinate of the projection point.
        \param y0 Y-coordinate of the projection point.
        \param z0 Z-coordinate of the projection point.
-       \param normalize_colors Tells if the created textures have normalized colors.
+       \param normalize_colors Indicates whether the created textures have normalized colors.
     **/
     template<typename tf, typename tc>
     CImg<floatT> get_projections3d(CImgList<tf>& primitives, CImgList<tc>& colors,
@@ -49816,7 +49817,7 @@ namespace cimg_library {
        \param primitives Primitives data of the 3D object.
        \param colors Colors data of the 3D object.
        \param opacities Opacities data of the 3D object.
-       \param full_check Tells if full checking of the 3D object must be performed.
+       \param full_check Indicates whether full checking of the 3D object must be performed.
     **/
     template<typename tp, typename tc, typename to>
     CImg<T>& object3dtoCImg3d(const CImgList<tp>& primitives,
@@ -50012,7 +50013,7 @@ namespace cimg_library {
        \param[out] primitives Primitives data of the 3D object.
        \param[out] colors Colors data of the 3D object.
        \param[out] opacities Opacities data of the 3D object.
-       \param full_check Tells if full checking of the 3D object must be performed.
+       \param full_check Indicates whether full checking of the 3D object must be performed.
     **/
     template<typename tp, typename tc, typename to>
     CImg<T>& CImg3dtoobject3d(CImgList<tp>& primitives,
@@ -50238,8 +50239,8 @@ namespace cimg_library {
        \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
        \param opacity Drawing opacity.
        \param pattern An integer whose bits describe the line pattern.
-       \param init_hatch Tells if a reinitialization of the hash state must be done.
-       \param draw_last_pixel Tells if last pixel of the line must be drawn or not (e.g. can be disabled
+       \param init_hatch Indicates whether a reinitialization of the hash state must be done.
+       \param draw_last_pixel Indicates whether last pixel of the line must be drawn (e.g. can be disabled
        when drawing multi-line curves with transparency).
        \note
        - Set \p init_hatch = false to draw consecutive hatched segments without breaking the line pattern.
@@ -50303,7 +50304,7 @@ namespace cimg_library {
        \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
        \param opacity Drawing opacity.
        \param pattern An integer whose bits describe the line pattern.
-       \param init_hatch Tells if a reinitialization of the hash state must be done.
+       \param init_hatch Indicates whether a reinitialization of the hash state must be done.
     **/
     template<typename tz, typename tc>
     CImg<T>& draw_line(CImg<tz>& zbuffer,
@@ -50382,7 +50383,7 @@ namespace cimg_library {
        \param ty1 Y-coordinate of the ending texture point.
        \param opacity Drawing opacity.
        \param pattern An integer whose bits describe the line pattern.
-       \param init_hatch Tells if the hash variable must be reinitialized.
+       \param init_hatch Indicates whether the hash variable must be reinitialized.
        \note
        - Line routine uses the well known Bresenham's algorithm.
        \par Example:
@@ -50472,7 +50473,7 @@ namespace cimg_library {
        \param ty1 Y-coordinate of the ending texture point.
        \param opacity Drawing opacity.
        \param pattern An integer whose bits describe the line pattern.
-       \param init_hatch Tells if the hash variable must be reinitialized.
+       \param init_hatch Indicates whether the hash variable must be reinitialized.
     **/
     template<typename tc>
     CImg<T>& draw_line(int x0, int y0, const float z0,
@@ -50562,7 +50563,7 @@ namespace cimg_library {
        \param ty1 Y-coordinate of the ending texture point.
        \param opacity Drawing opacity.
        \param pattern An integer whose bits describe the line pattern.
-       \param init_hatch Tells if the hash variable must be reinitialized.
+       \param init_hatch Indicates whether the hash variable must be reinitialized.
     **/
     template<typename tz, typename tc>
     CImg<T>& draw_line(CImg<tz>& zbuffer,
@@ -50858,7 +50859,7 @@ namespace cimg_library {
        \param tangents Tangents data.
        \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
        \param opacity Drawing opacity.
-       \param is_closed_set Tells if the drawn spline set is closed.
+       \param is_closed_set Indicates whether the drawn spline set is closed.
        \param precision Precision of the drawing.
        \param pattern An integer whose bits describe the line pattern.
        \param init_hatch If \c true, init hatch motif.
@@ -53414,7 +53415,7 @@ namespace cimg_library {
        \param opacity Drawing opacity.
        \param sampling Length (in pixels) between each arrow.
        \param factor Length factor of each arrow (if <0, computed as a percentage of the maximum length).
-       \param is_arrow Tells if arrows must be drawn, instead of oriented segments.
+       \param is_arrow Indicates whether arrows must be drawn, instead of oriented segments.
        \param pattern Used pattern to draw lines.
        \note Clipping is supported.
     **/
@@ -53433,7 +53434,7 @@ namespace cimg_library {
        \param opacity Opacity of the drawing.
        \param sampling Length (in pixels) between each arrow.
        \param factor Length factor of each arrow (if <0, computed as a percentage of the maximum length).
-       \param is_arrow Tells if arrows must be drawn, instead of oriented segments.
+       \param is_arrow Indicates whether arrows must be drawn, instead of oriented segments.
        \param pattern Used pattern to draw lines.
        \note Clipping is supported.
     **/
@@ -53911,7 +53912,7 @@ namespace cimg_library {
        \param[out] region Image that will contain the mask of the filled region mask, as an output.
        \param tolerance Tolerance concerning neighborhood values.
        \param opacity Opacity of the drawing.
-       \param is_high_connectivity Tells if 8-connexity must be used.
+       \param is_high_connectivity Indicates whether 8-connexity must be used.
        \return \c region is initialized with the binary mask of the filled region.
     **/
     template<typename tc, typename t>
@@ -54135,8 +54136,8 @@ namespace cimg_library {
        \param z1r Real part of the lower-right fractal vertex.
        \param z1i Imaginary part of the lower-right fractal vertex.
        \param iteration_max Maximum number of iterations for each estimated point.
-       \param is_normalized_iteration Tells if iterations are normalized.
-       \param is_julia_set Tells if the Mandelbrot or Julia set is rendered.
+       \param is_normalized_iteration Indicates whether iterations are normalized.
+       \param is_julia_set Indicates whether the Mandelbrot or Julia set is rendered.
        \param param_r Real part of the Julia set parameter.
        \param param_i Imaginary part of the Julia set parameter.
        \note Fractal rendering is done by the Escape Time Algorithm.
@@ -54361,7 +54362,7 @@ namespace cimg_library {
        \param colors List of P color (or textures)
        \param opacities Image or list of P opacities
        \param render_type Render type (0=Points, 1=Lines, 2=Faces (no light), 3=Faces (flat), 4=Faces(Gouraud)
-       \param is_double_sided Tells if object faces have two sides or are oriented.
+       \param is_double_sided Indicates whether object faces have two sides or are oriented.
        \param focale length of the focale (0 for parallel projection)
        \param lightx X-coordinate of the light
        \param lighty Y-coordinate of the light
@@ -54369,7 +54370,7 @@ namespace cimg_library {
        \param specular_lightness Amount of specular light.
        \param specular_shininess Shininess of the object
        \param g_opacity Global opacity of the object.
-       \param is_multithreaded_rendering Tells if mesh rendering is done with multiple threads
+       \param is_multithreaded_rendering Indicates whether mesh rendering is done with multiple threads
     **/
     template<typename tp, typename tf, typename tc, typename to>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
@@ -59402,8 +59403,8 @@ namespace cimg_library {
       \param size_y Height of the image buffer.
       \param size_z Depth of the image buffer.
       \param size_c Spectrum of the image buffer.
-      \param is_multiplexed Tells if the image values are multiplexed along the C-axis.
-      \param invert_endianness Tells if the endianness of the image buffer must be inverted.
+      \param is_multiplexed Indicates whether the image values are multiplexed along the C-axis.
+      \param invert_endianness Indicates whether the endianness of the image buffer must be inverted.
       \param offset Starting offset of the read in the specified file.
     **/
     CImg<T>& load_raw(const char *const filename,
@@ -59508,7 +59509,7 @@ namespace cimg_library {
       \param first_frame Index of the first frame to read.
       \param last_frame Index of the last frame to read.
       \param step_frame Step value for frame reading.
-      \param yuv2rgb Tells if the YUV to RGB transform must be applied.
+      \param yuv2rgb Indicates whether the YUV to RGB transform must be applied.
       \param axis Appending axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
     **/
     CImg<T>& load_yuv(const char *const filename,
@@ -60432,7 +60433,7 @@ namespace cimg_library {
        \param capture_width Width of the desired image ('0' stands for default value).
        \param capture_height Height of the desired image ('0' stands for default value).
        \param skip_frames Number of frames to skip before the capture.
-       \param release_camera Tells if the camera resource must be released at the end of the method.
+       \param release_camera Indicates whether the camera resource must be released at the end of the method.
        \return Reference to the current image instance, now containing the captured camera frame.
 
        \code
@@ -60638,7 +60639,7 @@ namespace cimg_library {
     //! Display image into a CImgDisplay window, in an interactive way.
     /**
         \param disp Display window.
-        \param display_info Tells if image information are displayed on the standard output.
+        \param display_info Indicates whether image information are displayed on the standard output.
         \param[in,out] XYZ Contains the XYZ coordinates at start / exit of the function.
         \param exit_on_anykey Exit function when any key is pressed.
     **/
@@ -60650,7 +60651,7 @@ namespace cimg_library {
     //! Display image into an interactive window.
     /**
         \param title Window title
-        \param display_info Tells if image information are displayed on the standard output.
+        \param display_info Indicates whether image information are displayed on the standard output.
         \param[in,out] XYZ Contains the XYZ coordinates at start / exit of the function.
         \param exit_on_anykey Exit function when any key is pressed.
     **/
@@ -60910,17 +60911,17 @@ namespace cimg_library {
        \param primitives Primitives data of the 3D object.
        \param colors Colors data of the 3D object.
        \param opacities Opacities data of the 3D object.
-       \param centering Tells if the 3D object must be centered for the display.
+       \param centering Indicates whether the 3D object must be centered for the display.
        \param render_static Rendering mode.
        \param render_motion Rendering mode, when the 3D object is moved.
-       \param is_double_sided Tells if the object primitives are double-sided.
+       \param is_double_sided Indicates whether the object primitives are double-sided.
        \param focale Focale
        \param light_x X-coordinate of the light source.
        \param light_y Y-coordinate of the light source.
        \param light_z Z-coordinate of the light source.
        \param specular_lightness Amount of specular light.
        \param specular_shininess Shininess of the object material.
-       \param display_axes Tells if the 3D axes are displayed.
+       \param display_axes Indicates whether the 3D axes are displayed.
        \param pose_matrix Pointer to 12 values, defining a 3D pose (as a 4x3 matrix).
        \param exit_on_anykey Exit function when any key is pressed.
     **/
@@ -63348,7 +63349,7 @@ namespace cimg_library {
     //! Save image as a .cimg file.
     /**
       \param filename Filename, as a C-string.
-      \param is_compressed Tells if the file contains compressed image data.
+      \param is_compressed Indicates whether the file contains compressed image data.
     **/
     const CImg<T>& save_cimg(const char *const filename, const bool is_compressed=false) const {
       CImgList<T>(*this,true).save_cimg(filename,is_compressed);
@@ -63762,7 +63763,8 @@ namespace cimg_library {
     //! Save image as a raw data file.
     /**
        \param filename Filename, as a C-string.
-       \param is_multiplexed Tells if the image channels are stored in a multiplexed way (\c true) or not (\c false).
+       \param is_multiplexed Indicates whether the image channels are stored in a multiplexed way (\c true)
+         or not (\c false).
        \note The .raw format does not store the image dimensions in the output file,
        so you have to keep track of them somewhere to be able to read the file correctly afterwards.
     **/
@@ -63850,7 +63852,8 @@ namespace cimg_library {
     /**
        \param filename Filename, as a C-string.
        \param chroma_subsampling Type of chroma subsampling. Can be <tt>{ 420 | 422 | 444 }</tt>.
-       \param is_rgb Tells if pixel values of the instance image are RGB-coded (\c true) or YUV-coded (\c false).
+       \param is_rgb Indicates whether pixel values of the instance image are RGB-coded (\c true) or
+         YUV-coded (\c false).
        \note Each slice of the instance image is considered to be a single frame of the output video file.
     **/
     const CImg<T>& save_yuv(const char *const filename,
@@ -63985,8 +63988,8 @@ namespace cimg_library {
       \param filename Filename to write data to.
       \param fps Number of frames per second.
       \param codec Type of compression (See http://www.fourcc.org/codecs.php to see available codecs).
-      \param keep_open Tells if the video writer associated to the specified filename
-        must be kept open or not (to allow frames to be added in the same file afterwards).
+      \param keep_open Indicates whether the video writer associated to the specified filename
+        must be kept open (to allow frames to be added in the same file afterwards).
     **/
     const CImg<T>& save_video(const char *const filename, const unsigned int fps=25,
                               const char *codec=0, const bool keep_open=false) const {
@@ -64548,7 +64551,7 @@ namespace cimg_library {
     /**
        \param n Number of images.
        \param img Input image to copy in the constructed list.
-       \param is_shared Tells if the elements of the list are shared or non-shared copies of \c img.
+       \param is_shared Indicates whether the elements of the list are shared or non-shared copies of \c img.
     **/
     template<typename t>
     CImgList(const unsigned int n, const CImg<t>& img, const bool is_shared=false):
@@ -64560,7 +64563,7 @@ namespace cimg_library {
     //! Construct list from one image.
     /**
        \param img Input image to copy in the constructed list.
-       \param is_shared Tells if the element of the list is a shared or non-shared copy of \c img.
+       \param is_shared Indicates whether the element of the list is a shared or non-shared copy of \c img.
      **/
     template<typename t>
     explicit CImgList(const CImg<t>& img, const bool is_shared=false):
@@ -64573,7 +64576,7 @@ namespace cimg_library {
     /**
        \param img1 First input image to copy in the constructed list.
        \param img2 Second input image to copy in the constructed list.
-       \param is_shared Tells if the elements of the list are shared or non-shared copies of input images.
+       \param is_shared Indicates whether the elements of the list are shared or non-shared copies of input images.
      **/
     template<typename t1, typename t2>
     CImgList(const CImg<t1>& img1, const CImg<t2>& img2, const bool is_shared=false):
@@ -64587,7 +64590,7 @@ namespace cimg_library {
        \param img1 First input image to copy in the constructed list.
        \param img2 Second input image to copy in the constructed list.
        \param img3 Third input image to copy in the constructed list.
-       \param is_shared Tells if the elements of the list are shared or non-shared copies of input images.
+       \param is_shared Indicates whether the elements of the list are shared or non-shared copies of input images.
     **/
     template<typename t1, typename t2, typename t3>
     CImgList(const CImg<t1>& img1, const CImg<t2>& img2, const CImg<t3>& img3, const bool is_shared=false):
@@ -64602,7 +64605,7 @@ namespace cimg_library {
        \param img2 Second input image to copy in the constructed list.
        \param img3 Third input image to copy in the constructed list.
        \param img4 Fourth input image to copy in the constructed list.
-       \param is_shared Tells if the elements of the list are shared or non-shared copies of input images.
+       \param is_shared Indicates whether the elements of the list are shared or non-shared copies of input images.
     **/
     template<typename t1, typename t2, typename t3, typename t4>
     CImgList(const CImg<t1>& img1, const CImg<t2>& img2, const CImg<t3>& img3, const CImg<t4>& img4,
@@ -64620,7 +64623,7 @@ namespace cimg_library {
        \param img3 Third input image to copy in the constructed list.
        \param img4 Fourth input image to copy in the constructed list.
        \param img5 Fifth input image to copy in the constructed list.
-       \param is_shared Tells if the elements of the list are shared or non-shared copies of input images.
+       \param is_shared Indicates whether the elements of the list are shared or non-shared copies of input images.
     **/
     template<typename t1, typename t2, typename t3, typename t4, typename t5>
     CImgList(const CImg<t1>& img1, const CImg<t2>& img2, const CImg<t3>& img3, const CImg<t4>& img4,
@@ -64639,7 +64642,7 @@ namespace cimg_library {
        \param img4 Fourth input image to copy in the constructed list.
        \param img5 Fifth input image to copy in the constructed list.
        \param img6 Sixth input image to copy in the constructed list.
-       \param is_shared Tells if the elements of the list are shared or non-shared copies of input images.
+       \param is_shared Indicates whether the elements of the list are shared or non-shared copies of input images.
     **/
     template<typename t1, typename t2, typename t3, typename t4, typename t5, typename t6>
     CImgList(const CImg<t1>& img1, const CImg<t2>& img2, const CImg<t3>& img3, const CImg<t4>& img4,
@@ -64659,7 +64662,7 @@ namespace cimg_library {
        \param img5 Fifth input image to copy in the constructed list.
        \param img6 Sixth input image to copy in the constructed list.
        \param img7 Seventh input image to copy in the constructed list.
-       \param is_shared Tells if the elements of the list are shared or non-shared copies of input images.
+       \param is_shared Indicates whether the elements of the list are shared or non-shared copies of input images.
     **/
     template<typename t1, typename t2, typename t3, typename t4, typename t5, typename t6, typename t7>
     CImgList(const CImg<t1>& img1, const CImg<t2>& img2, const CImg<t3>& img3, const CImg<t4>& img4,
@@ -64681,7 +64684,7 @@ namespace cimg_library {
        \param img6 Sixth input image to copy in the constructed list.
        \param img7 Seventh input image to copy in the constructed list.
        \param img8 Eighth input image to copy in the constructed list.
-       \param is_shared Tells if the elements of the list are shared or non-shared copies of input images.
+       \param is_shared Indicates whether the elements of the list are shared or non-shared copies of input images.
     **/
     template<typename t1, typename t2, typename t3, typename t4, typename t5, typename t6, typename t7, typename t8>
     CImgList(const CImg<t1>& img1, const CImg<t2>& img2, const CImg<t3>& img3, const CImg<t4>& img4,
@@ -64714,7 +64717,7 @@ namespace cimg_library {
     //! Construct list copy, and force the shared state of the list elements.
     /**
        \param list Input list to copy.
-       \param is_shared Tells if the elements of the list are shared or non-shared copies of input images.
+       \param is_shared Indicates whether the elements of the list are shared or non-shared copies of input images.
     **/
     template<typename t>
     CImgList(const CImgList<t>& list, const bool is_shared):_width(0),_allocated_width(0),_data(0) {
@@ -66115,7 +66118,7 @@ namespace cimg_library {
     /**
         \param img Image to insert a copy to the list.
         \param pos Index of the insertion.
-        \param is_shared Tells if the inserted image is a shared copy of \c img or not.
+        \param is_shared Indicates whether the inserted image is a shared copy of \c img.
     **/
     template<typename t>
     CImgList<T>& insert(const CImg<t>& img, const unsigned int pos=~0U, const bool is_shared=false) {
@@ -66246,7 +66249,7 @@ namespace cimg_library {
        \param n Number of image copies to insert.
        \param img Image to insert by copy.
        \param pos Index of the insertion.
-       \param is_shared Tells if inserted images are shared copies of \c img or not.
+       \param is_shared Indicates whether inserted images are shared copies of \c img.
     **/
     template<typename t>
     CImgList<T>& insert(const unsigned int n, const CImg<t>& img, const unsigned int pos=~0U,
@@ -66269,7 +66272,7 @@ namespace cimg_library {
     /**
       \param list Image list to insert.
       \param pos Index of the insertion.
-      \param is_shared Tells if inserted images are shared copies of images of \c list or not.
+      \param is_shared Indicates whether inserted images are shared copies of images of \c list.
     **/
     template<typename t>
     CImgList<T>& insert(const CImgList<t>& list, const unsigned int pos=~0U, const bool is_shared=false) {
@@ -66290,7 +66293,7 @@ namespace cimg_library {
       \param n Number of list copies to insert.
       \param list Image list to insert.
       \param pos Index of the insertion.
-      \param is_shared Tells if inserted images are shared copies of images of \c list or not.
+      \param is_shared Indicates whether inserted images are shared copies of images of \c list.
     **/
     template<typename t>
     CImgList<T>& insert(const unsigned int n, const CImgList<t>& list, const unsigned int pos=~0U,
@@ -68078,7 +68081,7 @@ namespace cimg_library {
     //! Print information about the list on the standard output.
     /**
       \param title Label set to the information displayed.
-      \param display_stats Tells if image statistics must be computed and displayed.
+      \param display_stats Indicates whether image statistics must be computed and displayed.
     **/
     const CImgList<T>& print(const char *const title=0, const bool display_stats=true) const {
       unsigned int msiz = 0;
@@ -68126,7 +68129,7 @@ namespace cimg_library {
     //! Display the current CImgList instance in a new display window.
     /**
         \param disp Display window.
-        \param display_info Tells if image information are displayed on the standard output.
+        \param display_info Indicates whether image information are displayed on the standard output.
         \param axis Alignment axis for images viewing.
         \param align Appending alignment.
         \param[in,out] XYZ Contains the XYZ coordinates at start / exit of the function.
@@ -68146,7 +68149,7 @@ namespace cimg_library {
     //! Display the current CImgList instance in a new display window.
     /**
       \param title Title of the opening display window.
-      \param display_info Tells if list information must be written on standard output.
+      \param display_info Indicates whether list information must be written on standard output.
       \param axis Appending axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
       \param align Appending alignment.
       \param[in,out] XYZ Contains the XYZ coordinates at start / exit of the function.
@@ -68454,7 +68457,7 @@ namespace cimg_library {
     /**
       \param filename Filename to write data to.
       \param chroma_subsampling Type of chroma subsampling. Can be <tt>{ 420 | 422 | 444 }</tt>.
-      \param is_rgb Tells if the RGB to YUV conversion must be done for saving.
+      \param is_rgb Indicates whether the RGB to YUV conversion must be done for saving.
     **/
     const CImgList<T>& save_yuv(const char *const filename=0,
                                 const unsigned int chroma_subsampling=444,
@@ -68466,7 +68469,7 @@ namespace cimg_library {
     /**
       \param file File to write data to.
       \param chroma_subsampling Type of chroma subsampling. Can be <tt>{ 420 | 422 | 444 }</tt>.
-      \param is_rgb Tells if the RGB to YUV conversion must be done for saving.
+      \param is_rgb Indicates whether the RGB to YUV conversion must be done for saving.
     **/
     const CImgList<T>& save_yuv(std::FILE *const file,
                                 const unsigned int chroma_subsampling=444,
@@ -68523,7 +68526,7 @@ namespace cimg_library {
     //! Save list into a .cimg file.
     /**
        \param filename Filename to write data to.
-       \param is_compressed Tells if data compression must be enabled.
+       \param is_compressed Indicates whether data compression must be enabled.
     **/
     const CImgList<T>& save_cimg(const char *const filename, const bool is_compressed=false) const {
       return _save_cimg(0,filename,is_compressed);
@@ -68607,7 +68610,7 @@ namespace cimg_library {
     //! Save list into a .cimg file.
     /**
        \param file File to write data to.
-       \param is_compressed Tells if data compression must be enabled.
+       \param is_compressed Indicates whether data compression must be enabled.
     **/
     const CImgList<T>& save_cimg(std::FILE *file, const bool is_compressed=false) const {
       return _save_cimg(file,0,is_compressed);
@@ -68916,8 +68919,8 @@ namespace cimg_library {
        \param filename Filename to write data to.
        \param fps Number of frames per second.
        \param codec Type of compression (See http://www.fourcc.org/codecs.php to see available codecs).
-       \param keep_open Tells if the video writer associated to the specified filename
-       must be kept open or not (to allow frames to be added in the same file afterwards).
+       \param keep_open Indicates whether the video writer associated to the specified filename
+       must be kept open (to allow frames to be added in the same file afterwards).
     **/
     const CImgList<T>& save_video(const char *const filename, const unsigned int fps=25,
                                   const char *codec=0, const bool keep_open=false) const {
@@ -69415,7 +69418,7 @@ namespace cimg_library {
     //! Compute a 1D Fast Fourier Transform, along specified axis.
     /**
        \param axis Axis along which the Fourier transform is computed.
-       \param invert Tells if the direct (\c false) or inverse transform (\c true) is computed.
+       \param invert Indicates whether the direct (\c false) or inverse transform (\c true) is computed.
     **/
     CImgList<T>& FFT(const char axis, const bool invert=false) {
       if (is_empty()) return *this;
@@ -69435,7 +69438,7 @@ namespace cimg_library {
 
     //! Compute n-D Fast Fourier Transform.
     /**
-      \param invert Tells if the direct (\c false) or inverse transform (\c true) is computed.
+      \param invert Indicates whether the direct (\c false) or inverse transform (\c true) is computed.
     **/
     CImgList<T>& FFT(const bool invert=false) {
       if (is_empty()) return *this;
@@ -70722,7 +70725,7 @@ namespace cimg_library {
        \param button5_label Label of the 5th button (\c 0 to hide button).
        \param button6_label Label of the 6th button (\c 0 to hide button).
        \param logo Image logo displayed at the left of the main message.
-       \param is_centered Tells if the dialog window must be centered on the screen.
+       \param is_centered Indicates whether the dialog window must be centered on the screen.
        \return Index of clicked button (from \c 0 to \c 5), or \c -1 if the dialog window has been closed by the user.
        \note
        - Up to 6 buttons can be defined in the dialog window.

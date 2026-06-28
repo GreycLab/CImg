@@ -16879,8 +16879,8 @@ namespace cimg_library {
        \param y Y-coordinate of the pixel value.
        \param z Z-coordinate of the pixel value.
        \param c C-coordinate of the pixel value.
-       \param is_added Indicates whether the pixel value is added to (\c true), or simply replace (\c false) the current image
-         pixel(s).
+       \param is_added Indicates whether the pixel value is added to (\c true), or simply replace (\c false)
+         the current image pixel(s).
        \return A reference to the current image instance.
        \note
        - Calling this method with out-of-bounds coordinates does nothing.
@@ -33620,7 +33620,8 @@ namespace cimg_library {
     //! Sort pixel values and get sorting permutations.
     /**
        \param[out] permutations Permutation map used for the sorting.
-       \param is_increasing Indicates whether pixel values are sorted in an increasing (\c true) or decreasing (\c false) way.
+       \param is_increasing Indicates whether pixel values are sorted in an increasing (\c true) or
+         decreasing (\c false) way.
     **/
     template<typename t>
     CImg<T>& sort(CImg<t>& permutations, const bool is_increasing=true) {
@@ -33638,7 +33639,8 @@ namespace cimg_library {
 
     //! Sort pixel values.
     /**
-       \param is_increasing Indicates whether pixel values are sorted in an increasing (\c true) or decreasing (\c false) way.
+       \param is_increasing Indicates whether pixel values are sorted in an increasing (\c true) or
+         decreasing (\c false) way.
        \param axis Indicates whether the value sorting must be done along a specific axis. Can be:
        - \c 0: All pixel values are sorted, independently on their initial position.
        - \c 'x': Image columns are sorted, according to the first value in each column.
@@ -63761,7 +63763,8 @@ namespace cimg_library {
     //! Save image as a raw data file.
     /**
        \param filename Filename, as a C-string.
-       \param is_multiplexed Indicates whether the image channels are stored in a multiplexed way (\c true) or not (\c false).
+       \param is_multiplexed Indicates whether the image channels are stored in a multiplexed way (\c true)
+         or not (\c false).
        \note The .raw format does not store the image dimensions in the output file,
        so you have to keep track of them somewhere to be able to read the file correctly afterwards.
     **/
@@ -63849,7 +63852,8 @@ namespace cimg_library {
     /**
        \param filename Filename, as a C-string.
        \param chroma_subsampling Type of chroma subsampling. Can be <tt>{ 420 | 422 | 444 }</tt>.
-       \param is_rgb Indicates whether pixel values of the instance image are RGB-coded (\c true) or YUV-coded (\c false).
+       \param is_rgb Indicates whether pixel values of the instance image are RGB-coded (\c true) or
+         YUV-coded (\c false).
        \note Each slice of the instance image is considered to be a single frame of the output video file.
     **/
     const CImg<T>& save_yuv(const char *const filename,

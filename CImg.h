@@ -2393,10 +2393,82 @@ namespace cimg_library {
     // 'n' can be in [0,31] but mutex range [0,15] is reserved by CImg.
     inline int mutex(const unsigned int n, const int lock_mode=1);
 
-    inline unsigned int& exception_mode(const unsigned int value, const bool is_set) {
-      static unsigned int mode = cimg_verbosity;
-      if (is_set) { cimg::mutex(0); mode = value<4?value:4; cimg::mutex(0,0); }
-      return mode;
+    inline unsigned int& exception_mode(const unsigned int mode, const bool is_set) {
+      static unsigned int value = cimg_verbosity;
+      if (is_set) { cimg::mutex(0); value = mode<4?mode:4; cimg::mutex(0,0); }
+      return value;
+    }
+
+    //! Set current \CImg exception mode.
+    /**
+       The way error messages are handled by \CImg can be changed dynamically, using this function.
+       \param mode Desired exception mode. Possible values are:
+       - \c 0: Hide library messages (quiet mode).
+       - \c 1: Print library messages on the console.
+       - \c 2: Display library messages on a dialog window.
+       - \c 3: Do as \c 1 + add extra debug warnings (slow down the code!).
+       - \c 4: Do as \c 2 + add extra debug warnings (slow down the code!).
+     **/
+    inline unsigned int& exception_mode(const unsigned int mode) {
+      return exception_mode(mode,true);
+    }
+
+    //! Return current \CImg exception mode.
+    /**
+       \note By default, return the value of configuration macro \c cimg_verbosity
+    **/
+    inline unsigned int& exception_mode() {
+      return exception_mode(0,false);
+    }
+
+    inline unsigned int openmp_mode(const unsigned int mode, const bool is_set) {
+#if cimg_use_openmp!=0
+      static unsigned int value = 2;
+      if (is_set)  { cimg::mutex(0); value = mode<2?mode:2; cimg::mutex(0,0); }
+      return value;
+#else
+      cimg::unused(mode,is_set);
+      return 0;
+#endif
+    }
+
+    //! Set current \CImg openmp mode.
+    /**
+       The way openmp-based methods are handled by \CImg can be changed dynamically, using this function.
+       \param mode Desired openmp mode. Possible values are:
+       - \c 0: Never parallelize.
+       - \c 1: Always parallelize.
+       - \c 2: Adaptive parallelization mode (default behavior).
+     **/
+    inline unsigned int openmp_mode(const unsigned int mode) {
+      return openmp_mode(mode,true);
+    }
+
+    //! Return current \CImg openmp mode.
+    inline unsigned int openmp_mode() {
+      return openmp_mode(0,false);
+    }
+
+    // Get or set load from network mode (can be { 0=disabled | 1=enabled }).
+    inline bool& network_mode(const bool mode, const bool is_set) {
+      static bool value = true;
+      if (is_set) { cimg::mutex(0); value = mode; cimg::mutex(0,0); }
+      return value;
+    }
+
+    inline bool& network_mode(const bool mode) {
+      return network_mode(mode,true);
+    }
+
+    inline bool& network_mode() {
+      return network_mode(false,false);
+    }
+
+    // Set/Get a global user_agent value.
+    inline const char* user_agent(const char *const str=0) {
+      static const char *value = "CImg";
+      if (str) { cimg::mutex(0); value = str; cimg::mutex(0,0); }
+      return value;
     }
 
     // Functions to return standard streams 'stdin', 'stdout' and 'stderr'.
@@ -2454,56 +2526,6 @@ namespace cimg_library {
       return result;
     }
 #endif
-
-    //! Set current \CImg exception mode.
-    /**
-       The way error messages are handled by \CImg can be changed dynamically, using this function.
-       \param mode Desired exception mode. Possible values are:
-       - \c 0: Hide library messages (quiet mode).
-       - \c 1: Print library messages on the console.
-       - \c 2: Display library messages on a dialog window.
-       - \c 3: Do as \c 1 + add extra debug warnings (slow down the code!).
-       - \c 4: Do as \c 2 + add extra debug warnings (slow down the code!).
-     **/
-    inline unsigned int& exception_mode(const unsigned int mode) {
-      return exception_mode(mode,true);
-    }
-
-    //! Return current \CImg exception mode.
-    /**
-       \note By default, return the value of configuration macro \c cimg_verbosity
-    **/
-    inline unsigned int& exception_mode() {
-      return exception_mode(0,false);
-    }
-
-    inline unsigned int openmp_mode(const unsigned int value, const bool is_set) {
-#if cimg_use_openmp!=0
-      static unsigned int mode = 2;
-      if (is_set)  { cimg::mutex(0); mode = value<2?value:2; cimg::mutex(0,0); }
-      return mode;
-#else
-      cimg::unused(value,is_set);
-      return 0;
-#endif
-    }
-
-    //! Set current \CImg openmp mode.
-    /**
-       The way openmp-based methods are handled by \CImg can be changed dynamically, using this function.
-       \param mode Desired openmp mode. Possible values are:
-       - \c 0: Never parallelize.
-       - \c 1: Always parallelize.
-       - \c 2: Adaptive parallelization mode (default behavior).
-     **/
-    inline unsigned int openmp_mode(const unsigned int mode) {
-      return openmp_mode(mode,true);
-    }
-
-    //! Return current \CImg openmp mode.
-    inline unsigned int openmp_mode() {
-      return openmp_mode(0,false);
-    }
 
 #ifndef cimg_openmp_sizefactor
 #define cimg_openmp_sizefactor 1
@@ -8029,17 +8051,6 @@ namespace cimg_library {
 
     // Try to guess format from an image file.
     inline const char *ftype(std::FILE *const file, const char *const filename);
-
-    // Get or set load from network mode (can be { 0=disabled | 1=enabled }).
-    inline bool& network_mode(const bool value, const bool is_set) {
-      static bool mode = true;
-      if (is_set) { cimg::mutex(0); mode = value; cimg::mutex(0,0); }
-      return mode;
-    }
-
-    inline bool& network_mode() {
-      return network_mode(false,false);
-    }
 
     // Load file from network as a local temporary file.
     inline char *load_network(const char *const url, char *const filename_local,
@@ -33099,9 +33110,10 @@ namespace cimg_library {
       }
       default : {
         CImg<doubleT> Q, R;
-        QR(Q,R,true);
+        QR(Q,R,false);
         double res = 1;
         cimg_forX(R,i) res*=R(i,i);
+        cimg_forX(R,i) if (R(i,i)<0) res = -res;
         return res;
       }
       }
@@ -33349,16 +33361,18 @@ namespace cimg_library {
       return get_solve((*this)*get_transpose()).transpose();
     }
 
-    //! Solve a (possibly over- or under-determined) linear system using QR decomposition.
+//! Solve a (possibly over- or under-determined) linear system using QR decomposition.
     /**
        \brief Solve the matrix equation \f$ A\,X = B \f$, where the current instance \c *this represents \f$ B \f$,
        and the argument \c A is the system matrix. This method supports both over-determined and
-       under-determined systems by internally performing a QR decomposition.
+       under-determined systems by internally performing a QR decomposition with column pivoting,
+       which improves numerical stability and correctly handles rank-deficient matrices.
 
        - If \f$ A \f$ has more rows than columns (\f$ m \ge n \f$), the system is square or over-determined,
-       and the least-squares solution minimizing \f$ \|A\,X - B\|_2 \f$ is computed.
+         and the least-squares solution minimizing \f$ \|A\,X - B\|_2 \f$ is computed.
        - If \f$ A \f$ has more columns than rows (\f$ m < n \f$), the system is under-determined.
-       The solution of minimal norm is computed using the QR decomposition of the transposed system.
+         The minimum-norm solution is computed using QR decomposition with column pivoting
+         of the transposed system.
 
        The computation is performed in double precision for numerical stability.
     **/
@@ -33387,37 +33401,68 @@ namespace cimg_library {
 
       const int m = A.height(), n = A.width(), p = width();
       CImg<doubleT> Q, R;
+      CImg<uintT> perm;
 
       // m>=n: Over-determined or square system.
       if (m>=n) {
-        A.QR(Q,R,true); // Reduced QR decomposition
+        A.QR(Q,R,true,true,&perm); // Reduced QR decomposition with column pivoting
+
+        // Compute y = Q^T * b
         const CImg<doubleT> y = Q.get_transpose()*(*this);
 
-        // Solve R*x = y (R is upper triangular).
-        CImg<doubleT> x(p,n);
+        // Detect numerical rank via diagonal of R.
+        const double pivtol = 1e-15*std::abs(R(0,0));
+        int rank = 0;
+        while (rank<n && std::abs(R(rank,rank))>pivtol) ++rank;
+
+        // Solve R(0:rank,0:rank) * x_perm(0:rank) = y(0:rank) by back substitution.
+        CImg<doubleT> x(p,n,1,1,0);
         cimg_forX(x,k) {
-          cimg_rofY(x,i) {
+          for (int i = rank - 1; i>=0; --i) {
             double sum = y(k,i);
-            for (int j = i + 1; j<n; ++j) sum-=R(j,i)*x(k,j);
+            for (int j = i + 1; j<rank; ++j) sum-=R(j,i)*x(k,j);
             x(k,i) = sum/R(i,i);
           }
         }
-        return x;
+
+        // Apply inverse permutation: x_unperm[perm[i]] = x_perm[i].
+        CImg<doubleT> xout(p,n,1,1,0);
+        cimg_forY(xout,i) cimg_forX(xout,k) xout(k,perm[i]) = x(k,i);
+        return xout;
       }
 
-      // m<n -> under-determined system.
-      A.get_transpose().QR(Q,R,true);
+      // m<n: Under-determined system.
+      // Solve via QR with pivoting of A^T: A^T * P = Q * R, so A * P = R^T * Q^T.
+      // Minimum-norm solution: x = P * R^{-T} * Q^T * b (zero-padded for rank-deficient cases).
+      A.get_transpose().QR(Q,R,true,true,&perm);
 
-      // Solve R^T*z = b, where z = Q^T*x.
-      CImg<doubleT> z(p,m);
+      // Detect numerical rank.
+      const double pivtol = 1e-15*std::abs(R(0,0));
+      int rank = 0;
+      while (rank<m && std::abs(R(rank,rank))>pivtol) ++rank;
+
+      // Solve R^T * z = b by forward substitution, restricted to detected rank.
+      CImg<doubleT> z(p,rank,1,1,0);
       cimg_forX(*this,k) {
-        cimg_forY(z,i) {
+        for (int i = 0; i<rank; ++i) {
           double sum = (*this)(k,i);
           for (int j = 0; j<i; ++j) sum-=R(i,j)*z(k,j);
           z(k,i) = sum/R(i,i);
         }
       }
-      return Q*z;
+
+      // Compute x_perm = Q * z (zero-padded to size m if rank < m).
+      CImg<doubleT> Qz(p,m,1,1,0);
+      cimg_forX(Qz,k) {
+        for (int i = 0; i<m; ++i)
+          for (int j = 0; j<rank; ++j)
+            Qz(k,i)+=Q(j,i)*z(k,j);
+      }
+
+      // Apply inverse permutation: xout[perm[i]] = Qz[i].
+      CImg<doubleT> xout(p,n,1,1,0);
+      cimg_forY(Qz,i) cimg_forX(Qz,k) xout(k,perm[i]) = Qz(k,i);
+      return xout;
     }
 
     //! Solve a tridiagonal system of linear equations.
@@ -33943,14 +33988,19 @@ namespace cimg_library {
     //! Compute the QR decomposition of the instance matrix.
     /**
        Given an instance matrix (*this) of size m×n (m rows, n columns),
-       fill the matrices Q and R, so that *this = Q*R.
+       fill the matrices Q and R, so that *this = Q*R (without pivoting) or *this*P = Q*R (with pivoting).
        - Q is an orthogonal matrix, of size 'm×m' if 'is_reduced_form==false', or 'm×min(m,n)' otherwise.
-       - R is an upper-trianguler matrix of size 'm×n' if 'is_reduced_form==false' or 'min(m,n)×n' otherwise.
+       - R is an upper-triangular matrix of size 'm×n' if 'is_reduced_form==false' or 'min(m,n)×n' otherwise.
        - Q^T*Q = Id.
        - If n>m, only the first m×m part of R is upper triangular.
+       - If 'is_pivoting==true', column pivoting is applied and the permutation is stored in 'perm',
+       so that the matrix 'A_perm' formed by reordering the columns of *this according to 'perm'
+       satisfies A_perm = Q*R, where A_perm(col,row) = (*this)(perm[col],row).
+       If 'is_pivoting==false', 'perm' is left unchanged.
     **/
     template<typename t>
-    const CImg<T>& QR(CImg<t>& Q, CImg<t>& R, const bool is_reduced_form=true) const {
+    const CImg<T>& QR(CImg<t>& Q, CImg<t>& R, const bool is_reduced_form=true,
+                      const bool is_pivoting=false, CImg<uintT> *const perm=0) const {
       if (is_empty()) { Q.assign(); R.assign(); return *this; }
       if (_depth!=1 || _spectrum!=1)
         throw CImgInstanceException(_cimg_instance
@@ -33960,7 +34010,29 @@ namespace cimg_library {
       const int m = height(), n = width(), k = std::min(m,n);
       CImg<doubleT> _R(*this,false), _Q = CImg<doubleT>::identity_matrix(m);
 
+      // Initialize permutation vector.
+      CImg<uintT> _perm;
+      if (is_pivoting) {
+        _perm.assign(n);
+        cimg_forX(_perm,i) _perm[i] = (unsigned int)i;
+      }
+
       for (int j = 0; j<k; ++j) {
+
+        // Apply column pivoting: swap column j with the column of maximum norm among j..n-1.
+        if (is_pivoting) {
+          int pivot = j;
+          double maxnorm = 0;
+          for (int col = j; col<n; ++col) {
+            double norm = 0;
+            for (int i = j; i<m; ++i) norm+=_R(col,i)*_R(col,i);
+            if (norm>maxnorm) { maxnorm = norm; pivot = col; }
+          }
+          if (pivot!=j) {
+            for (int i = 0; i<m; ++i) cimg::swap(_R(j,i),_R(pivot,i));
+            cimg::swap(_perm[j],_perm[pivot]);
+          }
+        }
 
         // Build the Householder vector v.
         CImg<doubleT> x = _R.get_crop(j,j,j,m);
@@ -33969,7 +34041,7 @@ namespace cimg_library {
         x[0]+=(x[0]>=0?1:-1)*normx;
         x/=x.magnitude();
 
-        // Apply reflection to R
+        // Apply reflection to R.
         cimg_pragma_openmp(parallel for cimg_openmp_if(m*(n - j)>=512*512))
         for (int col = j; col<n; ++col) {
           double dot = 0;
@@ -33994,6 +34066,7 @@ namespace cimg_library {
       }
       _Q.move_to(Q);
       _R.move_to(R);
+      if (is_pivoting && perm) _perm.move_to(*perm);
       return *this;
     }
 
@@ -70462,7 +70535,10 @@ namespace cimg_library {
       if (!network_mode())
         throw CImgIOException("cimg::load_network(): Loading files from network is disabled.");
 
-      const char *const __ext = cimg::split_filename(url), *const _ext = (*__ext && __ext>url)?__ext - 1:__ext;
+      const char
+        *const _user_agent = user_agent?user_agent:cimg::user_agent(),
+        *const __ext = cimg::split_filename(url),
+        *const _ext = (*__ext && __ext>url)?__ext - 1:__ext;
       CImg<char> ext = CImg<char>::string(_ext);
       *filename_local = 0;
       if (ext._width>16 || !cimg::strncasecmp(ext,"cgi",3)) *ext = 0;
@@ -70488,10 +70564,10 @@ namespace cimg_library {
           curl_easy_setopt(curl,CURLOPT_SSL_VERIFYHOST,0L);
           curl_easy_setopt(curl,CURLOPT_FOLLOWLOCATION,1L);
           curl_easy_setopt(curl,CURLOPT_MAXREDIRS,20L);
+          curl_easy_setopt(curl,CURLOPT_USERAGENT,_user_agent);
           if (timeout) curl_easy_setopt(curl,CURLOPT_TIMEOUT,(long)timeout);
           if (std::strchr(url,'?')) curl_easy_setopt(curl,CURLOPT_HTTPGET,1L);
           if (referer) curl_easy_setopt(curl,CURLOPT_REFERER,referer);
-          if (user_agent) curl_easy_setopt(curl,CURLOPT_USERAGENT,user_agent);
           res = curl_easy_perform(curl);
           curl_easy_cleanup(curl);
           cimg::fseek(file,0,SEEK_END); // Check if file size is 0
@@ -70506,7 +70582,7 @@ namespace cimg_library {
       if (!try_fallback) throw CImgIOException("cimg::load_network(): Failed to load file '%s' with libcurl.",url);
 #endif
 
-      CImg<char> command((unsigned int)std::strlen(url) + 1024), s_referer, s_user_agent, s_timeout;
+      CImg<char> command((unsigned int)std::strlen(url) + 1024), s_referer, s_timeout;
       cimg::unused(try_fallback);
 
       // Try with 'curl' first.
@@ -70514,11 +70590,9 @@ namespace cimg_library {
       else s_timeout.assign(1,1,1,1,0);
       if (referer) cimg_snprintf(s_referer.assign(1024),1024,"-e %s ",referer);
       else s_referer.assign(1,1,1,1,0);
-      if (user_agent) cimg_snprintf(s_user_agent.assign(1024),1024,"-A \"%s\" ",user_agent);
-      else s_user_agent.assign(1,1,1,1,0);
       cimg_snprintf(command,command._width,
-                    "\"%s\" -L --max-redirs 20 %s%s%s-f --silent --compressed -o \"%s\" \"%s\"",
-                    cimg::curl_path(),s_timeout._data,s_referer._data,s_user_agent._data,filename_local,
+                    "\"%s\" -L --max-redirs 20 %s%s-A \"%s\" -f --silent --compressed -o \"%s\" \"%s\"",
+                    cimg::curl_path(),s_timeout._data,s_referer._data,_user_agent,filename_local,
                     CImg<char>::string(url)._system_strescape().data());
       cimg::system(command,cimg::curl_path());
 
@@ -70528,11 +70602,10 @@ namespace cimg_library {
         else s_timeout.assign(1,1,1,1,0);
         if (referer) cimg_snprintf(s_referer.assign(1024),1024,"-Headers @{'Referer'='%s'} ",referer);
         else s_referer.assign(1,1,1,1,0);
-        if (user_agent) cimg_snprintf(s_user_agent.assign(1024),1024,"-UserAgent \"%s\" ",user_agent);
-        else s_user_agent.assign(1,1,1,1,0);
         cimg_snprintf(command,command._width,
-                      "\"%s\" -NonInteractive -Command Invoke-WebRequest %s%s%s-OutFile \"%s\" -Uri \"%s\"",
-                      cimg::powershell_path(),s_timeout._data,s_referer._data,s_user_agent._data,filename_local,
+                      "\"%s\" -NonInteractive -Command Invoke-WebRequest %s%s-UserAgent \"%s\" -OutFile \"%s\" "
+                      "-Uri \"%s\"",
+                      cimg::powershell_path(),s_timeout._data,s_referer._data,_user_agent,filename_local,
                       CImg<char>::string(url)._system_strescape().data());
         cimg::system(command,cimg::powershell_path());
       }
@@ -70543,11 +70616,9 @@ namespace cimg_library {
         else s_timeout.assign(1,1,1,1,0);
         if (referer) cimg_snprintf(s_referer.assign(1024),1024,"--referer=%s ",referer);
         else s_referer.assign(1,1,1,1,0);
-        if (user_agent) cimg_snprintf(s_user_agent.assign(1024),1024,"--user-agent=\"%s\" ",user_agent);
-        else s_user_agent.assign(1,1,1,1,0);
         cimg_snprintf(command,command._width,
-                      "\"%s\" --max-redirect=20 %s%s%s-q -r -l 0 --no-cache -O \"%s\" \"%s\"",
-                      cimg::wget_path(),s_timeout._data,s_referer._data,s_user_agent._data,filename_local,
+                      "\"%s\" --max-redirect=20 %s%s--user-agent=\"%s\" -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
+                      cimg::wget_path(),s_timeout._data,s_referer._data,_user_agent,filename_local,
                       CImg<char>::string(url)._system_strescape().data());
         cimg::system(command,cimg::wget_path());
 

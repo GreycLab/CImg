@@ -7417,9 +7417,9 @@ namespace cimg_library {
     /**
        \param[in,out] str C-string to work with (modified at output).
        \param delimiter Delimiter character code to remove.
-       \param is_symmetric Tells if the removal is done only if delimiters are symmetric
-       (both at the beginning and the end of \c s).
-       \param is_iterative Tells if the removal is done if several iterations are possible.
+       \param is_symmetric Indicates whether the removal is done only if delimiters are symmetric
+       (both at the beginning and the end of \c s) or not.
+       \param is_iterative Indicates whether the removal is done if several iterations are possible or not.
        \return \c true if delimiters have been removed, \c false otherwise.
    **/
     inline bool strpare(char *const str, const char delimiter,

@@ -10409,7 +10409,7 @@ namespace cimg_library {
       if (_is_closed || !_image) return;
       Display *const dpy = X11_attr.display;
       if (wait_expose) { // Send an expose event sticked to display window to force repaint
-        XEvent event;
+        XEvent event = {};
         event.xexpose.type = Expose;
         event.xexpose.serial = 0;
         event.xexpose.send_event = 1;

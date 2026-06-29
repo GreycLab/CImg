@@ -3879,7 +3879,8 @@ namespace cimg_library {
     const double PI = 3.14159265358979323846; //!< Value of the mathematical constant PI
 
     // Define a 10x13 binary font (small sans).
-    inline const char* data_font_small() { return
+    inline const char* data_font_small() {
+      return
       "                      UwlwnwoyuwHwlwmwcwlwnw[xuwowlwmwoyuwRwlwnxcw     Mw                    (wnwnwuwpwuypwuwoy"
       "ZwnwmwuwowuwmwnwnwuwowuwfwuxnwnwmwuwpwuypwuwZwnwnwtwpwtwow'y    Hw   cwnw  >{ jw %xdxZwdw_wexfwYwkw 7yowoyFx=w "
       "ry    qw %wuw  !xnwkwnwoyuwfwuw[wkwnwcwowrwpwdwuwoxuwpwkwnwoyuwRwkwnwbwpwNyoyoyoyoy;wdwnxpxtxowG|!ydwnwuwowtwow"
@@ -3931,7 +3932,8 @@ namespace cimg_library {
       "xWw=wKwowewawcwow  Yw  hwVx 8w   9w  Jxmwnxp"; }
 
     // Define a 26x32 font (normal sans).
-    inline const char* data_font_normal() { return
+    inline const char* data_font_normal() {
+      return
       "                                                      #{}~}a{|y~f{|y~}f{|}|x{}|j{|y}y{|y}g{}y~}|2y~|a{}~}f{}y~|"
       "gy}|yy}|i{}~}a{}~}f{}y~}gy}|yx}N{|}|x{}|hy~|ay~|fx~|g{}y~|y{}~j{|y~|yy~}5{}~}a{}~}f{}y~}gy~}yy~}e{|y~          "
       "                                                      2{}~}c{|y~f{|y~}~}h{}w~y}~|j{}y~y{}y~h{}~y}y~|2y~|c{}~}f{"
@@ -4262,7 +4264,8 @@ namespace cimg_library {
       " :{}~}                                     I{"; }
 
     // Define a 52x64 font (large sans).
-    inline const char* data_font_large() { return
+    inline const char* data_font_large() {
+      const char *const chunk0 =
       "                                                                                                               "
       " -{|                                                                                                           "
       "                                    [{|x}|Dw}|Pw}| @{}v~} C{|w}|Ew}|Pv}| xv|Ev|Pu|  kv|Dw|P{|v}  6{|w}|E{|x}|P{"
@@ -4609,7 +4612,9 @@ namespace cimg_library {
       "|y{}w~}\\{|w~|m{}w~|gv~|b{|v~h{}w~}u{}w~tv~a{|w~}q{|w~}`v~t{}w~t{|w~}b{}w~|m{|v~c{}w~}l{}w~}X{|w~}W`~`{|w~}pv~|"
       "S{}v~|W{}w~}V{|v~bv~}lv~}r{|v~r{|v~|i{}w~}hv~|gu~t{|v~t{|v~}jv~}xh|y{|v~|mT~]{}w~]T~|^{}w~]{}U~|^{}w~ Hv~|ty~}X"
       "{}g~|[w~|nw~|W{}u~}Mw~|V{}w~ov~1{|y~v{}x~}d{|y~|ay}x~y}ww|[{}w~}v{|v~|`{|Z~}8{|y~ro~o{|y~| Q{}w~R{}l~|V{|y}v~y}"
-      "|${|w~|m{}w~|\\{|}s~}w{|x~}W{|v~| xm~}T{|y}w~}|S{|v~|v{}w~}gm~}w{}x~}oy~y}x~rm~}w{}x~}v{}~}y|w{|v~u{|o~}t{}x~}o"
+      "|${|w~|m{}w~|\\{|}s~}w{|x~}W{|v~| xm~}T{|y}w~}|S{|v~|v{}w~}gm~}w{}x~}oy~y}x~rm~}w{}x~}v{}~}y|w{|v~u{|o~}t{}x~}o";
+
+      const char *const chunk1 =
       "t~^v|V{|w~}p{}w~|^{|w~}p{}w~|^{|w~}p{}w~|^{|w~}p{}w~|^{|w~}p{}w~|^{}w~}p{}w~}ev~|r{|v~h|lv~}I{}w~}i|_{}w~}i|_{}"
       "w~}i|_{}w~}i|V{}w~}M{}w~}M{}w~}M{}w~}_v}u~r}nv~}h{}w~|tv~|uv~iv~}c{|v~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|"
       "_{|r~}_v~}r{}w~q{|v~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}Z{|v~|V{}w~}mv~}aw~}u{|t~|I{}w~L{}w~L{}w~L{}w~"
@@ -4955,10 +4960,25 @@ namespace cimg_library {
       "               g{|y}w~}|            X{}v~}|Ow~}L{}v~}|    Iy|                                                  "
       "l{}`~}                Ww~|                                                                                     "
       "                                            L{}`~}                Ww}|                                         "
-      "                                  r{"; }
+      "                                  r{";
+
+      static char *value = 0;
+      if (!value) {
+        cimg::mutex(0);
+        const size_t s0 = sizeof(chunk0), s1 = sizeof(chunk1);
+        if (!value) {
+          value = new char[s0 + s1 - 1];
+          std::memcpy(value,chunk0,s0 - 1);
+          std::memcpy(value + s0 - 1,chunk1,s1);
+        }
+        cimg::mutex(0,0);
+      }
+      return value;
+    }
 
     // Define a 104x128 binary font (huge sans).
-    inline const char* data_font_huge() { return
+    inline const char* data_font_huge() {
+      const char *const chunk0 =
       "                                                                                                               "
       "                                                                                                               "
       "                                                                                                               "
@@ -5448,7 +5468,9 @@ namespace cimg_library {
       "N~m                  4Z    3Y   !X@X :n 'WBg.ZE\\8X   :Y  CZ %V <~e        NX 6Y-Y 4Z  K\\ #a AX:Z  M\\ H_6[ 0Z"
       " 6aI` A]?c     ?f    $f ?Z IW>Y7Y>V,Z8Z HZ8` MZ !Z\"Z\"Z  MZ 1[2l'Z(Z :Z \"Z 4ZN] *Z 2YCXFYCY(Y@ZBZ*Z KZ\"{\"Z "
       "K['v +o 2Y 9Z(Z IZ<Z#YBX@XCZ Fa %Z %\\ %X  HX  FY        6i FZ0Z JZ %Y/Z JY,X 9Y 5Z/Y GY1Y 5Y  NX 0XK\\  Y FY3Z"
-      "3Y+Y1Y JY.Y IY/Z NY/Y ;Z *\\  HY .Y1Y DZ;Z LXBXIWBY Ce 6Y;Y )[ -\\  LX  L\\ >q:X  !U:[9U&Y5] DY?d =jLX FY/Z C[ "
+      "3Y+Y1Y JY.Y IY/Z NY/Y ;Z *\\  HY .Y1Y DZ;Z LXBXIWBY Ce 6Y;Y )[ -\\  LX  L\\ >q:X  !U:[9U&Y5] DY?d =jLX FY/Z C[ ";
+
+      const char *const chunk1 =
       ")Y1Y AX=Z 6ZIY >Y1Y%Z IZ*YAYAY HY9Y IY@X@Y KY/Y NZ/Z 5Y 5Y-Y HZ8Y .[ 4Z 1Z LZ/Z;Z;Z*Z(Z'[?Z@[-[ L[3~o BX B~o BX"
       " B~o BX      NZ@U 8y <X4X 4^ \"X 1X6Y   IUEX MT GW *ZCZ E~d  &T=g5T     -X ,o 5i   /Y1Y <bEW 3Z    Nl *W 'ZCZ(l"
       "EW6]>mFXDS?YBi?W5] CY 4Z8Y BY7Y BZ8Z CY7Y AY8Z CZ8Y!Y:Z <Z  HZ !Z  Z !Z  >Z !Z !Z \"Z Ew5[)Y?ZBY*Z KZ/Z KZ1[ KZ"
@@ -5940,7 +5962,21 @@ namespace cimg_library {
       "                                           9X                                                                  "
       "                                                                                                               "
       "                                                                                                               "
-      "  '"; }
+      "  '";
+
+      static char *value = 0;
+      if (!value) {
+        cimg::mutex(0);
+        const size_t s0 = sizeof(chunk0), s1 = sizeof(chunk1);
+        if (!value) {
+          value = new char[s0 + s1 - 1];
+          std::memcpy(value,chunk0,s0 - 1);
+          std::memcpy(value + s0 - 1,chunk1,s1);
+        }
+        cimg::mutex(0,0);
+      }
+      return value;
+    }
 
     // Define a 40x38 'danger' color logo (used by cimg::dialog()).
     static const unsigned char logo40x38[4576] = {

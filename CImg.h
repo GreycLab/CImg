@@ -8074,8 +8074,8 @@ namespace cimg_library {
     template<typename T>
     inline size_t fread(T *const ptr, const size_t nmemb, std::FILE *stream) {
       if (!ptr || !stream)
-        throw CImgArgumentException("cimg::fread(): Invalid reading request of %u %s%s from file %p to buffer %p.",
-                                    nmemb,cimg::type<T>::string(),nmemb>1?"s":"",stream,ptr);
+        throw CImgArgumentException("cimg::fread(): Invalid reading request of %lu %s%s from file %p to buffer %p.",
+                                    (unsigned long)nmemb,cimg::type<T>::string(),nmemb>1?"s":"",stream,ptr);
       if (!nmemb) return 0;
       const size_t wlimitT = 63*1024*1024, wlimit = wlimitT/sizeof(T);
       size_t to_read = nmemb, al_read = 0, l_to_read = 0, l_al_read = 0;
@@ -8102,8 +8102,8 @@ namespace cimg_library {
     template<typename T>
     inline size_t fwrite(const T *ptr, const size_t nmemb, std::FILE *stream) {
       if (!ptr || !stream)
-        throw CImgArgumentException("cimg::fwrite(): Invalid writing request of %u %s%s from buffer %p to file %p.",
-                                    nmemb,cimg::type<T>::string(),nmemb>1?"s":"",ptr,stream);
+        throw CImgArgumentException("cimg::fwrite(): Invalid writing request of %lu %s%s from buffer %p to file %p.",
+                                    (unsigned long)nmemb,cimg::type<T>::string(),nmemb>1?"s":"",ptr,stream);
       if (!nmemb) return 0;
       const size_t wlimitT = 63*1024*1024, wlimit = wlimitT/sizeof(T);
       size_t to_write = nmemb, al_write = 0, l_to_write = 0, l_al_write = 0;
@@ -8937,6 +8937,7 @@ namespace cimg_library {
        \note Equivalent to assign(const CImgDisplay&).
      **/
     CImgDisplay& operator=(const CImgDisplay& disp) {
+      if (this==&disp) return *this;
       return assign(disp);
     }
 
@@ -10789,6 +10790,7 @@ namespace cimg_library {
     }
 
     CImgDisplay& assign(const CImgDisplay& disp) {
+      if (this==&disp) return *this;
       if (!disp) return assign();
       cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
       _assign(disp._width,disp._height,disp._title,disp._normalization,disp._is_fullscreen,disp._is_closed);
@@ -11849,6 +11851,7 @@ namespace cimg_library {
     }
 
     CImgDisplay& assign(const CImgDisplay& disp) {
+      if (this==&disp) return *this;
       if (!disp) return assign();
       _assign(disp._width,disp._height,disp._title,disp._normalization,disp._is_fullscreen,disp._is_closed);
       std::memcpy(_data,disp._data,sizeof(unsigned int)*_width*_height);
@@ -12456,6 +12459,7 @@ namespace cimg_library {
     }
 
     CImgDisplay& assign(const CImgDisplay& disp) {
+      if (this==&disp) return *this;
       if (!disp) return assign();
       _assign(disp._width,disp._height,disp._title,disp._normalization,disp._is_fullscreen,disp._is_closed);
       std::memcpy(_data,disp._data,sizeof(unsigned int)*_width*_height);

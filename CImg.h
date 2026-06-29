@@ -211,6 +211,12 @@ enum {FALSE_WIN = 0};
 #include <utility>
 #endif
 
+#if cimg_use_cpp11==1
+#define cimg_noexcept noexcept
+#else
+#define cimg_noexcept throw()
+#endif
+
 // Portable macro to define 'pragma'.
 #ifdef _MSC_VER
 #define cimg_pragma(x) __pragma(x)
@@ -2661,16 +2667,23 @@ namespace cimg_library {
       std::strncpy(_message,e._message,size);
       _message[size] = 0;
     }
-    ~CImgException() throw() { delete[] _message; }
+    ~CImgException() { delete[] _message; }
     CImgException& operator=(const CImgException& e) {
-      const size_t size = std::strlen(e._message);
-      _message = new char[size + 1];
-      std::strncpy(_message,e._message,size);
-      _message[size] = 0;
+      if (this!=&e) { // Protect against self-assignement
+        char *new_message = 0;
+        if (e._message) {
+          const size_t size = std::strlen(e._message);
+          new_message = new char[size + 1];
+          std::strncpy(new_message,e._message,size);
+          new_message[size] = 0;
+        }
+        delete[] _message;
+        _message = new_message;
+      }
       return *this;
     }
     //! Return a C-string containing the error message associated to the thrown exception.
-    const char *what() const throw() { return _message; }
+    const char *what() const cimg_noexcept { return _message; }
   }; // struct CImgException { ...
 
   // The CImgAbortException class is used to throw an exception when
@@ -2685,16 +2698,23 @@ namespace cimg_library {
       std::strncpy(_message,e._message,size);
       _message[size] = 0;
     }
-    ~CImgAbortException() throw() { delete[] _message; }
+    ~CImgAbortException() { delete[] _message; }
     CImgAbortException& operator=(const CImgAbortException& e) {
-      const size_t size = std::strlen(e._message);
-      _message = new char[size + 1];
-      std::strncpy(_message,e._message,size);
-      _message[size] = 0;
+      if (this!=&e) { // Protect against self-assignement
+        char *new_message = 0;
+        if (e._message) {
+          const size_t size = std::strlen(e._message);
+          new_message = new char[size + 1];
+          std::strncpy(new_message,e._message,size);
+          new_message[size] = 0;
+        }
+        delete[] _message;
+        _message = new_message;
+      }
       return *this;
     }
     //! Return a C-string containing the error message associated to the thrown exception.
-    const char *what() const throw() { return _message; }
+    const char *what() const cimg_noexcept { return _message; }
   }; // struct CImgAbortException { ...
 
   // The CImgArgumentException class is used to throw an exception related

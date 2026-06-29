@@ -6163,7 +6163,9 @@ namespace cimg_library {
 
     //! Exchange values of variables \c a and \c b.
     template<typename T>
-    inline void swap(T& a, T& b) { T t = a; a = b; b = t; }
+    inline void swap(T& a, T& b) {
+      std::swap(a,b);
+    }
 
     //! Exchange values of variables (\c a1,\c a2) and (\c b1,\c b2).
     template<typename T1, typename T2>
@@ -7870,6 +7872,20 @@ namespace cimg_library {
       return siz;
     }
 
+
+    // Thread-safe version of std::localtime().
+    inline struct tm* localtime(const time_t *const time_ptr, struct tm *const result) {
+#if cimg_OS==2
+      if (!localtime_s(result,time_ptr)) return result;
+      return 0;
+#elif cimg_OS==1
+      return localtime_r(time_ptr,result);
+#else
+      std::memcpy(result,std::localtime(time_ptr),sizeof(struct tm));
+      return result;
+#endif
+    }
+
     //! Get last write time of a given file or directory (multiple-attributes version).
     /**
        \param path Specified path to get attributes from.
@@ -7903,13 +7919,16 @@ namespace cimg_library {
       struct stat st_buf;
       if (!stat(path,&st_buf)) {
         const time_t _ft = st_buf.st_mtime;
-        const struct tm& ft = *std::localtime(&_ft);
-        for (unsigned int i = 0; i<nb_attr; ++i) {
-          res = (int)(attr[i]==0?ft.tm_year + 1900:attr[i]==1?ft.tm_mon + 1:attr[i]==2?ft.tm_mday:
-                      attr[i]==3?ft.tm_wday:attr[i]==4?ft.tm_hour:attr[i]==5?ft.tm_min:
-                      attr[i]==6?ft.tm_sec:-1);
-          attr[i] = (T)res;
-        }
+        struct tm ft_buf, *const p_ft = cimg::localtime(&_ft,&ft_buf);
+        if (p_ft) {
+          const struct tm& ft = *p_ft;
+          for (unsigned int i = 0; i<nb_attr; ++i) {
+            res = (int)(attr[i]==0?ft.tm_year + 1900:attr[i]==1?ft.tm_mon + 1:attr[i]==2?ft.tm_mday:
+                        attr[i]==3?ft.tm_wday:attr[i]==4?ft.tm_hour:attr[i]==5?ft.tm_min:
+                        attr[i]==6?ft.tm_sec:-1);
+            attr[i] = (T)res;
+          }
+        } else _cimg_fdate_err();
       } else _cimg_fdate_err();
 #endif
       cimg::mutex(6,0);
@@ -7958,18 +7977,20 @@ namespace cimg_library {
 #else
       struct timeval _st;
       gettimeofday(&_st,0);
-      struct tm *st = std::localtime(&_st.tv_sec);
-      for (unsigned int i = 0; i<nb_attr; ++i) {
-        res = (int)(attr[i]==0?st->tm_year + 1900:
-                    attr[i]==1?st->tm_mon + 1:
-                    attr[i]==2?st->tm_mday:
-                    attr[i]==3?st->tm_wday:
-                    attr[i]==4?st->tm_hour:
-                    attr[i]==5?st->tm_min:
-                    attr[i]==6?st->tm_sec:
-                    attr[i]==7?_st.tv_usec/1000:-1);
-        attr[i] = (T)res;
-      }
+      struct tm st_buf, *const st = cimg::localtime(&_st.tv_sec,&st_buf);
+      if (st) {
+        for (unsigned int i = 0; i<nb_attr; ++i) {
+          res = (int)(attr[i]==0?st->tm_year + 1900:
+                      attr[i]==1?st->tm_mon + 1:
+                      attr[i]==2?st->tm_mday:
+                      attr[i]==3?st->tm_wday:
+                      attr[i]==4?st->tm_hour:
+                      attr[i]==5?st->tm_min:
+                      attr[i]==6?st->tm_sec:
+                      attr[i]==7?_st.tv_usec/1000:-1);
+          attr[i] = (T)res;
+        }
+      } else for (unsigned int i = 0; i<nb_attr; ++i) attr[i] = (T)-1;
 #endif
       cimg::mutex(6,0);
       return res;

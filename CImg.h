@@ -6112,42 +6112,43 @@ namespace cimg_library {
         return out_val;
       } else return -1;
 #elif cimg_OS==2
-      PROCESS_INFORMATION pi;
-      STARTUPINFOA si;
-      std::memset(&pi,0,sizeof(PROCESS_INFORMATION));
-      std::memset(&si,0,sizeof(STARTUPINFO));
-      GetStartupInfoA(&si);
-      si.cb = sizeof(si);
-      si.wShowWindow = SW_HIDE;
-      si.dwFlags |= SW_HIDE | STARTF_USESHOWWINDOW;
-      char *modifiable_command = 0;
-      if (command) {
-        const size_t l = std::strlen(command) + 1;
-        modifiable_command = new char[l];
-        std::memcpy(modifiable_command,command,l);
-      }
-      const BOOL res = CreateProcessA((LPCSTR)module_name,modifiable_command,0,0,FALSE,0,0,0,&si,&pi);
-      delete[] modifiable_command;
-      if (res) {
-        WaitForSingleObject(pi.hProcess,INFINITE);
-        CloseHandle(pi.hThread);
-        CloseHandle(pi.hProcess);
-        return 0;
-      } else {
-        char* lpMsgBuf;
+      const unsigned int l = (unsigned int)std::strlen(command);
+      if (l) {
+        char *const ncommand = new char[l + 1];
+        std::strcpy(ncommand,command);
+        PROCESS_INFORMATION pi;
+        STARTUPINFOA si;
+        std::memset(&pi,0,sizeof(PROCESS_INFORMATION));
+        std::memset(&si,0,sizeof(STARTUPINFO));
+        GetStartupInfoA(&si);
+        si.cb = sizeof(si);
+        si.wShowWindow = SW_HIDE;
+        si.dwFlags |= SW_HIDE | STARTF_USESHOWWINDOW;
+        const BOOL res = CreateProcessA((LPCSTR)module_name,ncommand,0,0,FALSE,0,0,0,&si,&pi);
+        delete[] ncommand;
+        if (res) {
+          WaitForSingleObject(pi.hProcess,INFINITE);
+          DWORD exitCode = 0;
+          if (!GetExitCodeProcess(pi.hProcess,&exitCode)) exitCode = (DWORD)-1;
+          CloseHandle(pi.hThread);
+          CloseHandle(pi.hProcess);
+          return (int)exitCode;
+        } else {
+          char* lpMsgBuf;
 
-        // Get the error message.
-        DWORD errorCode = GetLastError();
-        FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                       0,errorCode,MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),(LPSTR)&lpMsgBuf,0,0);
-        cimg::warn("cimg::system() : Command '%s' (module name '%s) failed with error %lu: %s",
-                   module_name==0?"(null)":module_name,
-                   command==0?"(null)":command,
-                   errorCode,lpMsgBuf);
+          // Get the error message.
+          DWORD errorCode = GetLastError();
+          FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                         0,errorCode,MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),(LPSTR)&lpMsgBuf,0,0);
+          cimg::warn("cimg::system() : Command '%s' (module name '%s) failed with error %lu: %s",
+                     module_name==0?"(null)":module_name,
+                     command==0?"(null)":command,
+                     errorCode,lpMsgBuf);
 
-        if (lpMsgBuf) LocalFree(lpMsgBuf);
-        return -1;
-      }
+          if (lpMsgBuf) LocalFree(lpMsgBuf);
+          return -1;
+        }
+      } else return -1;
 #else
       return std::system(command);
 #endif

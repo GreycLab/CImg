@@ -6039,7 +6039,7 @@ namespace cimg_library {
         cimg_vsnprintf(message,16384,format,ap);
         va_end(ap);
 #ifdef cimg_strict_warnings
-        throw CImgWarningException(message);
+        throw CImgWarningException("%s",message);
 #else
         std::fprintf(cimg::output(),"\n%s[CImg] *** Warning ***%s%s\n",cimg::t_red(),cimg::t_normal(),message);
 #endif
@@ -6084,7 +6084,14 @@ namespace cimg_library {
       si.cb = sizeof(si);
       si.wShowWindow = SW_HIDE;
       si.dwFlags |= SW_HIDE | STARTF_USESHOWWINDOW;
-      const BOOL res = CreateProcessA((LPCSTR)module_name,(LPSTR)command,0,0,FALSE,0,0,0,&si,&pi);
+      char *modifiable_command = 0;
+      if (command) {
+        const size_t l = std::strlen(command) + 1;
+        modifiable_command = new char[l];
+        std::memcpy(modifiable_command,command,l);
+      }
+      const BOOL res = CreateProcessA((LPCSTR)module_name,modifiable_command,0,0,FALSE,0,0,0,&si,&pi);
+      delete[] modifiable_command;
       if (res) {
         WaitForSingleObject(pi.hProcess,INFINITE);
         CloseHandle(pi.hThread);
@@ -6101,6 +6108,8 @@ namespace cimg_library {
                    module_name==0?"(null)":module_name,
                    command==0?"(null)":command,
                    errorCode,lpMsgBuf);
+
+        if (lpMsgBuf) LocalFree(lpMsgBuf);
         return -1;
       }
 #else

@@ -715,53 +715,49 @@ extern "C" {
 #define cimg_option(name,_default,usage) cimg_library::cimg::option(name,argc,argv,_default,usage)
 
 // Macros to define and manipulate local neighborhoods.
-#define CImg_2x2(I,T) T I[4]; \
+#define CImg_2x2(I,T) T I[4] = {}; \
                       T& I##cc = I[0]; T& I##nc = I[1]; \
                       T& I##cn = I[2]; T& I##nn = I[3]; \
-                      I##cc = I##nc = \
-                      I##cn = I##nn = 0
+                      cimg::unused(I##cc,I##nc,I##cn,I##nn)
 
-#define CImg_3x3(I,T) T I[9]; \
+#define CImg_3x3(I,T) T I[9] = {}; \
                       T& I##pp = I[0]; T& I##cp = I[1]; T& I##np = I[2]; \
                       T& I##pc = I[3]; T& I##cc = I[4]; T& I##nc = I[5]; \
                       T& I##pn = I[6]; T& I##cn = I[7]; T& I##nn = I[8]; \
-                      I##pp = I##cp = I##np = \
-                      I##pc = I##cc = I##nc = \
-                      I##pn = I##cn = I##nn = 0
+                      cimg::unused(I##pp,I##cp,I##np,I##pc,I##cc,I##nc); \
+                      cimg::unused(I##pn,I##cn,I##nn)
 
-#define CImg_4x4(I,T) T I[16]; \
+#define CImg_4x4(I,T) T I[16] = {}; \
                       T& I##pp = I[0]; T& I##cp = I[1]; T& I##np = I[2]; T& I##ap = I[3]; \
                       T& I##pc = I[4]; T& I##cc = I[5]; T& I##nc = I[6]; T& I##ac = I[7]; \
                       T& I##pn = I[8]; T& I##cn = I[9]; T& I##nn = I[10]; T& I##an = I[11]; \
                       T& I##pa = I[12]; T& I##ca = I[13]; T& I##na = I[14]; T& I##aa = I[15]; \
-                      I##pp = I##cp = I##np = I##ap = \
-                      I##pc = I##cc = I##nc = I##ac = \
-                      I##pn = I##cn = I##nn = I##an = \
-                      I##pa = I##ca = I##na = I##aa = 0
+                      cimg::unused(I##pp,I##cp,I##np,I##ap); \
+                      cimg::unused(I##pc,I##cc,I##nc,I##ac); \
+                      cimg::unused(I##pn,I##cn,I##nn,I##an); \
+                      cimg::unused(I##pa,I##ca,I##na,I##aa)
 
-#define CImg_5x5(I,T) T I[25]; \
+#define CImg_5x5(I,T) T I[25] = {}; \
                       T& I##bb = I[0]; T& I##pb = I[1]; T& I##cb = I[2]; T& I##nb = I[3]; T& I##ab = I[4]; \
                       T& I##bp = I[5]; T& I##pp = I[6]; T& I##cp = I[7]; T& I##np = I[8]; T& I##ap = I[9]; \
                       T& I##bc = I[10]; T& I##pc = I[11]; T& I##cc = I[12]; T& I##nc = I[13]; T& I##ac = I[14]; \
                       T& I##bn = I[15]; T& I##pn = I[16]; T& I##cn = I[17]; T& I##nn = I[18]; T& I##an = I[19]; \
                       T& I##ba = I[20]; T& I##pa = I[21]; T& I##ca = I[22]; T& I##na = I[23]; T& I##aa = I[24]; \
-                      I##bb = I##pb = I##cb = I##nb = I##ab = \
-                      I##bp = I##pp = I##cp = I##np = I##ap = \
-                      I##bc = I##pc = I##cc = I##nc = I##ac = \
-                      I##bn = I##pn = I##cn = I##nn = I##an = \
-                      I##ba = I##pa = I##ca = I##na = I##aa = 0
+                      cimg::unused(I##bb,I##pb,I##cb,I##nb,I##ab); \
+                      cimg::unused(I##bp,I##pp,I##cp,I##np,I##ap); \
+                      cimg::unused(I##bc,I##pc,I##cc,I##nc,I##ac); \
+                      cimg::unused(I##bn,I##pn,I##cn,I##nn,I##an); \
+                      cimg::unused(I##ba,I##pa,I##ca,I##na,I##aa)
 
-#define CImg_2x2x2(I,T) T I[8]; \
+#define CImg_2x2x2(I,T) T I[8] = {}; \
                       T& I##ccc = I[0]; T& I##ncc = I[1]; \
                       T& I##cnc = I[2]; T& I##nnc = I[3]; \
                       T& I##ccn = I[4]; T& I##ncn = I[5]; \
                       T& I##cnn = I[6]; T& I##nnn = I[7]; \
-                      I##ccc = I##ncc = \
-                      I##cnc = I##nnc = \
-                      I##ccn = I##ncn = \
-                      I##cnn = I##nnn = 0
+                      cimg::unused(I##ccc,I##ncc,I##cnc,I##nnc); \
+                      cimg::unused(I##ccn,I##ncn,I##cnn,I##nnn)
 
-#define CImg_3x3x3(I,T) T I[27]; \
+#define CImg_3x3x3(I,T) T I[27] = {}; \
                       T& I##ppp = I[0]; T& I##cpp = I[1]; T& I##npp = I[2]; \
                       T& I##pcp = I[3]; T& I##ccp = I[4]; T& I##ncp = I[5]; \
                       T& I##pnp = I[6]; T& I##cnp = I[7]; T& I##nnp = I[8]; \
@@ -771,15 +767,11 @@ extern "C" {
                       T& I##ppn = I[18]; T& I##cpn = I[19]; T& I##npn = I[20]; \
                       T& I##pcn = I[21]; T& I##ccn = I[22]; T& I##ncn = I[23]; \
                       T& I##pnn = I[24]; T& I##cnn = I[25]; T& I##nnn = I[26]; \
-                      I##ppp = I##cpp = I##npp = \
-                      I##pcp = I##ccp = I##ncp = \
-                      I##pnp = I##cnp = I##nnp = \
-                      I##ppc = I##cpc = I##npc = \
-                      I##pcc = I##ccc = I##ncc = \
-                      I##pnc = I##cnc = I##nnc = \
-                      I##ppn = I##cpn = I##npn = \
-                      I##pcn = I##ccn = I##ncn = \
-                      I##pnn = I##cnn = I##nnn = 0
+                      cimg::unused(I##ppp,I##cpp,I##npp,I##pcp,I##ccp,I##ncp); \
+                      cimg::unused(I##pnp,I##cnp,I##nnp,I##ppc,I##cpc,I##npc); \
+                      cimg::unused(I##pcc,I##ccc,I##ncc,I##pnc,I##cnc,I##nnc); \
+                      cimg::unused(I##ppn,I##cpn,I##npn,I##pcn,I##ccn,I##ncn); \
+                      cimg::unused(I##pnn,I##cnn,I##nnn)
 
 #define cimg_def2x2(img,x,y) \
   int _n1##x = x<(img).width() - 1?x + 1:(img).width() - 1, \

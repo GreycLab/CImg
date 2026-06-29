@@ -7885,12 +7885,11 @@ namespace cimg_library {
       if (!path || !*path) { _cimg_fdate_err(); return -1; }
       cimg::mutex(6);
 #if cimg_OS==2
-      HANDLE file = CreateFileA(path,GENERIC_READ,0,0,OPEN_EXISTING,
-                                FILE_ATTRIBUTE_NORMAL | FILE_FLAG_BACKUP_SEMANTICS,0);
-      if (file!=INVALID_HANDLE_VALUE) {
-        FILETIME _ft;
+      WIN32_FILE_ATTRIBUTE_DATA attr_data;
+      if (GetFileAttributesExA(path,GetFileExInfoStandard,&attr_data)) {
+        FILETIME _ft = attr_data.ftLastWriteTime;
         SYSTEMTIME ft;
-        if (GetFileTime(file,0,0,&_ft) && FileTimeToSystemTime(&_ft,&ft)) {
+        if (FileTimeToSystemTime(&_ft,&ft)) {
           for (unsigned int i = 0; i<nb_attr; ++i) {
             res = (int)(attr[i]==0?ft.wYear:attr[i]==1?ft.wMonth:attr[i]==2?ft.wDay:
                         attr[i]==3?ft.wDayOfWeek:attr[i]==4?ft.wHour:attr[i]==5?ft.wMinute:
@@ -7898,7 +7897,6 @@ namespace cimg_library {
             attr[i] = (T)res;
           }
         } else _cimg_fdate_err();
-        CloseHandle(file);
       } else _cimg_fdate_err();
 #elif cimg_OS==1
       struct stat st_buf;
@@ -8815,6 +8813,8 @@ namespace cimg_library {
        \note Replace the current instance by an empty display.
     **/
     CImgDisplay& assign() {
+      if (!_keys) _keys = new unsigned int[128];
+      if (!_released_keys) _released_keys = new unsigned int[128];
       return flush();
     }
 

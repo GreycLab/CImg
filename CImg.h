@@ -355,7 +355,9 @@ enum {FALSE_WIN = 0};
 
 // Define abort macros to be used with OpenMP.
 #ifndef _cimg_abort_init_openmp
-#define _cimg_abort_init_openmp unsigned int _cimg_abort_go_openmp = 1; cimg::unused(_cimg_abort_go_openmp)
+#define _cimg_abort_init_openmp \
+  unsigned int _cimg_abort_go_openmp = 1; \
+  cimg_library::cimg::unused(_cimg_abort_go_openmp)
 #endif
 #ifndef _cimg_abort_try_openmp
 #define _cimg_abort_try_openmp if (_cimg_abort_go_openmp) try
@@ -718,24 +720,24 @@ extern "C" {
 #define CImg_2x2(I,T) T I[4] = {}; \
                       T& I##cc = I[0]; T& I##nc = I[1]; \
                       T& I##cn = I[2]; T& I##nn = I[3]; \
-                      cimg::unused(I##cc,I##nc,I##cn,I##nn)
+                      cimg_library::cimg::unused(I##cc,I##nc,I##cn,I##nn)
 
 #define CImg_3x3(I,T) T I[9] = {}; \
                       T& I##pp = I[0]; T& I##cp = I[1]; T& I##np = I[2]; \
                       T& I##pc = I[3]; T& I##cc = I[4]; T& I##nc = I[5]; \
                       T& I##pn = I[6]; T& I##cn = I[7]; T& I##nn = I[8]; \
-                      cimg::unused(I##pp,I##cp,I##np,I##pc,I##cc,I##nc); \
-                      cimg::unused(I##pn,I##cn,I##nn)
+                      cimg_library::cimg::unused(I##pp,I##cp,I##np,I##pc,I##cc,I##nc); \
+                      cimg_library::cimg::unused(I##pn,I##cn,I##nn)
 
 #define CImg_4x4(I,T) T I[16] = {}; \
                       T& I##pp = I[0]; T& I##cp = I[1]; T& I##np = I[2]; T& I##ap = I[3]; \
                       T& I##pc = I[4]; T& I##cc = I[5]; T& I##nc = I[6]; T& I##ac = I[7]; \
                       T& I##pn = I[8]; T& I##cn = I[9]; T& I##nn = I[10]; T& I##an = I[11]; \
                       T& I##pa = I[12]; T& I##ca = I[13]; T& I##na = I[14]; T& I##aa = I[15]; \
-                      cimg::unused(I##pp,I##cp,I##np,I##ap); \
-                      cimg::unused(I##pc,I##cc,I##nc,I##ac); \
-                      cimg::unused(I##pn,I##cn,I##nn,I##an); \
-                      cimg::unused(I##pa,I##ca,I##na,I##aa)
+                      cimg_library::cimg::unused(I##pp,I##cp,I##np,I##ap); \
+                      cimg_library::cimg::unused(I##pc,I##cc,I##nc,I##ac); \
+                      cimg_library::cimg::unused(I##pn,I##cn,I##nn,I##an); \
+                      cimg_library::cimg::unused(I##pa,I##ca,I##na,I##aa)
 
 #define CImg_5x5(I,T) T I[25] = {}; \
                       T& I##bb = I[0]; T& I##pb = I[1]; T& I##cb = I[2]; T& I##nb = I[3]; T& I##ab = I[4]; \
@@ -743,19 +745,19 @@ extern "C" {
                       T& I##bc = I[10]; T& I##pc = I[11]; T& I##cc = I[12]; T& I##nc = I[13]; T& I##ac = I[14]; \
                       T& I##bn = I[15]; T& I##pn = I[16]; T& I##cn = I[17]; T& I##nn = I[18]; T& I##an = I[19]; \
                       T& I##ba = I[20]; T& I##pa = I[21]; T& I##ca = I[22]; T& I##na = I[23]; T& I##aa = I[24]; \
-                      cimg::unused(I##bb,I##pb,I##cb,I##nb,I##ab); \
-                      cimg::unused(I##bp,I##pp,I##cp,I##np,I##ap); \
-                      cimg::unused(I##bc,I##pc,I##cc,I##nc,I##ac); \
-                      cimg::unused(I##bn,I##pn,I##cn,I##nn,I##an); \
-                      cimg::unused(I##ba,I##pa,I##ca,I##na,I##aa)
+                      cimg_library::cimg::unused(I##bb,I##pb,I##cb,I##nb,I##ab); \
+                      cimg_library::cimg::unused(I##bp,I##pp,I##cp,I##np,I##ap); \
+                      cimg_library::cimg::unused(I##bc,I##pc,I##cc,I##nc,I##ac); \
+                      cimg_library::cimg::unused(I##bn,I##pn,I##cn,I##nn,I##an); \
+                      cimg_library::cimg::unused(I##ba,I##pa,I##ca,I##na,I##aa)
 
 #define CImg_2x2x2(I,T) T I[8] = {}; \
                       T& I##ccc = I[0]; T& I##ncc = I[1]; \
                       T& I##cnc = I[2]; T& I##nnc = I[3]; \
                       T& I##ccn = I[4]; T& I##ncn = I[5]; \
                       T& I##cnn = I[6]; T& I##nnn = I[7]; \
-                      cimg::unused(I##ccc,I##ncc,I##cnc,I##nnc); \
-                      cimg::unused(I##ccn,I##ncn,I##cnn,I##nnn)
+                      cimg_library::cimg::unused(I##ccc,I##ncc,I##cnc,I##nnc); \
+                      cimg_library::cimg::unused(I##ccn,I##ncn,I##cnn,I##nnn)
 
 #define CImg_3x3x3(I,T) T I[27] = {}; \
                       T& I##ppp = I[0]; T& I##cpp = I[1]; T& I##npp = I[2]; \
@@ -767,11 +769,11 @@ extern "C" {
                       T& I##ppn = I[18]; T& I##cpn = I[19]; T& I##npn = I[20]; \
                       T& I##pcn = I[21]; T& I##ccn = I[22]; T& I##ncn = I[23]; \
                       T& I##pnn = I[24]; T& I##cnn = I[25]; T& I##nnn = I[26]; \
-                      cimg::unused(I##ppp,I##cpp,I##npp,I##pcp,I##ccp,I##ncp); \
-                      cimg::unused(I##pnp,I##cnp,I##nnp,I##ppc,I##cpc,I##npc); \
-                      cimg::unused(I##pcc,I##ccc,I##ncc,I##pnc,I##cnc,I##nnc); \
-                      cimg::unused(I##ppn,I##cpn,I##npn,I##pcn,I##ccn,I##ncn); \
-                      cimg::unused(I##pnn,I##cnn,I##nnn)
+                      cimg_library::cimg::unused(I##ppp,I##cpp,I##npp,I##pcp,I##ccp,I##ncp); \
+                      cimg_library::cimg::unused(I##pnp,I##cnp,I##nnp,I##ppc,I##cpc,I##npc); \
+                      cimg_library::cimg::unused(I##pcc,I##ccc,I##ncc,I##pnc,I##cnc,I##nnc); \
+                      cimg_library::cimg::unused(I##ppn,I##cpn,I##npn,I##pcn,I##ccn,I##ncn); \
+                      cimg_library::cimg::unused(I##pnn,I##cnn,I##nnn)
 
 #define cimg_def2x2(img,x,y) \
   int _n1##x = x<(img).width() - 1?x + 1:(img).width() - 1, \
@@ -957,8 +959,13 @@ extern "C" {
 //
 // These macros are simpler to use than loops with C++ iterators.
 #define cimg_for(img,ptrs,T_ptrs) \
-  for (T_ptrs *ptrs = (img)._data, *_max##ptrs = (img)._data + (img).size(); ptrs<_max##ptrs; ++ptrs)
-#define cimg_rof(img,ptrs,T_ptrs) for (T_ptrs *ptrs = (img)._data + (img).size() - 1; ptrs>=(img)._data; --ptrs)
+  for (T_ptrs *_max##ptrs = (img)._data + (img).size(), *ptrs = (img)._data; ptrs<_max##ptrs; ++ptrs)
+#define cimg_rof(img,ptrs,T_ptrs) \
+  for (T_ptrs *_min##ptrs = (img)?(img)._data:(T*)0, \
+         *ptrs = (img)?(img)._data + (img).size() - 1:(++_min##ptrs,(T*)0); \
+       ptrs>=(img)._data; --ptrs)
+#define cimg_rof_openmp(img,ptrs,T_ptrs) \
+  for (T_ptrs *ptrs = (img)._data + (img).size() - 1; ptrs>=(img)._data; --ptrs)
 #define cimg_foroff(img,off) for (cimg_ulong off = 0, _max##off = (img).size(); off<_max##off; ++off)
 #define cimg_rofoff(img,off) for (cimg_long off = (cimg_long)((img).size() - 1); off>=0; --off)
 
@@ -2543,7 +2550,7 @@ namespace cimg_library {
 #else
 #define cimg_openmp_for(instance,expr,min_size,T) \
     cimg_pragma_openmp(parallel for cimg_openmp_if_size((instance).size(),min_size)) \
-    cimg_rof((instance),ptr,T) *ptr = (T)(expr);
+    cimg_rof_openmp(instance,ptr,T) *ptr = (T)(expr);
 #endif
 
     // Display a simple dialog box, and wait for the user's response.

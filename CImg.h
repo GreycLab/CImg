@@ -12181,6 +12181,7 @@ namespace cimg_library {
     template<typename T>
     const CImgDisplay& snapshot(CImg<T>& img) const {
       if (is_empty()) { img.assign(); return *this; }
+      WaitForSingleObject(_mutex,INFINITE);
       const unsigned int *ptrs = _data;
       img.assign(_width,_height,1,3);
       T
@@ -12193,6 +12194,7 @@ namespace cimg_library {
         *(data2++) = (T)(unsigned char)((val>>8)&0xFF);
         *(data3++) = (T)(unsigned char)(val&0xFF);
       }
+      ReleaseMutex(_mutex);
       return *this;
     }
 
@@ -12782,6 +12784,8 @@ namespace cimg_library {
     template<typename T>
     const CImgDisplay& snapshot(CImg<T>& img) const {
       if (is_empty()) { img.assign(); return *this; }
+      cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
+      SDL3_attr.lock();
       const unsigned int *ptrs = _data;
       img.assign(_width,_height,1,3);
       T
@@ -12794,6 +12798,7 @@ namespace cimg_library {
         *(data2++) = (T)(unsigned char)((val>>16)&0xFF);
         *(data3++) = (T)(unsigned char)((val>>8)&0xFF);
       }
+      SDL3_attr.unlock();
       return *this;
     }
 

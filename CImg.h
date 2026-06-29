@@ -3011,6 +3011,11 @@ namespace cimg_library {
       static const char* string() { static const char *const s = "float64"; return s; }
       static bool is_float() { return true; }
       static bool is_inf(const double val) {
+        if (sizeof(double)==8) { // Custom version that works with '-ffast-math'
+          cimg_uint64 u;
+          std::memcpy(&u,&val,sizeof(double));
+          return ((unsigned int)(u>>32)&0x7fffffff)==0x7ff00000 && (unsigned int)u==0;
+        }
 #ifdef isinf
         return (bool)isinf(val);
 #else
@@ -3062,6 +3067,11 @@ namespace cimg_library {
       static const char* string() { static const char *const s = "float32"; return s; }
       static bool is_float() { return true; }
       static bool is_inf(const float val) {
+        if (sizeof(float)==4) { // Custom version that works with '-ffast-math'
+          unsigned int u;
+          std::memcpy(&u,&val,sizeof(float));
+          return (u&0x7fffffff)==0x7f800000;
+        }
 #ifdef isinf
         return (bool)isinf(val);
 #else
@@ -3112,7 +3122,7 @@ namespace cimg_library {
 #ifdef isnan
         return (bool)isnan(val);
 #else
-        return !(val==val);
+        return cimg::type<double>::is_nan((double)val);
 #endif
       }
       static bool is_finite(const long double val) {
@@ -3136,12 +3146,13 @@ namespace cimg_library {
     template<> struct type<cimg_float16> {
       static const char* string() { static const char *const s = "float16"; return s; }
       static bool is_float() { return true; }
-      static bool is_inf(const long double val) {
-#ifdef isinf
-        return (bool)isinf(val);
-#else
-        return !is_nan(val) && (val<cimg::type<cimg_float16>::min() || val>cimg::type<cimg_float16>::max());
-#endif
+      static bool is_inf(const cimg_float16 val) {
+        if (sizeof(cimg_float16)==2) { // Custom version that works with '-ffast-math'
+          unsigned short u;
+          std::memcpy(&u,&val,sizeof(unsigned short));
+          return (u&0x7fff)==0x7c00;
+        }
+        return cimg::type<float>::is_inf((float)val);
       }
       static bool is_nan(const cimg_float16 val) { // Custom version that works with '-ffast-math'
         if (sizeof(cimg_float16)==2) {

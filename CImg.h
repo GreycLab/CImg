@@ -961,9 +961,9 @@ extern "C" {
 #define cimg_for(img,ptrs,T_ptrs) \
   for (T_ptrs *_max##ptrs = (img)._data + (img).size(), *ptrs = (img)._data; ptrs<_max##ptrs; ++ptrs)
 #define cimg_rof(img,ptrs,T_ptrs) \
-  for (T_ptrs *_min##ptrs = (img)?(img)._data:(T*)0, \
-         *ptrs = (img)?(img)._data + (img).size() - 1:(++_min##ptrs,(T*)0); \
-       ptrs>=(img)._data; --ptrs)
+  for (T_ptrs *_min##ptrs = (img)?(img)._data:(T_ptrs*)0, \
+         *ptrs = (img)?(img)._data + (img).size() - 1:(++_min##ptrs,(T_ptrs*)0); \
+       ptrs>=_min##ptrs; --ptrs)
 #define cimg_rof_openmp(img,ptrs,T_ptrs) \
   for (T_ptrs *ptrs = (img)._data + (img).size() - 1; ptrs>=(img)._data; --ptrs)
 #define cimg_foroff(img,off) for (cimg_ulong off = 0, _max##off = (img).size(); off<_max##off; ++off)

@@ -3417,8 +3417,13 @@ namespace cimg_library {
 #if cimg_OS==1
         std::signal(SIGINT,SIG_DFL); // Restore default behavior for CTRL+C
 #endif
-        if (init_failed)
-          throw CImgDisplayException("cimg::SDL3_attr(): %s",SDL_GetError());
+        if (init_failed) {
+          if (mutex_lock_display) {
+            SDL_DestroyMutex(mutex_lock_display);
+          }
+          SDL_Quit();
+          throw CImgDisplayException("cimg::SDL3_attr(): %s", SDL_GetError());
+        }
         cimg_displays = new CImgDisplay*[512];
       }
 

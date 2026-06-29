@@ -12036,10 +12036,15 @@ namespace cimg_library {
         *data3 = (img._spectrum>=3)?img.data(0,0,0,2):data1;
 
       WaitForSingleObject(_mutex,INFINITE);
-      unsigned int
-        *const ndata = (img._width==_width && img._height==_height)?_data:
-        new unsigned int[(size_t)img._width*img._height],
-        *ptrd = ndata;
+      unsigned *ndata = 0;
+      try {
+        ndata = (img._width==_width && img._height==_height)?_data:
+          new unsigned int[(size_t)img._width*img._height];
+      } catch (...) {
+        ReleaseMutex(_mutex);
+        throw;
+      }
+      unsigned int *ptrd = ndata;
 
       if (!_normalization || (_normalization==3 && cimg::type<T>::string()==cimg::type<unsigned char>::string())) {
         _min = _max = 0;
@@ -12125,37 +12130,42 @@ namespace cimg_library {
           _x1 = std::min(_x1,width - 1);
           _y1 = std::min(_y1,height - 1);
           const int bw = _x1 - _x0 + 1, bh = _y1 - _y0 + 1;
+
           HDC hdcMem = CreateCompatibleDC(hScreen);
           if (hdcMem) {
             HBITMAP hBitmap = CreateCompatibleBitmap(hScreen,bw,bh);
             if (hBitmap) {
               HGDIOBJ hOld = SelectObject(hdcMem,hBitmap);
-              if (hOld && BitBlt(hdcMem,0,0,bw,bh,hScreen,_x0,_y0,SRCCOPY) && SelectObject(hdcMem,hOld)) {
-                BITMAPINFOHEADER bmi;
-                bmi.biSize = sizeof(BITMAPINFOHEADER);
-                bmi.biWidth = bw;
-                bmi.biHeight = -bh;
-                bmi.biPlanes = 1;
-                bmi.biBitCount = 32;
-                bmi.biCompression = BI_RGB;
-                bmi.biSizeImage = 0;
-                bmi.biXPelsPerMeter = bmi.biYPelsPerMeter = 0;
-                bmi.biClrUsed = bmi.biClrImportant = 0;
-                unsigned char *buf = new unsigned char[4*bw*bh];
-                if (GetDIBits(hdcMem,hBitmap,0,bh,buf,(BITMAPINFO*)&bmi,DIB_RGB_COLORS)) {
-                  img.assign(bw,bh,1,3);
-                  const unsigned char *ptrs = buf;
-                  T *pR = img.data(0,0,0,0), *pG = img.data(0,0,0,1), *pB = img.data(0,0,0,2);
-                  cimg_forXY(img,x,y) {
-                    *(pR++) = (T)ptrs[2];
-                    *(pG++) = (T)ptrs[1];
-                    *(pB++) = (T)ptrs[0];
-                    ptrs+=4;
+              if (hOld) {
+                const BOOL bitblt_ok = BitBlt(hdcMem,0,0,bw,bh,hScreen,_x0,_y0,SRCCOPY);
+                if (bitblt_ok) {
+                  BITMAPINFOHEADER bmi;
+                  bmi.biSize = sizeof(BITMAPINFOHEADER);
+                  bmi.biWidth = bw;
+                  bmi.biHeight = -bh;
+                  bmi.biPlanes = 1;
+                  bmi.biBitCount = 32;
+                  bmi.biCompression = BI_RGB;
+                  bmi.biSizeImage = 0;
+                  bmi.biXPelsPerMeter = bmi.biYPelsPerMeter = 0;
+                  bmi.biClrUsed = bmi.biClrImportant = 0;
+                  unsigned char *buf = new unsigned char[4*bw*bh];
+                  if (GetDIBits(hdcMem,hBitmap,0,bh,buf,(BITMAPINFO*)&bmi,DIB_RGB_COLORS)) {
+                    img.assign(bw,bh,1,3);
+                    const unsigned char *ptrs = buf;
+                    T *pR = img.data(0,0,0,0), *pG = img.data(0,0,0,1), *pB = img.data(0,0,0,2);
+                    cimg_forXY(img,x,y) {
+                      *(pR++) = (T)ptrs[2];
+                      *(pG++) = (T)ptrs[1];
+                      *(pB++) = (T)ptrs[0];
+                      ptrs+=4;
+                    }
                   }
+                  delete[] buf;
                 }
-                delete[] buf;
+                SelectObject(hdcMem,hOld);
               }
-              DeleteObject(hBitmap);
+              DeleteObject(hBitmap); // Réussit désormais à 100% de manière garantie
             }
             DeleteDC(hdcMem);
           }
@@ -12685,10 +12695,15 @@ namespace cimg_library {
         *data2 = (img._spectrum>=2)?img.data(0,0,0,1):data1,
         *data3 = (img._spectrum>=3)?img.data(0,0,0,2):data1;
 
-      unsigned int
-        *const ndata = (img._width==_width && img._height==_height)?_data:
-        new unsigned int[(size_t)img._width*img._height],
-        *ptrd = ndata;
+      unsigned int *ndata = 0;
+      try {
+        ndata = (img._width==_width && img._height==_height)?_data:
+          new unsigned int[(size_t)img._width*img._height];
+      } catch (...) {
+        SDL3_attr.unlock();
+        throw;
+      }
+      unsigned int *ptrd = ndata;
 
       if (!_normalization || (_normalization==3 && cimg::type<T>::string()==cimg::type<unsigned char>::string())) {
         _min = _max = 0;

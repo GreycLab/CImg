@@ -4965,11 +4965,11 @@ namespace cimg_library {
       static char *value = 0;
       if (!value) {
         cimg::mutex(0);
-        const size_t s0 = sizeof(chunk0), s1 = sizeof(chunk1);
+        const size_t s0 = std::strlen(chunk0), s1 = std::strlen(chunk1);
         if (!value) {
-          value = new char[s0 + s1 - 1];
-          std::memcpy(value,chunk0,s0 - 1);
-          std::memcpy(value + s0 - 1,chunk1,s1);
+          value = new char[s0 + s1 + 1];
+          std::memcpy(value,chunk0,s0);
+          std::memcpy(value + s0,chunk1,s1 + 1);
         }
         cimg::mutex(0,0);
       }
@@ -5967,11 +5967,11 @@ namespace cimg_library {
       static char *value = 0;
       if (!value) {
         cimg::mutex(0);
-        const size_t s0 = sizeof(chunk0), s1 = sizeof(chunk1);
+        const size_t s0 = std::strlen(chunk0), s1 = std::strlen(chunk1);
         if (!value) {
-          value = new char[s0 + s1 - 1];
-          std::memcpy(value,chunk0,s0 - 1);
-          std::memcpy(value + s0 - 1,chunk1,s1);
+          value = new char[s0 + s1 + 1];
+          std::memcpy(value,chunk0,s0);
+          std::memcpy(value + s0,chunk1,s1 + 1);
         }
         cimg::mutex(0,0);
       }

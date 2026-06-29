@@ -2351,7 +2351,7 @@ namespace cimg_library {
     inline const char *t_bold() { return "\x1b[1m"; }
     inline const char *t_underscore() { return "\x1b[4m"; }
 #else
-    inline const char* t_normal() = { return "" };
+    inline const char* t_normal() { return ""; };
     inline const char* t_black() { return t_normal(); }
     inline const char* t_red() { return t_normal(); }
     inline const char* t_green() { return t_normal(); }

@@ -10161,6 +10161,11 @@ namespace cimg_library {
 
       // Open X11 display and retrieve graphical properties.
       cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
+      if (X11_attr.nb_cimg_displays>=512) {
+        X11_attr.unlock();
+        throw CImgDisplayException("CImgDisplay::assign(): Max number of displays (512) already opened.");
+      }
+
       Display* &dpy = X11_attr.display;
       if (!dpy) {
         dpy = XOpenDisplay(0);
@@ -10279,10 +10284,6 @@ namespace cimg_library {
       XSetWMProtocols(dpy,_window,&_wm_window_atom,1);
 
       if (_is_fullscreen) XGrabKeyboard(dpy,_window,1,GrabModeAsync,GrabModeAsync,CurrentTime);
-      if (X11_attr.nb_cimg_displays>=512) {
-        X11_attr.unlock();
-        throw CImgDisplayException("CImgDisplay::assign(): Max number of displays (512) already opened.");
-      }
       X11_attr.cimg_displays[X11_attr.nb_cimg_displays++] = this;
       if (!_is_closed) _map_window(); else _window_x = _window_y = cimg::type<int>::min();
       X11_attr.unlock();
@@ -12224,6 +12225,11 @@ namespace cimg_library {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       SDL3_attr.lock();
 
+      if (SDL3_attr.nb_cimg_displays>=512) {
+        SDL3_attr.unlock();
+        throw CImgDisplayException("CImgDisplay::assign(): Max number of displays (512) already opened.");
+      }
+
       // Allocate space for window title.
       const char *const np_title = p_title?p_title:"";
       const unsigned int s = (unsigned int)std::strlen(np_title) + 1;
@@ -12266,10 +12272,6 @@ namespace cimg_library {
       _data = new unsigned int[_width*_height];
 
       // Add to managed list of CImgDisplays.
-      if (SDL3_attr.nb_cimg_displays>=512) {
-        SDL3_attr.unlock();
-        throw CImgDisplayException("CImgDisplay::assign(): Max number of displays (512) already opened.");
-      }
       SDL3_attr.cimg_displays[SDL3_attr.nb_cimg_displays++] = this;
       SDL3_attr.unlock();
       paint();
@@ -12436,7 +12438,7 @@ namespace cimg_library {
       SDL_DestroyRenderer(_renderer);
       SDL_DestroyWindow(_window);
       SDL_DestroyTexture(_texture);
-      delete _data;
+      delete[] _data;
       _data = 0;
       _renderer = 0;
       _window = 0;

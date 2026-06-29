@@ -12260,8 +12260,6 @@ namespace cimg_library {
       }
       SDL_RaiseWindow(_window);
       SDL_SetRenderDrawColor(_renderer,0,0,0,255);
-      if (!_is_fullscreen)
-        SDL_SetWindowPosition(_window,SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED);
       _window_width = _width;
       _window_height = _height;
       _update_window_pos();

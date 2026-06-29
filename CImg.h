@@ -2347,29 +2347,29 @@ namespace cimg_library {
 
     // Define character sequences for colored terminal output.
 #ifdef cimg_use_vt100
-    static const char t_normal[] = { 0x1b, '[', '0', ';', '0', ';', '0', 'm', 0 };
-    static const char t_black[] = { 0x1b, '[', '0', ';', '3', '0', ';', '5', '9', 'm', 0 };
-    static const char t_red[] = { 0x1b, '[', '0', ';', '3', '1', ';', '5', '9', 'm', 0 };
-    static const char t_green[] = { 0x1b, '[', '0', ';', '3', '2', ';', '5', '9', 'm', 0 };
-    static const char t_yellow[] = { 0x1b, '[', '0', ';', '3', '3', ';', '5', '9', 'm', 0 };
-    static const char t_blue[] = { 0x1b, '[', '0', ';', '3', '4', ';', '5', '9', 'm', 0 };
-    static const char t_magenta[] = { 0x1b, '[', '0', ';', '3', '5', ';', '5', '9', 'm', 0 };
-    static const char t_cyan[] = { 0x1b, '[', '0', ';', '3', '6', ';', '5', '9', 'm', 0 };
-    static const char t_white[] = { 0x1b, '[', '0', ';', '3', '7', ';', '5', '9', 'm', 0 };
-    static const char t_bold[] = { 0x1b, '[', '1', 'm', 0 };
-    static const char t_underscore[] = { 0x1b, '[', '4', 'm', 0 };
+    inline const char* t_normal() { return "\x1b[0;0;0m"; }
+    inline const char* t_black() { return "\x1b[0;30;59m"; }
+    inline const char* t_red() { return "\x1b[0;31;59m"; }
+    inline const char* t_green() { return "\x1b[0;32;59m"; }
+    inline const char* t_yellow() { return "\x1b[0;33;59m"; }
+    inline const char* t_blue() { return "\x1b[0;34;59m"; }
+    inline const char* t_magenta() { return "\x1b[0;35;59m"; }
+    inline const char* t_cyan() { return "\x1b[0;36;59m"; }
+    inline const char* t_white() { return "\x1b[0;37;59m"; }
+    inline const char *t_bold() { return "\x1b[1m"; }
+    inline const char *t_underscore() { return "\x1b[4m"; }
 #else
-    static const char t_normal[] = { 0 };
-    static const char *const t_black = cimg::t_normal,
-      *const t_red = cimg::t_normal,
-      *const t_green = cimg::t_normal,
-      *const t_yellow = cimg::t_normal,
-      *const t_blue = cimg::t_normal,
-      *const t_magenta = cimg::t_normal,
-      *const t_cyan = cimg::t_normal,
-      *const t_white = cimg::t_normal,
-      *const t_bold = cimg::t_normal,
-      *const t_underscore = cimg::t_normal;
+    inline const char* t_normal() = { return "" };
+    inline const char* t_black() { return t_normal(); }
+    inline const char* t_red() { return t_normal(); }
+    inline const char* t_green() { return t_normal(); }
+    inline const char* t_yellow() { return t_normal(); }
+    inline const char* t_blue() { return t_normal(); }
+    inline const char* t_magenta() { return t_normal(); }
+    inline const char* t_cyan() { return t_normal(); }
+    inline const char* t_white() { return t_normal(); }
+    inline const char* t_bold() { return t_normal(); }
+    inline const char* t_underscore() { return t_normal(); }
 #endif
 
     inline std::FILE* output(std::FILE *file=0);
@@ -2650,7 +2650,7 @@ namespace cimg_library {
     _message = new char[(size_t)size]; \
     cimg_vsnprintf(_message,(size_t)size,format,ap); \
     if (cimg::exception_mode()) { \
-      std::fprintf(cimg::output(),"\n%s[CImg] *** %s ***%s %s\n",cimg::t_red,etype,cimg::t_normal,_message); \
+      std::fprintf(cimg::output(),"\n%s[CImg] *** %s ***%s %s\n",cimg::t_red(),etype,cimg::t_normal(),_message); \
       if (cimg_display && disp_flag && !(cimg::exception_mode()%2)) try { cimg::dialog(etype,_message,"Abort"); } \
       catch (CImgException&) {} \
       if (cimg::exception_mode()>=3) cimg_library::cimg::info(); \
@@ -6026,7 +6026,7 @@ namespace cimg_library {
 #ifdef cimg_strict_warnings
         throw CImgWarningException(message);
 #else
-        std::fprintf(cimg::output(),"\n%s[CImg] *** Warning ***%s%s\n",cimg::t_red,cimg::t_normal,message);
+        std::fprintf(cimg::output(),"\n%s[CImg] *** Warning ***%s%s\n",cimg::t_red(),cimg::t_normal(),message);
 #endif
         delete[] message;
       }
@@ -8094,7 +8094,7 @@ namespace cimg_library {
       }
       if (!name && visu) {
         if (usage) {
-          std::fprintf(cimg::output(),"\n %s%s%s",cimg::t_red,cimg::basename(argv[0]),cimg::t_normal);
+          std::fprintf(cimg::output(),"\n %s%s%s",cimg::t_red(),cimg::basename(argv[0]),cimg::t_normal());
           std::fprintf(cimg::output(),": %s",usage);
           std::fprintf(cimg::output()," (%s, %s)\n\n",cimg_date,cimg_time);
         }
@@ -8107,8 +8107,8 @@ namespace cimg_library {
           res = (k++==argc?_default:(k==argc?argv[--k]:argv[k]));
         } else res = _default;
         if (visu && usage) std::fprintf(cimg::output(),"    %s%-16s%s %-24s %s%s%s\n",
-                                        cimg::t_bold,name,cimg::t_normal,res?res:"0",
-                                        cimg::t_green,usage,cimg::t_normal);
+                                        cimg::t_bold(),name,cimg::t_normal(),res?res:"0",
+                                        cimg::t_green(),usage,cimg::t_normal());
       }
       return res;
     }
@@ -8175,204 +8175,204 @@ namespace cimg_library {
     **/
     inline void info() {
       std::fprintf(cimg::output(),"\n %s%sCImg Library %u.%u.%u%s, compiled %s ( %s ) with the following flags:\n\n",
-                   cimg::t_red,cimg::t_bold,cimg_version/100,(cimg_version/10)%10,cimg_version%10,
-                   cimg::t_normal,cimg_date,cimg_time);
+                   cimg::t_red(),cimg::t_bold(),cimg_version/100,(cimg_version/10)%10,cimg_version%10,
+                   cimg::t_normal(),cimg_date,cimg_time);
 
       std::fprintf(cimg::output(),"  > Operating System:         %s%-13s%s %s('cimg_OS'=%d)%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
                    cimg_OS==1?"Unix":(cimg_OS==2?"Windows":"Unknown"),
-                   cimg::t_normal,cimg::t_green,
+                   cimg::t_normal(),cimg::t_green(),
                    cimg_OS,
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       std::fprintf(cimg::output(),"  > CPU endianness:           %s%s Endian%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
                    cimg::endianness()?"Big":"Little",
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       std::fprintf(cimg::output(),"  > Verbosity mode:           %s%-13s%s %s('cimg_verbosity'=%d)%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
                    cimg_verbosity==0?"Quiet":
                    cimg_verbosity==1?"Console":
                    cimg_verbosity==2?"Dialog":
                    cimg_verbosity==3?"Console+Warnings":"Dialog+Warnings",
-                   cimg::t_normal,cimg::t_green,
+                   cimg::t_normal(),cimg::t_green(),
                    cimg_verbosity,
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       std::fprintf(cimg::output(),"  > Stricts warnings:         %s%-13s%s %s('cimg_strict_warnings' %s)%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
 #ifdef cimg_strict_warnings
-                   "Yes",cimg::t_normal,cimg::t_green,"defined",
+                   "Yes",cimg::t_normal(),cimg::t_green(),"defined",
 #else
-                   "No",cimg::t_normal,cimg::t_green,"undefined",
+                   "No",cimg::t_normal(),cimg::t_green(),"undefined",
 #endif
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       std::fprintf(cimg::output(),"  > Support for C++11:        %s%-13s%s %s('cimg_use_cpp11'=%d)%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
                    cimg_use_cpp11?"Yes":"No",
-                   cimg::t_normal,cimg::t_green,
+                   cimg::t_normal(),cimg::t_green(),
                    (int)cimg_use_cpp11,
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       std::fprintf(cimg::output(),"  > Using VT100 messages:     %s%-13s%s %s('cimg_use_vt100' %s)%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
 #ifdef cimg_use_vt100
-                   "Yes",cimg::t_normal,cimg::t_green,"defined",
+                   "Yes",cimg::t_normal(),cimg::t_green(),"defined",
 #else
-                   "No",cimg::t_normal,cimg::t_green,"undefined",
+                   "No",cimg::t_normal(),cimg::t_green(),"undefined",
 #endif
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       std::fprintf(cimg::output(),"  > Display type:             %s%-13s%s %s('cimg_display'=%d)%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
                    cimg_display==0?"No display":
                    cimg_display==1?"X11":
                    cimg_display==2?"Windows GDI":
                    cimg_display==3?"SDL3":"Unknown",
-                   cimg::t_normal,cimg::t_green,
+                   cimg::t_normal(),cimg::t_green(),
                    (int)cimg_display,
-                   cimg::t_normal);
+                   cimg::t_normal());
 
 #if cimg_display==1
       std::fprintf(cimg::output(),"  > Using XShm for X11:       %s%-13s%s %s('cimg_use_xshm' %s)%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
 #ifdef cimg_use_xshm
-                   "Yes",cimg::t_normal,cimg::t_green,"defined",
+                   "Yes",cimg::t_normal(),cimg::t_green(),"defined",
 #else
-                   "No",cimg::t_normal,cimg::t_green,"undefined",
+                   "No",cimg::t_normal(),cimg::t_green(),"undefined",
 #endif
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       std::fprintf(cimg::output(),"  > Using XRand for X11:      %s%-13s%s %s('cimg_use_xrandr' %s)%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
 #ifdef cimg_use_xrandr
-                   "Yes",cimg::t_normal,cimg::t_green,"defined",
+                   "Yes",cimg::t_normal(),cimg::t_green(),"defined",
 #else
-                   "No",cimg::t_normal,cimg::t_green,"undefined",
+                   "No",cimg::t_normal(),cimg::t_green(),"undefined",
 #endif
-                   cimg::t_normal);
+                   cimg::t_normal());
 #endif
       std::fprintf(cimg::output(),"  > Using OpenMP:             %s%-13s%s %s('cimg_use_openmp' %s)%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
 #if cimg_use_openmp!=0
-                   "Yes",cimg::t_normal,cimg::t_green,"defined",
+                   "Yes",cimg::t_normal(),cimg::t_green(),"defined",
 #else
-                   "No",cimg::t_normal,cimg::t_green,"undefined",
+                   "No",cimg::t_normal(),cimg::t_green(),"undefined",
 #endif
-                   cimg::t_normal);
+                   cimg::t_normal());
       std::fprintf(cimg::output(),"  > Using PNG library:        %s%-13s%s %s('cimg_use_png' %s)%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
 #ifdef cimg_use_png
-                   "Yes",cimg::t_normal,cimg::t_green,"defined",
+                   "Yes",cimg::t_normal(),cimg::t_green(),"defined",
 #else
-                   "No",cimg::t_normal,cimg::t_green,"undefined",
+                   "No",cimg::t_normal(),cimg::t_green(),"undefined",
 #endif
-                   cimg::t_normal);
+                   cimg::t_normal());
       std::fprintf(cimg::output(),"  > Using JPEG library:       %s%-13s%s %s('cimg_use_jpeg' %s)%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
 #ifdef cimg_use_jpeg
-                   "Yes",cimg::t_normal,cimg::t_green,"defined",
+                   "Yes",cimg::t_normal(),cimg::t_green(),"defined",
 #else
-                   "No",cimg::t_normal,cimg::t_green,"undefined",
+                   "No",cimg::t_normal(),cimg::t_green(),"undefined",
 #endif
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       std::fprintf(cimg::output(),"  > Using TIFF library:       %s%-13s%s %s('cimg_use_tiff' %s)%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
 #ifdef cimg_use_tiff
-                   "Yes",cimg::t_normal,cimg::t_green,"defined",
+                   "Yes",cimg::t_normal(),cimg::t_green(),"defined",
 #else
-                   "No",cimg::t_normal,cimg::t_green,"undefined",
+                   "No",cimg::t_normal(),cimg::t_green(),"undefined",
 #endif
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       std::fprintf(cimg::output(),"  > Using Magick++ library:   %s%-13s%s %s('cimg_use_magick' %s)%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
 #ifdef cimg_use_magick
-                   "Yes",cimg::t_normal,cimg::t_green,"defined",
+                   "Yes",cimg::t_normal(),cimg::t_green(),"defined",
 #else
-                   "No",cimg::t_normal,cimg::t_green,"undefined",
+                   "No",cimg::t_normal(),cimg::t_green(),"undefined",
 #endif
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       std::fprintf(cimg::output(),"  > Using FFTW3 library:      %s%-13s%s %s('cimg_use_fftw3' %s)%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
 #ifdef cimg_use_fftw3
-                   "Yes",cimg::t_normal,cimg::t_green,"defined",
+                   "Yes",cimg::t_normal(),cimg::t_green(),"defined",
 #else
-                   "No",cimg::t_normal,cimg::t_green,"undefined",
+                   "No",cimg::t_normal(),cimg::t_green(),"undefined",
 #endif
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       char *const tmp = new char[1024];
 
       cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::curl_path());
       std::fprintf(cimg::output(),"  > Path of 'curl':           %s%-13s%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
                    tmp,
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::dcraw_path());
       std::fprintf(cimg::output(),"  > Path of 'dcraw':          %s%-13s%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
                    tmp,
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::ffmpeg_path());
       std::fprintf(cimg::output(),"  > Path of 'ffmpeg':         %s%-13s%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
                    tmp,
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::graphicsmagick_path());
       std::fprintf(cimg::output(),"  > Path of 'graphicsmagick': %s%-13s%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
                    tmp,
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::gunzip_path());
       std::fprintf(cimg::output(),"  > Path of 'gunzip':         %s%-13s%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
                    tmp,
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::gzip_path());
       std::fprintf(cimg::output(),"  > Path of 'gzip':           %s%-13s%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
                    tmp,
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::imagemagick_path());
       std::fprintf(cimg::output(),"  > Path of 'imagemagick':    %s%-13s%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
                    tmp,
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::medcon_path());
       std::fprintf(cimg::output(),"  > Path of 'medcon':         %s%-13s%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
                    tmp,
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::temporary_path());
       std::fprintf(cimg::output(),"  > Temporary path:           %s%-13s%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
                    tmp,
-                   cimg::t_normal);
+                   cimg::t_normal());
 
       cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::wget_path());
       std::fprintf(cimg::output(),"  > Path of 'wget':           %s%-13s%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
                    tmp,
-                   cimg::t_normal);
+                   cimg::t_normal());
 #if cimg_OS==2
       cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::powershell_path());
       std::fprintf(cimg::output(),"  > Path of 'powershell':     %s%-13s%s\n",
-                   cimg::t_bold,
+                   cimg::t_bold(),
                    tmp,
-                   cimg::t_normal);
+                   cimg::t_normal());
 #endif
 
       std::fprintf(cimg::output(),"\n");
@@ -60621,12 +60621,12 @@ namespace cimg_library {
       if (!title) cimg_snprintf(_title,_title._width,"CImg<%s>",pixel_type());
 
       std::fprintf(cimg::output(),"%s%s%s%s: %sthis%s = %p, %ssize%s = (%u,%u,%u,%u) [%lu %s], %sdata%s = (%s*)%p",
-                   cimg::t_magenta,cimg::t_bold,title?title:_title._data,cimg::t_normal,
-                   cimg::t_bold,cimg::t_normal,(void*)this,
-                   cimg::t_bold,cimg::t_normal,_width,_height,_depth,_spectrum,
+                   cimg::t_magenta(),cimg::t_bold(),title?title:_title._data,cimg::t_normal(),
+                   cimg::t_bold(),cimg::t_normal(),(void*)this,
+                   cimg::t_bold(),cimg::t_normal(),_width,_height,_depth,_spectrum,
                    (unsigned long)(mdisp==0?msiz:(mdisp==1?(msiz>>10):(msiz>>20))),
                    mdisp==0?"b":(mdisp==1?"Kio":"Mio"),
-                   cimg::t_bold,cimg::t_normal,pixel_type(),(void*)begin());
+                   cimg::t_bold(),cimg::t_normal(),pixel_type(),(void*)begin());
       if (_data)
         std::fprintf(cimg::output(),"..%p (%s) = [ ",(void*)((char*)end() - 1),_is_shared?"shared":"non-shared");
       else std::fprintf(cimg::output()," (%s) = [ ",_is_shared?"shared":"non-shared");
@@ -60640,13 +60640,13 @@ namespace cimg_library {
         std::fprintf(cimg::output(),
                      " ], %smin%s = %g, %smax%s = %g, %smean%s = %g, %sstd%s = %g, %snorm%s = %g, "
                      "%scoords_min%s = (%u,%u,%u,%u), %scoords_max%s = (%u,%u,%u,%u).\n",
-                     cimg::t_bold,cimg::t_normal,st[0],
-                     cimg::t_bold,cimg::t_normal,st[1],
-                     cimg::t_bold,cimg::t_normal,st[2],
-                     cimg::t_bold,cimg::t_normal,std::sqrt(st[3]),
-                     cimg::t_bold,cimg::t_normal,st[14],
-                     cimg::t_bold,cimg::t_normal,xm,ym,zm,vm,
-                     cimg::t_bold,cimg::t_normal,xM,yM,zM,vM);
+                     cimg::t_bold(),cimg::t_normal(),st[0],
+                     cimg::t_bold(),cimg::t_normal(),st[1],
+                     cimg::t_bold(),cimg::t_normal(),st[2],
+                     cimg::t_bold(),cimg::t_normal(),std::sqrt(st[3]),
+                     cimg::t_bold(),cimg::t_normal(),st[14],
+                     cimg::t_bold(),cimg::t_normal(),xm,ym,zm,vm,
+                     cimg::t_bold(),cimg::t_normal(),xM,yM,zM,vM);
       else std::fprintf(cimg::output(),"%s].\n",is_empty()?"":" ");
       std::fflush(cimg::output());
       return *this;
@@ -68116,12 +68116,12 @@ namespace cimg_library {
       CImg<charT> _title(64);
       if (!title) cimg_snprintf(_title,_title._width,"CImgList<%s>",pixel_type());
       std::fprintf(cimg::output(),"%s%s%s%s: %sthis%s = %p, %ssize%s = %u/%u [%u %s], %sdata%s = (CImg<%s>*)%p",
-                   cimg::t_magenta,cimg::t_bold,title?title:_title._data,cimg::t_normal,
-                   cimg::t_bold,cimg::t_normal,(void*)this,
-                   cimg::t_bold,cimg::t_normal,_width,_allocated_width,
+                   cimg::t_magenta(),cimg::t_bold(),title?title:_title._data,cimg::t_normal(),
+                   cimg::t_bold(),cimg::t_normal(),(void*)this,
+                   cimg::t_bold(),cimg::t_normal(),_width,_allocated_width,
                    mdisp==0?msiz:(mdisp==1?(msiz>>10):(msiz>>20)),
                    mdisp==0?"b":(mdisp==1?"Kio":"Mio"),
-                   cimg::t_bold,cimg::t_normal,pixel_type(),(void*)begin());
+                   cimg::t_bold(),cimg::t_normal(),pixel_type(),(void*)begin());
       if (_data) std::fprintf(cimg::output(),"..%p.\n",(void*)((char*)end() - 1));
       else std::fprintf(cimg::output(),".\n");
 
@@ -70702,22 +70702,22 @@ namespace cimg_library {
         ems = (unsigned int)(dt - edays*86400000. - ehours*3600000. - emin*60000. - esec*1000.);
       if (!edays && !ehours && !emin && !esec)
         std::fprintf(cimg::output(),"%s[CImg]%*sElapsed time: %u ms%s\n",
-                     cimg::t_red,1 + 2*pos,"",ems,cimg::t_normal);
+                     cimg::t_red(),1 + 2*pos,"",ems,cimg::t_normal());
       else {
         if (!edays && !ehours && !emin)
           std::fprintf(cimg::output(),"%s[CImg]%*sElapsed time: %u sec %u ms%s\n",
-                       cimg::t_red,1 + 2*pos,"",esec,ems,cimg::t_normal);
+                       cimg::t_red(),1 + 2*pos,"",esec,ems,cimg::t_normal());
         else {
           if (!edays && !ehours)
             std::fprintf(cimg::output(),"%s[CImg]%*sElapsed time: %u min %u sec %u ms%s\n",
-                         cimg::t_red,1 + 2*pos,"",emin,esec,ems,cimg::t_normal);
+                         cimg::t_red(),1 + 2*pos,"",emin,esec,ems,cimg::t_normal());
           else{
             if (!edays)
               std::fprintf(cimg::output(),"%s[CImg]%*sElapsed time: %u hours %u min %u sec %u ms%s\n",
-                           cimg::t_red,1 + 2*pos,"",ehours,emin,esec,ems,cimg::t_normal);
+                           cimg::t_red(),1 + 2*pos,"",ehours,emin,esec,ems,cimg::t_normal());
             else{
               std::fprintf(cimg::output(),"%s[CImg]%*sElapsed time: %u days %u hours %u min %u sec %u ms%s\n",
-                           cimg::t_red,1 + 2*pos,"",edays,ehours,emin,esec,ems,cimg::t_normal);
+                           cimg::t_red(),1 + 2*pos,"",edays,ehours,emin,esec,ems,cimg::t_normal());
             }
           }
         }

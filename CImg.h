@@ -7839,7 +7839,7 @@ namespace cimg_library {
       const DWORD res = cimg::win_getfileattributes(path);
       return res!=INVALID_FILE_ATTRIBUTES;
 #elif cimg_OS==1
-      return faccessat(AT_FDCWD,path,F_OK,AT_EACCESS)==0;
+      return !access(path,F_OK);
 #else
       std::FILE *const file = cimg::std_fopen(path,"rb");
       if (!file) return false;

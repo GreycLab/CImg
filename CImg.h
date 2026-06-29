@@ -6013,7 +6013,7 @@ namespace cimg_library {
     /**
        \param command C-string containing the command line to execute.
        \param module_name Module name.
-       \param is_verbose Tell if command must be silent or verbose when outputing messages.
+       \param is_verbose Indicates whether the command must be silent or verbose when outputing messages.
        \return Status value of the executed command, whose meaning is OS-dependent.
        \note This function is similar to <tt>std::system()</tt>
        but it does not open an extra console windows
@@ -7372,7 +7372,7 @@ namespace cimg_library {
     /**
        \param str C-string.
        \param l Max number of printed characters.
-       \param is_ending Tell if the dots are placed at the end or at the center of the ellipsized string.
+       \param is_ending Indicates whether the dots are placed at the end or at the center of the ellipsized string.
     **/
     inline char *strellipsize(char *const str, const unsigned int l=64,
                               const bool is_ending=true) {
@@ -7394,7 +7394,7 @@ namespace cimg_library {
        \param str C-string.
        \param res output C-string.
        \param l Max number of printed characters. String 'res' must be a size of at least 'l+1'.
-       \param is_ending Tell if the dots are placed at the end or at the center of the ellipsized string.
+       \param is_ending Indicates whether the dots are placed at the end or at the center of the ellipsized string.
     **/
     inline char *strellipsize(const char *const str, char *const res, const unsigned int l=64,
                               const bool is_ending=true) {
@@ -8517,7 +8517,7 @@ namespace cimg_library {
      a minimal mode where warning messages will be outputted each time the program is trying to call one of the
      CImgDisplay method.
 
-     The configuration variable \c cimg_display tells about the graphic library used.
+     The configuration variable \c cimg_display indicates the graphic library used.
      It is set automatically by \CImg when one of these graphic libraries has been detected.
      But, you can override its value if necessary. Valid choices are:
      - 0: Disable display capabilities.
@@ -12724,7 +12724,7 @@ namespace cimg_library {
      - \c _depth defines the number of \a slices of the image (size along the Z-axis).
      - \c _spectrum defines the number of \a channels of the image (size along the C-axis).
      - \c _data defines a \a pointer to the \a pixel \a data (of type \c T).
-     - \c _is_shared is a boolean that tells if the memory buffer \c data is shared with
+     - \c _is_shared is a boolean indicates that the memory buffer \c data is shared with
        another image.
 
      You can access these fields publicly although it is recommended to use the dedicated functions
@@ -21827,7 +21827,7 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"epoch(",6)) { // Convert date to epoch
               _cimg_mp_op("Function 'epoch()'");
-              is_sth = true; // Tell if all arguments are constant
+              is_sth = true; // Indicates that all arguments are constant
               CImg<ulongT> _op(1,8,1,1,(ulongT)~0U);
               arg1 = 2;
               if (ss6<se1)
@@ -24878,7 +24878,7 @@ namespace cimg_library {
             arg1 = !is_hypot && s!=ss4?compile(ss4,s,depth1,0,block_flags):2;
             _cimg_mp_check_const_scalar(arg1,0,0);
             val = mem[arg1];
-            is_sth = true; // Tell if all arguments are constant
+            is_sth = true; // Indicates that all arguments are constant
             CImg<ulongT>::vector(0,0,0,arg1).move_to(l_opcode);
             for (++s; s<se; ++s) {
               ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
@@ -24987,8 +24987,8 @@ namespace cimg_library {
               *ss=='s'?(ss[1]=='t'?mp_std:mp_sum):
               mp_var;
 
-            is_sth = true; // Tell if all arguments are constant
-            bool is_scalar = true; // Tell if all arguments are scalars
+            is_sth = true; // Indicates that all arguments are constant
+            bool is_scalar = true; // Indicates that all arguments are scalars
             CImg<ulongT>::vector((ulongT)op,0,0).move_to(l_opcode);
 
             for (s = std::strchr(ss,'(') + 1; s<se; ++s) {
@@ -35332,7 +35332,8 @@ namespace cimg_library {
     //! Fill sequentially pixel values according to a given expression.
     /**
        \param expression C-string describing a math formula, or a sequence of values.
-       \param repeat_values In case a list of values is provided, tells if this list must be repeated for the filling.
+       \param repeat_values In case a list of values is provided, indicates that this list must be repeated for the
+                            filling.
        \param allow_formula Tells that mathematical formulas are authorized for the filling.
        \param list_images In case of a mathematical expression, attach a list of images to the specified expression.
     **/
@@ -35611,8 +35612,8 @@ namespace cimg_library {
     //! Fill sequentially pixel values according to the values found in another image.
     /**
        \param values Image containing the values used for the filling.
-       \param repeat_values In case there are less values than necessary in \c values, tells if these values must be
-         repeated for the filling.
+       \param repeat_values In case there are less values than necessary in \c values,
+                            indicates that these values must be repeated for the filling.
     **/
     template<typename t>
     CImg<T>& fill(const CImg<t>& values, const bool repeat_values=true) {
@@ -36522,7 +36523,8 @@ namespace cimg_library {
     /**
        \param colormap Multi-valued colormap used as the basis for multi-valued pixel indexing.
        \param dithering Level of dithering (0=disable, 1=standard level).
-       \param map_colors Tell if the values of the resulting image are the colormap indices or the colormap vectors.
+       \param map_colors Indicates whether the values of the resulting image are the colormap indices or the
+                         colormap vectors.
        \note
        - \p img.index(colormap,dithering,1) is equivalent to <tt>img.index(colormap,dithering,0).map(colormap)</tt>.
        \par Example
@@ -64290,7 +64292,7 @@ namespace cimg_library {
 
     //! Serialize a CImg<T> instance into a raw CImg<unsigned char> buffer.
     /**
-       \param is_compressed tells if zlib compression must be used for serialization
+       \param is_compressed Indicates that zlib compression must be used for serialization
        (this requires 'cimg_use_zlib' been enabled).
        \param header_size Reserve empty bytes as a starting header.
     **/
@@ -68355,7 +68357,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Tell if an image list can be saved as one single file.
+    //! Indicates whether an image list can be saved as one single file or not.
     /**
        \param filename Filename, as a C-string.
        \return \c true if the file format supports multiple images, \c false otherwise.
@@ -69112,7 +69114,7 @@ namespace cimg_library {
 
     //! Serialize a CImgList<T> instance into a raw CImg<unsigned char> buffer.
     /**
-       \param is_compressed tells if zlib compression must be used for serialization
+       \param is_compressed Indicates that zlib compression must be used for serialization
        (this requires 'cimg_use_zlib' been enabled).
        \param header_size Reserve empty bytes as a starting header.
     **/
@@ -70251,9 +70253,9 @@ namespace cimg_library {
     //! Return list of files/directories in specified directory.
     /**
        \param path Path to the directory. Set to 0 for current directory.
-       \param is_pattern Tell if specified path has a matching pattern in it.
+       \param is_pattern Indicates that a specified path has a matching pattern in it.
        \param mode Output type, can be primary { 0=files only | 1=folders only | 2=files + folders }.
-       \param include_path Tell if \c path must be included in resulting filenames.
+       \param include_path Indicates that \c path must be included in resulting filenames.
        \return A list of filenames.
     **/
     inline CImgList<char> files(const char *const path, const bool is_pattern=false,

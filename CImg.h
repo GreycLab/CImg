@@ -3864,7 +3864,7 @@ namespace cimg_library {
     const double PI = 3.14159265358979323846; //!< Value of the mathematical constant PI
 
     // Define a 10x13 binary font (small sans).
-    static const char *const data_font_small[] = {
+    inline const char* data_font_small() { return
       "                      UwlwnwoyuwHwlwmwcwlwnw[xuwowlwmwoyuwRwlwnxcw     Mw                    (wnwnwuwpwuypwuwoy"
       "ZwnwmwuwowuwmwnwnwuwowuwfwuxnwnwmwuwpwuypwuwZwnwnwtwpwtwow'y    Hw   cwnw  >{ jw %xdxZwdw_wexfwYwkw 7yowoyFx=w "
       "ry    qw %wuw  !xnwkwnwoyuwfwuw[wkwnwcwowrwpwdwuwoxuwpwkwnwoyuwRwkwnwbwpwNyoyoyoyoy;wdwnxpxtxowG|!ydwnwuwowtwow"
@@ -3913,10 +3913,10 @@ namespace cimg_library {
       "}r{qwnyuypwpwrwownydwcwcwcwnzq{rwqwpwmwkwgzHz]}U|owuw@wqwswrytwqwqyqwqwswqwswqwswqwswqwswqwuwr{ryp{q{q{q{nwmwnw"
       "mwozqwsxpyoyoyoyoygwuypzpzpzpznwowmwuypzpzpzpzpzpzryuzryoyoyoyoymwqwjwmwnypwswpyoyoyoyoyfzozpzpzpzpwnzow    \\w"
       "OwnwXw[w SwGz kx0x lxdx gw[w=wiw*wbyowoyGwKwowewawcwow  YwOwoz Ewjwuwdw 7w   9w  Iwnwlw    \\w      0|*y[x=wiw,"
-      "xWw=wKwowewawcwow  Yw  hwVx 8w   9w  Jxmwnxp" };
+      "xWw=wKwowewawcwow  Yw  hwVx 8w   9w  Jxmwnxp"; }
 
     // Define a 26x32 font (normal sans).
-    static const char *const data_font_normal[] = {
+    inline const char* data_font_normal() { return
       "                                                      #{}~}a{|y~f{|y~}f{|}|x{}|j{|y}y{|y}g{}y~}|2y~|a{}~}f{}y~|"
       "gy}|yy}|i{}~}a{}~}f{}y~}gy}|yx}N{|}|x{}|hy~|ay~|fx~|g{}y~|y{}~j{|y~|yy~}5{}~}a{}~}f{}y~}gy~}yy~}e{|y~          "
       "                                                      2{}~}c{|y~f{|y~}~}h{}w~y}~|j{}y~y{}y~h{}~y}y~|2y~|c{}~}f{"
@@ -4244,10 +4244,10 @@ namespace cimg_library {
       "|y~|O{}~}F{|y~J{|y~h{}y~     Rx| W{}~}    i{}~}-{}y~}| &{}s~|  i{|~y}y~         t{|~y}y~      kv~|g{}y~dv~|  ex"
       "}                   s{|y~}|     '{|n~}  m{|y}w~}|6{|y~} ?{}y~Z{}~}  nx~}|-{}~} B{|y~ g{}~}j{|y~|O{}~}F{|y~J{|y~"
       "h{}y~           q{}~}  -{|}x~}|  f{}y~}|         t{|x~}|      kx~}|f{}y~dx~}|                                  "
-      " :{}~}                                     I{" };
+      " :{}~}                                     I{"; }
 
     // Define a 52x64 font (large sans).
-    static const char *const data_font_large[] = {
+    inline const char* data_font_large() { return
       "                                                                                                               "
       " -{|                                                                                                           "
       "                                    [{|x}|Dw}|Pw}| @{}v~} C{|w}|Ew}|Pv}| xv|Ev|Pu|  kv|Dw|P{|v}  6{|w}|E{|x}|P{"
@@ -4594,7 +4594,7 @@ namespace cimg_library {
       "|y{}w~}\\{|w~|m{}w~|gv~|b{|v~h{}w~}u{}w~tv~a{|w~}q{|w~}`v~t{}w~t{|w~}b{}w~|m{|v~c{}w~}l{}w~}X{|w~}W`~`{|w~}pv~|"
       "S{}v~|W{}w~}V{|v~bv~}lv~}r{|v~r{|v~|i{}w~}hv~|gu~t{|v~t{|v~}jv~}xh|y{|v~|mT~]{}w~]T~|^{}w~]{}U~|^{}w~ Hv~|ty~}X"
       "{}g~|[w~|nw~|W{}u~}Mw~|V{}w~ov~1{|y~v{}x~}d{|y~|ay}x~y}ww|[{}w~}v{|v~|`{|Z~}8{|y~ro~o{|y~| Q{}w~R{}l~|V{|y}v~y}"
-      "|${|w~|m{}w~|\\{|}s~}w{|x~}W{|v~| xm~}T{|y}w~}|S{|v~|v{}w~}gm~}w{}x~}oy~y}x~rm~}w{}x~}v{}~}y|w{|v~u{|o~}t{}x~}o",
+      "|${|w~|m{}w~|\\{|}s~}w{|x~}W{|v~| xm~}T{|y}w~}|S{|v~|v{}w~}gm~}w{}x~}oy~y}x~rm~}w{}x~}v{}~}y|w{|v~u{|o~}t{}x~}o"
       "t~^v|V{|w~}p{}w~|^{|w~}p{}w~|^{|w~}p{}w~|^{|w~}p{}w~|^{|w~}p{}w~|^{}w~}p{}w~}ev~|r{|v~h|lv~}I{}w~}i|_{}w~}i|_{}"
       "w~}i|_{}w~}i|V{}w~}M{}w~}M{}w~}M{}w~}_v}u~r}nv~}h{}w~|tv~|uv~iv~}c{|v~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|"
       "_{|r~}_v~}r{}w~q{|v~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}Z{|v~|V{}w~}mv~}aw~}u{|t~|I{}w~L{}w~L{}w~L{}w~"
@@ -4940,10 +4940,10 @@ namespace cimg_library {
       "               g{|y}w~}|            X{}v~}|Ow~}L{}v~}|    Iy|                                                  "
       "l{}`~}                Ww~|                                                                                     "
       "                                            L{}`~}                Ww}|                                         "
-      "                                  r{" };
+      "                                  r{"; }
 
     // Define a 104x128 binary font (huge sans).
-    static const char *const data_font_huge[] = {
+    inline const char* data_font_huge() { return
       "                                                                                                               "
       "                                                                                                               "
       "                                                                                                               "
@@ -5435,7 +5435,7 @@ namespace cimg_library {
       "K['v +o 2Y 9Z(Z IZ<Z#YBX@XCZ Fa %Z %\\ %X  HX  FY        6i FZ0Z JZ %Y/Z JY,X 9Y 5Z/Y GY1Y 5Y  NX 0XK\\  Y FY3Z"
       "3Y+Y1Y JY.Y IY/Z NY/Y ;Z *\\  HY .Y1Y DZ;Z LXBXIWBY Ce 6Y;Y )[ -\\  LX  L\\ >q:X  !U:[9U&Y5] DY?d =jLX FY/Z C[ "
       ")Y1Y AX=Z 6ZIY >Y1Y%Z IZ*YAYAY HY9Y IY@X@Y KY/Y NZ/Z 5Y 5Y-Y HZ8Y .[ 4Z 1Z LZ/Z;Z;Z*Z(Z'[?Z@[-[ L[3~o BX B~o BX"
-      " B~o BX      NZ@U 8y <X4X 4^ \"X 1X6Y   IUEX MT GW *ZCZ E~d  &T=g5T     -X ,o 5i   /Y1Y <bEW 3Z    Nl *W 'ZCZ(l",
+      " B~o BX      NZ@U 8y <X4X 4^ \"X 1X6Y   IUEX MT GW *ZCZ E~d  &T=g5T     -X ,o 5i   /Y1Y <bEW 3Z    Nl *W 'ZCZ(l"
       "EW6]>mFXDS?YBi?W5] CY 4Z8Y BY7Y BZ8Z CY7Y AY8Z CZ8Y!Y:Z <Z  HZ !Z  Z !Z  >Z !Z !Z \"Z Ew5[)Y?ZBY*Z KZ/Z KZ1[ KZ"
       "1[ L[1Z KZ Dc E[=Y9[+Z(Z#Z(Z$Z(Z$Y'Y 9Z 2Z2Z KYB^ &i 0i 1i /i 0i 0i Ej-Y/Z $Z-Y MZ-Y MZ-Y LY-Y 7Y  Y  NX  Y 5Y/"
       "Z IY1X JZ/Z KZ/Z LY.Y LZ/Z KZ/Z$~d$Z=WIZ KY0X HY0X GX0X GX0Y CY<Z CY/Z GZ<Z     :WK~KW/WJ}JW.W<`<W.W7[<W/W9[9W "
@@ -5925,7 +5925,7 @@ namespace cimg_library {
       "                                           9X                                                                  "
       "                                                                                                               "
       "                                                                                                               "
-      "  '" };
+      "  '"; }
 
     // Define a 40x38 'danger' color logo (used by cimg::dialog()).
     static const unsigned char logo40x38[4576] = {
@@ -69335,19 +69335,15 @@ namespace cimg_library {
         219, 220, 220, 221, 222, 223, 224, 224, 225, 226, 227, 227, 228, 229, 230, 231,
         231, 232, 233, 234, 234, 235, 236, 237, 238, 238, 239, 240, 241, 241, 242, 243,
         244, 244, 245, 246, 247, 247, 248, 249, 250, 250, 251, 252, 253, 253, 254, 255 };
-      static const char *const *font_data[] = {
-        cimg::data_font_small,
-        cimg::data_font_normal,
-        cimg::data_font_large,
-        cimg::data_font_huge };
+      static const char *const font_data[] = {
+        cimg::data_font_small(),
+        cimg::data_font_normal(),
+        cimg::data_font_large(),
+        cimg::data_font_huge() };
       static const unsigned int
         font_width[] = { 10,26,52,104 },
         font_height[] = { 13,32,64,128 },
-        font_M[] = { 86,91,91,47 },
-        font_chunk[] = { sizeof(cimg::data_font_small)/sizeof(char*),
-                         sizeof(cimg::data_font_normal)/sizeof(char*),
-                         sizeof(cimg::data_font_large)/sizeof(char*),
-                         sizeof(cimg::data_font_huge)/sizeof(char*) };
+        font_M[] = { 86,91,91,47 };
       static const unsigned char font_is_binary[] = { 1,0,0,1 };
       static CImg<ucharT> font_base[4];
 
@@ -69360,14 +69356,9 @@ namespace cimg_library {
       CImg<ucharT> &basef = font_base[ind];
       if (!basef) {
         basef.assign(256*font_width[ind],font_height[ind]);
-
         unsigned char *ptrd = basef;
         const unsigned char *const ptrde = basef.end();
-
-        // Recompose font data from several chunks, to deal with MS compiler limit with big strings (64 Kb).
-        CImg<char> dataf;
-        for (unsigned int k = 0; k<font_chunk[ind]; ++k)
-          dataf.append(CImg<char>::string(font_data[ind][k],k==font_chunk[ind] - 1,true),'x');
+        const char *dataf = font_data[ind];
 
         // Uncompress font data (decode RLE).
         const unsigned int M = font_M[ind];

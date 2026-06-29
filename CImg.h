@@ -12286,10 +12286,8 @@ namespace cimg_library {
         _is_closed = is_event = true;
         break;
       case SDL_EVENT_WINDOW_RESIZED: {
-        int w,h;
-        SDL_GetWindowSize(_window,&w,&h);
-        _window_width = (unsigned int)w;
-        _window_height = (unsigned int)h;
+        _window_width = (unsigned int)event.window.data1;
+        _window_height = (unsigned int)event.window.data2;
         _is_resized = _paint_request = is_event = true;
       } break;
       case SDL_EVENT_WINDOW_MOVED:

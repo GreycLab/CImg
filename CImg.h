@@ -2574,7 +2574,7 @@ namespace cimg_library {
      \par Overview
 
       CImgException is the base class of all exceptions thrown by \CImg (except \b CImgAbortException).
-      CImgException is never thrown itself. Derived classes that specify the type of errord are thrown instead.
+      CImgException is never thrown itself. Derived classes that specify the type of error are thrown instead.
       These classes can be:
 
       - \b CImgAbortException: Thrown when a computationally-intensive function is aborted by an external signal.
@@ -2611,7 +2611,7 @@ namespace cimg_library {
       since they are expected to be thrown only by \CImg.
       When an error occurs in a library function call, \CImg may display error messages on the screen or on the
       standard output, depending on the current \CImg exception mode.
-      The \CImg exception mode can be get and set by functions cimg::exception_mode() and
+      The \CImg exception mode can be queried and set by functions cimg::exception_mode() and
       cimg::exception_mode(unsigned int).
 
       \par Exceptions handling
@@ -2621,7 +2621,7 @@ namespace cimg_library {
       handling the exceptions by yourself,
       using a usual <tt>try { ... } catch () { ... }</tt> block, as in the following example:
       \code
-      #define "CImg.h"
+      #include "CImg.h"
       using namespace cimg_library;
       int main() {
         cimg::exception_mode(0); // Enable quiet exception mode
@@ -2736,7 +2736,7 @@ namespace cimg_library {
   /**
      Most of the functions and variables within this namespace are used by the \CImg library for low-level operations.
      You may use them to access specific const values or environment variables internally used by \CImg.
-     \warning Never write <tt>using namespace cimg_library::cimg;</tt> in your source code. Lot of functions in the
+     \warning Never write <tt>using namespace cimg_library::cimg;</tt> in your source code. A lot of functions in the
      <tt>cimg:: namespace</tt> have the same names as standard C functions that may be defined in the global
      namespace <tt>::</tt>.
   **/
@@ -6013,7 +6013,7 @@ namespace cimg_library {
     /**
        \param command C-string containing the command line to execute.
        \param module_name Module name.
-       \param is_verbose Indicates whether the command must be silent or verbose when outputing messages.
+       \param is_verbose Indicates whether the command must be silent or verbose when outputting messages.
        \return Status value of the executed command, whose meaning is OS-dependent.
        \note This function is similar to <tt>std::system()</tt>
        but it does not open an extra console windows
@@ -9164,7 +9164,7 @@ namespace cimg_library {
 
     //! Return normalization type of the display.
     /**
-       The normalization type tells about how the values of an input image are normalized by the CImgDisplay to be
+       The normalization type indicates how the values of an input image are normalized by the CImgDisplay to be
        correctly displayed. The range of values for pixels displayed on screen is <tt>[0,255]</tt>.
        If the range of values of the data to display is different, a normalization may be required for displaying
        the data in a correct way. The normalization type can be one of:
@@ -12724,17 +12724,17 @@ namespace cimg_library {
      - \c _depth defines the number of \a slices of the image (size along the Z-axis).
      - \c _spectrum defines the number of \a channels of the image (size along the C-axis).
      - \c _data defines a \a pointer to the \a pixel \a data (of type \c T).
-     - \c _is_shared is a boolean indicates that the memory buffer \c data is shared with
+     - \c _is_shared is a boolean indicating that the memory buffer \c data is shared with
        another image.
 
      You can access these fields publicly although it is recommended to use the dedicated functions
      width(), height(), depth(), spectrum() and ptr() to do so.
-     Image dimensions are not limited to a specific range (as long as you got enough available memory).
+     Image dimensions are not limited to a specific range (as long as you have enough available memory).
      A value of \e 1 usually means that the corresponding dimension is \a flat.
      If one of the dimensions is \e 0, or if the data pointer is null, the image is considered as \e empty.
      Empty images should not contain any pixel data and thus, will not be processed by CImg member functions
      (a CImgInstanceException will be thrown instead).
-     Pixel data are stored in memory, in a non interlaced mode (See \ref cimg_storage).
+     Pixel data is stored in memory, in a non-interleaved mode (See \ref cimg_storage).
 
      \par Image declaration and construction
 
@@ -12773,7 +12773,7 @@ namespace cimg_library {
 
      \par Most useful functions
 
-     The \c CImg<T> class contains a lot of functions that operates on images.
+     The \c CImg<T> class contains a lot of functions that operate on images.
      Some of the most useful are:
 
      - operator()(): Read or write pixel values.
@@ -12796,7 +12796,7 @@ namespace cimg_library {
        \code
        CImg<float> img("reference.jpg"); // Load image from file
        // Set all pixels to '0', with a CImg iterator.
-       for (CImg<float>::iterator it = img.begin(), it<img.end(); ++it) *it = 0;
+       for (CImg<float>::iterator it = img.begin(); it<img.end(); ++it) *it = 0;
        img.fill(0); // Do the same with a built-in method
        \endcode
    **/
@@ -12813,7 +12813,7 @@ namespace cimg_library {
        const CImg<float> img("reference.jpg"); // Load image from file
        float sum = 0;
        // Compute sum of all pixel values, with a CImg iterator.
-       for (CImg<float>::iterator it = img.begin(), it<img.end(); ++it) sum+=*it;
+       for (CImg<float>::const_iterator it = img.begin(); it<img.end(); ++it) sum+=*it;
        const float sum2 = img.sum(); // Do the same with a built-in method
        \endcode
     **/
@@ -12866,7 +12866,7 @@ namespace cimg_library {
           ((osiz = siz), sizeof(T)==1 || (siz*sizeof(T))>osiz)) {
         if (siz>cimg_max_buf_size){
           throw CImgArgumentException("CImg<%s>::safe_size(): Specified size (%u,%u,%u,%u) exceeds maximum "
-                                      "allowed buffer size of %lu ",
+                                      "allowed buffer size of %lu.",
                                       pixel_type(),dx,dy,dz,dc,cimg_max_buf_size);
         }
         return siz;
@@ -13467,9 +13467,9 @@ namespace cimg_library {
        Construct a new image instance with pixels of type \c T, as a copy of an existing \c CImg<t> instance,
        while forcing the shared state of the constructed copy.
        \param img Input image to copy.
-       \param is_shared Tells about the shared state of the constructed copy.
+       \param is_shared Indicates the shared state of the constructed copy.
        \note
-       - Similar to CImg(const CImg<t>&), except that it allows to decide the shared state of
+       - Similar to CImg(const CImg<t>&), except that it allows users to decide the shared state of
          the constructed image, which does not depend anymore on the shared state of the input image \c img:
          - If \c is_shared is \c true, the constructed copy will share its pixel buffer with the input image \c img.
            For that case, the pixel types \c T and \c t \e must be the same.
@@ -14053,7 +14053,7 @@ namespace cimg_library {
          }
        }
        \endcode
-       - It also allows to use brackets to access pixel values, without need for a \c CImg<T>::operator[](), e.g.
+       - It also allows users to use brackets to access pixel values, without need for a \c CImg<T>::operator[](), e.g.
        \code
        CImg<float> img(100,100);
        const float value = img[99]; // Access to value of the last pixel on the first row
@@ -15368,7 +15368,7 @@ namespace cimg_library {
        - spectrum() is typically equal to \c 1 when considering scalar-valued images, to \c 3
          for RGB-coded color images, and to \c 4 for RGBA-coded color images (with alpha-channel).
          The number of channels of an image instance is not limited. The meaning of the pixel values is not linked
-         up to the number of channels (e.g. a 4-channel image may indifferently stands for a RGBA or CMYK color image).
+         up to the number of channels (e.g. a 4-channel image may represent either a RGBA or a CMYK color image).
        - spectrum() returns an \c int, although the image spectrum is internally stored as an \c unsigned \c int.
          Using an \c int is safer and prevents arithmetic traps possibly encountered when doing calculations involving
          \c unsigned \c int variables.
@@ -18082,7 +18082,7 @@ namespace cimg_library {
         calling_function(0),
         result_end(0),
         rng(0) {
-        mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
+        mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Makes it possible to skip 'is_empty?' test in operator()()
         result = mem._data;
       }
 
@@ -25870,7 +25870,7 @@ namespace cimg_library {
       }
 
       // Check type compatibility for one argument.
-      // Bits of 'mode' tells what types are allowed:
+      // Bits of 'mode' indicates what types are allowed:
       // { 1 = scalar | 2 = vectorN }.
       // If 'N' is not zero, it also restricts the vectors to be of size N only.
       void check_type(const unsigned int arg, const unsigned int n_arg,
@@ -35334,7 +35334,7 @@ namespace cimg_library {
        \param expression C-string describing a math formula, or a sequence of values.
        \param repeat_values In case a list of values is provided, indicates that this list must be repeated for the
                             filling.
-       \param allow_formula Tells that mathematical formulas are authorized for the filling.
+       \param allow_formula Indicates that mathematical formulas are authorized for the filling.
        \param list_images In case of a mathematical expression, attach a list of images to the specified expression.
     **/
     CImg<T>& fill(const char *const expression, const bool repeat_values, const bool allow_formula=true,
@@ -39587,7 +39587,7 @@ namespace cimg_library {
     CImg<T>& permute_axes(const char *const axes_order) {
       if (is_empty() || !axes_order) return *this;
       const unsigned uicase = _permute_axes_uicase(axes_order);
-      if (_permute_axes_is_optim(uicase)) { // Data layout allow to do nothing but set the new dimensions
+      if (_permute_axes_is_optim(uicase)) { // Data layout makes it possible to do nothing but set the new dimensions
         CImg<T> res(*this,true);
         for (unsigned int i = 0; i<4; ++i) {
           const unsigned int
@@ -39662,7 +39662,7 @@ namespace cimg_library {
       CImg<t> res;
       const unsigned uicase = _permute_axes_uicase(axes_order);
 
-      if (_permute_axes_is_optim(uicase)) { // Data layout allow to do nothing but set the new dimensions
+      if (_permute_axes_is_optim(uicase)) { // Data layout makes it possible to do nothing but set the new dimensions
         res.assign(*this,false);
         for (unsigned int i = 0; i<4; ++i) {
           const unsigned int
@@ -46263,7 +46263,7 @@ namespace cimg_library {
        \param is_forward If true, optimize (I(X + U(X)) - R(X)). If false, optimize (I(X) - R(X - U(X))).
        \param guide Image used as the initial correspondence estimate for the algorithm.
        'guide' may have a last channel with boolean values (0=false | other=true) that
-       tells for each pixel if its correspondence vector is constrained to its initial value (constraint mask).
+       indicates for each pixel if its correspondence vector is constrained to its initial value (constraint mask).
     **/
     CImg<T>& displacement(const CImg<T>& reference, const float smoothness=0.1f, const float precision=7.f,
                           const unsigned int nb_scales=0, const unsigned int iteration_max=1000,
@@ -46530,10 +46530,10 @@ namespace cimg_library {
         \param nb_iterations Number of patch-match iterations.
         \param nb_randoms Number of randomization attempts (per pixel).
         \param patch_penalization Penalization factor in score related patch occurrences.
-               if negative, also tells that identity result is not avoided.
+               if negative, also indicates that identity result is not avoided.
         \param guide Image used as the initial correspondence estimate for the algorithm.
           'guide' may have a last channel with boolean values (0=false | other=true) that
-          tells for each pixel if its correspondence vector is constrained to its initial value (constraint mask).
+          indicates for each pixel if its correspondence vector is constrained to its initial value (constraint mask).
         \param[out] matching_score Returned as the image of matching scores.
     **/
     template<typename t1, typename t2>
@@ -55805,7 +55805,7 @@ namespace cimg_library {
     /**
        \param disp Display window to use.
        \param feature_type Type of feature to select. Can be <tt>{ 0=point | 1=line | 2=rectangle | 3=ellipse }</tt>.
-       \param XYZ Pointer to 3 values X,Y,Z which tells about the projection point coordinates, for volumetric images.
+       \param XYZ Pointer to 3 values X,Y,Z which indicates the projection point coordinates, for volumetric images.
        \param exit_on_anykey Exit function when any key is pressed.
        \param is_deep_selection_default
     **/
@@ -60579,7 +60579,7 @@ namespace cimg_library {
     //! Display information about the image data.
     /**
        \param title Name for the considered image.
-       \param display_stats Tells to compute and display image statistics.
+       \param display_stats Specifies whether to compute and display image statistics.
     **/
     const CImg<T>& print(const char *const title=0, const bool display_stats=true) const {
 
@@ -60641,7 +60641,7 @@ namespace cimg_library {
     //! Display image into a CImgDisplay window, in an interactive way.
     /**
         \param disp Display window.
-        \param display_info Indicates whether image information are displayed on the standard output.
+        \param display_info Indicates whether image information is displayed on the standard output.
         \param[in,out] XYZ Contains the XYZ coordinates at start / exit of the function.
         \param exit_on_anykey Exit function when any key is pressed.
     **/
@@ -60653,7 +60653,7 @@ namespace cimg_library {
     //! Display image into an interactive window.
     /**
         \param title Window title
-        \param display_info Indicates whether image information are displayed on the standard output.
+        \param display_info Indicates whether image information is displayed on the standard output.
         \param[in,out] XYZ Contains the XYZ coordinates at start / exit of the function.
         \param exit_on_anykey Exit function when any key is pressed.
     **/
@@ -63076,7 +63076,7 @@ namespace cimg_library {
           31=WEBP | 32=ZSTD }</tt>
        \param[out] voxel_size Voxel size, to be stored in the filename.
        \param[out] description Description, to be stored in the filename.
-       \param use_bigtiff Allow to save big tiff files (>4Gb).
+       \param use_bigtiff Indicates whether the file is saved as big tiff (>4Gb) or not.
        \note
        - libtiff support is enabled by defining the precompilation
         directive \c cimg_use_tiff.
@@ -64247,7 +64247,7 @@ namespace cimg_library {
        \param filename Filename, as a C-string.
        \param quality Image quality (expressed in percent), when the file format supports it.
        \note
-       - The filename extension tells about the desired file format.
+       - The filename extension indicates the desired file format.
        - This method tries to save the instance image as a file, using external tools from
        <a href="http://www.imagemagick.org">ImageMagick</a> or
        <a href="http://www.graphicsmagick.org">GraphicsMagick</a>.
@@ -65988,7 +65988,7 @@ namespace cimg_library {
       return *ptr_max;
     }
 
-    //! Return a reference to the minimum pixel value of the instance list and return the maximum vvalue as well.
+    //! Return a reference to the minimum pixel value of the instance list and return the maximum value as well.
     /**
        \param[out] max_val Value of the maximum value found.
     **/
@@ -66019,7 +66019,7 @@ namespace cimg_library {
       return *ptr_min;
     }
 
-    //! Return a reference to the minimum pixel value of the instance list and return the maximum vvalue as well \const.
+    //! Return a reference to the minimum pixel value of the instance list and return the maximum value as well \const.
     /**
        \param[out] max_val Value of the maximum value found.
     **/
@@ -66050,7 +66050,7 @@ namespace cimg_library {
       return *ptr_min;
     }
 
-    //! Return a reference to the minimum pixel value of the instance list and return the minimum value as well.
+    //! Return a reference to the maximum pixel value of the instance list and return the minimum value as well.
     /**
        \param[out] min_val Value of the minimum value found.
     **/
@@ -68131,7 +68131,7 @@ namespace cimg_library {
     //! Display the current CImgList instance in a new display window.
     /**
         \param disp Display window.
-        \param display_info Indicates whether image information are displayed on the standard output.
+        \param display_info Indicates whether image information is displayed on the standard output.
         \param axis Alignment axis for images viewing.
         \param align Appending alignment.
         \param[in,out] XYZ Contains the XYZ coordinates at start / exit of the function.
@@ -68817,7 +68817,7 @@ namespace cimg_library {
       \param compression_type Compression mode used to write data.
       \param voxel_size Voxel size, to be stored in the filename.
       \param description Description, to be stored in the filename.
-      \param use_bigtiff Allow to save big tiff files (>4Gb).
+      \param use_bigtiff Indicates whether the file is saved as big tiff (>4Gb) or not.
     **/
     const CImgList<T>& save_tiff(const char *const filename, const unsigned int compression_type=0,
                                  const float *const voxel_size=0, const char *const description=0,
@@ -70524,7 +70524,7 @@ namespace cimg_library {
        \param url URL of the filename, as a C-string.
        \param[out] filename_local C-string containing the path to a local copy of \c filename.
        \param timeout Maximum time (in seconds) authorized for downloading the file from the URL.
-       \param try_fallback When using libcurl, tells using system calls as fallbacks in case of libcurl failure.
+       \param try_fallback When using libcurl, it asks for using system calls as fallbacks in case of libcurl failure.
        \param referer Referer used, as a C-string.
        \param user_agent User agent used, as a C-string.
        \return Value of \c filename_local.

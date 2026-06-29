@@ -6405,6 +6405,12 @@ namespace cimg_library {
       return cimg::wait(milliseconds,&timer);
     }
 
+    //! Cut (i.e. clamp) value in specified interval.
+    template<typename T>
+    inline T cut(const T& val, const T& val_min, const T& val_max) {
+      return val<=val_min?val_min:val>=val_max?val_max:val;
+    }
+
     // Custom random number generator (allow re-entrance).
     inline cimg_uint64& rng() { // Used as a shared global number for rng
       static cimg_uint64 rng = 0xB16B00B5U;
@@ -6486,7 +6492,8 @@ namespace cimg_library {
 
     inline unsigned int prand(const double z, cimg_uint64 *const p_rng) {
       if (z<=1.e-10) return 0;
-      if (z>100) return (unsigned int)((std::sqrt(z) * cimg::grand(p_rng)) + z);
+      if (z>100) return (unsigned int)cimg::cut(std::sqrt(z)*cimg::grand(p_rng) + z,
+                                                0.,(double)cimg::type<unsigned int>::max());
       unsigned int k = 0;
       const double y = std::exp(-z);
       for (double s = 1.; s>=y; ++k) s*=cimg::rand(1,p_rng);
@@ -6739,12 +6746,6 @@ namespace cimg_library {
     template<typename T>
     inline T sign(const T& x) {
       return (T)(cimg::type<T>::is_nan(x)?0:x<0?-1:x>0);
-    }
-
-    //! Cut (i.e. clamp) value in specified interval.
-    template<typename T>
-    inline T cut(const T& val, const T& val_min, const T& val_max) {
-      return val<=val_min?val_min:val>=val_max?val_max:val;
     }
 
     //! Cut (i.e. clamp) absolute value in specified interval.

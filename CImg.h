@@ -12995,16 +12995,20 @@ namespace cimg_library {
     typedef typename cimg::last<T,float>::type floatT;
     typedef typename cimg::last<T,double>::type doubleT;
 
-    // Return 'dx*dy*dz*dc' as a 'size_t' and check no overflow occurs.
+    // Return 'dx*dy*dz*dc' as a 'size_t' and check that no overflow occurs.
     static size_t safe_size(const unsigned int dx, const unsigned int dy,
                             const unsigned int dz, const unsigned int dc) {
       if (!(dx && dy && dz && dc)) return 0;
-      size_t siz = (size_t)dx, osiz = siz;
-      if ((dy==1 || (siz*=dy)>osiz) &&
-          ((osiz = siz), dz==1 || (siz*=dz)>osiz) &&
-          ((osiz = siz), dc==1 || (siz*=dc)>osiz) &&
-          ((osiz = siz), sizeof(T)==1 || (siz*sizeof(T))>osiz)) {
-        if (siz>cimg_max_buf_size){
+      size_t siz = (size_t)dx;
+      const size_t max_size_t = ~((size_t)0); // Portable definition of size_t maximum value in C++98
+
+      // Perform strict division-based overflow checks for dimensions and type size.
+      if ((dy==1 || (siz<=max_size_t/dy && (siz*=dy))) &&
+          (dz==1 || (siz<=max_size_t/dz && (siz*=dz))) &&
+          (dc==1 || (siz<=max_size_t/dc && (siz*=dc))) &&
+          (sizeof(T)==1 || siz<=max_size_t/sizeof(T))) {
+        const size_t total_bytes = siz*sizeof(T);
+        if (total_bytes>cimg_max_buf_size) {
           throw CImgArgumentException("CImg<%s>::safe_size(): Specified size (%u,%u,%u,%u) exceeds maximum "
                                       "allowed buffer size of %lu.",
                                       pixel_type(),dx,dy,dz,dc,cimg_max_buf_size);

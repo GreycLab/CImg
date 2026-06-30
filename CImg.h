@@ -16668,7 +16668,7 @@ namespace cimg_library {
                     _cimg_mp_strerr;
                     cimg::strellipsize(variable_name,64);
                     throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                                "CImg<%s>::%s: %s: Too much specified arguments (>24), in macro "
+                                                "CImg<%s>::%s: %s: Too many specified arguments (>24), in macro "
                                                 "definition '%s()', in expression '%s'.",
                                                 pixel_type(),_cimg_mp_calling_function,s_op,
                                                 variable_name._data,s0);
@@ -18736,7 +18736,7 @@ namespace cimg_library {
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: %s arguments provided, in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
-                                            arg1<12?"Not enough":"Too much",s0);
+                                            arg1<12?"Not enough":"Too many",s0);
               }
               _cimg_mp_check_type(opcode[2],1,2,0); // I
               _cimg_mp_check_const_scalar(opcode[3],2,3); // wI
@@ -18970,10 +18970,10 @@ namespace cimg_library {
                   arg1 = 5 + arg2; break;
                 case 9 :
                   arg1 = 5 + arg2; break;
-                default : // Error -> too much arguments
+                default : // Error -> too many arguments
                   _cimg_mp_strerr;
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                              "CImg<%s>::%s: %s: Too much arguments specified, "
+                                              "CImg<%s>::%s: %s: Too many arguments specified, "
                                               "in expression '%s'.",
                                               pixel_type(),_cimg_mp_calling_function,s_op,s0);
                 }
@@ -19065,7 +19065,7 @@ namespace cimg_library {
                   arg1 = 10; break;
                 case 14 :
                   arg1 = 10; break;
-                default : // Error -> too few or too much arguments
+                default : // Error -> too few or too many arguments
                   _cimg_mp_strerr;
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                               "CImg<%s>::%s: %s: Too %s arguments specified, "
@@ -19911,7 +19911,7 @@ namespace cimg_library {
               if (arg1==~0U) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                            "CImg<%s>::%s: %s: Too much arguments specified, in expression '%s'.",
+                                            "CImg<%s>::%s: %s: Too many arguments specified, in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s0);
               }
@@ -21711,7 +21711,7 @@ namespace cimg_library {
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                               "CImg<%s>::%s: %s: %s arguments, in expression '%s'.",
                                               pixel_type(),_cimg_mp_calling_function,s_op,
-                                              pos<1?"Missing":"Too much",s0);
+                                              pos<1?"Missing":"Too many",s0);
                 }
                 l_opcode[0].move_to(code);
                 _cimg_mp_return_nan();
@@ -62229,7 +62229,8 @@ namespace cimg_library {
       CImg<charT> command(1024), filename_tmp(256);
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",cimg::temporary_path(),
-                      cimg_directory_separator,cimg::filenamerand(),_spectrum==1?_cimg_sie_extension1:_cimg_sie_extension2);
+                      cimg_directory_separator,cimg::filenamerand(),
+                      _spectrum==1?_cimg_sie_extension1:_cimg_sie_extension2);
       } while (cimg::path_exists(filename_tmp));
 #ifdef cimg_use_png
       save_png(filename_tmp);
@@ -68744,7 +68745,7 @@ namespace cimg_library {
         // Tic.
         times[pos++] = t1;
         if (pos>=times._width)
-          throw CImgArgumentException("cimg::tic(): Too much calls to 'cimg::tic()' without calls to 'cimg::toc()'.");
+          throw CImgArgumentException("cimg::tic(): Too many calls to 'cimg::tic()' without calls to 'cimg::toc()'.");
         cimg::mutex(2,0);
         return t1;
       }

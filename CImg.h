@@ -46634,7 +46634,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Generate a 3D elevation of the image instance.
+    //! Generate a 3D elevation map from the instance image, as a 3D object.
     /**
        \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
@@ -46663,15 +46663,19 @@ namespace cimg_library {
       if (is_empty()) return *this;
       float m, M = (float)max_min(m);
       if (M==m) ++M;
-      colors.assign();
       const unsigned int size_x1 = _width - 1, size_y1 = _height - 1;
+      colors.assign(size_x1*size_y1,1,3);
+      unsigned int off = 0;
       for (unsigned int y = 0; y<size_y1; ++y)
         for (unsigned int x = 0; x<size_x1; ++x) {
           const unsigned char
-            r = (unsigned char)(((*this)(x,y,0) - m)*255/(M-m)),
-            g = (unsigned char)(_spectrum>1?((*this)(x,y,1) - m)*255/(M-m):r),
-            b = (unsigned char)(_spectrum>2?((*this)(x,y,2) - m)*255/(M-m):_spectrum>1?0:r);
-          CImg<tc>::vector((tc)r,(tc)g,(tc)b).move_to(colors);
+            r = (unsigned char)(((*this)(x,y,0) - m)*255/(M - m)),
+            g = (unsigned char)(_spectrum>1?((*this)(x,y,1) - m)*255/(M - m):r),
+            b = (unsigned char)(_spectrum>2?((*this)(x,y,2) - m)*255/(M - m):_spectrum>1?0:r);
+          CImg<tc>& color = colors[off++];
+          color[0] = (tc)r;
+          color[1] = (tc)g;
+          color[2] = (tc)b;
         }
       const typename CImg<te>::_functor2d_int func(elevation);
       return elevation3d(primitives,func,0,0,_width - 1.f,_height - 1.f,_width,_height);
@@ -46726,7 +46730,7 @@ namespace cimg_library {
       return points;
     }
 
-    //! Generate a isoline of the image instance as a 3D object.
+    //! Generate an isoline from the instance image, as a 3D object.
     /**
        \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
@@ -46778,7 +46782,7 @@ namespace cimg_library {
        \param y1 Y-coordinate of the ending point.
        \param size_x Resolution of the function along the X-axis.
        \param size_y Resolution of the function along the Y-axis.
-       \note Use the marching squares algorithm for extracting the isolines.
+       \note Uses the marching squares algorithm for extracting the isolines.
      **/
     template<typename tf, typename tfunc>
     static CImg<floatT> isoline3d(CImgList<tf>& primitives, const tfunc& func, const float isovalue,
@@ -46794,8 +46798,8 @@ namespace cimg_library {
 
     //! Compute isolines of a function, as a 3D object.
     /**
-       \param[out] add_vertex : Functor with operator()(x,y,z) defined for adding new vertex.
-       \param[out] add_segment : Functor with operator()(i,j) defined for adding new segment.
+       \param[out] add_vertex : Functor with operator()(x,y,z) defined for adding a new vertex.
+       \param[out] add_segment : Functor with operator()(i,j) defined for adding a new segment.
        \param func Elevation function. Is of type <tt>float (*func)(const float x,const float y)</tt>.
        \param isovalue The scalar value used as the threshold for extraction.
        \param x0 X-coordinate of the starting point.
@@ -46804,7 +46808,7 @@ namespace cimg_library {
        \param y1 Y-coordinate of the ending point.
        \param size_x Resolution of the function along the X-axis.
        \param size_y Resolution of the function along the Y-axis.
-       \note Use the marching squares algorithm for extracting the isolines.
+       \note Uses the marching squares algorithm for extracting the isolines.
      **/
     template<typename tv, typename tf, typename tfunc>
     static void isoline3d(tv& add_vertex, tf& add_segment, const tfunc& func, const float isovalue,
@@ -46911,7 +46915,7 @@ namespace cimg_library {
       return 0;
     }
 
-    //! Generate an isosurface of the image instance as a 3D object.
+    //! Generate an isosurface from the instance image, as a 3D object.
     /**
        \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
@@ -46965,7 +46969,7 @@ namespace cimg_library {
        \param size_x Resolution of the elevation function along the X-axis.
        \param size_y Resolution of the elevation function along the Y-axis.
        \param size_z Resolution of the elevation function along the Z-axis.
-       \note Use the marching cubes algorithm for extracting the isosurface.
+       \note Uses the marching cubes algorithm for extracting the isosurface.
      **/
     template<typename tf, typename tfunc>
     static CImg<floatT> isosurface3d(CImgList<tf>& primitives, const tfunc& func, const float isovalue,
@@ -46982,8 +46986,8 @@ namespace cimg_library {
 
     //! Compute isosurface of a function, as a 3D object.
     /**
-       \param[out] add_vertex : Functor with operator()(x,y,z) defined for adding new vertex.
-       \param[out] add_triangle : Functor with operator()(i,j) defined for adding new segment.
+       \param[out] add_vertex : Functor with operator()(x,y,z) defined for adding a new vertex.
+       \param[out] add_triangle : Functor with operator()(i,j) defined for adding a new segment.
        \param func Implicit function. Is of type <tt>float (*func)(const float x, const float y, const float z)</tt>.
        \param isovalue The scalar value used as the threshold for extraction.
        \param x0 X-coordinate of the starting point.
@@ -46995,7 +46999,7 @@ namespace cimg_library {
        \param size_x Resolution of the elevation function along the X-axis.
        \param size_y Resolution of the elevation function along the Y-axis.
        \param size_z Resolution of the elevation function along the Z-axis.
-       \note Use the marching cubes algorithm for extracting the isosurface.
+       \note Uses the marching cubes algorithm for extracting the isosurface.
      **/
     template<typename tv, typename tf, typename tfunc>
     static void isosurface3d(tv& add_vertex, tf& add_triangle, const tfunc& func, const float isovalue,
@@ -47616,9 +47620,9 @@ namespace cimg_library {
     /**
        \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
-       \param radius The radius of the cone basis.
+       \param radius The radius of the cone base.
        \param size_z The cone's height.
-       \param subdivisions The number of basis angular subdivisions.
+       \param subdivisions The number angular subdivisions for the base.
        \return The N vertices (xi,yi,zi) of the 3D object as a Nx3 CImg<float> image (0<=i<=N - 1).
        \par Example
        \code
@@ -47653,9 +47657,9 @@ namespace cimg_library {
     /**
        \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
-       \param radius The radius of the cylinder basis.
+       \param radius The radius of the cylinder base.
        \param size_z The cylinder's height.
-       \param subdivisions The number of basis angular subdivisions.
+       \param subdivisions The number of angular subdivisions for the base.
        \return The N vertices (xi,yi,zi) of the 3D object as a Nx3 CImg<float> image (0<=i<=N - 1).
        \par Example
        \code
@@ -48829,7 +48833,7 @@ namespace cimg_library {
     CImg<T>& draw_spline(const int x0, const int y0, const float u0, const float v0,
                          const int x1, const int y1, const float u1, const float v1,
                          const tc *const color, const float opacity=1,
-                         const float precision=0.25, const unsigned int pattern=~0U,
+                         const float precision=0.25f, const unsigned int pattern=~0U,
                          const bool init_hatch=true) {
       if (is_empty()) return *this;
       if (!color)
@@ -48892,7 +48896,7 @@ namespace cimg_library {
                                     texture._width,texture._height,texture._depth,texture._spectrum,texture._data);
       if (is_empty()) return *this;
       if (is_overlapped(texture))
-        return draw_spline(x0,y0,u0,v0,x1,y1,u1,v1,+texture,tx0,ty0,tx1,ty1,precision,opacity,pattern,init_hatch);
+        return draw_spline(x0,y0,u0,v0,x1,y1,u1,v1,+texture,tx0,ty0,tx1,ty1,opacity,precision,pattern,init_hatch);
       if (x0==x1 && y0==y1)
         return draw_point(x0,y0,texture.get_vector_at(x0<=0?0:x0>=texture.width()?texture.width() - 1:x0,
                                                       y0<=0?0:y0>=texture.height()?texture.height() - 1:y0).data(),
@@ -48952,11 +48956,11 @@ namespace cimg_library {
         for (unsigned int i = 1; i<points._width; ++i) {
           const int x = (int)points(i,0), y = (int)points(i,1);
           const float u = (float)tangents(i,0), v = (float)tangents(i,1);
-          draw_spline(ox,oy,ou,ov,x,y,u,v,color,precision,opacity,pattern,ninit_hatch);
+          draw_spline(ox,oy,ou,ov,x,y,u,v,color,opacity,precision,pattern,ninit_hatch);
           ninit_hatch = false;
           ox = x; oy = y; ou = u; ov = v;
         }
-        if (is_closed_set) draw_spline(ox,oy,ou,ov,x0,y0,u0,v0,color,precision,opacity,pattern,false);
+        if (is_closed_set) draw_spline(ox,oy,ou,ov,x0,y0,u0,v0,color,opacity,precision,pattern,false);
       }
       }
       return *this;

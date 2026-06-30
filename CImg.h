@@ -37384,9 +37384,21 @@ namespace cimg_library {
 
     // [internal] Replace possibly malicious characters for commands to be called by system() by their escaped version.
     CImg<T>& _system_strescape() {
-#define cimg_system_strescape(c,s) case c : if (p!=ptrs) CImg<T>(ptrs,(unsigned int)(p-ptrs),1,1,1,false).\
+#if cimg_OS==2 // Windows-specific security hardening
+      cimg_for(*this,p,T) {
+        const char c = (char)*p;
+        if (c == '\"' || c == '|' || c == '<' || c == '>') {
+          throw CImgArgumentException("CImg<%s>::_system_strescape(): Detected illegal or malicious shell "
+                                      "character '%c' in filename.",
+                                      pixel_type(), c);
+        }
+      }
+      return *this;
+#else // Unix-style escaping
+#define cimg_system_strescape(c,s) case c : if (p!=ptrs) CImg<T>(ptrs,(unsigned int)(p - ptrs),1,1,1,false).\
       move_to(list); \
       CImg<T>(s,(unsigned int)std::strlen(s),1,1,1,false).move_to(list); ptrs = p + 1; break
+
       CImgList<T> list;
       const T *ptrs = _data;
       cimg_for(*this,p,T) switch ((int)*p) {
@@ -37396,8 +37408,9 @@ namespace cimg_library {
         cimg_system_strescape('`',"\\`");
         cimg_system_strescape('$',"\\$");
       }
-      if (ptrs<end()) CImg<T>(ptrs,(unsigned int)(end()-ptrs),1,1,1,false).move_to(list);
+      if (ptrs<end()) CImg<T>(ptrs,(unsigned int)(end() - ptrs),1,1,1,false).move_to(list);
       return (list>'x').move_to(*this);
+#endif
     }
 
     //@}
@@ -55981,7 +55994,7 @@ namespace cimg_library {
     /**
        \param disp Display window to use.
        \param feature_type Type of feature to select. Can be <tt>{ 0=point | 1=line | 2=rectangle | 3=ellipse }</tt>.
-       \param XYZ Pointer to 3 values X,Y,Z which indicates the projection point coordinates, for volumetric images.
+       \param XYZ Pointer to 3 values X,Y,Z which indicate the projection point coordinates, for volumetric images.
        \param exit_on_anykey Exit function when any key is pressed.
        \param is_deep_selection_default
     **/
@@ -56083,7 +56096,7 @@ namespace cimg_library {
         if (mX>=width() && mY>=height()) area = 4;
         if (disp.button()) { if (!area_clicked) area_clicked = area; } else area_clicked = 0;
 
-        CImg<charT> filename(32);
+        CImg<charT> filename(1024);
 
         switch (key = disp.key()) {
 #if cimg_OS!=2
@@ -56867,7 +56880,7 @@ namespace cimg_library {
         }
 
         // Test keys.
-        CImg<charT> filename(32);
+        CImg<charT> filename(1024);
         switch (okey = key) {
 #if cimg_OS!=2
         case cimg::keyCTRLRIGHT : case cimg::keySHIFTRIGHT :
@@ -57350,6 +57363,12 @@ namespace cimg_library {
                               "load_bmp(): Invalid offset %d specified in filename '%s'.",
                               cimg_instance,
                               offset,filename?filename:"(FILE*)");
+
+      if (dx<0 || dy<0)
+        throw CImgIOException(_cimg_instance
+                              "load_bmp(): Invalid image size (%d,%d) specified in filename '%s'.",
+                              cimg_instance,
+                              dx,dy,filename?filename:"(FILE*)");
 
       if (header_size>40) cimg::fseek(nfile,header_size - 40,SEEK_CUR);
       const int
@@ -61499,7 +61518,7 @@ namespace cimg_library {
           }
         } else if (clicked) { x0 = x1; y0 = y1; clicked = false; redraw = true; }
 
-        CImg<charT> filename(32);
+        CImg<charT> filename(1024);
         switch (key = disp.key()) {
 #if cimg_OS!=2
         case cimg::keyCTRLRIGHT :
@@ -67017,7 +67036,7 @@ namespace cimg_library {
         if (disp.button()&2 && exit_on_rightbutton) { is_selected = true; index1 = index0 = -1; }
         if (disp.wheel() && exit_on_wheel) is_selected = true;
 
-        CImg<charT> filename(32);
+        CImg<charT> filename(1024);
         switch (key = disp.key()) {
 #if cimg_OS!=2
         case cimg::keyCTRLRIGHT :

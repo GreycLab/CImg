@@ -6572,7 +6572,8 @@ namespace cimg_library {
     float _fps_fps, _min, _max;
     bool _is_fullscreen;
     char *_title;
-    unsigned int _window_width, _window_height, _button, *_keys, *_released_keys;
+    unsigned int _window_width, _window_height, _button, _keys[128], _released_keys[128];
+
     int _window_x, _window_y, _mouse_x, _mouse_y, _wheel;
     bool _is_closed, _is_resized, _is_moved, _is_event,
       _is_keyESC, _is_keyF1, _is_keyF2, _is_keyF3, _is_keyF4, _is_keyF5, _is_keyF6, _is_keyF7,
@@ -6636,8 +6637,6 @@ namespace cimg_library {
     **/
     ~CImgDisplay() {
       assign();
-      delete[] _keys;
-      delete[] _released_keys;
     }
 
     //! Construct an empty display.
@@ -6656,7 +6655,7 @@ namespace cimg_library {
       _min(0),_max(0),
       _is_fullscreen(false),
       _title(0),
-      _window_width(0),_window_height(0),_button(0),_keys(0),_released_keys(0),
+      _window_width(0),_window_height(0),_button(0),
       _window_x(cimg::type<int>::min()),_window_y(cimg::type<int>::min()),
       _mouse_x(-1),_mouse_y(-1),_wheel(0),
       _is_closed(true),_is_resized(false),_is_moved(false),_is_event(false) {
@@ -6680,7 +6679,7 @@ namespace cimg_library {
       _min(0),_max(0),
       _is_fullscreen(false),
       _title(0),
-      _window_width(0),_window_height(0),_button(0),_keys(0),_released_keys(0),
+      _window_width(0),_window_height(0),_button(0),
       _window_x(cimg::type<int>::min()),_window_y(cimg::type<int>::min()),
       _mouse_x(-1),_mouse_y(-1),_wheel(0),
       _is_closed(true),_is_resized(false),_is_moved(false),_is_event(false) {
@@ -6704,7 +6703,7 @@ namespace cimg_library {
       _min(0),_max(0),
       _is_fullscreen(false),
       _title(0),
-      _window_width(0),_window_height(0),_button(0),_keys(0),_released_keys(0),
+      _window_width(0),_window_height(0),_button(0),
       _window_x(cimg::type<int>::min()),_window_y(cimg::type<int>::min()),
       _mouse_x(-1),_mouse_y(-1),_wheel(0),
       _is_closed(true),_is_resized(false),_is_moved(false),_is_event(false) {
@@ -6728,7 +6727,7 @@ namespace cimg_library {
       _min(0),_max(0),
       _is_fullscreen(false),
       _title(0),
-      _window_width(0),_window_height(0),_button(0),_keys(0),_released_keys(0),
+      _window_width(0),_window_height(0),_button(0),
       _window_x(cimg::type<int>::min()),_window_y(cimg::type<int>::min()),
       _mouse_x(-1),_mouse_y(-1),_wheel(0),
       _is_closed(true),_is_resized(false),_is_moved(false),_is_event(false) {
@@ -6745,7 +6744,7 @@ namespace cimg_library {
       _min(0),_max(0),
       _is_fullscreen(false),
       _title(0),
-      _window_width(0),_window_height(0),_button(0),_keys(0),_released_keys(0),
+      _window_width(0),_window_height(0),_button(0),
       _window_x(cimg::type<int>::min()),_window_y(cimg::type<int>::min()),
       _mouse_x(-1),_mouse_y(-1),_wheel(0),
       _is_closed(true),_is_resized(false),_is_moved(false),_is_event(false) {
@@ -6772,8 +6771,6 @@ namespace cimg_library {
        \note Replace the current instance by an empty display.
     **/
     CImgDisplay& assign() {
-      if (!_keys) _keys = new unsigned int[128];
-      if (!_released_keys) _released_keys = new unsigned int[128];
       return flush();
     }
 
@@ -7367,10 +7364,9 @@ namespace cimg_library {
        - Keycode constants are defined in the cimg namespace and are architecture-dependent. Use them to ensure
        your code stay portable (see cimg::keyESC).
     **/
-    unsigned int& key(const unsigned int pos=0) const {
+    const unsigned int& key(const unsigned int pos=0) const {
       static unsigned int key0;
       return pos<128?_keys[pos]:(key0 = 0);
-
     }
 
     //! Return one entry from the released keys history.
@@ -7386,7 +7382,7 @@ namespace cimg_library {
        - Keycode constants are defined in the cimg namespace and are architecture-dependent. Use them to ensure
        your code stay portable (see cimg::keyESC).
     **/
-    unsigned int& released_key(const unsigned int pos=0) const {
+    const unsigned int& released_key(const unsigned int pos=0) const {
       static unsigned int key0;
       return pos<128?_released_keys[pos]:(key0 = 0);
     }
@@ -8082,8 +8078,6 @@ namespace cimg_library {
                  const unsigned int normalization_type=3,
                  const bool is_fullscreen=false, const bool closed_flag=false) {
       cimg::mutex(14);
-      if (!_keys) _keys = new unsigned int[128];
-      if (!_released_keys) _released_keys = new unsigned int[128];
 
       // Allocate space for window title.
       const char *const np_title = p_title?p_title:"";
@@ -8657,8 +8651,6 @@ namespace cimg_library {
     }
 
     CImgDisplay& assign(const bool allow_terminate_events_thread=true) {
-      if (!_keys) _keys = new unsigned int[128];
-      if (!_released_keys) _released_keys = new unsigned int[128];
       if (is_empty()) return flush();
       cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
       Display *const dpy = X11_attr.display;
@@ -9450,8 +9442,6 @@ namespace cimg_library {
     CImgDisplay& _assign(const unsigned int dimw, const unsigned int dimh, const char *const p_title=0,
                          const unsigned int normalization_type=3,
                          const bool is_fullscreen=false, const bool closed_flag=false) {
-      if (!_keys) _keys = new unsigned int[128];
-      if (!_released_keys) _released_keys = new unsigned int[128];
 
       // Allocate space for window title.
       const char *const np_title = p_title?p_title:"";
@@ -9751,8 +9741,6 @@ namespace cimg_library {
     }
 
     CImgDisplay& assign() {
-      if (!_keys) _keys = new unsigned int[128];
-      if (!_released_keys) _released_keys = new unsigned int[128];
       if (is_empty()) return flush();
       DestroyWindow(_window);
       TerminateThread(_thread,0);
@@ -10151,8 +10139,6 @@ namespace cimg_library {
     void _assign(const unsigned int dimw, const unsigned int dimh, const char *const p_title=0,
                  const unsigned int normalization_type=3,
                  const bool is_fullscreen=false, const bool closed_flag=false) {
-      if (!_keys) _keys = new unsigned int[128];
-      if (!_released_keys) _released_keys = new unsigned int[128];
 
       // Destroy previous display window if existing.
       if (!is_empty()) assign();
@@ -10352,8 +10338,6 @@ namespace cimg_library {
     }
 
     CImgDisplay& assign() {
-      if (!_keys) _keys = new unsigned int[128];
-      if (!_released_keys) _released_keys = new unsigned int[128];
       if (is_empty()) return flush();
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       SDL3_attr.lock();

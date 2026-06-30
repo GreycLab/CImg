@@ -17399,7 +17399,7 @@ namespace cimg_library {
           }
 
         for (s = se3, ns = se2, ps = se4; s>ss; --s, --ns)
-          if (*s=='<' && *ns=='=' && *ps!='$' && level[s - expr._data]==clevel) { // Less or equal than ('<=')
+          if (*s=='<' && *ns=='=' && *ps!='$' && level[s - expr._data]==clevel) { // Less than or equal to ('<=')
             _cimg_mp_op("Operator '<='");
             arg1 = compile(ss,s,depth1,0,block_flags);
             arg2 = compile(s + 2,se,depth1,0,block_flags);
@@ -17412,7 +17412,7 @@ namespace cimg_library {
           }
 
         for (s = se3, ns = se2, ps = se4; s>ss; --s, --ns)
-          if (*s=='>' && *ns=='=' && *ps!='$' && level[s - expr._data]==clevel) { // Greater or equal than ('>=')
+          if (*s=='>' && *ns=='=' && *ps!='$' && level[s - expr._data]==clevel) { // Greater than or equal to ('>=')
             _cimg_mp_op("Operator '>='");
             arg1 = compile(ss,s,depth1,0,block_flags);
             arg2 = compile(s + 2,se,depth1,0,block_flags);
@@ -23967,13 +23967,13 @@ namespace cimg_library {
         }
       }
 
-      // Check that imglist are not empty.
+      // Check that the image list is not empty.
       void check_list(char *const ss, char *const se, const char saved_char) {
         if (!imglist) {
           char *s0;
           _cimg_mp_strerr;
           throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                      "CImg<%s>::%s: %s%s Image list cannot be empty, for expression '%s'.",
+                                      "CImg<%s>::%s: %s%s The image list cannot be empty, for expression '%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",s0);
         }
       }
@@ -24005,7 +24005,7 @@ namespace cimg_library {
             *constcache_vals = val;
             constcache_size = 1;
             ind = 0;
-          } else { // Dichotomic search
+          } else { // Binary search
             const double val_beg = *constcache_vals, val_end = constcache_vals[constcache_size - 1];
             if (val_beg>=val) ind = 0;
             else if (val_end==val) ind = constcache_size - 1;
@@ -24077,7 +24077,7 @@ namespace cimg_library {
       }
 
       // Return a copy of the specified value.
-      // (this forces a copy to be made. Use 'same()' for cases where you may want to return 'arg').
+      // (This forces a copy to be made. Use 'same()' if you only want to return 'arg' without copying).
       unsigned int copy(const unsigned int arg) {
         const unsigned int siz = size(arg);
         return_comp = true;
@@ -24090,7 +24090,7 @@ namespace cimg_library {
       }
 
       // Return same value as specified.
-      // (this avoids a copy to be made when possible. Use 'copy()' to force the copy of a value).
+      // (This avoids copying when possible. Use 'copy()' to force a copy).
       unsigned int same(const unsigned int arg) {
         if (is_const_scalar(arg)) return arg;
         if (is_comp_scalar(arg)) { return_comp = true; return arg; }

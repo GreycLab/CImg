@@ -59231,7 +59231,14 @@ namespace cimg_library {
                                                    xm,xM,xM,xm,xm,xM,xM,xm,
                                                    ym,ym,yM,yM,ym,ym,yM,yM,
                                                    zm,zm,zm,zm,zM,zM,zM,zM);
-      bbox_primitives.assign(6,1,4,1,1, 0,3,2,1, 4,5,6,7, 1,2,6,5, 0,4,7,3, 0,1,5,4, 2,3,7,6);
+      bbox_primitives.assign(6);
+      CImg<uintT>::vector(0,3,2,1).move_to(bbox_primitives[0]);
+      CImg<uintT>::vector(4,5,6,7).move_to(bbox_primitives[1]);
+      CImg<uintT>::vector(1,2,6,5).move_to(bbox_primitives[2]);
+      CImg<uintT>::vector(0,4,7,3).move_to(bbox_primitives[3]);
+      CImg<uintT>::vector(0,1,5,4).move_to(bbox_primitives[4]);
+      CImg<uintT>::vector(2,3,7,6).move_to(bbox_primitives[5]);
+
       bbox_colors.assign(6,_spectrum,1,1,1,background_color[0]);
       bbox_colors2.assign(6,_spectrum,1,1,1,foreground_color[0]);
       bbox_opacities.assign(bbox_colors._width,1,1,1,0.3f);
@@ -59242,7 +59249,10 @@ namespace cimg_library {
                                                    0,0,0,20,0,0,22);
       axes_opacities.assign(3,1,1,1,1);
       axes_colors.assign(3,_spectrum,1,1,1,foreground_color[0]);
-      axes_primitives.assign(3,1,2,1,1, 0,1, 0,2, 0,3);
+      axes_primitives.assign(3);
+      CImg<uintT>::vector(0,1).move_to(axes_primitives[0]);
+      CImg<uintT>::vector(0,2).move_to(axes_primitives[1]);
+      CImg<uintT>::vector(0,3).move_to(axes_primitives[2]);
 
       // Begin user interaction loop.
       CImg<T> visu0(*this,false), visu;
@@ -61906,7 +61916,7 @@ namespace cimg_library {
         cimg_forXYZ(*this,x,y,z) cimg_forC(*this,c) {
           (val<<=1)|=((*this)(x,y,z,c)?1:0); if (++bit==8) { *(ptrd++) = val; val = bit = 0; }
         }
-      if (bit) *ptrd = val;
+      if (bit) *ptrd = (unsigned char)(val<<(8-bit));
       return buf;
     }
 

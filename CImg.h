@@ -5735,6 +5735,7 @@ namespace cimg_library {
     // Get the file or directory attributes with support for UTF-8 paths (Windows only).
 #if cimg_OS==2
     inline DWORD win_getfileattributes(const char *const path);
+    inline BOOL win_getfileattributesEx(const char* const path, WIN32_FILE_ATTRIBUTE_DATA* attr);
 #endif
 
     //! Check if a path is a directory.
@@ -67570,24 +67571,24 @@ namespace cimg_library {
        \return File size or '-1' if file does not exist.
     **/
     inline cimg_int64 fsize(std::FILE *const file) {
-      if (!file) return (cimg_int64)-1;
+      cimg_int64 siz = -1;
+      if (!file) return siz;
 
 #if cimg_OS==1 // Optimized for POSIX Environments (Linux, macOS, BSD, etc.)
       const int fd = fileno(file);
       struct stat st;
-      if (fd>=0 && !fstat(fd,&st)) return (cimg_int64)st.st_size;
-#elif cimg_OS==2 // Optimized for Windows Environments (MSVC, MinGW)
+      if (!fstat(fd,&st)) siz = (cimg_int64)st.st_size;
+#elif cimg_OS==2 // Optimized for Windows Environements (MSVC, MinGW)
       const int fd = _fileno(file);
-      if (fd>=0) {
-        const cimg_int64 siz = (cimg_int64)_filelengthi64(fd);
-        if (siz>=0) return siz;
-      }
+      siz = (cimg_int64)_filelengthi64(fd);
 #endif
       // Fallback, used for non-POSIX systems or if fstat failed (pipes or sockets).
-      const cimg_long pos = cimg::ftell(file);
-      cimg::fseek(file,0,SEEK_END);
-      const cimg_int64 siz = (cimg_int64)cimg::ftell(file);
-      cimg::fseek(file,pos,SEEK_SET);
+      if (siz < 0) {
+        const cimg_long pos = cimg::ftell(file);
+        cimg::fseek(file, 0, SEEK_END);
+        siz = (cimg_int64)cimg::ftell(file);
+        cimg::fseek(file, pos, SEEK_SET);
+      }
       return siz;
     }
 
@@ -67602,6 +67603,16 @@ namespace cimg_library {
 #if cimg_OS==1 // Optimized for POSIX Environments (Linux, macOS, BSD, etc.)
       struct stat st;
       if (!stat(filename,&st)) return (cimg_int64)st.st_size;
+#elif cimg_OS==2
+      WIN32_FILE_ATTRIBUTE_DATA attr;
+      if (win_getfileattributesEx(filename, &attr)) {
+          if (!(attr.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+              LARGE_INTEGER size;
+              size.HighPart = attr.nFileSizeHigh;
+              size.LowPart = attr.nFileSizeLow;
+              return (cimg_int64)size.QuadPart;
+          }
+      }
 #endif
       // Fallback for other systems.
       std::FILE *const file = cimg::std_fopen(filename, "rb");
@@ -67693,6 +67704,19 @@ namespace cimg_library {
         }
       }
       return res;
+    }
+
+    inline BOOL win_getfileattributesEx(const char* const path, WIN32_FILE_ATTRIBUTE_DATA* attr) {
+        BOOL res = GetFileAttributesExA(path, GetFileExInfoStandard, attr);
+        if (!res) {
+            // Try alternative method, with wide-character string.
+            int err = MultiByteToWideChar(CP_UTF8, 0, path, -1, 0, 0);
+            if (err) {
+                CImg<wchar_t> wpath((unsigned int)err);
+                if (MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, err)) res = GetFileAttributesExW(wpath, GetFileExInfoStandard, attr);
+            }
+        }
+        return res;
     }
 #endif
 

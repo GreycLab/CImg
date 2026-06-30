@@ -6514,50 +6514,48 @@ namespace cimg_library {
 
     //! Bitwise shift value to the left (safeguarded against overflow).
     template<typename T>
-    inline T bsl(const T& a, const unsigned int n=1) {
-      // (sizeof(T)<<3) computes the total number of bits in type T.
-      // If the shift amount exceeds this limit, we safely return 0.
-      return n>=(sizeof(T)<<3)?(T)0:(T)(a<<n);
+    inline T bsl(const T& a, const int n=1) {
+      return (n<0 || n>=(int)(sizeof(T)<<3))?(T)0:(T)(a<<n);
     }
 
-    inline float bsl(const float a, const unsigned int n=1) {
+    inline float bsl(const float a, const int n=1) {
       return (float)bsl((int)a,n);
     }
 
-    inline double bsl(const double a, const unsigned int n=1) {
+    inline double bsl(const double a, const int n=1) {
       return (double)bsl((cimg_long)a,n);
     }
 
-    inline double bsl(const long double a, const unsigned int n=1) {
+    inline double bsl(const long double a, const int n=1) {
       return (double)bsl((cimg_long)a,n);
     }
 
 #if cimg_is_float16==1
-    inline cimg_float16 bsl(const cimg_float16 a, const unsigned int n=1) {
+    inline cimg_float16 bsl(const cimg_float16 a, const int n=1) {
       return (cimg_float16)bsl((int)a,n);
     }
 #endif
 
     //! Bitwise shift value to the right (safeguarded against overflow).
     template<typename T>
-    inline T bsr(const T& a, const unsigned int n=1) {
-      return n>=(sizeof(T)<<3)?(T)0:(T)(a>>n);
+    inline T bsr(const T& a, const int n=1) {
+      return (n<0 || n>=(int)(sizeof(T)<<3))?(T)0:(T)(a>>n);
     }
 
-    inline float bsr(const float a, const unsigned int n=1) {
+    inline float bsr(const float a, const int n=1) {
       return (float)bsr((int)a,n);
     }
 
-    inline double bsr(const double a, const unsigned int n=1) {
+    inline double bsr(const double a, const int n=1) {
       return (double)bsr((cimg_long)a,n);
     }
 
-    inline double bsr(const long double a, const unsigned int n=1) {
+    inline double bsr(const long double a, const int n=1) {
       return (double)bsr((cimg_long)a,n);
     }
 
 #if cimg_is_float16==1
-    inline cimg_float16 bsr(const cimg_float16 a, const unsigned int n=1) {
+    inline cimg_float16 bsr(const cimg_float16 a, const int n=1) {
       return (cimg_float16)bsr((int)a,n);
     }
 #endif
@@ -19594,7 +19592,7 @@ namespace cimg_library {
               _cimg_mp_vector2(bitwise_left_shift,arg1,arg2);
             }
             if (is_const_scalar(arg1) && is_const_scalar(arg2))
-              _cimg_mp_const_scalar(cimg::bsl(mem[arg1],(unsigned int)mem[arg2]));
+              _cimg_mp_const_scalar(cimg::bsl(mem[arg1],(int)mem[arg2]));
             if (!arg1) _cimg_mp_return(0);
             if (!arg2) _cimg_mp_same(arg1);
             _cimg_mp_scalar2(bitwise_left_shift,arg1,arg2);
@@ -19611,7 +19609,7 @@ namespace cimg_library {
               _cimg_mp_vector2(bitwise_right_shift,arg1,arg2);
             }
             if (is_const_scalar(arg1) && is_const_scalar(arg2))
-              _cimg_mp_const_scalar(cimg::bsr(mem[arg1],(unsigned int)mem[arg2]));
+              _cimg_mp_const_scalar(cimg::bsr(mem[arg1],(int)mem[arg2]));
             if (!arg1) _cimg_mp_return(0);
             if (!arg2) _cimg_mp_same(arg1);
             _cimg_mp_scalar2(bitwise_right_shift,arg1,arg2);
@@ -26471,9 +26469,9 @@ namespace cimg_library {
       _cimg_mp_func2(add,arg0 + arg1);
       _cimg_mp_func2(atan2,std::atan2(arg0,arg1));
       _cimg_mp_func2(bitwise_and,(longT)arg0 & (longT)arg1);
-      _cimg_mp_func2(bitwise_left_shift,cimg::bsl(arg0,(unsigned int)arg1));
+      _cimg_mp_func2(bitwise_left_shift,cimg::bsl(arg0,(int)arg1));
       _cimg_mp_func2(bitwise_or,(longT)arg0 | (longT)arg1);
-      _cimg_mp_func2(bitwise_right_shift,cimg::bsr(arg0,(unsigned int)arg1));
+      _cimg_mp_func2(bitwise_right_shift,cimg::bsr(arg0,(int)arg1));
       _cimg_mp_func2(bitwise_xor,(longT)arg0 ^ (longT)arg1);
       _cimg_mp_func2(div,arg0/arg1);
       _cimg_mp_func2(gt,arg0>arg1);
@@ -26528,9 +26526,9 @@ namespace cimg_library {
 
       _cimg_mp_self_func1(add,arg0 + arg1);
       _cimg_mp_self_func1(bitwise_and,(longT)arg0 & (longT)arg1);
-      _cimg_mp_self_func1(bitwise_left_shift,cimg::bsl(arg0,(unsigned int)arg1));
+      _cimg_mp_self_func1(bitwise_left_shift,cimg::bsl(arg0,(int)arg1));
       _cimg_mp_self_func1(bitwise_or,(longT)arg0 | (longT)arg1);
-      _cimg_mp_self_func1(bitwise_right_shift,cimg::bsr(arg0,(unsigned int)arg1));
+      _cimg_mp_self_func1(bitwise_right_shift,cimg::bsr(arg0,(int)arg1));
       _cimg_mp_self_func1(div,arg0/arg1);
       _cimg_mp_self_func1(modulo,cimg::mod(arg0,arg1));
       _cimg_mp_self_func1(mul,arg0*arg1);

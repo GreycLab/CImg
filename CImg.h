@@ -41946,7 +41946,7 @@ namespace cimg_library {
     struct _functor4d_streamline2d_oriented {
       const CImg<T>& ref;
       mutable CImg<floatT> I;
-      _functor4d_streamline2d_oriented(const CImg<T>& pref):ref(pref) { I.assign(2,2,1,2); }
+      _functor4d_streamline2d_oriented(const CImg<T>& pref):ref(pref),I(2,2,1,2) {}
       float operator()(const float x, const float y, const float z, const unsigned int c) const {
 #define _cimg_vecalign2d(i,j) \
         if (I(i,j,0)*I(0,0,0) + I(i,j,1)*I(0,0,1)<0) { I(i,j,0) = -I(i,j,0); I(i,j,1) = -I(i,j,1); }
@@ -41979,7 +41979,7 @@ namespace cimg_library {
     struct _functor4d_streamline3d_oriented {
       const CImg<T>& ref;
       mutable CImg<floatT> I;
-      _functor4d_streamline3d_oriented(const CImg<T>& pref):ref(pref) { I.assign(2,2,2,3); }
+      _functor4d_streamline3d_oriented(const CImg<T>& pref):ref(pref),I(2,2,2,3) {}
       float operator()(const float x, const float y, const float z, const unsigned int c) const {
 #define _cimg_vecalign3d(i,j,k) if (I(i,j,k,0)*I(0,0,0,0) + I(i,j,k,1)*I(0,0,0,1) + I(i,j,k,2)*I(0,0,0,2)<0) { \
   I(i,j,k,0) = -I(i,j,k,0); I(i,j,k,1) = -I(i,j,k,1); I(i,j,k,2) = -I(i,j,k,2); }
@@ -44653,7 +44653,7 @@ namespace cimg_library {
     /**
        \param sigma Standard deviation of the blur.
        \param boundary_conditions Boundary conditions.
-         Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.a
+         Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
        \param is_gaussian Use a gaussian kernel (VanVliet) is set, a quasi-gaussian (Deriche) otherwise.
        \see deriche(), vanvliet().
     **/
@@ -45340,7 +45340,7 @@ namespace cimg_library {
     /**
        \param boxsize Size of the box window (can be subpixel).
        \param boundary_conditions Boundary conditions.
-         Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.a
+         Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
        \see deriche(), vanvliet().
     **/
     CImg<T>& blur_box(const float boxsize, const unsigned int boundary_conditions=1) {
@@ -48635,7 +48635,7 @@ namespace cimg_library {
       if (!obj_vertices || !obj_primitives) return *this;
       if (obj_vertices._height!=3 || obj_vertices._depth>1 || obj_vertices._spectrum>1)
         throw CImgInstanceException(_cimg_instance
-                                    "append_object3d(): Specified vertice image (%u,%u,%u,%u,%p) is not a "
+                                    "append_object3d(): Specified vertex image (%u,%u,%u,%u,%p) is not a "
                                     "set of 3D vertices.",
                                     cimg_instance,
                                     obj_vertices._width,obj_vertices._height,
@@ -48841,9 +48841,9 @@ namespace cimg_library {
     /**
        \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
-       \param isovalue The returned list of the 3D object colors.
+       \param isovalue The scalar value used as the threshold for extraction.
        \param size_x The number of subdivisions along the X-axis.
-       \param size_y The number of subdisivions along the Y-axis.
+       \param size_y The number of subdivisions along the Y-axis.
        \return The N vertices (xi,yi,zi) of the 3D object as a Nx3 CImg<float> image (0<=i<=N - 1).
        \par Example
        \code
@@ -48882,7 +48882,7 @@ namespace cimg_library {
     /**
        \param[out] primitives Primitives data of the resulting 3D object.
        \param func Elevation functor. Must have <tt>operator()(x,y)</tt> defined.
-       \param isovalue Isovalue to extract from function.
+       \param isovalue The scalar value used as the threshold for extraction.
        \param x0 X-coordinate of the starting point.
        \param y0 Y-coordinate of the starting point.
        \param x1 X-coordinate of the ending point.
@@ -48908,7 +48908,7 @@ namespace cimg_library {
        \param[out] add_vertex : Functor with operator()(x,y,z) defined for adding new vertex.
        \param[out] add_segment : Functor with operator()(i,j) defined for adding new segment.
        \param func Elevation function. Is of type <tt>float (*func)(const float x,const float y)</tt>.
-       \param isovalue Isovalue to extract from function.
+       \param isovalue The scalar value used as the threshold for extraction.
        \param x0 X-coordinate of the starting point.
        \param y0 Y-coordinate of the starting point.
        \param x1 X-coordinate of the ending point.
@@ -49026,10 +49026,10 @@ namespace cimg_library {
     /**
        \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
-       \param isovalue The returned list of the 3D object colors.
+       \param isovalue The scalar value used as the threshold for extraction.
        \param size_x Number of subdivisions along the X-axis.
-       \param size_y Number of subdisivions along the Y-axis.
-       \param size_z Number of subdisivions along the Z-axis.
+       \param size_y Number of subdivisions along the Y-axis.
+       \param size_z Number of subdivisions along the Z-axis.
        \return The N vertices (xi,yi,zi) of the 3D object as a Nx3 CImg<float> image (0<=i<=N - 1).
        \par Example
        \code
@@ -49066,7 +49066,7 @@ namespace cimg_library {
     /**
        \param[out] primitives Primitives data of the resulting 3D object.
        \param func Implicit function. Is of type <tt>float (*func)(const float x, const float y, const float z)</tt>.
-       \param isovalue Isovalue to extract.
+       \param isovalue The scalar value used as the threshold for extraction.
        \param x0 X-coordinate of the starting point.
        \param y0 Y-coordinate of the starting point.
        \param z0 Z-coordinate of the starting point.
@@ -49096,7 +49096,7 @@ namespace cimg_library {
        \param[out] add_vertex : Functor with operator()(x,y,z) defined for adding new vertex.
        \param[out] add_triangle : Functor with operator()(i,j) defined for adding new segment.
        \param func Implicit function. Is of type <tt>float (*func)(const float x, const float y, const float z)</tt>.
-       \param isovalue Isovalue to extract.
+       \param isovalue The scalar value used as the threshold for extraction.
        \param x0 X-coordinate of the starting point.
        \param y0 Y-coordinate of the starting point.
        \param z0 Z-coordinate of the starting point.
@@ -52869,7 +52869,8 @@ namespace cimg_library {
 
       cimg_pragma_openmp(parallel for cimg_openmp_if(Xs._height>=(cimg_openmp_sizefactor)*512))
       cimg_forY(Xs,y) if (count[y]) {
-        const CImg<intT> Xsy = Xs.get_shared_points(0,count[y] - 1,y).sort();
+        CImg<intT> Xsy = Xs.get_shared_points(0,count[y] - 1,y);
+        Xsy.sort();
         int px = width();
         for (unsigned int k = 0; k<Xsy._width; k+=2) {
           int x0 = Xsy[k];

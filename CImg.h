@@ -41978,7 +41978,7 @@ namespace cimg_library {
 
     struct _functor4d_streamline3d_oriented {
       const CImg<T>& ref;
-      CImg<floatT> I;
+      mutable CImg<floatT> I;
       _functor4d_streamline3d_oriented(const CImg<T>& pref):ref(pref) { I.assign(2,2,2,3); }
       float operator()(const float x, const float y, const float z, const unsigned int c) const {
 #define _cimg_vecalign3d(i,j,k) if (I(i,j,k,0)*I(0,0,0,0) + I(i,j,k,1)*I(0,0,0,1) + I(i,j,k,2)*I(0,0,0,2)<0) { \

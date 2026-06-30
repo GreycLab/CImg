@@ -19959,7 +19959,7 @@ namespace cimg_library {
             _cimg_mp_op("Operator '~'");
             arg1 = compile(ss1,se,depth1,0,block_flags);
             if (is_vector(arg1)) _cimg_mp_vector1(bitwise_not,arg1);
-            if (is_const_scalar(arg1)) _cimg_mp_const_scalar(~(unsigned int)mem[arg1]);
+            if (is_const_scalar(arg1)) _cimg_mp_const_scalar(~(unsigned int)(int64T)mem[arg1]);
             _cimg_mp_scalar1(bitwise_not,arg1);
           }
         }
@@ -26390,7 +26390,7 @@ namespace cimg_library {
       _cimg_mp_func1(asinh,std::asinh(arg0));
       _cimg_mp_func1(atan,std::atan(arg0));
       _cimg_mp_func1(atanh,std::atanh(arg0));
-      _cimg_mp_func1(bitwise_not,~(unsigned int)arg0);
+      _cimg_mp_func1(bitwise_not,~(unsigned int)(int64T)arg0);
       _cimg_mp_func1(bool,(bool)arg0);
       _cimg_mp_func1(cbrt,cimg::cbrt(arg0));
       _cimg_mp_func1(ceil,std::ceil(arg0));

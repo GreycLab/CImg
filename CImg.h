@@ -11779,7 +11779,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Construct image with specified size and initialize pixel values from a memory buffer \overloading.
+    //! Construct image with specified size and initialize pixel values from a memory buffer \overload.
     template<typename t>
     CImg<T>& assign(const t *const values, const unsigned int size_x, const unsigned int size_y,
                     const unsigned int size_z, const unsigned int size_c, const bool is_shared) {
@@ -11792,7 +11792,7 @@ namespace cimg_library {
       return assign(values,size_x,size_y,size_z,size_c);
     }
 
-    //! Construct image with specified size and initialize pixel values from a memory buffer \overloading.
+    //! Construct image with specified size and initialize pixel values from a memory buffer \overload.
     CImg<T>& assign(const T *const values, const unsigned int size_x, const unsigned int size_y,
                     const unsigned int size_z, const unsigned int size_c, const bool is_shared) {
       const size_t siz = safe_size(size_x,size_y,size_z,size_c);
@@ -32972,7 +32972,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2) {
       if (is_empty()) return *this;
       T *ptrd, *ptre = end() - 2;
@@ -32990,7 +32990,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1,val2);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3) {
       if (is_empty()) return *this;
       T *ptrd, *ptre = end() - 3;
@@ -33009,7 +33009,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1,val2,val3);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4) {
       if (is_empty()) return *this;
       T *ptrd, *ptre = end() - 4;
@@ -33031,7 +33031,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1,val2,val3,val4);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5) {
       if (is_empty()) return *this;
       T *ptrd, *ptre = end() - 5;
@@ -33054,7 +33054,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1,val2,val3,val4,val5);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6) {
       if (is_empty()) return *this;
@@ -33081,7 +33081,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1,val2,val3,val4,val5,val6);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6, const T& val7) {
       if (is_empty()) return *this;
@@ -33109,7 +33109,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1,val2,val3,val4,val5,val6,val7);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6, const T& val7, const T& val8) {
       if (is_empty()) return *this;
@@ -33139,7 +33139,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1,val2,val3,val4,val5,val6,val7,val8);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6, const T& val7, const T& val8, const T& val9) {
       if (is_empty()) return *this;
@@ -33169,7 +33169,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1,val2,val3,val4,val5,val6,val7,val8,val9);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6, const T& val7, const T& val8, const T& val9, const T& val10) {
       if (is_empty()) return *this;
@@ -33201,7 +33201,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1,val2,val3,val4,val5,val6,val7,val8,val9,val10);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6, const T& val7, const T& val8, const T& val9, const T& val10, const T& val11) {
       if (is_empty()) return *this;
@@ -33234,7 +33234,7 @@ namespace cimg_library {
                                                            val11);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6, const T& val7, const T& val8, const T& val9, const T& val10, const T& val11,
                   const T& val12) {
@@ -33271,7 +33271,7 @@ namespace cimg_library {
                                                            val11,val12);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6, const T& val7, const T& val8, const T& val9, const T& val10, const T& val11,
                   const T& val12, const T& val13) {
@@ -33309,7 +33309,7 @@ namespace cimg_library {
                                                            val11,val12,val13);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6, const T& val7, const T& val8, const T& val9, const T& val10, const T& val11,
                   const T& val12, const T& val13, const T& val14) {
@@ -33348,7 +33348,7 @@ namespace cimg_library {
                                                            val11,val12,val13,val14);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6, const T& val7, const T& val8, const T& val9, const T& val10, const T& val11,
                   const T& val12, const T& val13, const T& val14, const T& val15) {
@@ -33707,7 +33707,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Fill pixel values along the X-axis at a specified pixel position \overloading.
+    //! Fill pixel values along the X-axis at a specified pixel position \overload.
     CImg<T>& fillX(const unsigned int y, const unsigned int z, const unsigned int c, const double a0, ...) {
       if (y<_height && z<_depth && c<_spectrum) _cimg_fill1(0,y,z,c,1,_width,double);
       return *this;
@@ -33725,7 +33725,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Fill pixel values along the Y-axis at a specified pixel position \overloading.
+    //! Fill pixel values along the Y-axis at a specified pixel position \overload.
     CImg<T>& fillY(const unsigned int x, const unsigned int z, const unsigned int c, const double a0, ...) {
       if (x<_width && z<_depth && c<_spectrum) _cimg_fill1(x,0,z,c,_width,_height,double);
       return *this;
@@ -33744,7 +33744,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Fill pixel values along the Z-axis at a specified pixel position \overloading.
+    //! Fill pixel values along the Z-axis at a specified pixel position \overload.
     CImg<T>& fillZ(const unsigned int x, const unsigned int y, const unsigned int c, const double a0, ...) {
       const ulongT wh = (ulongT)_width*_height;
       if (x<_width && y<_height && c<_spectrum) _cimg_fill1(x,y,0,c,wh,_depth,double);
@@ -33764,7 +33764,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Fill pixel values along the C-axis at a specified pixel position \overloading.
+    //! Fill pixel values along the C-axis at a specified pixel position \overload.
     CImg<T>& fillC(const unsigned int x, const unsigned int y, const unsigned int z, const double a0, ...) {
       const ulongT whd = (ulongT)_width*_height*_depth;
       if (x<_width && y<_height && z<_depth) _cimg_fill1(x,y,z,0,whd,_spectrum,double);
@@ -34504,7 +34504,7 @@ namespace cimg_library {
       return get_histogram(nb_levels,min_value,max_value).move_to(*this);
     }
 
-    //! Compute the histogram of pixel values \overloading.
+    //! Compute the histogram of pixel values \overload.
     CImg<T>& histogram(const unsigned int nb_levels) {
       return get_histogram(nb_levels).move_to(*this);
     }
@@ -34561,7 +34561,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Equalize histogram of pixel values \overloading.
+    //! Equalize histogram of pixel values \overload.
     CImg<T>& equalize(const unsigned int nb_levels) {
       if (!nb_levels || is_empty()) return *this;
       T vmax = 0, vmin = min_max(vmax);
@@ -35118,7 +35118,7 @@ namespace cimg_library {
       return _label(nb,dx,dy,dz,tolerance,is_L2_norm);
     }
 
-    //! Label connected components \overloading.
+    //! Label connected components \inplace.
     /**
        \param connectivity_mask Mask of the neighboring pixels.
        \param tolerance Tolerance used to determine if two neighboring pixels belong to the same region.
@@ -39359,7 +39359,7 @@ namespace cimg_library {
       return res;
     }
 
-    //! Crop image region \overloading.
+    //! Crop image region \overload.
     CImg<T>& crop(const int x0, const int y0, const int z0,
                   const int x1, const int y1, const int z1,
                   const unsigned int boundary_conditions=0) {
@@ -39373,7 +39373,7 @@ namespace cimg_library {
       return get_crop(x0,y0,z0,0,x1,y1,z1,_spectrum - 1,boundary_conditions);
     }
 
-    //! Crop image region \overloading.
+    //! Crop image region \overload.
     CImg<T>& crop(const int x0, const int y0,
                   const int x1, const int y1,
                   const unsigned int boundary_conditions=0) {
@@ -39387,7 +39387,7 @@ namespace cimg_library {
       return get_crop(x0,y0,0,0,x1,y1,_depth - 1,_spectrum - 1,boundary_conditions);
     }
 
-    //! Crop image region \overloading.
+    //! Crop image region \overload.
     CImg<T>& crop(const int x0, const int x1, const unsigned int boundary_conditions=0) {
       return crop(x0,0,0,0,x1,_height - 1,_depth - 1,_spectrum - 1,boundary_conditions);
     }
@@ -39802,7 +39802,7 @@ namespace cimg_library {
       return coordinates;
     }
 
-    //! Return stream line of a 3D vector field \overloading.
+    //! Return stream line of a 3D vector field \overload.
     static CImg<floatT> streamline(const char *const expression,
                                    const float x, const float y, const float z,
                                    const float L=256, const float dl=0.1f,
@@ -44629,7 +44629,7 @@ namespace cimg_library {
                          guide,true,matching_score);
     }
 
-    //! Compute correspondence map between two images, using the patch-match algorithm \overloading.
+    //! Compute correspondence map between two images, using the patch-match algorithm \overload.
     template<typename t>
     CImg<T>& matchpatch(const CImg<T>& patch_image,
                         const unsigned int patch_width,
@@ -44643,7 +44643,7 @@ namespace cimg_library {
                             nb_iterations,nb_randoms,patch_penalization,guide).move_to(*this);
     }
 
-    //! Compute correspondence map between two images, using the patch-match algorithm \overloading.
+    //! Compute correspondence map between two images, using the patch-match algorithm \overload.
     template<typename t>
     CImg<intT> get_matchpatch(const CImg<T>& patch_image,
                               const unsigned int patch_width,
@@ -45525,7 +45525,7 @@ namespace cimg_library {
       return result;
     }
 
-    //! Compute distance map to a specified value, according to a custom metric (use dijkstra algorithm). \overloading.
+    //! Compute distance map to a specified value, according to a custom metric (use dijkstra algorithm) \overload.
     template<typename t>
     CImg<T>& distance_dijkstra(const T& value, const CImg<t>& metric,
                                const bool is_high_connectivity=false) {
@@ -45921,7 +45921,7 @@ namespace cimg_library {
       return res;
     }
 
-    //! Compute Haar multiscale wavelet transform \overloading.
+    //! Compute Haar multiscale wavelet transform \overload.
     /**
        \param invert Set inverse of direct transform.
        \param nb_scales Number of scales used for the transform.
@@ -46894,7 +46894,7 @@ namespace cimg_library {
       }
     }
 
-    //! Compute isolines of a function, as a 3D object \overloading.
+    //! Compute isolines of a function, as a 3D object \overload.
     template<typename tf>
     static CImg<floatT> isoline3d(CImgList<tf>& primitives, const char *const expression, const float isovalue,
                                   const float x0, const float y0, const float x1, const float y1,
@@ -47421,7 +47421,7 @@ namespace cimg_library {
       }
     }
 
-    //! Compute isosurface of a function, as a 3D object \overloading.
+    //! Compute isosurface of a function, as a 3D object \overload.
     template<typename tf>
     static CImg<floatT> isosurface3d(CImgList<tf>& primitives, const char *const expression, const float isovalue,
                                      const float x0, const float y0, const float z0,
@@ -47581,7 +47581,7 @@ namespace cimg_library {
       return vertices;
     }
 
-    //! Compute 3D elevation of a function, as a 3D object \overloading.
+    //! Compute 3D elevation of a function, as a 3D object \overload.
     template<typename tf>
     static CImg<floatT> elevation3d(CImgList<tf>& primitives, const char *const expression,
                                     const float x0, const float y0, const float x1, const float y1,
@@ -47897,7 +47897,7 @@ namespace cimg_library {
       return get_object3dtoCImg3d(primitives,colors,opacities,full_check).move_to(*this);
     }
 
-    //! Convert 3D object into a CImg3d representation \overloading.
+    //! Convert 3D object into a CImg3d representation \overload.
     template<typename tp, typename tc>
     CImg<T>& object3dtoCImg3d(const CImgList<tp>& primitives,
                               const CImgList<tc>& colors,
@@ -47905,14 +47905,14 @@ namespace cimg_library {
       return get_object3dtoCImg3d(primitives,colors,full_check).move_to(*this);
     }
 
-    //! Convert 3D object into a CImg3d representation \overloading.
+    //! Convert 3D object into a CImg3d representation \overload.
     template<typename tp>
     CImg<T>& object3dtoCImg3d(const CImgList<tp>& primitives,
                               const bool full_check=true) {
       return get_object3dtoCImg3d(primitives,full_check).move_to(*this);
     }
 
-    //! Convert 3D object into a CImg3d representation \overloading.
+    //! Convert 3D object into a CImg3d representation \overload.
     CImg<T>& object3dtoCImg3d(const bool full_check=true) {
       return get_object3dtoCImg3d(full_check).move_to(*this);
     }
@@ -48053,7 +48053,7 @@ namespace cimg_library {
       return siz;
     }
 
-    //! Convert 3D object into a CImg3d representation \overloading.
+    //! Convert 3D object into a CImg3d representation \overload.
     template<typename tp, typename tc>
     CImg<floatT> get_object3dtoCImg3d(const CImgList<tp>& primitives,
                                       const CImgList<tc>& colors,
@@ -48062,7 +48062,7 @@ namespace cimg_library {
       return get_object3dtoCImg3d(primitives,colors,opacities,full_check);
     }
 
-    //! Convert 3D object into a CImg3d representation \overloading.
+    //! Convert 3D object into a CImg3d representation \overload.
     template<typename tp>
     CImg<floatT> get_object3dtoCImg3d(const CImgList<tp>& primitives,
                                       const bool full_check=true) const {
@@ -48070,7 +48070,7 @@ namespace cimg_library {
       return get_object3dtoCImg3d(primitives,colors,opacities,full_check);
     }
 
-    //! Convert 3D object into a CImg3d representation \overloading.
+    //! Convert 3D object into a CImg3d representation \overload.
     CImg<floatT> get_object3dtoCImg3d(const bool full_check=true) const {
       CImgList<T> opacities, colors;
       CImgList<uintT> primitives(width(),1,1,1,1);
@@ -48966,7 +48966,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a set of consecutive splines \overloading.
+    //! Draw a set of consecutive splines \overload.
     /**
        Similar to previous function, with the point tangents automatically estimated from the given points set.
     **/
@@ -49301,7 +49301,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a Gouraud-shaded 2D triangle, with z-buffering \overloading.
+    //! Draw a Gouraud-shaded 2D triangle, with z-buffering \overload.
     template<typename tz, typename tc>
     CImg<T>& draw_triangle(CImg<tz>& zbuffer,
                            int x0, int y0, const float z0,
@@ -50027,7 +50027,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a textured Gouraud-shaded 2D triangle, with perspective correction \overloading.
+    //! Draw a textured Gouraud-shaded 2D triangle, with perspective correction \overload.
     template<typename tc>
     CImg<T>& draw_triangle(int x0, int y0, const float z0,
                            int x1, int y1, const float z1,
@@ -50119,7 +50119,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a textured Gouraud-shaded 2D triangle, with perspective correction and z-buffering \overloading.
+    //! Draw a textured Gouraud-shaded 2D triangle, with perspective correction and z-buffering \overload.
     template<typename tz, typename tc>
     CImg<T>& draw_triangle(CImg<tz>& zbuffer,
                            int x0, int y0, const float z0,
@@ -50674,7 +50674,7 @@ namespace cimg_library {
       return draw_rectangle(x0,y0,0,x1,y1,_depth - 1,color,opacity);
     }
 
-    //! Draw a outlined 2D rectangle \overloading.
+    //! Draw a outlined 2D rectangle \overload.
     template<typename tc>
     CImg<T>& draw_rectangle(const int x0, const int y0,
                             const int x1, const int y1,
@@ -50776,7 +50776,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a outlined 2D or 3D polygon \overloading.
+    //! Draw a outlined 2D or 3D polygon \overload.
     template<typename tp, typename tc>
     CImg<T>& draw_polygon(const CImg<tp>& points,
                           const tc *const color, const float opacity, const unsigned int pattern,
@@ -50835,7 +50835,7 @@ namespace cimg_library {
       return _draw_ellipse(x0,y0,r1,r2,angle,color,opacity,0U,true);
     }
 
-    //! Draw a filled 2D ellipse \overloading.
+    //! Draw a filled 2D ellipse \overload.
     /**
        \param x0 X-coordinate of the ellipse center.
        \param y0 Y-coordinate of the ellipse center.
@@ -50871,7 +50871,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw an outlined 2D ellipse \overloading.
+    //! Draw an outlined 2D ellipse \overload.
     /**
        \param x0 X-coordinate of the ellipse center.
        \param y0 Y-coordinate of the ellipse center.
@@ -51119,28 +51119,28 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw an image \overloading.
+    //! Draw an image \overload.
     template<typename t>
     CImg<T>& draw_image(const int x0, const int y0, const int z0,
                         const CImg<t>& sprite, const float opacity=1) {
       return draw_image(x0,y0,z0,0,sprite,opacity);
     }
 
-    //! Draw an image \overloading.
+    //! Draw an image \overload.
     template<typename t>
     CImg<T>& draw_image(const int x0, const int y0,
                         const CImg<t>& sprite, const float opacity=1) {
       return draw_image(x0,y0,0,sprite,opacity);
     }
 
-    //! Draw an image \overloading.
+    //! Draw an image \overload.
     template<typename t>
     CImg<T>& draw_image(const int x0,
                         const CImg<t>& sprite, const float opacity=1) {
       return draw_image(x0,0,sprite,opacity);
     }
 
-    //! Draw an image \overloading.
+    //! Draw an image \overload.
     template<typename t>
     CImg<T>& draw_image(const CImg<t>& sprite, const float opacity=1) {
       return draw_image(0,sprite,opacity);
@@ -51203,7 +51203,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a masked image \overloading.
+    //! Draw a masked image \overload.
     template<typename ti, typename tm>
     CImg<T>& draw_image(const int x0, const int y0, const int z0,
                         const CImg<ti>& sprite, const CImg<tm>& mask, const float opacity=1,
@@ -51211,7 +51211,7 @@ namespace cimg_library {
       return draw_image(x0,y0,z0,0,sprite,mask,opacity,mask_max_value);
     }
 
-    //! Draw a image \overloading.
+    //! Draw a image \overload.
     template<typename ti, typename tm>
     CImg<T>& draw_image(const int x0, const int y0,
                         const CImg<ti>& sprite, const CImg<tm>& mask, const float opacity=1,
@@ -51219,7 +51219,7 @@ namespace cimg_library {
       return draw_image(x0,y0,0,sprite,mask,opacity,mask_max_value);
     }
 
-    //! Draw a image \overloading.
+    //! Draw a image \overload.
     template<typename ti, typename tm>
     CImg<T>& draw_image(const int x0,
                         const CImg<ti>& sprite, const CImg<tm>& mask, const float opacity=1,
@@ -51255,7 +51255,7 @@ namespace cimg_library {
       return _draw_text(x0,y0,tmp,foreground_color,background_color,opacity,*font,false);
     }
 
-    //! Draw a text string \overloading.
+    //! Draw a text string \overload.
     /**
        \note A transparent background is used for the text.
     **/
@@ -51270,7 +51270,7 @@ namespace cimg_library {
       return _draw_text(x0,y0,tmp,foreground_color,(tc*)0,opacity,*font,false);
     }
 
-    //! Draw a text string \overloading.
+    //! Draw a text string \overload.
     /**
        \note A transparent foreground is used for the text.
     **/
@@ -51285,7 +51285,7 @@ namespace cimg_library {
       return _draw_text(x0,y0,tmp,(tc*)0,background_color,opacity,*font,false);
     }
 
-    //! Draw a text string \overloading.
+    //! Draw a text string \overload.
     /**
        \param x0 X-coordinate of the text in the image instance.
        \param y0 Y-coordinate of the text in the image instance.
@@ -51315,7 +51315,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a text string \overloading.
+    //! Draw a text string \overload.
     template<typename tc>
     CImg<T>& draw_text(const int x0, const int y0,
                        const char *const text,
@@ -51328,7 +51328,7 @@ namespace cimg_library {
       return draw_text(x0,y0,"%s",foreground_color,(const tc*)0,opacity,font_height,tmp._data);
     }
 
-    //! Draw a text string \overloading.
+    //! Draw a text string \overload.
     template<typename tc>
     CImg<T>& draw_text(const int x0, const int y0,
                        const char *const text,
@@ -51719,7 +51719,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw labeled horizontal and vertical axes \overloading.
+    //! Draw labeled horizontal and vertical axes \overload.
     template<typename tc>
     CImg<T>& draw_axes(const float x0, const float x1, const float y0, const float y1,
                        const tc *const color, const float opacity=1,
@@ -51782,14 +51782,14 @@ namespace cimg_library {
       CImg<uintT> seqx, seqy;
       if (delta_x!=0) {
         const float dx = delta_x>0?delta_x:_width*-delta_x/100;
-        const unsigned int nx = (unsigned int)(_width/dx);
+        const unsigned int nx = (unsigned int)(_width/std::max(1.0f,dx));
         seqx = CImg<uintT>::sequence(1 + nx,0,(unsigned int)(dx*nx));
         if (offsetx) cimg_foroff(seqx,x) seqx(x) = (unsigned int)cimg::mod(seqx(x) + offsetx,(float)_width);
         if (invertx) cimg_foroff(seqx,x) seqx(x) = _width - 1 - seqx(x);
       }
       if (delta_y!=0) {
         const float dy = delta_y>0?delta_y:_height*-delta_y/100;
-        const unsigned int ny = (unsigned int)(_height/dy);
+        const unsigned int ny = (unsigned int)(_height/std::max(1.0f,dy));
         seqy = CImg<uintT>::sequence(1 + ny,0,(unsigned int)(dy*ny));
         if (offsety) cimg_foroff(seqy,y) seqy(y) = (unsigned int)cimg::mod(seqy(y) + offsety,(float)_height);
         if (inverty) cimg_foroff(seqy,y) seqy(y) = _height - 1 - seqy(y);
@@ -52294,7 +52294,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a quadratic Mandelbrot or Julia 2D fractal \overloading.
+    //! Draw a quadratic Mandelbrot or Julia 2D fractal \overload.
     template<typename tc>
     CImg<T>& draw_mandelbrot(const CImg<tc>& colormap, const float opacity=1,
                              const double z0r=-2, const double z0i=-2, const double z1r=2, const double z1i=2,
@@ -52377,7 +52377,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a 2D gaussian function \overloading.
+    //! Draw a 2D gaussian function \overload.
     template<typename tc>
     CImg<T>& draw_gaussian(const int xc, const int yc, const float r1, const float r2, const float ru, const float rv,
                            const tc *const color, const float opacity=1) {
@@ -52389,14 +52389,14 @@ namespace cimg_library {
       return draw_gaussian(xc,yc,tensor,color,opacity);
     }
 
-    //! Draw a 2D gaussian function \overloading.
+    //! Draw a 2D gaussian function \overload.
     template<typename tc>
     CImg<T>& draw_gaussian(const float xc, const float yc, const float sigma,
                            const tc *const color, const float opacity=1) {
       return draw_gaussian(xc,yc,CImg<floatT>::diagonal(sigma,sigma),color,opacity);
     }
 
-    //! Draw a 3D gaussian function \overloading.
+    //! Draw a 3D gaussian function \overload.
     template<typename t, typename tc>
     CImg<T>& draw_gaussian(const float xc, const float yc, const float zc, const CImg<t>& tensor,
                            const tc *const color, const float opacity=1) {
@@ -52425,7 +52425,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a 3D gaussian function \overloading.
+    //! Draw a 3D gaussian function \overload.
     template<typename tc>
     CImg<T>& draw_gaussian(const float xc, const float yc, const float zc, const float sigma,
                            const tc *const color, const float opacity=1) {
@@ -53894,7 +53894,7 @@ namespace cimg_library {
       return get_select(disp,feature_type,XYZ,exit_on_anykey,is_deep_selection_default).move_to(*this);
     }
 
-    //! Simple interface to select a shape from an image \overloading.
+    //! Simple interface to select a shape from an image \overload.
     CImg<T>& select(const char *const title,
                     const unsigned int feature_type=2, unsigned int *const XYZ=0,
                     const bool exit_on_anykey=false,
@@ -54540,7 +54540,7 @@ namespace cimg_library {
       return res;
     }
 
-    // Return a visualizable 'uchar8' image for display routines.
+    // Return a visualizable 8-bit unsigned char image for display routines.
     CImg<ucharT> _get_select(const CImgDisplay& disp, const int normalization,
                              const int x, const int y, const int z) const {
       if (is_empty()) return CImg<ucharT>(1,1,1,1,0);
@@ -55071,17 +55071,17 @@ namespace cimg_library {
       return _load_ascii(0,filename);
     }
 
-    //! Load image from an ascii file \inplace.
+    //! Load image from an ascii file \newinstance..
     static CImg<T> get_load_ascii(const char *const filename) {
       return CImg<T>().load_ascii(filename);
     }
 
-    //! Load image from an ascii file \overloading.
+    //! Load image from an ascii file \inplace.
     CImg<T>& load_ascii(std::FILE *const file) {
       return _load_ascii(file,0);
     }
 
-    //! Loadimage from an ascii file \newinstance.
+    //! Load image from an ascii file \newinstance.
     static CImg<T> get_load_ascii(std::FILE *const file) {
       return CImg<T>().load_ascii(file);
     }
@@ -55138,7 +55138,7 @@ namespace cimg_library {
       return CImg<T>().load_dlm(filename);
     }
 
-    //! Load image from a DLM file \overloading.
+    //! Load image from a DLM file \inplace.
     CImg<T>& load_dlm(std::FILE *const file) {
       return _load_dlm(file,0);
     }
@@ -55196,7 +55196,7 @@ namespace cimg_library {
       return CImg<T>().load_bmp(filename);
     }
 
-    //! Load image from a BMP file \overloading.
+    //! Load image from a BMP file \inplace.
     CImg<T>& load_bmp(std::FILE *const file) {
       return _load_bmp(file,0);
     }
@@ -55265,7 +55265,7 @@ namespace cimg_library {
         align_bytes = (4 - dx_bytes%4)%4;
       const ulongT
         cimg_iobuffer = (ulongT)24*1024*1024,
-        buf_size = (ulongT)cimg::abs(dy)*(dx_bytes + align_bytes);
+        buf_size = (ulongT)cimg::abs((longT)dy)*(dx_bytes + align_bytes);
 
       if (buf_size>=fsiz)
         throw CImgIOException(_cimg_instance
@@ -55427,7 +55427,7 @@ namespace cimg_library {
       return CImg<T>().load_jpeg(filename);
     }
 
-    //! Load image from a JPEG file \overloading.
+    //! Load image from a JPEG file \inplace.
     CImg<T>& load_jpeg(std::FILE *const file) {
       return _load_jpeg(file,0);
     }
@@ -55558,7 +55558,7 @@ namespace cimg_library {
       return CImg<T>().load_jxl(filename);
     }
 
-    //! Load image from a JPEG XL file \overloading.
+    //! Load image from a JPEG XL file \inplace.
     CImg<T>& load_jxl(std::FILE *const file) {
       return _load_jxl(file,0);
     }
@@ -55804,7 +55804,7 @@ namespace cimg_library {
       return CImg<T>().load_png(filename,bits_per_value);
     }
 
-    //! Load image from a PNG file \overloading.
+    //! Load image from a PNG file \inplace.
     CImg<T>& load_png(std::FILE *const file, unsigned int *const bits_per_value=0) {
       return _load_png(file,0,bits_per_value);
     }
@@ -56003,7 +56003,7 @@ namespace cimg_library {
       return CImg<T>().load_pnm(filename);
     }
 
-    //! Load image from a PNM file \overloading.
+    //! Load image from a PNM file \inplace.
     CImg<T>& load_pnm(std::FILE *const file) {
       return _load_pnm(file,0);
     }
@@ -56214,7 +56214,7 @@ namespace cimg_library {
       return CImg<T>().load_pfm(filename);
     }
 
-    //! Load image from a PFM file \overloading.
+    //! Load image from a PFM file \inplace.
     CImg<T>& load_pfm(std::FILE *const file) {
       return _load_pfm(file,0);
     }
@@ -56311,7 +56311,7 @@ namespace cimg_library {
       return CImg<T>().load_rgb(filename,dimw,dimh);
     }
 
-    //! Load image from a RGB file \overloading.
+    //! Load image from a RGB file \inplace.
     CImg<T>& load_rgb(std::FILE *const file, const unsigned int dimw, const unsigned int dimh=1) {
       return _load_rgb(file,0,dimw,dimh);
     }
@@ -56367,7 +56367,7 @@ namespace cimg_library {
       return CImg<T>().load_rgba(filename,dimw,dimh);
     }
 
-    //! Load image from a RGBA file \overloading.
+    //! Load image from a RGBA file \inplace.
     CImg<T>& load_rgba(std::FILE *const file, const unsigned int dimw, const unsigned int dimh=1) {
       return _load_rgba(file,0,dimw,dimh);
     }
@@ -56832,7 +56832,7 @@ namespace cimg_library {
       return CImg<T>().load_analyze(filename,voxel_size);
     }
 
-    //! Load image from an ANALYZE7.5/NIFTI file \overloading.
+    //! Load image from an ANALYZE7.5/NIFTI file \inplace.
     CImg<T>& load_analyze(std::FILE *const file, float *const voxel_size=0) {
       return _load_analyze(file,0,voxel_size);
     }
@@ -56995,7 +56995,7 @@ namespace cimg_library {
       return CImg<T>().load_cimg(filename,axis,align);
     }
 
-    //! Load image from a .cimg[z] file \overloading.
+    //! Load image from a .cimg[z] file \inplace.
     CImg<T>& load_cimg(std::FILE *const file, const char axis='z', const float align=0) {
       CImgList<T> list;
       list.load_cimg(file);
@@ -57048,7 +57048,7 @@ namespace cimg_library {
       return CImg<T>().load_cimg(filename,n0,n1,x0,y0,z0,c0,x1,y1,z1,c1,axis,align);
     }
 
-    //! Load sub-images of a .cimg file \overloading.
+    //! Load sub-images of a .cimg file \inplace.
     CImg<T>& load_cimg(std::FILE *const file,
                        const unsigned int n0, const unsigned int n1,
                        const unsigned int x0, const unsigned int y0,
@@ -57087,7 +57087,7 @@ namespace cimg_library {
       return CImg<T>().load_inr(filename,voxel_size);
     }
 
-    //! Load image from an INRIMAGE-4 file \overloading.
+    //! Load image from an INRIMAGE-4 file \inplace.
     CImg<T>& load_inr(std::FILE *const file, float *const voxel_size=0) {
       return _load_inr(file,0,voxel_size);
     }
@@ -57118,7 +57118,7 @@ namespace cimg_library {
           cimg_sscanf(item._data," VZ%*[^0-9.+-]%f",voxel_size + 2);
         }
         if (cimg_sscanf(item._data," CPU%*[ =]%s",tmp1._data)) out[7] = cimg::strncasecmp(tmp1,"sun",3)?0:1;
-        switch (cimg_sscanf(item._data," TYPE%*[ =]%s %s",tmp1._data,tmp2._data)) {
+        switch (cimg_sscanf(item._data," TYPE%*[ =]%63s %63s",tmp1._data,tmp2._data)) {
         case 0 : break;
         case 2 :
           out[5] = cimg::strncasecmp(tmp1,"unsigned",8)?1:0;
@@ -57256,7 +57256,7 @@ namespace cimg_library {
       return CImg<T>().load_pandore(filename);
     }
 
-    //! Load image from a PANDORE-5 file \overloading.
+    //! Load image from a PANDORE-5 file \inplace.
     CImg<T>& load_pandore(std::FILE *const file) {
       return _load_pandore(file,0);
     }
@@ -57509,7 +57509,7 @@ namespace cimg_library {
       return CImg<T>().load_raw(filename,size_x,size_y,size_z,size_c,is_multiplexed,invert_endianness,offset);
     }
 
-    //! Load image from a raw binary file \overloading.
+    //! Load image from a raw binary file \inplace.
     CImg<T>& load_raw(std::FILE *const file,
                       const unsigned int size_x=0, const unsigned int size_y=1,
                       const unsigned int size_z=1, const unsigned int size_c=1,
@@ -57616,7 +57616,7 @@ namespace cimg_library {
                                     first_frame,last_frame,step_frame,yuv2rgb).get_append(axis);
     }
 
-    //! Load image sequence from a YUV file \overloading.
+    //! Load image sequence from a YUV file \inplace.
     CImg<T>& load_yuv(std::FILE *const file,
                       const unsigned int size_x, const unsigned int size_y=1,
                       const unsigned int chroma_subsampling=444,
@@ -57653,7 +57653,7 @@ namespace cimg_library {
       return CImg<T>().load_off(primitives,colors,filename);
     }
 
-    //! Load 3D object from a .OFF file \overloading.
+    //! Load 3D object from a .OFF file \inplace.
     template<typename tf, typename tc>
     CImg<T>& load_off(CImgList<tf>& primitives, CImgList<tc>& colors, std::FILE *const file) {
       return _load_off(primitives,colors,file,0);
@@ -59565,7 +59565,7 @@ namespace cimg_library {
       return _display_graph(disp,0,plot_type,vertex_type,labelx,xmin,xmax,labely,ymin,ymax,exit_on_anykey);
     }
 
-    //! Display 1D graph in an interactive window \overloading.
+    //! Display 1D graph in an interactive window \overload.
     const CImg<T>& display_graph(const char *const title=0,
                                  const unsigned int plot_type=1, const unsigned int vertex_type=1,
                                  const char *const labelx=0, const double xmin=0, const double xmax=0,
@@ -59836,7 +59836,7 @@ namespace cimg_library {
       return _save_ascii(0,filename);
     }
 
-    //! Save image as an Ascii file \overloading.
+    //! Save image as an Ascii file \overload.
     const CImg<T>& save_ascii(std::FILE *const file) const {
       return _save_ascii(file,0);
     }
@@ -59865,7 +59865,7 @@ namespace cimg_library {
       return _save_cpp(0,filename);
     }
 
-    //! Save image as a .cpp source file \overloading.
+    //! Save image as a .cpp source file \overload.
     const CImg<T>& save_cpp(std::FILE *const file) const {
       return _save_cpp(file,0);
     }
@@ -59902,7 +59902,7 @@ namespace cimg_library {
       return _save_dlm(0,filename);
     }
 
-    //! Save image as a DLM file \overloading.
+    //! Save image as a DLM file \overload.
     const CImg<T>& save_dlm(std::FILE *const file) const {
       return _save_dlm(file,0);
     }
@@ -59942,7 +59942,7 @@ namespace cimg_library {
       return _save_bmp(0,filename);
     }
 
-    //! Save image as a BMP file \overloading.
+    //! Save image as a BMP file \overload.
     const CImg<T>& save_bmp(std::FILE *const file) const {
       return _save_bmp(file,0);
     }
@@ -60106,7 +60106,7 @@ namespace cimg_library {
       return _save_jpeg(0,filename,quality);
     }
 
-    //! Save image as a JPEG file \overloading.
+    //! Save image as a JPEG file \overload.
     const CImg<T>& save_jpeg(std::FILE *const file, const unsigned int quality=100) const {
       return _save_jpeg(file,0,quality);
     }
@@ -60511,7 +60511,7 @@ namespace cimg_library {
       return _save_png(0,filename,bytes_per_pixel);
     }
 
-    //! Save image as a PNG file \overloading.
+    //! Save image as a PNG file \overload.
     const CImg<T>& save_png(std::FILE *const file, const unsigned int bytes_per_pixel=0) const {
       return _save_png(file,0,bytes_per_pixel);
     }
@@ -60725,7 +60725,7 @@ namespace cimg_library {
       return _save_pnm(0,filename,bytes_per_pixel);
     }
 
-    //! Save image as a PNM file \overloading.
+    //! Save image as a PNM file \overload.
     const CImg<T>& save_pnm(std::FILE *const file, const unsigned int bytes_per_pixel=0) const {
       return _save_pnm(file,0,bytes_per_pixel);
     }
@@ -60861,7 +60861,7 @@ namespace cimg_library {
       return _save_pnk(0,filename);
     }
 
-    //! Save image as a PNK file \overloading.
+    //! Save image as a PNK file \overload.
     const CImg<T>& save_pnk(std::FILE *const file) const {
       return _save_pnk(file,0);
     }
@@ -60931,7 +60931,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a PFM file \overloading.
+    //! Save image as a PFM file \overload.
     const CImg<T>& save_pfm(std::FILE *const file) const {
       get_mirror('y')._save_pfm(file,0);
       return *this;
@@ -61020,7 +61020,7 @@ namespace cimg_library {
       return _save_rgb(0,filename);
     }
 
-    //! Save image as a RGB file \overloading.
+    //! Save image as a RGB file \overload.
     const CImg<T>& save_rgb(std::FILE *const file) const {
       return _save_rgb(file,0);
     }
@@ -61082,7 +61082,7 @@ namespace cimg_library {
       return _save_rgba(0,filename);
     }
 
-    //! Save image as a RGBA file \overloading.
+    //! Save image as a RGBA file \overload.
     const CImg<T>& save_rgba(std::FILE *const file) const {
       return _save_rgba(file,0);
     }
@@ -61441,7 +61441,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a .cimg file \overloading.
+    //! Save image as a .cimg file \overload.
     const CImg<T>& save_cimg(std::FILE *const file, const bool is_compressed=false) const {
       CImgList<T>(*this,true).save_cimg(file,is_compressed);
       return *this;
@@ -61464,7 +61464,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a sub-image into an existing .cimg file \overloading.
+    //! Save image as a sub-image into an existing .cimg file \overload.
     const CImg<T>& save_cimg(std::FILE *const file,
                              const unsigned int n0,
                              const unsigned int x0, const unsigned int y0,
@@ -61490,7 +61490,7 @@ namespace cimg_library {
       return CImgList<T>::save_empty_cimg(filename,1,dx,dy,dz,dc);
     }
 
-    //! Save blank image as a .cimg file \overloading.
+    //! Save blank image as a .cimg file \overload.
     /**
        Same as save_empty_cimg(const char *,unsigned int,unsigned int,unsigned int,unsigned int)
        with a file stream argument instead of a filename string.
@@ -61510,7 +61510,7 @@ namespace cimg_library {
       return _save_inr(0,filename,voxel_size);
     }
 
-    //! Save image as an INRIMAGE-4 file \overloading.
+    //! Save image as an INRIMAGE-4 file \overload.
     const CImg<T>& save_inr(std::FILE *const file, const float *const voxel_size=0) const {
       return _save_inr(file,0,voxel_size);
     }
@@ -61654,7 +61654,7 @@ namespace cimg_library {
       return _save_pandore(0,filename,colorspace);
     }
 
-    //! Save image as a Pandore-5 file \overloading.
+    //! Save image as a Pandore-5 file \overload.
     /**
         Same as save_pandore(const char *,unsigned int) const
         with a file stream argument instead of a filename string.
@@ -61857,7 +61857,7 @@ namespace cimg_library {
       return _save_raw(0,filename,is_multiplexed);
     }
 
-    //! Save image as a raw data file \overloading.
+    //! Save image as a raw data file \overload.
     /**
        Same as save_raw(const char *,bool) const
        with a file stream argument instead of a filename string.
@@ -61948,7 +61948,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a .yuv video file \overloading.
+    //! Save image as a .yuv video file \overload.
     /**
        Same as save_yuv(const char*,const unsigned int,const bool) const
        with a file stream argument instead of a filename string.
@@ -61977,7 +61977,7 @@ namespace cimg_library {
       return _save_off(primitives,colors,0,filename);
     }
 
-    //! Save 3D object as an Object File Format (.off) file \overloading.
+    //! Save 3D object as an Object File Format (.off) file \overload.
     /**
        Same as save_off(const CImgList<tf>&,const CImgList<tc>&,const char*) const
        with a file stream argument instead of a filename string.
@@ -65332,7 +65332,7 @@ namespace cimg_library {
       return CImgList<T>().load_cimg(filename,n0,n1,x0,y0,z0,c0,x1,y1,z1,c1);
     }
 
-    //! Load a sub-image list from a (non compressed) .cimg file \overloading.
+    //! Load a sub-image list from a (non compressed) .cimg file \overload.
     CImgList<T>& load_cimg(std::FILE *const file,
                            const unsigned int n0, const unsigned int n1,
                            const unsigned int x0, const unsigned int y0,
@@ -65638,7 +65638,7 @@ namespace cimg_library {
                                     first_frame,last_frame,step_frame,yuv2rgb);
     }
 
-    //! Load a list from an image sequence YUV file \overloading.
+    //! Load a list from an image sequence YUV file \inplace.
     CImgList<T>& load_yuv(std::FILE *const file,
                           const unsigned int size_x, const unsigned int size_y,
                           const unsigned int chroma_subsampling=444,

@@ -58533,8 +58533,7 @@ namespace cimg_library {
        \note
        - libtiff support is enabled by defining the precompilation
         directive \c cimg_use_tiff.
-       - When libtiff is enabled, 2D and 3D (multipage) several
-        channel per pixel are supported for
+       - When libtiff is enabled, 2D and 3D (multipage) several channels per pixel are supported for
         <tt>char,uchar,short,ushort,float</tt> and \c double pixel types.
        - If \c cimg_use_tiff is not defined at compile time the
         function uses CImg<T>& load_other(const char*).

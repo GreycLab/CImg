@@ -9821,7 +9821,7 @@ namespace cimg_library {
           SetWindowPos(_window,0,0,0,cwidth,cheight,SWP_NOMOVE | SWP_NOZORDER | SWP_NOCOPYBITS);
         }
         if (_width!=dimx || _height!=dimy) {
-          unsigned int *const ndata = new unsigned int[dimx*dimy];
+          unsigned int *const ndata = new unsigned int[(cimg_ulong)dimx*dimy];
           if (force_redraw) _render_resize(_data,_width,_height,ndata,dimx,dimy);
           else std::memset(ndata,0x80,sizeof(unsigned int)*dimx*dimy);
           delete[] _data;
@@ -10459,7 +10459,7 @@ namespace cimg_library {
         SDL3_attr.unlock();
         show();
         SDL3_attr.lock();
-        unsigned int *const ndata = new unsigned int[dimx*dimy];
+        unsigned int *const ndata = new unsigned int[(cimg_ulong)dimx*dimy];
         if (force_redraw) _render_resize(_data,_width,_height,ndata,dimx,dimy);
         else std::memset(ndata,0,sizeof(unsigned int)*dimx*dimy);
         delete[] _data;

@@ -10098,7 +10098,7 @@ namespace cimg_library {
                 }
                 SelectObject(hdcMem,hOld);
               }
-              DeleteObject(hBitmap); // Réussit désormais à 100% de manière garantie
+              DeleteObject(hBitmap);
             }
             DeleteDC(hdcMem);
           }
@@ -32134,7 +32134,7 @@ namespace cimg_library {
 
     //! Compute the projection of the instance matrix onto the specified dictionary.
     /**
-       Find the best matching projection of selected matrix onto the span of an over-complete dictionary D,
+       Find the best-matching projection of the selected matrix onto the span of an over-complete dictionary D,
        using the orthogonal projection or (opt. Orthogonal) Matching Pursuit algorithm.
        The instance image must be a 2D matrix in which each column represents a signal to project.
        \param dictionary A matrix in which each column is an element of the dictionary D.
@@ -32147,7 +32147,7 @@ namespace cimg_library {
        \param max_iter Sets the max number of iterations processed for each signal.
                        If set to '0' (default), 'max_iter' is set to the number of dictionary columns.
                        (only meaningful for matching pursuit and its variants).
-       \param max_residual Gives a stopping criterion on signal reconstruction accuracy.
+       \param max_residual Provides a stopping criterion based on the signal reconstruction accuracy
                            (only meaningful for matching pursuit and its variants).
        \return A matrix W whose columns correspond to the sparse weights associated with each input matrix column.
                Thus, the matrix product D*W is an approximation of the input matrix.
@@ -32271,7 +32271,7 @@ namespace cimg_library {
        \param nb_nodes Number of graph nodes.
        \param starting_node Index of the starting node.
        \param ending_node Index of the ending node (set to ~0U to ignore ending node).
-       \param previous_node Array that gives the previous node index in the path to the starting node
+       \param previous_node Array that stores the index of the previous node in the shortest path to the starting node.
          (optional parameter).
        \return Array of distances of each node to the starting node, typed as Tfloat to prevent overflows.
     **/
@@ -35256,15 +35256,20 @@ namespace cimg_library {
 #if cimg_OS==2 // Windows-specific security hardening
       cimg_for(*this,p,T) {
         const char c = (char)*p;
-        if (c == '\"' || c == '|' || c == '<' || c == '>') {
-          throw CImgArgumentException("CImg<%s>::_system_strescape(): Detected illegal or malicious shell "
-                                      "character '%c' in filename.",
-                                      pixel_type(), c);
+        switch (c) {
+          case '\"': case '|': case '<': case '>':
+          case '&':  case '^': case '%': case '!':
+          case '\n': case '\r':
+            throw CImgArgumentException("CImg<%s>::_system_strescape(): Detected illegal or malicious shell "
+                                        "character '%c' in path/filename.",
+                                        pixel_type(), c);
+        default:
+          break;
         }
       }
       return *this;
 #else // Unix-style escaping
-#define cimg_system_strescape(c,s) case c : if (p!=ptrs) CImg<T>(ptrs,(unsigned int)(p - ptrs),1,1,1,false).\
+#define cimg_system_strescape(c,s) case c : if (p!=ptrs) CImg<T>(ptrs,(unsigned int)(p - ptrs),1,1,1,false). \
       move_to(list); \
       CImg<T>(s,(unsigned int)std::strlen(s),1,1,1,false).move_to(list); ptrs = p + 1; break
 

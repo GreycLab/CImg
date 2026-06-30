@@ -3956,42 +3956,14 @@ namespace cimg_library {
       }
     }
 
-    //! Display a warning message on the default output stream.
-    /**
-       \param format C-string containing the format of the message, as with <tt>std::printf()</tt>.
-       \note If configuration macro \c cimg_strict_warnings is set, this function throws a
-       \c CImgWarningException instead.
-       \warning As the first argument is a format string, it is highly recommended to write
-       \code
-       cimg::warn("%s",warning_message);
-       \endcode
-       instead of
-       \code
-       cimg::warn(warning_message);
-       \endcode
-       if \c warning_message can be arbitrary, to prevent nasty memory access.
-    **/
-    inline void warn(const char *const format, ...) {
-      if (cimg::exception_mode()>=1) {
-        char *const message = new char[16384];
-        std::va_list ap;
-        va_start(ap,format);
-        cimg_vsnprintf(message,16384,format,ap);
-        va_end(ap);
-#ifdef cimg_strict_warnings
-        throw CImgWarningException("%s",message);
-#else
-        std::fprintf(cimg::output(),"\n%s[CImg] *** Warning ***%s%s\n",cimg::t_red(),cimg::t_normal(),message);
-#endif
-        delete[] message;
-      }
-    }
+    // Display a warning message on the default output stream.
+    inline void warn(const char *const format, ...);
 
     // Execute an external system command.
     /**
        \param command C-string containing the command line to execute.
        \param module_name Module name.
-       \param is_verbose Indicates whether the command must be silent or verbose when outputting messages.
+       \param is_verbose Indicates whether the command output should be silent or verbose.
        \return Status value of the executed command, whose meaning is OS-dependent.
        \note This function is similar to <tt>std::system()</tt>
        but it does not open an extra console windows
@@ -4045,8 +4017,8 @@ namespace cimg_library {
           FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                          0,errorCode,MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),(LPSTR)&lpMsgBuf,0,0);
           cimg::warn("cimg::system() : Command '%s' (module name '%s) failed with error %lu: %s",
-                     module_name==0?"(null)":module_name,
                      command==0?"(null)":command,
+                     module_name==0?"(null)":module_name,
                      errorCode,lpMsgBuf);
 
           if (lpMsgBuf) LocalFree(lpMsgBuf);
@@ -4231,7 +4203,7 @@ namespace cimg_library {
 
     //! Return the value of a system timer, with a millisecond precision.
     /**
-       \note The timer does not necessarily starts from \c 0.
+       Note: The timer does not necessarily start from \c 0.
     **/
     inline cimg_uint64 time() {
 #if cimg_OS==1
@@ -4273,7 +4245,7 @@ namespace cimg_library {
     /**
        \param milliseconds Number of milliseconds to wait for.
        \note This function frees the CPU resources during the sleeping time.
-       It can be used to temporize your program properly, without wasting CPU time.
+       It can be used to pace your program properly, without wasting CPU time.
     **/
     inline void sleep(const unsigned int milliseconds) {
 #if cimg_OS==1
@@ -5823,10 +5795,10 @@ namespace cimg_library {
     **/
     inline cimg_int64 fsize(std::FILE *const file) {
       if (!file) return (cimg_int64)-1;
-      const long pos = std::ftell(file);
-      std::fseek(file,0,SEEK_END);
+      const cimg_long pos = std::ftell(file);
+      cimg::fseek(file,0,SEEK_END);
       const cimg_int64 siz = (cimg_int64)std::ftell(file);
-      std::fseek(file,pos,SEEK_SET);
+      cimg::fseek(file,pos,SEEK_SET);
       return siz;
     }
 
@@ -67642,6 +67614,36 @@ namespace cimg_library {
       }
 #endif
       return 0;
+    }
+
+    //! Display a warning message on the default output stream.
+    /**
+       \param format C-string containing the format of the message, as with <tt>std::printf()</tt>.
+       \note If configuration macro \c cimg_strict_warnings is set, this function throws a
+       \c CImgWarningException instead.
+       \warning As the first argument is a format string, it is highly recommended to write
+       \code
+       cimg::warn("%s",warning_message);
+       \endcode
+       instead of
+       \code
+       cimg::warn(warning_message);
+       \endcode
+       if \c warning_message can be arbitrary, to prevent invalid memory access.
+    **/
+    inline void warn(const char *const format, ...) {
+      if (cimg::exception_mode()>=1) {
+        CImg<char> message(16384); *message = 0;
+        std::va_list ap;
+        va_start(ap,format);
+        cimg_vsnprintf(message._data,16384,format,ap);
+        va_end(ap);
+#ifdef cimg_strict_warnings
+        throw CImgWarningException("%s",message._data);
+#else
+        std::fprintf(cimg::output(),"\n%s[CImg] *** Warning ***%s%s\n",cimg::t_red(),cimg::t_normal(),message._data);
+#endif
+      }
     }
 
     //! Search path of an executable.

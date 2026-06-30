@@ -41945,9 +41945,8 @@ namespace cimg_library {
 
     struct _functor4d_streamline2d_oriented {
       const CImg<T>& ref;
-      CImg<floatT> *pI;
-      _functor4d_streamline2d_oriented(const CImg<T>& pref):ref(pref),pI(0) { pI = new CImg<floatT>(2,2,1,2); }
-      ~_functor4d_streamline2d_oriented() { delete pI; }
+      mutable CImg<floatT> I;
+      _functor4d_streamline2d_oriented(const CImg<T>& pref):ref(pref) { I.assign(2,2,1,2); }
       float operator()(const float x, const float y, const float z, const unsigned int c) const {
 #define _cimg_vecalign2d(i,j) \
         if (I(i,j,0)*I(0,0,0) + I(i,j,1)*I(0,0,1)<0) { I(i,j,0) = -I(i,j,0); I(i,j,1) = -I(i,j,1); }
@@ -41959,7 +41958,6 @@ namespace cimg_library {
           dx = x - xi,
           dy = y - yi;
         if (c==0) {
-          CImg<floatT>& I = *pI;
           if (xi<0) xi = 0;
           if (nxi<0) nxi = 0;
           if (xi>=ref.width()) xi = ref.width() - 1;
@@ -41974,15 +41972,14 @@ namespace cimg_library {
           I(0,1,0) = (float)ref(xi,nyi,zi,0);  I(0,1,1) = (float)ref(xi,nyi,zi,1);
           _cimg_vecalign2d(1,0); _cimg_vecalign2d(1,1); _cimg_vecalign2d(0,1);
         }
-        return c<2?(float)pI->_linear_atXY(dx,dy,0,c):0;
+        return c<2?(float)I._linear_atXY(dx,dy,0,c):0;
       }
     };
 
     struct _functor4d_streamline3d_oriented {
       const CImg<T>& ref;
-      CImg<floatT> *pI;
-      _functor4d_streamline3d_oriented(const CImg<T>& pref):ref(pref),pI(0) { pI = new CImg<floatT>(2,2,2,3); }
-      ~_functor4d_streamline3d_oriented() { delete pI; }
+      CImg<floatT> I;
+      _functor4d_streamline3d_oriented(const CImg<T>& pref):ref(pref) { I.assign(2,2,2,3); }
       float operator()(const float x, const float y, const float z, const unsigned int c) const {
 #define _cimg_vecalign3d(i,j,k) if (I(i,j,k,0)*I(0,0,0,0) + I(i,j,k,1)*I(0,0,0,1) + I(i,j,k,2)*I(0,0,0,2)<0) { \
   I(i,j,k,0) = -I(i,j,k,0); I(i,j,k,1) = -I(i,j,k,1); I(i,j,k,2) = -I(i,j,k,2); }
@@ -41995,7 +41992,6 @@ namespace cimg_library {
           dy = y - yi,
           dz = z - zi;
         if (c==0) {
-          CImg<floatT>& I = *pI;
           if (xi<0) xi = 0;
           if (nxi<0) nxi = 0;
           if (xi>=ref.width()) xi = ref.width() - 1;
@@ -42023,7 +42019,7 @@ namespace cimg_library {
           _cimg_vecalign3d(1,0,0); _cimg_vecalign3d(1,1,0); _cimg_vecalign3d(0,1,0);
           _cimg_vecalign3d(0,0,1); _cimg_vecalign3d(1,0,1); _cimg_vecalign3d(1,1,1); _cimg_vecalign3d(0,1,1);
         }
-        return (float)pI->_linear_atXYZ(dx,dy,dz,c);
+        return (float)I._linear_atXYZ(dx,dy,dz,c);
       }
     };
 

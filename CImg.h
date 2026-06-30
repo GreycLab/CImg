@@ -10075,14 +10075,23 @@ namespace cimg_library {
                   bmi.biClrUsed = bmi.biClrImportant = 0;
                   unsigned char *buf = new unsigned char[4*bw*bh];
                   if (GetDIBits(hdcMem,hBitmap,0,bh,buf,(BITMAPINFO*)&bmi,DIB_RGB_COLORS)) {
-                    img.assign(bw,bh,1,3);
-                    const unsigned char *ptrs = buf;
-                    T *pR = img.data(0,0,0,0), *pG = img.data(0,0,0,1), *pB = img.data(0,0,0,2);
-                    cimg_forXY(img,x,y) {
-                      *(pR++) = (T)ptrs[2];
-                      *(pG++) = (T)ptrs[1];
-                      *(pB++) = (T)ptrs[0];
-                      ptrs+=4;
+                    try {
+                      img.assign(bw,bh,1,3);
+                      const unsigned char *ptrs = buf;
+                      T *pR = img.data(0,0,0,0), *pG = img.data(0,0,0,1), *pB = img.data(0,0,0,2);
+                      cimg_forXY(img,x,y) {
+                        *(pR++) = (T)ptrs[2];
+                        *(pG++) = (T)ptrs[1];
+                        *(pB++) = (T)ptrs[0];
+                        ptrs+=4;
+                      }
+                    } catch (...) {
+                      delete[] buf;
+                      SelectObject(hdcMem,hOld);
+                      DeleteObject(hBitmap);
+                      DeleteDC(hdcMem);
+                      ReleaseDC(GetDesktopWindow(),hScreen);
+                      throw;
                     }
                   }
                   delete[] buf;
@@ -10142,6 +10151,7 @@ namespace cimg_library {
 
       // Destroy previous display window if existing.
       if (!is_empty()) assign();
+      _data = new unsigned int[_width*_height];
 
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       SDL3_attr.lock();
@@ -10188,7 +10198,6 @@ namespace cimg_library {
       // Create texture.
       _texture = SDL_CreateTexture(_renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_STREAMING,
                                    (int)_width,(int)_height);
-      _data = new unsigned int[_width*_height];
 
       // Add to managed list of CImgDisplays.
       SDL3_attr.cimg_displays[SDL3_attr.nb_cimg_displays++] = this;
@@ -10736,7 +10745,7 @@ namespace cimg_library {
    #--------------------------------------
    */
 
-  //! Class representing an image (up to 4 dimensions wide), each pixel being of type \c T.
+  //! Class representing an image (up to 4 dimensions wide), where each pixel is of type \c T.
   /**
      This is the main class of the %CImg Library. It declares and constructs
      an image, allows access to its pixel values, and is able to perform various image operations.
@@ -10746,7 +10755,7 @@ namespace cimg_library {
      A %CImg image is defined as an instance of the container \c CImg<T>, which contains a regular grid of pixels,
      each pixel value being of type \c T. The image grid can have up to 4 dimensions: width, height, depth
      and number of channels.
-     Usually, the three first dimensions are used to describe spatial coordinates <tt>(x,y,z)</tt>,
+     Usually, the first three dimensions are used to describe spatial coordinates <tt>(x,y,z)</tt>,
      while the number of channels is rather used as a vector-valued dimension
      (it may describe the R,G,B color channels for instance).
      If you need a fifth dimension, you can use image lists \c CImgList<T> rather than simple images \c CImg<T>.
@@ -11008,7 +11017,7 @@ namespace cimg_library {
        \param size_z Image depth().
        \param size_c Image spectrum() (number of channels).
        \note
-       - It is able to create only \e non-shared images, and allocates thus a pixel buffer data()
+       - It can only create \e non-shared images, and allocates thus a pixel buffer data()
          for each constructed image instance.
        - Setting one dimension \c size_x,\c size_y,\c size_z or \c size_c to \c 0 leads to the construction of
          an \e empty image.

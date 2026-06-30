@@ -64,10 +64,20 @@ int main() {
                                             1,-1,1,
                                             1,1,1, // (x6,y6,z6)
                                             -1,1,1).transpose(); // (x7,y7,z7)
-  CImgList<unsigned int> object_primitives(12,1,2,1,1, // Define the 12 segments of the cube
-                                           0,1, 1,2, 2,3, 3,0,
-                                           4,5, 5,6, 6,7, 7,4,
-                                           0,4, 1,5, 2,6, 3,7);
+  CImgList<unsigned int> object_primitives; // Define the 12 segments of the cube
+  CImg<unsigned int>::vector(0,1).move_to(object_primitives);
+  CImg<unsigned int>::vector(1,2).move_to(object_primitives);
+  CImg<unsigned int>::vector(2,3).move_to(object_primitives);
+  CImg<unsigned int>::vector(3,0).move_to(object_primitives);
+  CImg<unsigned int>::vector(4,5).move_to(object_primitives);
+  CImg<unsigned int>::vector(5,6).move_to(object_primitives);
+  CImg<unsigned int>::vector(6,7).move_to(object_primitives);
+  CImg<unsigned int>::vector(7,4).move_to(object_primitives);
+  CImg<unsigned int>::vector(0,4).move_to(object_primitives);
+  CImg<unsigned int>::vector(1,5).move_to(object_primitives);
+  CImg<unsigned int>::vector(2,6).move_to(object_primitives);
+  CImg<unsigned int>::vector(3,7).move_to(object_primitives);
+
   object_colors.insert(object_primitives.size(),CImg<unsigned char>::vector(32,64,255));
   object_opacities.insert(object_primitives.size(),CImg<float>::vector(0.3f));
 

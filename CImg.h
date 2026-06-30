@@ -47609,7 +47609,13 @@ namespace cimg_library {
     template<typename tf>
     static CImg<floatT> box3d(CImgList<tf>& primitives,
                               const float size_x=200, const float size_y=100, const float size_z=100) {
-      primitives.assign(6,1,4,1,1, 0,3,2,1, 4,5,6,7, 0,1,5,4, 3,7,6,2, 0,4,7,3, 1,2,6,5);
+      primitives.assign(6);
+      CImg<tf>::vector(0,3,2,1).move_to(primitives[0]);
+      CImg<tf>::vector(4,5,6,7).move_to(primitives[1]);
+      CImg<tf>::vector(0,1,5,4).move_to(primitives[2]);
+      CImg<tf>::vector(3,7,6,2).move_to(primitives[3]);
+      CImg<tf>::vector(0,4,7,3).move_to(primitives[4]);
+      CImg<tf>::vector(1,2,6,5).move_to(primitives[5]);
       return CImg<floatT>(8,3,1,1,
                           0.,size_x,size_x,    0.,    0.,size_x,size_x,    0.,
                           0.,    0.,size_y,size_y,    0.,    0.,size_y,size_y,
@@ -47637,9 +47643,9 @@ namespace cimg_library {
                                const float radius=50, const float size_z=100, const unsigned int subdivisions=24) {
       primitives.assign();
       if (!subdivisions) return CImg<floatT>();
-      CImgList<floatT> vertices(2,1,3,1,1,
-                                0.,0.,size_z,
-                                0.,0.,0.);
+      CImgList<floatT> vertices(2);
+      CImg<floatT>::vector(0.f,0.f,size_z).move_to(vertices[0]);
+      CImg<floatT>::vector(0.f,0.f,0.f).move_to(vertices[1]);
       for (float delta = 360.f/subdivisions, angle = 0; angle<360; angle+=delta) {
         const float a = (float)(angle*cimg::PI/180);
         CImg<floatT>::vector((float)(radius*std::cos(a)),(float)(radius*std::sin(a)),0).move_to(vertices);
@@ -47797,11 +47803,42 @@ namespace cimg_library {
       // Create initial icosahedron.
       primitives.assign();
       const double tmp = (1 + std::sqrt(5.f))/2, a = 1./std::sqrt(1 + tmp*tmp), b = tmp*a;
-      CImgList<floatT> vertices(12,1,3,1,1, b,a,0., -b,a,0., -b,-a,0., b,-a,0., a,0.,b, a,0.,-b,
-                                -a,0.,-b, -a,0.,b, 0.,b,a, 0.,-b,a, 0.,-b,-a, 0.,b,-a);
-      primitives.assign(20,1,3,1,1, 4,8,7, 4,7,9, 5,6,11, 5,10,6, 0,4,3, 0,3,5, 2,7,1, 2,1,6,
-                        8,0,11, 8,11,1, 9,10,3, 9,2,10, 8,4,0, 11,0,5, 4,9,3,
-                        5,3,10, 7,8,1, 6,1,11, 7,2,9, 6,10,2);
+      CImgList<floatT> vertices(12);
+      CImg<floatT>::vector(b,a,0.).move_to(vertices[0]);
+      CImg<floatT>::vector(-b,a,0.).move_to(vertices[1]);
+      CImg<floatT>::vector(-b,-a,0.).move_to(vertices[2]);
+      CImg<floatT>::vector(b,-a,0.).move_to(vertices[3]);
+      CImg<floatT>::vector(a,0.,b).move_to(vertices[4]);
+      CImg<floatT>::vector(a,0.,-b).move_to(vertices[5]);
+      CImg<floatT>::vector(-a,0.,-b).move_to(vertices[6]);
+      CImg<floatT>::vector(-a,0.,b).move_to(vertices[7]);
+      CImg<floatT>::vector(0.,b,a).move_to(vertices[8]);
+      CImg<floatT>::vector(0.,-b,a).move_to(vertices[9]);
+      CImg<floatT>::vector(0.,-b,-a).move_to(vertices[10]);
+      CImg<floatT>::vector(0.,b,-a).move_to(vertices[11]);
+
+      primitives.assign(20);
+      CImg<floatT>::vector(4,8,7).move_to(primitives[0]);
+      CImg<floatT>::vector(4,7,9).move_to(primitives[1]);
+      CImg<floatT>::vector(5,6,11).move_to(primitives[2]);
+      CImg<floatT>::vector(5,10,6).move_to(primitives[3]);
+      CImg<floatT>::vector(0,4,3).move_to(primitives[4]);
+      CImg<floatT>::vector(0,3,5).move_to(primitives[5]);
+      CImg<floatT>::vector(2,7,1).move_to(primitives[6]);
+      CImg<floatT>::vector(2,1,6).move_to(primitives[7]);
+      CImg<floatT>::vector(8,0,11).move_to(primitives[8]);
+      CImg<floatT>::vector(8,11,1).move_to(primitives[9]);
+      CImg<floatT>::vector(9,10,3).move_to(primitives[10]);
+      CImg<floatT>::vector(9,2,10).move_to(primitives[11]);
+      CImg<floatT>::vector(8,4,0).move_to(primitives[12]);
+      CImg<floatT>::vector(11,0,5).move_to(primitives[13]);
+      CImg<floatT>::vector(4,9,3).move_to(primitives[14]);
+      CImg<floatT>::vector(5,3,10).move_to(primitives[15]);
+      CImg<floatT>::vector(7,8,1).move_to(primitives[16]);
+      CImg<floatT>::vector(6,1,11).move_to(primitives[17]);
+      CImg<floatT>::vector(7,2,9).move_to(primitives[18]);
+      CImg<floatT>::vector(6,10,2).move_to(primitives[19]);
+
       // edge - length/2.
       float he = (float)a;
 
@@ -61173,8 +61210,7 @@ namespace cimg_library {
        \note
        - libtiff support is enabled by defining the precompilation
         directive \c cimg_use_tiff.
-       - When libtiff is enabled, 2D and 3D (multipage) several
-        channel per pixel are supported for
+       - When libtiff is enabled, 2D and 3D (multipage) several channels per pixel are supported for
         <tt>char,uchar,short,ushort,float</tt> and \c double pixel types.
        - If \c cimg_use_tiff is not defined at compile time the
         function uses CImg<T>&save_other(const char*).
@@ -61284,11 +61320,13 @@ namespace cimg_library {
             for (unsigned int cc = 0; cc<_width; ++cc)
               for (unsigned int vv = 0; vv<spp; ++vv)
                 buf[i++] = (t)(*this)(cc,row + rr,z,vv);
-          if (TIFFWriteEncodedStrip(tif,strip,buf,i*sizeof(t))<0)
+          if (TIFFWriteEncodedStrip(tif,strip,buf,i*sizeof(t))<0) {
+            _TIFFfree(buf);
             throw CImgIOException(_cimg_instance
                                   "save_tiff(): Invalid strip writing when saving file '%s'.",
                                   cimg_instance,
                                   filename?filename:"(FILE*)");
+          }
         }
         _TIFFfree(buf);
       }
@@ -61904,7 +61942,7 @@ namespace cimg_library {
     }
 
     // Return unsigned char buffer that encodes data of a CImg<bool> instance bitwise.
-    // (buffer needs to be deallocated afterwards, with delete[]).
+    // (the returned buffer must be deallocated afterwards using delete[]).
     const unsigned char *_bool2uchar(ulongT &siz, const bool is_multiplexed) const {
       const ulongT _siz = size();
       siz = _siz/8 + (_siz%8?1:0);
@@ -62041,8 +62079,7 @@ namespace cimg_library {
         case 4 : std::fprintf(nfile,"4 %u %u %u %u %f %f %f\n",
                               (unsigned int)primitives(l,0),(unsigned int)primitives(l,3),
                               (unsigned int)primitives(l,2),(unsigned int)primitives(l,1),r,g,b); break;
-        case 5 : std::fprintf(nfile,"2 %u %u %f %f %f\n",
-                              (unsigned int)primitives(l,0),(unsigned int)primitives(l,1),r,g,b); break;
+        case 5 : break;
         case 6 : {
           const unsigned int xt = (unsigned int)primitives(l,2), yt = (unsigned int)primitives(l,3);
           const float
@@ -63262,7 +63299,7 @@ namespace cimg_library {
 
     //! Return the size of the list, i.e. the number of images contained in it.
     /**
-      \note Similar to size() but returns result as a (signed) integer.
+      \note Similar to size() but returns the result as a (signed) integer.
     **/
     int width() const {
       return (int)_width;
@@ -63270,7 +63307,7 @@ namespace cimg_library {
 
     //! Return the size of the list, i.e. the number of images contained in it.
     /**
-      \note Similar to width() but returns result as an unsigned integer.
+      \note Similar to width() but returns the result as an unsigned integer.
     **/
     unsigned int size() const {
       return _width;
@@ -63828,7 +63865,7 @@ namespace cimg_library {
       return false;
     }
 
-    //! Test if one of the image list contains the specified referenced value.
+    //! Test if one image of the list contains the specified referenced value.
     /**
        \param pixel Reference to pixel value to test.
        \param[out] n Index of image containing the pixel value, if test succeeds.
@@ -63843,7 +63880,7 @@ namespace cimg_library {
       return contains(pixel,n,x,y,z,c);
     }
 
-    //! Test if one of the image list contains the specified referenced value.
+    //! Test if one image of the list contains the specified referenced value.
     /**
        \param pixel Reference to pixel value to test.
        \param[out] n Index of image containing the pixel value, if test succeeds.
@@ -63857,7 +63894,7 @@ namespace cimg_library {
       return contains(pixel,n,x,y,z,c);
     }
 
-    //! Test if one of the image list contains the specified referenced value.
+    //! Test if one image of the list contains the specified referenced value.
     /**
        \param pixel Reference to pixel value to test.
        \param[out] n Index of image containing the pixel value, if test succeeds.
@@ -63870,7 +63907,7 @@ namespace cimg_library {
       return contains(pixel,n,x,y,z,c);
     }
 
-    //! Test if one of the image list contains the specified referenced value.
+    //! Test if one image of the list contains the specified referenced value.
     /**
        \param pixel Reference to pixel value to test.
        \param[out] n Index of image containing the pixel value, if test succeeds.
@@ -63882,7 +63919,7 @@ namespace cimg_library {
       return contains(pixel,n,x,y,z,c);
     }
 
-    //! Test if one of the image list contains the specified referenced value.
+    //! Test if one image of the list contains the specified referenced value.
     /**
        \param pixel Reference to pixel value to test.
     **/

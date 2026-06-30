@@ -7425,6 +7425,16 @@ namespace cimg_library {
       return str && cimg_sscanf(str,"%lf/%lf",&x,&y)>0?x/y:0;
     }
 
+    // Portable Version of 'strtoll()' (C++98 / C++11)
+    inline cimg_int64 strtoll(const char* str, char** endptr, int base) {
+#if cimg_use_cpp11==1
+      return (cimg_int64)std::strtoll(str,endptr,base);
+#else
+      // C++-98 fallback version (std::strtol is guaranteed to be >= 32 bits).
+      return (cimg_int64)std::strtol(str,endptr,base);
+#endif
+    }
+
     //! Compare the first \p length characters of two C-strings, ignoring the case.
     /**
        \param str1 C-string.
@@ -18342,7 +18352,7 @@ namespace cimg_library {
         } else if (*s=='0' && (s[1]=='b' || s[1]=='B') && s[2]!='-') { // Binary literal
           variable_name.assign(65);
           if ((nb = cimg_sscanf(s + 2,"%64[01]%c",variable_name.data(),&sep))==1 || (nb==2 && sep=='%'))
-            val = (double)std::strtoll(variable_name,0,2);
+            val = (double)cimg::strtoll(variable_name,0,2);
           variable_name.assign();
         }
         if (is_sth && nb) val = -val;
@@ -29932,10 +29942,10 @@ namespace cimg_library {
         char sep;
         if (*s=='0' && (s[1]=='x' || s[1]=='X') &&
             ((s[2]>='0' && s[2]<='9') || (s[2]>='a' && s[2]<='f') || (s[2]>='a' && s[2]<='f'))) { // Hexadecimal number
-          val = (double)std::strtoll(s + 2,0,16);
+          val = (double)cimg::strtoll(s + 2,0,16);
           err = 1;
         } else if (*s=='0' && (s[1]=='b' || s[1]=='B') && (s[2]=='0' || s[2]=='1')) { // Binary number
-          val = (double)std::strtoll(s + 2,0,2);
+          val = (double)cimg::strtoll(s + 2,0,2);
           err = 1;
         } else if (*s>32) { // Decimal number
           err = cimg_sscanf(s,"%lf%c",&val,&sep);

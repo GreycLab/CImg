@@ -9455,7 +9455,7 @@ namespace cimg_library {
        - The returned value can be positive or negative depending on whether the mouse wheel has been scrolled
        forward or backward.
        - Scrolling the wheel forward add \c 1 to the wheel value.
-       - Scrolling the wheel backward subtract \c 1 to the wheel value.
+       - Scrolling the wheel backward subtract \c 1 from the wheel value.
        - The returned value cumulates the number of forward of backward scrolls since the creation of the display,
        or since the last reset of the wheel value (using set_wheel()). It is strongly recommended to quickly reset
        the wheel counter when an action has been performed regarding the current wheel value.
@@ -34228,7 +34228,7 @@ namespace cimg_library {
         }
 
         // Build the Householder vector v.
-        CImg<doubleT> x = _R.get_crop(j,j,j,m);
+        CImg<doubleT> x = _R.get_crop(j,j,j,m - 1);
         const double normx = x.magnitude();
         if (normx<1e-15) continue;
         x[0]+=(x[0]>=0?1:-1)*normx;
@@ -34247,7 +34247,7 @@ namespace cimg_library {
         for (int row = 0; row<m; ++row){
           double dot = 0;
           for (int i = j; i<m; ++i) dot+=_Q(i,row)*x[i - j];
-          for (int i = j; i<m; ++i) _Q(i,row)-=2*x(i - j,0)*dot;
+          for (int i = j; i<m; ++i) _Q(i,row)-=2*x[i - j]*dot;
         }
       }
 
@@ -34267,9 +34267,9 @@ namespace cimg_library {
     /**
        Find the best matching projection of selected matrix onto the span of an over-complete dictionary D,
        using the orthogonal projection or (opt. Orthogonal) Matching Pursuit algorithm.
-       Instance image must a 2D-matrix in which each column represent a signal to project.
+       The instance image must be a 2D matrix in which each column represents a signal to project.
        \param dictionary A matrix in which each column is an element of the dictionary D.
-       \param method Tell what projection method is applied. It can be:
+       \param method Specifies which projection method is applied. It can be:
          - 0 = orthogonal projection (default).
          - 1 = matching pursuit.
          - 2 = matching pursuit, with a single orthogonal projection step at the end.
@@ -34280,7 +34280,7 @@ namespace cimg_library {
                        (only meaningful for matching pursuit and its variants).
        \param max_residual Gives a stopping criterion on signal reconstruction accuracy.
                            (only meaningful for matching pursuit and its variants).
-       \return A matrix W whose columns correspond to the sparse weights of associated to each input matrix column.
+       \return A matrix W whose columns correspond to the sparse weights associated with each input matrix column.
                Thus, the matrix product D*W is an approximation of the input matrix.
     **/
     template<typename t>
@@ -34330,20 +34330,16 @@ namespace cimg_library {
           // Find best matching column from dictionary D.
           int best_atom = 0;
           Tfloat max_absdot = 0, max_dot = 0;
-          cimg_pragma_openmp(parallel for
-                             cimg_openmp_if(dictionary._width>=2 && dictionary._width*dictionary._height>=32))
           cimg_forX(dictionary,atom) {
             Tfloat dot = 0;
             cimg_forY(R,s) dot+=R[s]*dictionary(atom,s);
             dot/=dictionary_norm[atom];
             const Tfloat absdot = cimg::abs(dot);
-            cimg_pragma_openmp(critical(get_project_matrix)) {
-              if (absdot>max_absdot) { best_atom = atom; max_dot = dot; max_absdot = absdot; }
-            }
+            if (absdot>max_absdot) { best_atom = atom; max_dot = dot; max_absdot = absdot; }
           }
 
           if (!iter || method<3 || iter%proj_step) {
-            // Matching Pursuit: Subtract component to signal.
+            // Matching Pursuit: Subtract component from signal.
             max_dot/=dictionary_norm[best_atom];
             weights(signal,best_atom)+=max_dot;
             residual = 0;
@@ -34398,6 +34394,7 @@ namespace cimg_library {
       return weights;
     }
 
+
     //! Compute minimal path in a graph, using the Dijkstra algorithm.
     /**
        \param distance An object having operator()(unsigned int i, unsigned int j) which returns distance
@@ -34407,17 +34404,17 @@ namespace cimg_library {
        \param ending_node Index of the ending node (set to ~0U to ignore ending node).
        \param previous_node Array that gives the previous node index in the path to the starting node
          (optional parameter).
-       \return Array of distances of each node to the starting node.
+       \return Array of distances of each node to the starting node, typed as Tfloat to prevent overflows.
     **/
     template<typename tf, typename t>
-    static CImg<T> dijkstra(const tf& distance, const unsigned int nb_nodes,
-                            const unsigned int starting_node, const unsigned int ending_node,
-                            CImg<t>& previous_node) {
+    static CImg<Tfloat> dijkstra(const tf& distance, const unsigned int nb_nodes,
+                                 const unsigned int starting_node, const unsigned int ending_node,
+                                 CImg<t>& previous_node) {
       if (starting_node>=nb_nodes)
         throw CImgArgumentException("CImg<%s>::dijkstra(): Specified index of starting node %u is higher "
                                     "than number of nodes %u.",
                                     pixel_type(),starting_node,nb_nodes);
-      CImg<T> dist(1,nb_nodes,1,1,cimg::type<T>::max());
+      CImg<Tfloat> dist(1,nb_nodes,1,1,cimg::type<Tfloat>::max());
       dist(starting_node) = 0;
       previous_node.assign(1,nb_nodes,1,1,(t)-1);
       previous_node(starting_node) = (t)starting_node;
@@ -34430,17 +34427,18 @@ namespace cimg_library {
         const unsigned int umin = Q(0);
         if (umin==ending_node) sizeQ = 0;
         else {
-          const T dmin = dist(umin);
-          const T infty = cimg::type<T>::max();
+          const Tfloat
+            dmin = dist(umin),
+            infty = cimg::type<Tfloat>::max();
           for (unsigned int q = 1; q<sizeQ; ++q) {
             const unsigned int v = Q(q);
-            const T d = (T)distance(v,umin);
+            const Tfloat d = (Tfloat)distance(v,umin);
             if (d<infty) {
-              const T alt = dmin + d;
+              const Tfloat alt = dmin + d;
               if (alt<dist(v)) {
                 dist(v) = alt;
                 previous_node(v) = (t)umin;
-                const T distpos = dist(Q(q));
+                const Tfloat distpos = dist(Q(q));
                 for (unsigned int pos = q, par = 0; pos && distpos<dist(Q(par=(pos + 1)/2 - 1)); pos=par)
                   cimg::swap(Q(pos),Q(par));
               }
@@ -34448,7 +34446,7 @@ namespace cimg_library {
           }
           // Remove minimal vertex from queue.
           Q(0) = Q(--sizeQ);
-          const T distpos = dist(Q(0));
+          const Tfloat distpos = dist(Q(0));
           for (unsigned int pos = 0, left = 0, right = 0;
                ((right=2*(pos + 1),(left=right - 1))<sizeQ && distpos>dist(Q(left))) ||
                  (right<sizeQ && distpos>dist(Q(right)));) {
@@ -34511,8 +34509,8 @@ namespace cimg_library {
     //! Return an image containing the character codes of specified string.
     /**
        \param str input C-string to encode as an image.
-       \param is_last_zero Indicates whether the ending \c '0' character appear in the resulting image.
-       \param is_shared Return result that shares its buffer with \p str.
+       \param is_last_zero Indicates whether the terminating null character ('\0') appears in the resulting image.
+       \param is_shared Specifies whether the returned image shares its buffer with \p str.
     **/
     static CImg<T> string(const char *const str, const bool is_last_zero=true, const bool is_shared=false) {
       if (!str) return CImg<T>();
@@ -35790,7 +35788,7 @@ namespace cimg_library {
       for (double val = 0; *nvalues && nb<siz; ++nb) {
         sep = 0;
         const int err = cimg_sscanf(nvalues,"%255[ \n\t0-9.eEinfa+-]%c",item._data,&sep);
-        if (err>0 && cimg_sscanf(item,"%lf",&val)==1 && (sep==',' || sep==';' || err==1)) {
+        if (err>0 && cimg_sscanf(item._data,"%lf",&val)==1 && (sep==',' || sep==';' || err==1)) {
           nvalues+=std::strlen(item) + (err>1);
           *(ptrd++) = (T)val;
         } else break;
@@ -57210,7 +57208,7 @@ namespace cimg_library {
       CImg<charT> line(256); *line = 0;
       int err = std::fscanf(nfile,"%255[^\n]",line._data);
       unsigned int dx = 0, dy = 1, dz = 1, dc = 1;
-      cimg_sscanf(line,"%u%*c%u%*c%u%*c%u",&dx,&dy,&dz,&dc);
+      cimg_sscanf(line._data,"%u%*c%u%*c%u%*c%u",&dx,&dy,&dz,&dc);
       err = std::fscanf(nfile,"%*[^0-9.eEinfa+-]");
       if (!dx || !dy || !dz || !dc) {
         if (!file) cimg::fclose(nfile);
@@ -57278,7 +57276,7 @@ namespace cimg_library {
         if (err>0) (*this)(cdx++,dy) = (T)val;
         if (cdx>=_width) resize(3*_width/2,_height,1,1,0);
         char c = 0;
-        if (!cimg_sscanf(delimiter,"%255[^\n]%c",tmp._data,&c) || c=='\n') {
+        if (!cimg_sscanf(delimiter._data,"%255[^\n]%c",tmp._data,&c) || c=='\n') {
           dx = std::max(cdx,dx);
           if (++dy>=_height) resize(_width,3*_height/2,1,1,0);
           cdx = 0;
@@ -58133,7 +58131,7 @@ namespace cimg_library {
       int err, rval, gval, bval;
       const longT cimg_iobuffer = (longT)24*1024*1024;
       while ((err=std::fscanf(nfile,"%16383[^\n]",item.data()))!=EOF && (*item=='#' || !err)) std::fgetc(nfile);
-      if (cimg_sscanf(item," P%u",&ppm_type)!=1) {
+      if (cimg_sscanf(item._data," P%u",&ppm_type)!=1) {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimg_instance
                               "load_pnm(): PNM header not found in file '%s'.",
@@ -58141,7 +58139,7 @@ namespace cimg_library {
                               filename?filename:"(FILE*)");
       }
       while ((err=std::fscanf(nfile," %16383[^\n]",item.data()))!=EOF && (*item=='#' || !err)) std::fgetc(nfile);
-      if ((err=cimg_sscanf(item," %u %u %u %u",&W,&H,&D,&colormax))<2) {
+      if ((err=cimg_sscanf(item._data," %u %u %u %u",&W,&H,&D,&colormax))<2) {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimg_instance
                               "load_pnm(): WIDTH and HEIGHT fields undefined in file '%s'.",
@@ -58151,7 +58149,7 @@ namespace cimg_library {
       if (ppm_type!=1 && ppm_type!=4) {
         if (err==2 || (err==3 && (ppm_type==5 || ppm_type==7 || ppm_type==8 || ppm_type==9))) {
           while ((err=std::fscanf(nfile," %16383[^\n]",item.data()))!=EOF && (*item=='#' || !err)) std::fgetc(nfile);
-          if (cimg_sscanf(item,"%u",&colormax)!=1)
+          if (cimg_sscanf(item._data,"%u",&colormax)!=1)
             cimg::warn(_cimg_instance
                        "load_pnm(): COLORMAX field is undefined in file '%s'.",
                        cimg_instance,
@@ -58344,7 +58342,7 @@ namespace cimg_library {
       int W = 0, H = 0, err = 0;
       double scale = 0;
       while ((err=std::fscanf(nfile,"%16383[^\n]",item.data()))!=EOF && (*item=='#' || !err)) std::fgetc(nfile);
-      if (cimg_sscanf(item," P%c",&pfm_type)!=1) {
+      if (cimg_sscanf(item._data," P%c",&pfm_type)!=1) {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimg_instance
                               "load_pfm(): PFM header not found in file '%s'.",
@@ -58352,7 +58350,7 @@ namespace cimg_library {
                               filename?filename:"(FILE*)");
       }
       while ((err=std::fscanf(nfile," %16383[^\n]",item.data()))!=EOF && (*item=='#' || !err)) std::fgetc(nfile);
-      if ((err=cimg_sscanf(item," %d %d",&W,&H))<2) {
+      if ((err=cimg_sscanf(item._data," %d %d",&W,&H))<2) {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimg_instance
                               "load_pfm(): WIDTH and HEIGHT fields are undefined in file '%s'.",
@@ -58367,7 +58365,7 @@ namespace cimg_library {
       }
       if (err==2) {
         while ((err=std::fscanf(nfile," %16383[^\n]",item.data()))!=EOF && (*item=='#' || !err)) std::fgetc(nfile);
-        if (cimg_sscanf(item,"%lf",&scale)!=1)
+        if (cimg_sscanf(item._data,"%lf",&scale)!=1)
           cimg::warn(_cimg_instance
                      "load_pfm(): SCALE field is undefined in file '%s'.",
                      cimg_instance,
@@ -59216,18 +59214,18 @@ namespace cimg_library {
                               pixel_type());
 
       while (std::fscanf(file," %63[^\n]%*c",item._data)!=EOF && std::strncmp(item,"##}",3)) {
-        cimg_sscanf(item," XDIM%*[^0-9]%d",out);
-        cimg_sscanf(item," YDIM%*[^0-9]%d",out + 1);
-        cimg_sscanf(item," ZDIM%*[^0-9]%d",out + 2);
-        cimg_sscanf(item," VDIM%*[^0-9]%d",out + 3);
-        cimg_sscanf(item," PIXSIZE%*[^0-9]%d",out + 6);
+        cimg_sscanf(item._data," XDIM%*[^0-9]%d",out);
+        cimg_sscanf(item._data," YDIM%*[^0-9]%d",out + 1);
+        cimg_sscanf(item._data," ZDIM%*[^0-9]%d",out + 2);
+        cimg_sscanf(item._data," VDIM%*[^0-9]%d",out + 3);
+        cimg_sscanf(item._data," PIXSIZE%*[^0-9]%d",out + 6);
         if (voxel_size) {
-          cimg_sscanf(item," VX%*[^0-9.+-]%f",voxel_size);
-          cimg_sscanf(item," VY%*[^0-9.+-]%f",voxel_size + 1);
-          cimg_sscanf(item," VZ%*[^0-9.+-]%f",voxel_size + 2);
+          cimg_sscanf(item._data," VX%*[^0-9.+-]%f",voxel_size);
+          cimg_sscanf(item._data," VY%*[^0-9.+-]%f",voxel_size + 1);
+          cimg_sscanf(item._data," VZ%*[^0-9.+-]%f",voxel_size + 2);
         }
-        if (cimg_sscanf(item," CPU%*[ =]%s",tmp1._data)) out[7] = cimg::strncasecmp(tmp1,"sun",3)?0:1;
-        switch (cimg_sscanf(item," TYPE%*[ =]%s %s",tmp1._data,tmp2._data)) {
+        if (cimg_sscanf(item._data," CPU%*[ =]%s",tmp1._data)) out[7] = cimg::strncasecmp(tmp1,"sun",3)?0:1;
+        switch (cimg_sscanf(item._data," TYPE%*[ =]%s %s",tmp1._data,tmp2._data)) {
         case 0 : break;
         case 2 :
           out[5] = cimg::strncasecmp(tmp1,"unsigned",8)?1:0;
@@ -59797,7 +59795,7 @@ namespace cimg_library {
                               filename?filename:"(FILE*)");
       }
       do { err = std::fscanf(nfile,"%255[^\n] ",line._data); } while (!err || (err==1 && *line=='#'));
-      if ((err = cimg_sscanf(line,"%u%u%*[^\n] ",&nb_points,&nb_primitives))!=2) {
+      if ((err = cimg_sscanf(line._data,"%u%u%*[^\n] ",&nb_points,&nb_primitives))!=2) {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimg_instance
                               "load_off(): Invalid number of vertices or primitives specified in file '%s'.",
@@ -59810,7 +59808,7 @@ namespace cimg_library {
       float X = 0, Y = 0, Z = 0;
       cimg_forX(*this,l) {
         do { err = std::fscanf(nfile,"%255[^\n] ",line._data); } while (!err || (err==1 && *line=='#'));
-        if ((err = cimg_sscanf(line,"%f%f%f%*[^\n] ",&X,&Y,&Z))!=3) {
+        if ((err = cimg_sscanf(line._data,"%f%f%f%*[^\n] ",&X,&Y,&Z))!=3) {
           if (!file) cimg::fclose(nfile);
           throw CImgIOException(_cimg_instance
                                 "load_off(): Failed to read vertex %u/%u in file '%s'.",
@@ -59841,7 +59839,7 @@ namespace cimg_library {
 
               err = std::fscanf(nfile,"%*[^\n] ");
             } else {
-              err = cimg_sscanf(line,"%f%f%f",&c0,&c1,&c2);
+              err = cimg_sscanf(line._data,"%f%f%f",&c0,&c1,&c2);
               CImg<tf>::vector(i0).move_to(primitives);
               CImg<tc>::vector((tc)(c0*255),(tc)(c1*255),(tc)(c2*255)).move_to(colors);
             }
@@ -59855,7 +59853,7 @@ namespace cimg_library {
 
               err = std::fscanf(nfile,"%*[^\n] ");
             } else {
-              err = cimg_sscanf(line,"%f%f%f",&c0,&c1,&c2);
+              err = cimg_sscanf(line._data,"%f%f%f",&c0,&c1,&c2);
               CImg<tf>::vector(i0,i1).move_to(primitives);
               CImg<tc>::vector((tc)(c0*255),(tc)(c1*255),(tc)(c2*255)).move_to(colors);
             }
@@ -59869,7 +59867,7 @@ namespace cimg_library {
 
               err = std::fscanf(nfile,"%*[^\n] ");
             } else {
-              err = cimg_sscanf(line,"%f%f%f",&c0,&c1,&c2);
+              err = cimg_sscanf(line._data,"%f%f%f",&c0,&c1,&c2);
               CImg<tf>::vector(i0,i2,i1).move_to(primitives);
               CImg<tc>::vector((tc)(c0*255),(tc)(c1*255),(tc)(c2*255)).move_to(colors);
             }
@@ -59883,7 +59881,7 @@ namespace cimg_library {
 
               err = std::fscanf(nfile,"%*[^\n] ");
             } else {
-              err = cimg_sscanf(line,"%f%f%f",&c0,&c1,&c2);
+              err = cimg_sscanf(line._data,"%f%f%f",&c0,&c1,&c2);
               CImg<tf>::vector(i0,i3,i2,i1).move_to(primitives);
               CImg<tc>::vector((tc)(c0*255),(tc)(c1*255),(tc)(c2*255)).move_to(colors);
             }
@@ -59897,7 +59895,7 @@ namespace cimg_library {
 
               err = std::fscanf(nfile,"%*[^\n] ");
             } else {
-              err = cimg_sscanf(line,"%f%f%f",&c0,&c1,&c2);
+              err = cimg_sscanf(line._data,"%f%f%f",&c0,&c1,&c2);
               CImg<tf>::vector(i0,i3,i2,i1).move_to(primitives);
               CImg<tf>::vector(i0,i4,i3).move_to(primitives);
               colors.insert(2,CImg<tc>::vector((tc)(c0*255),(tc)(c1*255),(tc)(c2*255)));
@@ -59913,7 +59911,7 @@ namespace cimg_library {
 
               err = std::fscanf(nfile,"%*[^\n] ");
             } else {
-              err = cimg_sscanf(line,"%f%f%f",&c0,&c1,&c2);
+              err = cimg_sscanf(line._data,"%f%f%f",&c0,&c1,&c2);
               CImg<tf>::vector(i0,i3,i2,i1).move_to(primitives);
               CImg<tf>::vector(i0,i5,i4,i3).move_to(primitives);
               colors.insert(2,CImg<tc>::vector((tc)(c0*255),(tc)(c1*255),(tc)(c2*255)));
@@ -59929,7 +59927,7 @@ namespace cimg_library {
 
               err = std::fscanf(nfile,"%*[^\n] ");
             } else {
-              err = cimg_sscanf(line,"%f%f%f",&c0,&c1,&c2);
+              err = cimg_sscanf(line._data,"%f%f%f",&c0,&c1,&c2);
               CImg<tf>::vector(i0,i4,i3,i1).move_to(primitives);
               CImg<tf>::vector(i0,i6,i5,i4).move_to(primitives);
               CImg<tf>::vector(i3,i2,i1).move_to(primitives);
@@ -59946,7 +59944,7 @@ namespace cimg_library {
 
               err = std::fscanf(nfile,"%*[^\n] ");
             } else {
-              err = cimg_sscanf(line,"%f%f%f",&c0,&c1,&c2);
+              err = cimg_sscanf(line._data,"%f%f%f",&c0,&c1,&c2);
               CImg<tf>::vector(i0,i3,i2,i1).move_to(primitives);
               CImg<tf>::vector(i0,i5,i4,i3).move_to(primitives);
               CImg<tf>::vector(i0,i7,i6,i5).move_to(primitives);
@@ -67308,7 +67306,7 @@ namespace cimg_library {
         for (int l = 0; l<N; ++l) { \
           j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0 && j<255) tmp[j++] = (char)i; tmp[j] = 0; \
           W = H = D = C = 0; csiz = 0; \
-          if ((err = cimg_sscanf(tmp,"%d %d %d %d #" cimg_fuint64,&W,&H,&D,&C,&csiz))<4 || \
+          if ((err = cimg_sscanf(tmp._data,"%d %d %d %d #" cimg_fuint64,&W,&H,&D,&C,&csiz))<4 || \
               W<0 || H<0 || D<0 || C<0) \
             throw CImgIOException(_cimglist_instance \
                                   "load_cimg(): Invalid specified size (%d,%d,%d,%d) of image %u in file '%s'.", \
@@ -67361,7 +67359,7 @@ namespace cimg_library {
       do {
         j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0 && j<255) tmp[j++] = (char)i; tmp[j] = 0;
       } while (*tmp=='#' && i>=0);
-      err = cimg_sscanf(tmp,"%d%*c%255[A-Za-z123468_]%*c%255[sA-Za-z_ ]",
+      err = cimg_sscanf(tmp._data,"%d%*c%255[A-Za-z123468_]%*c%255[sA-Za-z_ ]",
                         &N,str_pixeltype._data,str_endian._data);
       if (err<2 || N<0) {
         if (!file) cimg::fclose(nfile);
@@ -67473,7 +67471,7 @@ namespace cimg_library {
         for (unsigned int l = 0; l<=nn1; ++l) { \
           j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0) tmp[j++] = (char)i; tmp[j] = 0; \
           W = H = D = C = 0; \
-          if (cimg_sscanf(tmp,"%d %d %d %d",&W,&H,&D,&C)!=4) \
+          if (cimg_sscanf(tmp._data,"%d %d %d %d",&W,&H,&D,&C)!=4) \
             throw CImgIOException(_cimglist_instance \
                                   "load_cimg(): Invalid specified size (%d,%d,%d,%d) of image %u in file '%s'", \
                                   cimglist_instance, \
@@ -67547,7 +67545,7 @@ namespace cimg_library {
       *tmp = *str_pixeltype = *str_endian = 0;
       int N = 0, W, H, D, C, i, j, err;
       j = 0; while ((i=std::fgetc(nfile))!='\n' && i!=EOF && j<256) tmp[j++] = (char)i; tmp[j] = 0;
-      err = cimg_sscanf(tmp,"%d%*c%255[A-Za-z123468_]%*c%255[sA-Za-z_ ]",
+      err = cimg_sscanf(tmp._data,"%d%*c%255[A-Za-z123468_]%*c%255[sA-Za-z_ ]",
                         &N,str_pixeltype._data,str_endian._data);
       if (err<2 || N<0) {
         if (!file) cimg::fclose(nfile);
@@ -68821,7 +68819,7 @@ namespace cimg_library {
         for (unsigned int l = 0; l<lmax; ++l) { \
           j = 0; while ((i=std::fgetc(nfile))!='\n') tmp[j++]=(char)i; tmp[j] = 0; \
           W = H = D = C = 0; \
-          if (cimg_sscanf(tmp,"%u %u %u %u",&W,&H,&D,&C)!=4) \
+          if (cimg_sscanf(tmp._data,"%u %u %u %u",&W,&H,&D,&C)!=4) \
             throw CImgIOException(_cimglist_instance \
                                   "save_cimg(): Invalid size (%u,%u,%u,%u) of image[%u], for file '%s'.", \
                                   cimglist_instance, \
@@ -68890,7 +68888,7 @@ namespace cimg_library {
       unsigned int j, N, W, H, D, C;
       int i, err;
       j = 0; while ((i=std::fgetc(nfile))!='\n' && i!=EOF && j<256) tmp[j++] = (char)i; tmp[j] = 0;
-      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z123468_]%*c%255[sA-Za-z_ ]",&N,str_pixeltype._data,str_endian._data);
+      err = cimg_sscanf(tmp._data,"%u%*c%255[A-Za-z123468_]%*c%255[sA-Za-z_ ]",&N,str_pixeltype._data,str_endian._data);
       if (err<2) {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimglist_instance
@@ -69404,7 +69402,7 @@ namespace cimg_library {
           j = 0; while ((i=(int)*stream)!='\n' && stream<estream && j<255) { ++stream; tmp[j++] = (char)i; } \
           ++stream; tmp[j] = 0; \
           W = H = D = C = 0; csiz = 0; \
-          if ((err = cimg_sscanf(tmp,"%u %u %u %u #" cimg_fuint64,&W,&H,&D,&C,&csiz))<4) \
+          if ((err = cimg_sscanf(tmp._data,"%u %u %u %u #" cimg_fuint64,&W,&H,&D,&C,&csiz))<4) \
             throw CImgArgumentException("CImgList<%s>::unserialize(): Invalid specified size (%u,%u,%u,%u) for " \
                                         "image #%u in serialized buffer.", \
                                         pixel_type(),W,H,D,C,l); \
@@ -69441,7 +69439,7 @@ namespace cimg_library {
         j = 0; while ((i=(int)*stream)!='\n' && stream<estream && j<255) { ++stream; tmp[j++] = (char)i; }
         ++stream; tmp[j] = 0;
       } while (*tmp=='#' && stream<estream);
-      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z123468_]%*c%255[sA-Za-z_ ]",
+      err = cimg_sscanf(tmp._data,"%u%*c%255[A-Za-z123468_]%*c%255[sA-Za-z_ ]",
                         &N,str_pixeltype._data,str_endian._data);
       if (err<2)
         throw CImgArgumentException("CImgList<%s>::get_unserialize(): CImg header not found in serialized buffer.",
@@ -70469,7 +70467,7 @@ namespace cimg_library {
 
       // Separate folder path and matching pattern.
       if (_is_pattern) {
-        const unsigned int bpos = (unsigned int)(cimg::basename(_path,'/') - _path.data());
+        const unsigned int bpos = (unsigned int)(cimg::basename(_path,'/') - _path._data);
         CImg<char>::string(_path).move_to(pattern);
         if (bpos) {
           _path[bpos - 1] = 0; // End 'path' at last slash

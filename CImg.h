@@ -50982,7 +50982,7 @@ namespace cimg_library {
     CImg<T>& draw_circle(const int x0, const int y0, int radius,
                          const tc *const color, const float opacity=1) {
       if (is_empty()) return *this;
-      if (radius<0 || x0 - radius>=width() || y0 + radius<0 || y0 - radius>=height()) return *this;
+      if (radius<0 || x0 + radius<0 || x0 - radius>=width() || y0 + radius<0 || y0 - radius>=height()) return *this;
       if (!color)
         throw CImgArgumentException(_cimg_instance
                                     "draw_circle(): Specified color is (null).",

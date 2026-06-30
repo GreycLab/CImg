@@ -6032,7 +6032,7 @@ namespace cimg_library {
     template<typename T>
     inline size_t fread(T *const ptr, const size_t nmemb, std::FILE *stream) {
       if (!ptr || !stream)
-        throw CImgArgumentException("cimg::fread(): Invalid reading request of %lu %s%s from file %p to buffer %p.",
+        throw CImgArgumentException("cimg::fread(): Invalid request for reading %lu %s%s from file %p to buffer %p.",
                                     (unsigned long)nmemb,cimg::type<T>::string(),nmemb>1?"s":"",stream,ptr);
       if (!nmemb) return 0;
       const size_t wlimitT = 63*1024*1024, wlimit = wlimitT/sizeof(T);
@@ -6060,7 +6060,7 @@ namespace cimg_library {
     template<typename T>
     inline size_t fwrite(const T *ptr, const size_t nmemb, std::FILE *stream) {
       if (!ptr || !stream)
-        throw CImgArgumentException("cimg::fwrite(): Invalid writing request of %lu %s%s from buffer %p to file %p.",
+        throw CImgArgumentException("cimg::fwrite(): Invalid request for writing %lu %s%s from buffer %p to file %p.",
                                     (unsigned long)nmemb,cimg::type<T>::string(),nmemb>1?"s":"",ptr,stream);
       if (!nmemb) return 0;
       const size_t wlimitT = 63*1024*1024, wlimit = wlimitT/sizeof(T);
@@ -11344,7 +11344,7 @@ namespace cimg_library {
       if (is_shared) {
         _width = _height = _depth = _spectrum = 0; _data = 0;
         throw CImgArgumentException(_cimg_instance
-                                    "CImg(): Invalid construction request of a (%u,%u,%u,%u) shared instance "
+                                    "CImg(): Invalid request for constructing a (%u,%u,%u,%u) shared instance "
                                     "from a (%s*) buffer (pixel types are different).",
                                     cimg_instance,
                                     size_x,size_y,size_z,size_c,CImg<t>::pixel_type());
@@ -11543,7 +11543,7 @@ namespace cimg_library {
       if (is_shared) {
         _width = _height = _depth = _spectrum = 0; _data = 0;
         throw CImgArgumentException(_cimg_instance
-                                    "CImg(): Invalid construction request of a shared instance from a "
+                                    "CImg(): Invalid request for constructing a shared instance from a "
                                     "CImg<%s> image (%u,%u,%u,%u,%p) (pixel types are different).",
                                     cimg_instance,
                                     CImg<t>::pixel_type(),img._width,img._height,img._depth,img._spectrum,img._data);
@@ -11675,7 +11675,7 @@ namespace cimg_library {
       if (siz!=curr_siz) {
         if (_is_shared)
           throw CImgArgumentException(_cimg_instance
-                                      "assign(): Invalid assignment request of shared instance from specified "
+                                      "assign(): Invalid request for assigning a shared instance from specified "
                                       "image (%u,%u,%u,%u).",
                                       cimg_instance,
                                       size_x,size_y,size_z,size_c);
@@ -11785,7 +11785,7 @@ namespace cimg_library {
                     const unsigned int size_z, const unsigned int size_c, const bool is_shared) {
       if (is_shared)
         throw CImgArgumentException(_cimg_instance
-                                    "assign(): Invalid assignment request of shared instance from (%s*) buffer "
+                                    "assign(): Invalid request for assigning a shared instance from (%s*) buffer "
                                     "(pixel types are different).",
                                     cimg_instance,
                                     CImg<t>::pixel_type());
@@ -39682,7 +39682,7 @@ namespace cimg_library {
        \param L Streamline length.
        \param dl Streamline length increment.
        \param interpolation_type Type of interpolation.
-         Can be <tt>{ 0=nearest int | 1=linear | 2=2nd-order RK | 3=4th-order RK. }</tt>.
+         Can be <tt>{ 0=nearest integer | 1=linear | 2=2nd-order RK | 3=4th-order RK }</tt>.
        \param is_backward_tracking Indicates whether the streamline is estimated forward or backward.
        \param is_oriented_only Indicates whether the direction of the vectors must be ignored.
        \param x0 X-coordinate of the first bounding-box vertex.
@@ -39936,7 +39936,8 @@ namespace cimg_library {
         end = (ulongT)offset(x1,y0,z0,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
-                                    "get_shared_points(): Invalid request of a shared-memory subset (%u->%u,%u,%u,%u).",
+                                    "get_shared_points(): Invalid request for "
+                                    "a shared-memory subset (%u->%u,%u,%u,%u).",
                                     cimg_instance,
                                     x0,x1,y0,z0,c0);
       return CImg<T>(_data + beg,x1 - x0 + 1,1,1,1,true);
@@ -39950,7 +39951,8 @@ namespace cimg_library {
         end = (ulongT)offset(x1,y0,z0,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
-                                    "get_shared_points(): Invalid request of a shared-memory subset (%u->%u,%u,%u,%u).",
+                                    "get_shared_points(): Invalid request for "
+                                    "a shared-memory subset (%u->%u,%u,%u,%u).",
                                     cimg_instance,
                                     x0,x1,y0,z0,c0);
       return CImg<T>(_data + beg,x1 - x0 + 1,1,1,1,true);
@@ -39970,8 +39972,8 @@ namespace cimg_library {
         end = (ulongT)offset(0,y1,z0,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
-                                    "get_shared_rows(): Invalid request of a shared-memory subset "
-                                    "(0->%u,%u->%u,%u,%u).",
+                                    "get_shared_rows(): Invalid request for "
+                                    "a shared-memory subset (0->%u,%u->%u,%u,%u).",
                                     cimg_instance,
                                     _width - 1,y0,y1,z0,c0);
       return CImg<T>(_data + beg,_width,y1 - y0 + 1,1,1,true);
@@ -39985,8 +39987,8 @@ namespace cimg_library {
         end = (ulongT)offset(0,y1,z0,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
-                                    "get_shared_rows(): Invalid request of a shared-memory subset "
-                                    "(0->%u,%u->%u,%u,%u).",
+                                    "get_shared_rows(): Invalid request for "
+                                    "a shared-memory subset (0->%u,%u->%u,%u,%u).",
                                     cimg_instance,
                                     _width - 1,y0,y1,z0,c0);
       return CImg<T>(_data + beg,_width,y1 - y0 + 1,1,1,true);
@@ -40019,8 +40021,8 @@ namespace cimg_library {
         end = (ulongT)offset(0,0,z1,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
-                                    "get_shared_slices(): Invalid request of a shared-memory subset "
-                                    "(0->%u,0->%u,%u->%u,%u).",
+                                    "get_shared_slices(): Invalid request for "
+                                    "a shared-memory subset (0->%u,0->%u,%u->%u,%u).",
                                     cimg_instance,
                                     _width - 1,_height - 1,z0,z1,c0);
       return CImg<T>(_data + beg,_width,_height,z1 - z0 + 1,1,true);
@@ -40033,8 +40035,8 @@ namespace cimg_library {
         end = (ulongT)offset(0,0,z1,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
-                                    "get_shared_slices(): Invalid request of a shared-memory subset "
-                                    "(0->%u,0->%u,%u->%u,%u).",
+                                    "get_shared_slices(): Invalid request for "
+                                    "a shared-memory subset (0->%u,0->%u,%u->%u,%u).",
                                     cimg_instance,
                                     _width - 1,_height - 1,z0,z1,c0);
       return CImg<T>(_data + beg,_width,_height,z1 - z0 + 1,1,true);
@@ -40065,8 +40067,8 @@ namespace cimg_library {
         end = (ulongT)offset(0,0,0,c1);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
-                                    "get_shared_channels(): Invalid request of a shared-memory subset "
-                                    "(0->%u,0->%u,0->%u,%u->%u).",
+                                    "get_shared_channels(): Invalid request for "
+                                    "a shared-memory subset (0->%u,0->%u,0->%u,%u->%u).",
                                     cimg_instance,
                                     _width - 1,_height - 1,_depth - 1,c0,c1);
       return CImg<T>(_data + beg,_width,_height,_depth,c1 - c0 + 1,true);
@@ -40079,8 +40081,8 @@ namespace cimg_library {
         end = (ulongT)offset(0,0,0,c1);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
-                                    "get_shared_channels(): Invalid request of a shared-memory subset "
-                                    "(0->%u,0->%u,0->%u,%u->%u).",
+                                    "get_shared_channels(): Invalid request for "
+                                    "a shared-memory subset (0->%u,0->%u,0->%u,%u->%u).",
                                     cimg_instance,
                                     _width - 1,_height - 1,_depth - 1,c0,c1);
       return CImg<T>(_data + beg,_width,_height,_depth,c1 - c0 + 1,true);
@@ -64196,13 +64198,13 @@ namespace cimg_library {
       const unsigned int npos = pos==~0U?_width:pos;
       if (npos>_width)
         throw CImgArgumentException(_cimglist_instance
-                                    "insert(): Invalid insertion request of specified image (%u,%u,%u,%u,%p) "
+                                    "insert(): Invalid request for inserting an image (%u,%u,%u,%u,%p) "
                                     "at position %u.",
                                     cimglist_instance,
                                     img._width,img._height,img._depth,img._spectrum,img._data,npos);
       if (is_shared)
         throw CImgArgumentException(_cimglist_instance
-                                    "insert(): Invalid insertion request of specified shared image "
+                                    "insert(): Invalid request for inserting a shared image "
                                     "CImg<%s>(%u,%u,%u,%u,%p) at position %u (pixel types are different).",
                                     cimglist_instance,
                                     img.pixel_type(),img._width,img._height,img._depth,img._spectrum,img._data,npos);
@@ -64234,7 +64236,7 @@ namespace cimg_library {
       const unsigned int npos = pos==~0U?_width:pos;
       if (npos>_width)
         throw CImgArgumentException(_cimglist_instance
-                                    "insert(): Invalid insertion request of specified image (%u,%u,%u,%u,%p) "
+                                    "insert(): Invalid request for inserting an image (%u,%u,%u,%u,%p) "
                                     "at position %u.",
                                     cimglist_instance,
                                     img._width,img._height,img._depth,img._spectrum,img._data,npos);

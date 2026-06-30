@@ -62585,54 +62585,6 @@ namespace cimg_library {
       cimglist_apply(*this,assign)(width,height,depth,spectrum,val);
     }
 
-    //! Construct list containing images of specified size, and initialize pixel values from a sequence of integers.
-    /**
-       \param n Number of images.
-       \param width Width of images.
-       \param height Height of images.
-       \param depth Depth of images.
-       \param spectrum Number of channels of images.
-       \param val0 First value of the initializing integers sequence.
-       \param val1 Second value of the initializing integers sequence.
-       \warning You must specify at least <tt>width*height*depth*spectrum</tt> values in your argument list,
-         or you will probably segfault.
-    **/
-    CImgList(const unsigned int n, const unsigned int width, const unsigned int height,
-             const unsigned int depth, const unsigned int spectrum, const int val0, const int val1, ...):
-      _width(0),_allocated_width(0),_data(0) {
-#define _CImgList_stdarg(t) { \
-        assign(n,width,height,depth,spectrum); \
-        const ulongT siz = (ulongT)width*height*depth*spectrum, nsiz = siz*n; \
-        T *ptrd = _data->_data; \
-        va_list ap; \
-        va_start(ap,val1); \
-        for (ulongT l = 0, s = 0, i = 0; i<nsiz; ++i) { \
-          *(ptrd++) = (T)(i==0?val0:(i==1?val1:va_arg(ap,t))); \
-          if ((++s)==siz) { ptrd = _data[++l]._data; s = 0; } \
-        } \
-        va_end(ap); \
-      }
-      _CImgList_stdarg(int);
-    }
-
-    //! Construct list containing images of specified size, and initialize pixel values from a sequence of doubles.
-    /**
-       \param n Number of images.
-       \param width Width of images.
-       \param height Height of images.
-       \param depth Depth of images.
-       \param spectrum Number of channels of images.
-       \param val0 First value of the initializing doubles sequence.
-       \param val1 Second value of the initializing doubles sequence.
-       \warning You must specify at least <tt>width*height*depth*spectrum</tt> values in your argument list,
-         or you will probably segfault.
-    **/
-    CImgList(const unsigned int n, const unsigned int width, const unsigned int height,
-             const unsigned int depth, const unsigned int spectrum, const double val0, const double val1, ...):
-      _width(0),_allocated_width(0),_data(0) {
-      _CImgList_stdarg(double);
-    }
-
     //! Construct list containing copies of an input image.
     /**
        \param n Number of images.
@@ -62898,27 +62850,6 @@ namespace cimg_library {
                         const unsigned int depth, const unsigned int spectrum, const T& val) {
       assign(n);
       cimglist_apply(*this,assign)(width,height,depth,spectrum,val);
-      return *this;
-    }
-
-    //! Construct list with images of specified size, and initialize pixel values from a sequence of integers \inplace.
-    /**
-       \see CImgList(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, const int, const int, ...).
-    **/
-    CImgList<T>& assign(const unsigned int n, const unsigned int width, const unsigned int height,
-                        const unsigned int depth, const unsigned int spectrum, const int val0, const int val1, ...) {
-      _CImgList_stdarg(int);
-      return *this;
-    }
-
-    //! Construct list with images of specified size, and initialize pixel values from a sequence of doubles \inplace.
-    /**
-       \see CImgList(unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,const double,const double,...).
-    **/
-    CImgList<T>& assign(const unsigned int n, const unsigned int width, const unsigned int height,
-                        const unsigned int depth, const unsigned int spectrum,
-                        const double val0, const double val1, ...) {
-      _CImgList_stdarg(double);
       return *this;
     }
 

@@ -116,7 +116,7 @@
 #define cimg_time __TIME__
 #endif
 
-// Disable silly warnings on some Microsoft and GCC compilers.
+// Suppress minor warnings on some Microsoft and GCC compilers
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable:4127)
@@ -198,7 +198,7 @@
 enum {FALSE_WIN = 0};
 #endif
 
-// Look for C++11 features.
+// Check for C++11 support.
 #ifndef cimg_use_cpp11
 #if __cplusplus>201100
 #define cimg_use_cpp11 1
@@ -224,7 +224,7 @@ enum {FALSE_WIN = 0};
 #define cimg_pragma(x) _Pragma(#x)
 #endif
 
-// Define own datatypes to ensure portability.
+// Define custom datatypes to ensure portability.
 // ( 'sizeof(cimg_ulong/cimg_long) = sizeof(void*)' ).
 #define cimg_uint8 unsigned char
 #if defined(CHAR_MAX) && CHAR_MAX==255
@@ -290,24 +290,24 @@ enum {FALSE_WIN = 0};
 
 // Configure filename separator.
 //
-// Filename separator is set by default to '/', except for Windows where it is '\'.
-#ifndef cimg_file_separator
+// The directory separator is set to '/' by default, except on Windows where it is '\'.
+#ifndef cimg_directory_separator
 #if cimg_OS==2
-#define cimg_file_separator '\\'
+#define cimg_directory_separator '\\'
 #else
-#define cimg_file_separator '/'
+#define cimg_directory_separator '/'
 #endif
 #endif
 
 // Configure verbosity of output messages.
 //
 // Define 'cimg_verbosity' to: '0' to hide library messages (quiet mode).
-//                             '1' to output library messages on the console.
-//                             '2' to output library messages on a basic dialog window (default behavior).
-//                             '3' to do as '1' + add extra warnings (may slow down the code!).
-//                             '4' to do as '2' + add extra warnings (may slow down the code!).
+//                             '1' to print library messages on the console.
+//                             '2' to print library messages on a basic dialog window (default behavior).
+//                             '3' equivalent to '1' with warnings (may slow down the code!).
+//                             '4' equivalent to '2' with warnings (may slow down the code!).
 //
-// Define 'cimg_strict_warnings' to replace warning messages by exception throwns.
+// Define 'cimg_strict_warnings' to throw exceptions instead of displaying warning messages.
 //
 // Define 'cimg_use_vt100' to allow output of color messages on VT100-compatible terminals.
 #ifndef cimg_verbosity
@@ -326,8 +326,7 @@ enum {FALSE_WIN = 0};
 //
 // Define 'cimg_use_openmp' to enable OpenMP support (requires OpenMP 3.0+).
 //
-// OpenMP directives are used in many CImg functions to get
-// advantages of multi-core CPUs.
+// OpenMP directives are used in many CImg functions to leverage multi-core CPUs.
 #if !defined(cimg_use_openmp)
 #ifdef _OPENMP
 #define cimg_use_openmp 1
@@ -495,7 +494,7 @@ enum {FALSE_WIN = 0};
 //
 // Define 'cimg_use_png' to enable LibPNG support.
 //
-// PNG library may be used to get a native support of '.png' files.
+// PNG library may be used to get native support for '.png' files.
 // (see methods 'CImg<T>::{load,save}_png()'.
 #ifdef cimg_use_png
 extern "C" {
@@ -508,7 +507,7 @@ extern "C" {
 //
 // Define 'cimg_use_jpeg' to enable LibJPEG support.
 //
-// JPEG library may be used to get a native support of '.jpg' files.
+// JPEG library may be used to get native support for '.jpg' files.
 // (see methods 'CImg<T>::{load,save}_jpeg()').
 #ifdef cimg_use_jpeg
 extern "C" {
@@ -522,7 +521,7 @@ extern "C" {
 //
 // Define 'cimg_use_jxl' to enable JPEG XL support.
 //
-// Libjxl may be used to get a native support of '.jxl' files.
+// Libjxl may be used to get native support for '.jxl' files.
 // (see methods 'CImg<T>::{load,save}_jxl()').
 #ifdef cimg_use_jxl
 #include <jxl/decode.h>
@@ -534,7 +533,7 @@ extern "C" {
 //
 // Define 'cimg_use_tiff' to enable LibTIFF support.
 //
-// TIFF library may be used to get a native support of '.tif' files.
+// TIFF library may be used to get native support for '.tif' files.
 // (see methods 'CImg[List]<T>::{load,save}_tiff()').
 #ifdef cimg_use_tiff
 extern "C" {
@@ -551,7 +550,7 @@ extern "C" {
 //
 // Define 'cimg_use_heif' to enable HEIF support.
 //
-// HEIF library may be used to get a native support of '.heic' and '.avif' files.
+// HEIF library may be used to get native support for '.heic' and '.avif' files.
 // (see method 'CImg<T>::load_heif()').
 #ifdef cimg_use_heif
 #include <libheif/heif_cxx.h>
@@ -562,7 +561,7 @@ extern "C" {
 //
 // Define 'cimg_use_webp' to enable WebP support.
 //
-// WebP library may be used to get a native support of '.webp' files.
+// WebP library may be used to get native support for '.webp' files.
 // (see method 'CImg<T>::{load,save}_webp()').
 #ifdef cimg_use_webp
 #include <webp/decode.h>
@@ -574,7 +573,7 @@ extern "C" {
 //
 // Define 'cimg_use_minc2' to enable LibMINC2 support.
 //
-// MINC2 library may be used to get a native support of '.mnc' files.
+// MINC2 library may be used to get native support for '.mnc' files.
 // (see methods 'CImg<T>::{load,save}_minc2()').
 #ifdef cimg_use_minc2
 #include "minc_io_simple_volume.h"
@@ -600,7 +599,7 @@ extern "C" {
 //
 // Define 'cimg_use_curl' to enable libcurl support.
 //
-// Libcurl may be used to get a native support of file downloading from the network.
+// Libcurl may be used to get native support for files downloaded from the network.
 // (see method 'cimg::load_network()'.)
 #ifdef cimg_use_curl
 #include "curl/curl.h"
@@ -611,7 +610,7 @@ extern "C" {
 //
 // Define 'cimg_use_magick' to enable Magick++ support.
 //
-// Magick++ library may be used to get a native support of various image file formats.
+// Magick++ library may be used to get native support for various image file formats.
 // (see methods 'CImg<T>::{load,save}()').
 #ifdef cimg_use_magick
 #include "Magick++.h"
@@ -636,7 +635,7 @@ extern "C" {
 //
 // Define 'cimg_use_openexr' to enable OpenEXR support.
 //
-// OpenEXR library may be used to get a native support of '.exr' files.
+// OpenEXR library may be used to get native support for '.exr' files.
 // (see methods 'CImg<T>::{load,save}_exr()').
 #ifdef cimg_use_openexr
 #if __GNUC__>=5
@@ -685,10 +684,9 @@ extern "C" {
 
 // Check if min/max/PI macros are defined.
 //
-// CImg does not compile if macros 'min', 'max' or 'PI' are defined,
-// because it redefines functions min(), max() and const variable PI in the cimg:: namespace.
-// so it '#undef' these macros if necessary, and restore them to reasonable
-// values at the end of this file.
+// CImg does not compile if 'min', 'max', or 'PI' are defined as macros because it defines the functions
+// min(), max(), and the constant PI inside the 'cimg::' namespace. Therefore, it undefines these macros
+// if necessary and restores them to their previous values at the end of the file.
 #ifdef min
 #undef min
 #define _cimg_redefine_min
@@ -7749,7 +7747,7 @@ namespace cimg_library {
     }
 
     //! Return the basename of a filename.
-    inline const char* basename(const char *const s, const char separator=cimg_file_separator)  {
+    inline const char* basename(const char *const s, const char separator=cimg_directory_separator)  {
       const char *p = 0, *np = s;
       while (np>=s && (p=np)) np = std::strchr(np,separator) + 1;
       return p;
@@ -60224,7 +60222,7 @@ namespace cimg_library {
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
                       cimg::temporary_path(),
-                      cimg_file_separator,
+                      cimg_directory_separator,
                       cimg::filenamerand(),
 #ifdef cimg_use_png
                       "png"
@@ -60281,14 +60279,14 @@ namespace cimg_library {
       do {
         if (!cimg::strcasecmp(ext,"gz")) {
           if (*ext2) cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
-                                   cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext2);
+                                   cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),ext2);
           else cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
-                             cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                             cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         } else {
           if (*ext) cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
-                                  cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext);
+                                  cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),ext);
           else cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
-                             cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                             cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         }
       } while (cimg::path_exists(filename_tmp));
       cimg_snprintf(command,command._width,"\"%s\" -c \"%s\" > \"%s\"",
@@ -60369,7 +60367,7 @@ namespace cimg_library {
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
                       cimg::temporary_path(),
-                      cimg_file_separator,
+                      cimg_directory_separator,
                       cimg::filenamerand(),
 #ifdef cimg_use_png
                       "png"
@@ -60488,7 +60486,7 @@ namespace cimg_library {
 #endif
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.ppm",
-                      cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                      cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
       } while (cimg::path_exists(filename_tmp));
       cimg_snprintf(command,command._width,"gs -q -dNOPAUSE -sDEVICE=ppmraw -o \"%s\" -r%u \"%s\"",
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),resolution,s_filename.data());
@@ -60542,7 +60540,7 @@ namespace cimg_library {
 #endif
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.ppm",
-                      cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                      cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
       } while (cimg::path_exists(filename_tmp));
       cimg_snprintf(command,command._width,"\"%s\" -w -4 -c \"%s\" > \"%s\"",
                     cimg::dcraw_path(),s_filename.data(),CImg<charT>::string(filename_tmp)._system_strescape().data());
@@ -64243,14 +64241,14 @@ namespace cimg_library {
       do {
         if (!cimg::strcasecmp(ext,"gz")) {
           if (*ext2) cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
-                                   cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext2);
+                                   cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),ext2);
           else cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.cimg",
-                             cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                             cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         } else {
           if (*ext) cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
-                                  cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext);
+                                  cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),ext);
           else cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.cimg",
-                             cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                             cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         }
       } while (cimg::path_exists(filename_tmp));
       save(filename_tmp);
@@ -64303,7 +64301,7 @@ namespace cimg_library {
       CImg<charT> command(1024), filename_tmp(256);
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
-                      cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),
+                      cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),
                       _spectrum==1?_cimg_sge_extension1:_cimg_sge_extension2);
       } while (cimg::path_exists(filename_tmp));
 
@@ -64360,7 +64358,7 @@ namespace cimg_library {
       CImg<charT> command(1024), filename_tmp(256);
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",cimg::temporary_path(),
-                      cimg_file_separator,cimg::filenamerand(),_spectrum==1?_cimg_sie_extension1:_cimg_sie_extension2);
+                      cimg_directory_separator,cimg::filenamerand(),_spectrum==1?_cimg_sie_extension1:_cimg_sie_extension2);
       } while (cimg::path_exists(filename_tmp));
 #ifdef cimg_use_png
       save_png(filename_tmp);
@@ -68045,7 +68043,7 @@ namespace cimg_library {
       CImg<charT> command(1024), filename_tmp(256), filename_tmp2(256);
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
-                      cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                      cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_000001.ppm",filename_tmp._data);
       } while (cimg::path_exists(filename_tmp2));
       cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_%%6d.ppm",filename_tmp._data);
@@ -68106,7 +68104,7 @@ namespace cimg_library {
       CImg<charT> command(1024), filename_tmp(256), filename_tmp2(256);
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
-                      cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                      cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         if (use_graphicsmagick) cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s.png.0",filename_tmp._data);
         else cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s-0.png",filename_tmp._data);
       } while (cimg::path_exists(filename_tmp2));
@@ -68164,14 +68162,14 @@ namespace cimg_library {
       do {
         if (!cimg::strcasecmp(ext,"gz")) {
           if (*ext2) cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
-                                   cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext2);
+                                   cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),ext2);
           else cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
-                             cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                             cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         } else {
           if (*ext) cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
-                                  cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext);
+                                  cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),ext);
           else cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
-                             cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                             cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         }
       } while (cimg::path_exists(filename_tmp));
       cimg_snprintf(command,command._width,"\"%s\" -c \"%s\" > \"%s\"",
@@ -68609,7 +68607,7 @@ namespace cimg_library {
 #endif
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
-                      cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                      cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_000001." _cimg_save_gif_extension,filename_tmp._data);
       } while (cimg::path_exists(filename_tmp2));
       cimglist_for(*this,l) {
@@ -69071,14 +69069,14 @@ namespace cimg_library {
       do {
         if (!cimg::strcasecmp(ext,"gz")) {
           if (*ext2) cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
-                                   cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext2);
+                                   cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),ext2);
           else cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.cimg",
-                             cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                             cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         } else {
           if (*ext) cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
-                                  cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext);
+                                  cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),ext);
           else cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.cimg",
-                             cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                             cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         }
       } while (cimg::path_exists(filename_tmp));
 
@@ -69268,7 +69266,7 @@ namespace cimg_library {
                                     filename);
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
-                      cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                      cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_000001.ppm",filename_tmp._data);
       } while (cimg::path_exists(filename_tmp2));
       unsigned int frame = 1;
@@ -70305,7 +70303,7 @@ namespace cimg_library {
 #define _cimg_test_temporary_path(p) \
       if (!path_found) { \
         cimg_snprintf(s_path,s_path._width,"%s",p); \
-        cimg_snprintf(tmp,tmp._width,"%s%c%s",s_path.data(),cimg_file_separator,filename_tmp._data); \
+        cimg_snprintf(tmp,tmp._width,"%s%c%s",s_path.data(),cimg_directory_separator,filename_tmp._data); \
         if ((file=cimg::std_fopen(tmp,"wb"))!=0) { cimg::fclose(file); std::remove(tmp); path_found = true; } \
       }
       static CImg<char> s_path;
@@ -70735,7 +70733,7 @@ namespace cimg_library {
       else cimg::strwindows_reserved(ext);
       do {
         cimg_snprintf(filename_local,256,"%s%c%s%s",
-                      cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext._data);
+                      cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),ext._data);
       } while (cimg::path_exists(filename_local));
 
 #ifdef cimg_use_curl

@@ -41901,7 +41901,7 @@ namespace cimg_library {
             u3 = (float)(dl2*func(X + u2,Y + v2,Z + w2,0)),
             v3 = (float)(dl2*func(X + u2,Y + v2,Z + w2,1)),
             w3 = (float)(dl2*func(X + u2,Y + v2,Z + w2,2));
-          if (is_oriented_only && u2*pu + v2*pv + w2*pw<0) { u3 = -u3; v3 = -v3; w3 = -w3; }
+          if (is_oriented_only && u3*pu + v3*pv + w3*pw<0) { u3 = -u3; v3 = -v3; w3 = -w3; }
           const float
             u = (u0 + u3)/3 + (u1 + u2)/1.5f,
             v = (v0 + v3)/3 + (v1 + v2)/1.5f,
@@ -42232,9 +42232,9 @@ namespace cimg_library {
        \param nb Number of split parts.
        \param max_parts Number of max parts allowed for the split.
        \note
-       - If \c nb==0, instance image is split into blocks of equal values along the specified axis.
-       - If \c nb>0, instance image is split into \c nb blocks.
-       - If \c nb<0, instance image is split into blocks of -\c nb pixel wide.
+       - If \c nb==0, the instance image is split into blocks of equal values along the specified axis.
+       - If \c nb>0, the instance image is split into \c nb blocks.
+       - If \c nb<0, the instance image is split into blocks of -\c nb pixels wide.
     **/
     CImgList<T> get_split(const char axis, const int nb=-1, const unsigned int max_parts=~0U) const {
       CImgList<T> res;
@@ -46263,81 +46263,90 @@ namespace cimg_library {
     CImg<Tfloat> get_structure_tensors(const bool is_fwbw_scheme=false) const {
       if (is_empty()) return *this;
       CImg<Tfloat> res;
-      if (_depth>1) { // 3D
+      if (_depth > 1) { // 3D version
         res.assign(_width,_height,_depth,6,0);
         if (!is_fwbw_scheme) { // Classical central finite differences
-          cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height*_depth>=(cimg_openmp_sizefactor)*1048576 &&
-                                                         _spectrum>=2))
-          cimg_forC(*this,c) {
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
+                             cimg_openmp_if(_width*_height*_depth>=(cimg_openmp_sizefactor)*1048576))
+          cimg_forYZ(*this,y,z) {
             Tfloat
-              *ptrd0 = res.data(0,0,0,0), *ptrd1 = res.data(0,0,0,1), *ptrd2 = res.data(0,0,0,2),
-              *ptrd3 = res.data(0,0,0,3), *ptrd4 = res.data(0,0,0,4), *ptrd5 = res.data(0,0,0,5);
+              *ptrd0 = res.data(0,y,z,0), *ptrd1 = res.data(0,y,z,1), *ptrd2 = res.data(0,y,z,2),
+              *ptrd3 = res.data(0,y,z,3), *ptrd4 = res.data(0,y,z,4), *ptrd5 = res.data(0,y,z,5);
             CImg_3x3x3(I,Tfloat);
-            cimg_for3x3x3(*this,x,y,z,c,I,Tfloat) {
-              const Tfloat
-                ix = (Incc - Ipcc)/2,
-                iy = (Icnc - Icpc)/2,
-                iz = (Iccn - Iccp)/2;
-              cimg_pragma_openmp(atomic) *(ptrd0++)+=ix*ix;
-              cimg_pragma_openmp(atomic) *(ptrd1++)+=ix*iy;
-              cimg_pragma_openmp(atomic) *(ptrd2++)+=ix*iz;
-              cimg_pragma_openmp(atomic) *(ptrd3++)+=iy*iy;
-              cimg_pragma_openmp(atomic) *(ptrd4++)+=iy*iz;
-              cimg_pragma_openmp(atomic) *(ptrd5++)+=iz*iz;
+            cimg_forX(*this,x) {
+              cimg_def3x3x3(*this,x,y,z);
+              Tfloat ix2 = 0, ixy = 0, ixz = 0, iy2 = 0, iyz = 0, iz2 = 0;
+              cimg_forC(*this,c) {
+                cimg_get3x3x3(*this,x,y,z,c,I,Tfloat);
+                const Tfloat ix = (Incc - Ipcc)/2, iy = (Icnc - Icpc)/2, iz = (Iccn - Iccp)/2;
+                ix2 += ix*ix; ixy += ix*iy; ixz += ix*iz;
+                iy2 += iy*iy; iyz += iy*iz; iz2 += iz*iz;
+              }
+              *(ptrd0++) = ix2; *(ptrd1++) = ixy; *(ptrd2++) = ixz;
+              *(ptrd3++) = iy2; *(ptrd4++) = iyz; *(ptrd5++) = iz2;
             }
           }
         } else { // Forward/backward finite differences
-          cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height*_depth>=(cimg_openmp_sizefactor)*1048576 &&
-                                                         _spectrum>=2))
-          cimg_forC(*this,c) {
-            Tfloat
-              *ptrd0 = res.data(0,0,0,0), *ptrd1 = res.data(0,0,0,1), *ptrd2 = res.data(0,0,0,2),
-              *ptrd3 = res.data(0,0,0,3), *ptrd4 = res.data(0,0,0,4), *ptrd5 = res.data(0,0,0,5);
-            CImg_3x3x3(I,Tfloat);
-            cimg_for3x3x3(*this,x,y,z,c,I,Tfloat) {
+        cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
+                           cimg_openmp_if(_width*_height*_depth>=(cimg_openmp_sizefactor)*1048576))
+        cimg_forYZ(*this,y,z) {
+          Tfloat
+            *ptrd0 = res.data(0,y,z,0), *ptrd1 = res.data(0,y,z,1), *ptrd2 = res.data(0,y,z,2),
+            *ptrd3 = res.data(0,y,z,3), *ptrd4 = res.data(0,y,z,4), *ptrd5 = res.data(0,y,z,5);
+          CImg_3x3x3(I,Tfloat);
+          cimg_forX(*this,x) {
+            cimg_def3x3x3(*this,x,y,z);
+            Tfloat ix2 = 0, ixy = 0, ixz = 0, iy2 = 0, iyz = 0, iz2 = 0;
+            cimg_forC(*this,c) {
+              cimg_get3x3x3(*this,x,y,z,c,I,Tfloat);
               const Tfloat
                 ixf = Incc - Iccc, ixb = Iccc - Ipcc, ixc = (Incc - Ipcc)/2,
                 iyf = Icnc - Iccc, iyb = Iccc - Icpc, iyc = (Icnc - Icpc)/2,
                 izf = Iccn - Iccc, izb = Iccc - Iccp, izc = (Iccn - Iccp)/2;
-              cimg_pragma_openmp(atomic) *(ptrd0++)+=(ixf*ixf + ixb*ixb)/2;
-              cimg_pragma_openmp(atomic) *(ptrd1++)+=ixc*iyc;
-              cimg_pragma_openmp(atomic) *(ptrd2++)+=ixc*izc;
-              cimg_pragma_openmp(atomic) *(ptrd3++)+=(iyf*iyf + iyb*iyb)/2;
-              cimg_pragma_openmp(atomic) *(ptrd4++)+=iyc*izc;
-              cimg_pragma_openmp(atomic) *(ptrd5++)+=(izf*izf + izb*izb)/2;
+              ix2 += (ixf*ixf + ixb*ixb)/2; ixy += ixc*iyc; ixz += ixc*izc;
+              iy2 += (iyf*iyf + iyb*iyb)/2; iyz += iyc*izc; iz2 += (izf*izf + izb*izb)/2;
             }
+            *(ptrd0++) = ix2; *(ptrd1++) = ixy; *(ptrd2++) = ixz;
+            *(ptrd3++) = iy2; *(ptrd4++) = iyz; *(ptrd5++) = iz2;
           }
         }
-      } else { // 2D
+        }
+      } else { // 2D version
         res.assign(_width,_height,_depth,3,0);
         if (!is_fwbw_scheme) { // Classical central finite differences
-          cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*1048576 &&
-                                                         _depth*_spectrum>=2))
-          cimg_forC(*this,c) {
-            Tfloat *ptrd0 = res.data(0,0,0,0), *ptrd1 = res.data(0,0,0,1), *ptrd2 = res.data(0,0,0,2);
+          cimg_pragma_openmp(parallel for
+                             cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*1048576))
+          cimg_forY(*this,y) {
+            Tfloat *ptrd0 = res.data(0,y,0,0), *ptrd1 = res.data(0,y,0,1), *ptrd2 = res.data(0,y,0,2);
             CImg_3x3(I,Tfloat);
-            cimg_for3x3(*this,x,y,0,c,I,Tfloat) {
-              const Tfloat
-                ix = (Inc - Ipc)/2,
-                iy = (Icn - Icp)/2;
-              cimg_pragma_openmp(atomic) *(ptrd0++)+=ix*ix;
-              cimg_pragma_openmp(atomic) *(ptrd1++)+=ix*iy;
-              cimg_pragma_openmp(atomic) *(ptrd2++)+=iy*iy;
+            cimg_forX(*this,x) {
+              cimg_def3x3(*this,x,y);
+              Tfloat ix2 = 0, ixy = 0, iy2 = 0;
+              cimg_forC(*this,c) {
+                cimg_get3x3(*this,x,y,0,c,I,Tfloat);
+                const Tfloat ix = (Inc - Ipc)/2, iy = (Icn - Icp)/2;
+                ix2 += ix*ix; ixy += ix*iy; iy2 += iy*iy;
+              }
+              *(ptrd0++) = ix2; *(ptrd1++) = ixy; *(ptrd2++) = iy2;
             }
           }
-        } else { // Forward/backward finite differences (version 2)
-          cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*1048576 &&
-                                                         _depth*_spectrum>=2))
-          cimg_forC(*this,c) {
-            Tfloat *ptrd0 = res.data(0,0,0,0), *ptrd1 = res.data(0,0,0,1), *ptrd2 = res.data(0,0,0,2);
+        } else { // Forward/backward finite differences
+          cimg_pragma_openmp(parallel for
+                             cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*1048576))
+          cimg_forY(*this,y) {
+            Tfloat *ptrd0 = res.data(0,y,0,0), *ptrd1 = res.data(0,y,0,1), *ptrd2 = res.data(0,y,0,2);
             CImg_3x3(I,Tfloat);
-            cimg_for3x3(*this,x,y,0,c,I,Tfloat) {
-              const Tfloat
-                ixf = Inc - Icc, ixb = Icc - Ipc, ixc = (Inc - Ipc)/2,
-                iyf = Icn - Icc, iyb = Icc - Icp, iyc = (Icn - Icp)/2;
-              cimg_pragma_openmp(atomic) *(ptrd0++)+=(ixf*ixf + ixb*ixb)/2;
-              cimg_pragma_openmp(atomic) *(ptrd1++)+=ixc*iyc;
-              cimg_pragma_openmp(atomic) *(ptrd2++)+=(iyf*iyf + iyb*iyb)/2;
+            cimg_forX(*this,x) {
+              cimg_def3x3(*this,x,y);
+              Tfloat ix2 = 0, ixy = 0, iy2 = 0;
+              cimg_forC(*this,c) {
+                cimg_get3x3(*this,x,y,0,c,I,Tfloat);
+                const Tfloat
+                  ixf = Inc - Icc, ixb = Icc - Ipc, ixc = (Inc - Ipc)/2,
+                  iyf = Icn - Icc, iyb = Icc - Icp, iyc = (Icn - Icp)/2;
+                ix2 += (ixf*ixf + ixb*ixb)/2; ixy += ixc*iyc; iy2 += (iyf*iyf + iyb*iyb)/2;
+              }
+              *(ptrd0++) = ix2; *(ptrd1++) = ixy; *(ptrd2++) = iy2;
             }
           }
         }
@@ -47280,12 +47289,12 @@ namespace cimg_library {
         \param value Reference value.
         \param metric Type of metric. Can be <tt>{ 0=Chebyshev | 1=Manhattan | 2=Euclidean | 3=Squared-euclidean }</tt>.
         \note
-        The distance transform implementation has been submitted by A. Meijster, and implements
+        The distance transform implementation was submitted by A. Meijster, and implements
         the article 'W.H. Hesselink, A. Meijster, J.B.T.M. Roerdink,
                      "A general algorithm for computing distance transforms in linear time.",
                      In: Mathematical Morphology and its Applications to Image and Signal Processing,
                      J. Goutsias, L. Vincent, and D.S. Bloomberg (eds.), Kluwer, 2000, pp. 331-340.'
-         The submitted code has then been modified to fit CImg coding style and constraints.
+         The submitted code was then modified to fit CImg coding style and constraints.
     **/
     CImg<T>& distance(const T& value, const unsigned int metric=2) {
       if (is_empty()) return *this;
@@ -48506,7 +48515,8 @@ namespace cimg_library {
        \param y Y-coordinate of the rotation axis, or second quaternion coordinate.
        \param z Z-coordinate of the rotation axis, or second quaternion coordinate.
        \param w Angle of the rotation axis (in degree), or fourth quaternion coordinate.
-       \param is_quaternion Tell is the four arguments denotes a set { axis + angle } or a quaternion (x,y,z,w).
+       \param is_quaternion Specifies whether the four arguments denote a set of { axis + angle } or
+                            a quaternion (x,y,z,w).
     **/
     CImg<T>& rotate_object3d(const float x, const float y, const float z, const float w,
                              const bool is_quaternion=false) {

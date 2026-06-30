@@ -50908,10 +50908,21 @@ namespace cimg_library {
         if (is_filled) return draw_circle(x0,y0,iradius1,color,opacity);
         else if (pattern==~0U) return draw_circle(x0,y0,iradius1,color,opacity,pattern);
       }
-      const float ang = (float)(angle*cimg::PI/180);
+      const float
+        ang = (float)(angle*cimg::PI/180),
+        ca = std::cos(ang), sa = std::sin(ang);
+      if (!iradius1) {
+        const float u = -radius2*sa, v = radius2*ca;
+        return draw_line(cimg::round(x0 - u),cimg::round(y0 - v),cimg::round(x0 + u),cimg::round(y0 + v),
+                         color,opacity,is_filled?~0U:pattern);
+      }
+      if (!iradius2) {
+        const float u = radius1*ca, v = radius1*sa;
+        return draw_line(cimg::round(x0 - u),cimg::round(y0 - v),cimg::round(x0 + u),cimg::round(y0 + v),
+                         color,opacity,is_filled?~0U:pattern);
+      }
 
       if (!is_filled) { // Outlined
-        const float ca = std::cos(ang), sa = std::sin(ang);
         CImg<int> points((unsigned int)cimg::round(6*radiusM),2);
         cimg_forX(points,k) {
           const float
@@ -50925,11 +50936,9 @@ namespace cimg_library {
       } else { // Filled
         cimg_init_scanline(opacity);
         const float
-          ca = std::cos(ang),
-          sa = -std::sin(ang),
           ca2 = ca*ca,
           sa2 = sa*sa,
-          casa = ca*sa,
+          casa = -ca*sa,
           i1 = 1/cimg::sqr(radius1),
           i2 = 1/cimg::sqr(radius2),
           t1 = i1*ca2 + i2*sa2,

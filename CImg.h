@@ -43550,13 +43550,13 @@ namespace cimg_library {
       return res.cut(val_min,val_max);
     }
 
-    //! Blur image using patch-based space \simplification.
+    //! Blur image using patch-based space \overload.
     CImg<T>& blur_patch(const float sigma_s, const float sigma_r, const unsigned int patch_size=3,
                         const unsigned int lookup_size=4, const float smoothness=0, const bool is_fast_approx=true) {
       return blur_patch(*this,sigma_s,sigma_r,patch_size,lookup_size,smoothness,is_fast_approx);
     }
 
-    //! Blur image using patch-based space \simplification \newinstance.
+    //! Blur image using patch-based space \overload \newinstance.
     CImg<Tfloat> get_blur_patch(const float sigma_s, const float sigma_r, const unsigned int patch_size=3,
                                 const unsigned int lookup_size=4, const float smoothness=0,
                                 const bool is_fast_approx=true) const {
@@ -48262,7 +48262,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a 2D point \simplification.
+    //! Draw a 2D point \overload.
     template<typename tc>
     CImg<T>& draw_point(const int x0, const int y0,
                         const tc *const color, const float opacity=1) {
@@ -51766,7 +51766,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a 2D grid \simplification.
+    //! Draw a 2D grid \overload.
     template<typename tc>
     CImg<T>& draw_grid(const float delta_x,  const float delta_y,
                        const float offsetx, const float offsety,
@@ -52120,7 +52120,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw filled 3D region with the flood fill algorithm \simplification.
+    //! Draw a filled 3D region with the flood fill algorithm \overload.
     template<typename tc>
     CImg<T>& draw_fill(const int x0, const int y0, const int z0,
                        const tc *const color, const float opacity=1,
@@ -52129,7 +52129,7 @@ namespace cimg_library {
       return draw_fill(x0,y0,z0,color,opacity,tmp,tolerance,is_high_connectivity);
     }
 
-    //! Draw filled 2D region with the flood fill algorithm \simplification.
+    //! Draw a filled 2D region with the flood fill algorithm \overload.
     template<typename tc>
     CImg<T>& draw_fill(const int x0, const int y0,
                        const tc *const color, const float opacity=1,
@@ -52462,7 +52462,7 @@ namespace cimg_library {
                            is_multithreaded_rendering);
     }
 
-    //! Draw a 3D object \simplification.
+    //! Draw a 3D object \overload.
     template<typename tp, typename tf, typename tc, typename to, typename tz>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
@@ -52479,7 +52479,7 @@ namespace cimg_library {
                             is_multithreaded_rendering);
     }
 
-    //! Draw a 3D object \simplification.
+    //! Draw a 3D object \overload.
     template<typename tp, typename tf, typename tc, typename to>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
@@ -52495,7 +52495,7 @@ namespace cimg_library {
                            is_multithreaded_rendering);
     }
 
-    //! Draw a 3D object \simplification.
+    //! Draw a 3D object \overload.
     template<typename tp, typename tf, typename tc, typename to, typename tz>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
@@ -52512,7 +52512,7 @@ namespace cimg_library {
                             is_multithreaded_rendering);
     }
 
-    //! Draw a 3D object \simplification.
+    //! Draw a 3D object \overload.
     template<typename tp, typename tf, typename tc>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
@@ -52528,7 +52528,7 @@ namespace cimg_library {
                            is_multithreaded_rendering);
     }
 
-    //! Draw a 3D object \simplification.
+    //! Draw a 3D object \overload.
     template<typename tp, typename tf, typename tc, typename tz>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
@@ -54597,7 +54597,7 @@ namespace cimg_library {
       return img2d;
     }
 
-    //! Select sub-graph in a graph.
+    //! Select a sub-graph within a graph.
     CImg<intT> get_select_graph(CImgDisplay &disp,
                                 const unsigned int plot_type=1, const unsigned int vertex_type=1,
                                 const char *const labelx=0, const double xmin=0, const double xmax=0,
@@ -55066,7 +55066,7 @@ namespace cimg_library {
       return _load_ascii(0,filename);
     }
 
-    //! Load image from an ascii file \newinstance..
+    //! Load image from an ascii file \newinstance.
     static CImg<T> get_load_ascii(const char *const filename) {
       return CImg<T>().load_ascii(filename);
     }
@@ -59027,7 +59027,7 @@ namespace cimg_library {
                                display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display a 3D object in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \overload.
     template<typename tp, typename tf, typename tc, typename to>
     const CImg<T>& display_object3d(const char *const title,
                                     const CImg<tp>& vertices,
@@ -59048,7 +59048,7 @@ namespace cimg_library {
                                display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display a 3D object in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \overload.
     template<typename tp, typename tf, typename tc>
     const CImg<T>& display_object3d(CImgDisplay &disp,
                                     const CImg<tp>& vertices,
@@ -59067,7 +59067,7 @@ namespace cimg_library {
                               display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display a 3D object in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \overload.
     template<typename tp, typename tf, typename tc>
     const CImg<T>& display_object3d(const char *const title,
                                     const CImg<tp>& vertices,
@@ -59086,7 +59086,7 @@ namespace cimg_library {
                               display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display a 3D object in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \overload.
     template<typename tp, typename tf>
     const CImg<T>& display_object3d(CImgDisplay &disp,
                                     const CImg<tp>& vertices,
@@ -59105,7 +59105,7 @@ namespace cimg_library {
     }
 
 
-    //! Display a 3D object in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \overload.
     template<typename tp, typename tf>
     const CImg<T>& display_object3d(const char *const title,
                                     const CImg<tp>& vertices,
@@ -59123,7 +59123,7 @@ namespace cimg_library {
                               display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display a 3D object in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \overload.
     template<typename tp>
     const CImg<T>& display_object3d(CImgDisplay &disp,
                                     const CImg<tp>& vertices,
@@ -59140,7 +59140,7 @@ namespace cimg_library {
                               display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display a 3D object in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \overload.
     template<typename tp>
     const CImg<T>& display_object3d(const char *const title,
                                     const CImg<tp>& vertices,

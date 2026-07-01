@@ -7428,7 +7428,7 @@ namespace cimg_library {
 
     //! Return the current refresh rate, in frames per second.
     /**
-       \note Returns a significant value when the current instance is used to display successive frames.
+       \note Returns a meaningful value when the current instance is used to display successive frames.
        It measures the delay between successive calls to frames_per_second().
     **/
     float frames_per_second() {
@@ -7443,7 +7443,7 @@ namespace cimg_library {
       return _fps_fps;
     }
 
-    // Move current display window so that its content stays inside the current screen.
+    // Moves the current display window such that its content remains within the current screen.
     CImgDisplay& move_inside_screen() {
       if (is_empty()) return *this;
       const int
@@ -7603,35 +7603,35 @@ namespace cimg_library {
     template<typename t, typename T>
     static void _render_resize(const T *ptrs, const unsigned int ws, const unsigned int hs,
                                t *ptrd, const unsigned int wd, const unsigned int hd) {
-      typedef typename cimg::last<T,cimg_ulong>::type ulongT;
-      const ulongT one = (ulongT)1;
-      CImg<ulongT> off_x(wd), off_y(hd + 1);
+      typedef typename cimg::last<T,cimg_uint64>::type uint64T;
+      const uint64T one = (uint64T)1;
+      CImg<uint64T> off_x(wd), off_y(hd + 1);
       if (wd==ws) off_x.fill(1);
       else {
-        ulongT *poff_x = off_x._data, curr = 0;
+        uint64T *poff_x = off_x._data, curr = 0;
         for (unsigned int x = 0; x<wd; ++x) {
-          const ulongT old = curr;
+          const uint64T old = curr;
           curr = (x + one)*ws/wd;
           *(poff_x++) = curr - old;
         }
       }
       if (hd==hs) off_y.fill(ws);
       else {
-        ulongT *poff_y = off_y._data, curr = 0;
+        uint64T *poff_y = off_y._data, curr = 0;
         for (unsigned int y = 0; y<hd; ++y) {
-          const ulongT old = curr;
+          const uint64T old = curr;
           curr = (y + one)*hs/hd;
           *(poff_y++) = ws*(curr - old);
         }
         *poff_y = 0;
       }
-      ulongT *poff_y = off_y._data;
+      uint64T *poff_y = off_y._data;
       for (unsigned int y = 0; y<hd; ) {
         const T *ptr = ptrs;
-        ulongT *poff_x = off_x._data;
+        uint64T *poff_x = off_x._data;
         for (unsigned int x = 0; x<wd; ++x) { *(ptrd++) = *ptr; ptr+=*(poff_x++); }
         ++y;
-        ulongT dy = *(poff_y++);
+        uint64T dy = *(poff_y++);
         for ( ; !dy && y<hd; std::memcpy(ptrd,ptrd - wd,sizeof(t)*wd), ++y, ptrd+=wd, dy = *(poff_y++)) {}
         ptrs+=dy;
       }
@@ -7660,7 +7660,7 @@ namespace cimg_library {
        \code
        disp.set_title(window_title);
        \endcode
-       if \c window_title can be arbitrary, to prevent nasty memory access.
+       if \c window_title can be arbitrary, to prevent memory access violations (or undefined behavior).
     **/
     CImgDisplay& set_title(const char *const format, ...) {
       return assign(0,0,format);
@@ -7675,7 +7675,7 @@ namespace cimg_library {
        \note
        - When the fullscreen mode is enabled, the associated window fills the entire screen but the size of the
        current display is not modified.
-       - The screen resolution may be switched to fit the associated window size and ensure it appears the largest
+       - The screen resolution may be switched to fit the associated window size and ensure it appears as large
        as possible.
        For X-Window (X11) users, the configuration flag \c cimg_use_xrandr has to be set to allow the screen
        resolution change (requires the X11 extensions to be enabled).
@@ -15093,7 +15093,7 @@ namespace cimg_library {
       for (ulongT off = 0, siz = size(); off<siz && (!max_size || string_size<max_size); ++off) {
         const unsigned int printed_size = 1U + cimg_snprintf(s_item,s_item._width,_format,
                                                              cimg::type<T>::format(*(ptrs++)));
-        CImg<charT> item(s_item._data,printed_size);
+        CImg<charT> item(s_item._data,std::min(printed_size,s_item._width));
         item[printed_size - 1] = separator;
         item.move_to(items);
         if (max_size) string_size+=printed_size;
@@ -15116,7 +15116,7 @@ namespace cimg_library {
     /**
        Return \c true if image instance has a shared memory buffer, and \c false otherwise.
        \note
-       - A shared image do not own his pixel buffer data() and will not deallocate it on destruction.
+       - A shared image does not own its pixel buffer data() and will not deallocate it on destruction.
        - Most of the time, a \c CImg<T> image instance will \e not be shared.
        - A shared image can only be obtained by a limited set of constructors and methods (see list below).
     **/
@@ -15213,7 +15213,7 @@ namespace cimg_library {
       return _width==size_x && _height==size_y;
     }
 
-    //! Test if image width and height are the same as that of another image.
+    //! Test if image width and height are the same as those of another image.
     /**
        Test if is_sameX(const CImg<t>&) const and is_sameY(const CImg<t>&) const are both verified.
     **/
@@ -15238,7 +15238,7 @@ namespace cimg_library {
       return _width==size_x && _depth==size_z;
     }
 
-    //! Test if image width and depth are the same as that of another image.
+    //! Test if image width and depth are the same as those of another image.
     /**
        Test if is_sameX(const CImg<t>&) const and is_sameZ(const CImg<t>&) const are both verified.
     **/
@@ -15255,7 +15255,7 @@ namespace cimg_library {
       return _width==size_x && _spectrum==size_c;
     }
 
-    //! Test if image width and spectrum are the same as that of another image.
+    //! Test if image width and spectrum are the same as those of another image.
     /**
        Test if is_sameX(const CImg<t>&) const and is_sameC(const CImg<t>&) const are both verified.
     **/
@@ -15272,7 +15272,7 @@ namespace cimg_library {
       return _height==size_y && _depth==size_z;
     }
 
-    //! Test if image height and depth are the same as that of another image.
+    //! Test if image height and depth are the same as those of another image.
     /**
        Test if is_sameY(const CImg<t>&) const and is_sameZ(const CImg<t>&) const are both verified.
     **/
@@ -15289,7 +15289,7 @@ namespace cimg_library {
       return _height==size_y && _spectrum==size_c;
     }
 
-    //! Test if image height and spectrum are the same as that of another image.
+    //! Test if image height and spectrum are the same as those of another image.
     /**
        Test if is_sameY(const CImg<t>&) const and is_sameC(const CImg<t>&) const are both verified.
     **/
@@ -15306,7 +15306,7 @@ namespace cimg_library {
       return _depth==size_z && _spectrum==size_c;
     }
 
-    //! Test if image depth and spectrum are the same as that of another image.
+    //! Test if image depth and spectrum are the same as those of another image.
     /**
        Test if is_sameZ(const CImg<t>&) const and is_sameC(const CImg<t>&) const are both verified.
     **/
@@ -15323,7 +15323,7 @@ namespace cimg_library {
       return is_sameXY(size_x,size_y) && _depth==size_z;
     }
 
-    //! Test if image width, height and depth are the same as that of another image.
+    //! Test if image width, height and depth are the same as those of another image.
     /**
        Test if is_sameXY(const CImg<t>&) const and is_sameZ(const CImg<t>&) const are both verified.
     **/
@@ -15340,7 +15340,7 @@ namespace cimg_library {
       return is_sameXY(size_x,size_y) && _spectrum==size_c;
     }
 
-    //! Test if image width, height and spectrum are the same as that of another image.
+    //! Test if image width, height and spectrum are the same as those of another image.
     /**
        Test if is_sameXY(const CImg<t>&) const and is_sameC(const CImg<t>&) const are both verified.
     **/
@@ -15357,7 +15357,7 @@ namespace cimg_library {
       return is_sameXZ(size_x,size_z) && _spectrum==size_c;
     }
 
-    //! Test if image width, depth and spectrum are the same as that of another image.
+    //! Test if image width, depth and spectrum are the same as those of another image.
     /**
        Test if is_sameXZ(const CImg<t>&) const and is_sameC(const CImg<t>&) const are both verified.
     **/
@@ -15374,7 +15374,7 @@ namespace cimg_library {
       return is_sameYZ(size_y,size_z) && _spectrum==size_c;
     }
 
-    //! Test if image height, depth and spectrum are the same as that of another image.
+    //! Test if image height, depth and spectrum are the same as those of another image.
     /**
        Test if is_sameYZ(const CImg<t>&) const and is_sameC(const CImg<t>&) const are both verified.
     **/
@@ -15393,7 +15393,7 @@ namespace cimg_library {
       return is_sameXYZ(size_x,size_y,size_z) && _spectrum==size_c;
     }
 
-    //! Test if image width, height, depth and spectrum are the same as that of another image.
+    //! Test if image width, height, depth and spectrum are the same as those of another image.
     /**
        Test if is_sameXYZ(const CImg<t>&) const and is_sameC(const CImg<t>&) const are both verified.
     **/
@@ -15538,7 +15538,7 @@ namespace cimg_library {
 
     //! Test if the set {\c *this,\c primitives,\c colors,\c opacities} defines a valid 3D object.
     /**
-       Return \c true is the 3D object represented by the set {\c *this,\c primitives,\c colors,\c opacities} defines a
+       Return \c true if the 3D object represented by the set {\c *this,\c primitives,\c colors,\c opacities} defines a
        valid 3D object, and \c false otherwise. The vertex coordinates are defined by the instance image.
        \param primitives List of primitives of the 3D object.
        \param colors List of colors of the 3D object.
@@ -16041,9 +16041,12 @@ namespace cimg_library {
         const char *_expression = expression;
         while (*_expression && (cimg::is_blank(*_expression) || *_expression==';')) ++_expression;
         CImg<charT>::string(_expression).move_to(expr);
-        char *ps = &expr.back() - 1;
-        while (ps>expr._data && (cimg::is_blank(*ps) || *ps==';')) --ps;
-        *(++ps) = 0; expr._width = (unsigned int)(ps - expr._data + 1);
+        char *ps;
+        if (expr._width>1) {
+          ps = &expr.back() - 1;
+          while (ps>expr._data && (cimg::is_blank(*ps) || *ps==';')) --ps;
+          *(++ps) = 0; expr._width = (unsigned int)(ps - expr._data + 1);
+        }
 
         // Ease the retrieval of previous non-space characters afterwards.
         pexpr.assign(expr._width);

@@ -5663,7 +5663,7 @@ namespace cimg_library {
       }
     }
 
-    // Open a file (similar to std:: fopen(), but with wide character support on Windows).
+    // Open a file (similar to std::fopen(), but with wide character support on Windows).
     inline std::FILE *std_fopen(const char *const path, const char *const mode);
 
     //! Open a file.
@@ -61160,7 +61160,7 @@ namespace cimg_library {
           31=WEBP | 32=ZSTD }</tt>
        \param[out] voxel_size Voxel size, to be stored in the filename.
        \param[out] description Description, to be stored in the filename.
-       \param use_bigtiff Indicates whether the file is saved as big tiff (>4Gb) or not.
+       \param use_bigtiff Indicates whether the file is saved as BigTIFF (>4 GB) or not.
        \note
        - libtiff support is enabled by defining the precompilation
         directive \c cimg_use_tiff.
@@ -62410,7 +62410,7 @@ namespace cimg_library {
    #
    #
    #------------------------------------------
-   */
+  */
   //! Represents a list of images CImg<T>.
   template<typename T>
   struct CImgList {
@@ -66835,7 +66835,7 @@ namespace cimg_library {
       \param compression_type Compression mode used to write data.
       \param voxel_size Voxel size, to be stored in the filename.
       \param description Description, to be stored in the filename.
-      \param use_bigtiff Indicates whether the file is saved as big tiff (>4Gb) or not.
+      \param use_bigtiff Indicates whether the file is saved as BigTIFF (>4 GB) or not.
     **/
     const CImgList<T>& save_tiff(const char *const filename, const unsigned int compression_type=0,
                                  const float *const voxel_size=0, const char *const description=0,
@@ -67385,11 +67385,11 @@ namespace cimg_library {
         if (!fonts[i] || (is_variable_widths[i]==is_variable_width && requested_height==fonts[i][0]._height)) {
           ind = (unsigned int)i; break; // Found empty slot or cached font
         }
-      if (ind==~0U) { // No empty slots nor existing font in cache
+      if (ind==~0U) { // No empty slots or existing fonts in the cache
         fonts->assign();
         std::memmove((void*)fonts,(void*)(fonts + 1),31*sizeof(CImgList<ucharT>));
         std::memmove(is_variable_widths,is_variable_widths + 1,31*sizeof(bool));
-        std::memset((void*)(fonts + (ind=31)),0,sizeof(CImgList<ucharT>)); // Free a slot in cache for new font
+        std::memset((void*)(fonts + (ind=31)),0,sizeof(CImgList<ucharT>)); // Free a cache slot for the new font
       }
       CImgList<ucharT> &font = fonts[ind];
 
@@ -67541,7 +67541,7 @@ namespace cimg_library {
 #endif
     }
 
-    // Open a file (similar to std:: fopen(), but with wide character support on Windows).
+    // Open a file (similar to std::fopen(), but with wide character support on Windows).
     inline std::FILE *std_fopen(const char *const path, const char *const mode) {
       std::FILE *const res = std::fopen(path,mode);
       if (res) return res;
@@ -67572,11 +67572,11 @@ namespace cimg_library {
     inline cimg_int64 fsize(std::FILE *const file) {
       if (!file) return (cimg_int64)-1;
 
-#if cimg_OS==1 // Optimized for POSIX Environements (Linux, macOS, BSD, etc.)
+#if cimg_OS==1 // Optimized for POSIX Environments (Linux, macOS, BSD, etc.)
       const int fd = fileno(file);
       struct stat st;
       if (fd>=0 && !fstat(fd,&st)) return (cimg_int64)st.st_size;
-#elif cimg_OS==2 // Optimized for Windows Environements (MSVC, MinGW)
+#elif cimg_OS==2 // Optimized for Windows Environments (MSVC, MinGW)
       const int fd = _fileno(file);
       if (fd>=0) {
         const cimg_int64 siz = (cimg_int64)_filelengthi64(fd);
@@ -67599,7 +67599,7 @@ namespace cimg_library {
     inline cimg_int64 fsize(const char *const filename) {
       if (!filename || !*filename) return (cimg_int64)-1;
 
-#if cimg_OS==1 // Optimized for POSIX Environements (Linux, macOS, BSD, etc.)
+#if cimg_OS==1 // Optimized for POSIX Environments (Linux, macOS, BSD, etc.)
       struct stat st;
       if (!stat(filename,&st)) return (cimg_int64)st.st_size;
 #endif
@@ -68379,7 +68379,7 @@ namespace cimg_library {
 #if cimg_OS!=2
           is_root = !*_path;
 #endif
-        } else { // No path to folder specified, assuming current folder
+        } else { // No folder path specified; assuming current folder
           is_current = true; *_path = 0;
         }
         lp = (unsigned int)std::strlen(_path);
@@ -68721,7 +68721,7 @@ namespace cimg_library {
                                 "'wget' or 'curl'.",url);
 #endif
 
-        // Try gunzip it.
+        // Try to gunzip it.
         cimg_snprintf(command,command._width,"%s.gz",filename_local);
         std::rename(filename_local,command);
         cimg_snprintf(command,command._width,"\"%s\" --quiet \"%s.gz\"",

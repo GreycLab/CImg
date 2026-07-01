@@ -10832,7 +10832,7 @@ namespace cimg_library {
     bool _is_shared;
     T *_data;
 
-    //! Simple iterator type, to loop through each pixel value of an image instance.
+    //! Simple iterator type to loop through each pixel value of an image instance.
     /**
        \note
        - The \c CImg<T>::iterator type is defined to be a <tt>T*</tt>.
@@ -43873,7 +43873,7 @@ namespace cimg_library {
       return (+*this).sharpen(amplitude,sharpen_type,edge,alpha,sigma);
     }
 
-    //! Return image gradient.
+    //! Return the image gradient.
     /**
        \param axes Axes considered for the gradient computation, as a C-string (e.g "xy").
        \param scheme = Numerical scheme used for the gradient computation:
@@ -44002,7 +44002,7 @@ namespace cimg_library {
       return res;
     }
 
-    //! Return image hessian.
+    //! Return the image hessian.
     /**
        \param axes Axes considered for the hessian computation, as a C-string (e.g "xy").
     **/
@@ -55058,7 +55058,7 @@ namespace cimg_library {
       return CImg<T>().load(filename);
     }
 
-    //! Load image from an ascii file.
+    //! Load image from an ASCII file.
     /**
        \param filename Filename, as a C -string.
     **/
@@ -55066,17 +55066,17 @@ namespace cimg_library {
       return _load_ascii(0,filename);
     }
 
-    //! Load image from an ascii file \newinstance.
+    //! Load image from an ASCII file \newinstance.
     static CImg<T> get_load_ascii(const char *const filename) {
       return CImg<T>().load_ascii(filename);
     }
 
-    //! Load image from an ascii file \inplace.
+    //! Load image from an ASCII file \inplace.
     CImg<T>& load_ascii(std::FILE *const file) {
       return _load_ascii(file,0);
     }
 
-    //! Load image from an ascii file \newinstance.
+    //! Load image from an ASCII file \newinstance.
     static CImg<T> get_load_ascii(std::FILE *const file) {
       return CImg<T>().load_ascii(file);
     }
@@ -55096,7 +55096,7 @@ namespace cimg_library {
       if (!dx || !dy || !dz || !dc) {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimg_instance
-                              "load_ascii(): Invalid ascii header in file '%s', image dimensions are set "
+                              "load_ascii(): Invalid ASCII header in file '%s', image dimensions are set "
                               "to (%u,%u,%u,%u).",
                               cimg_instance,
                               filename?filename:"(FILE*)",dx,dy,dz,dc);
@@ -56056,17 +56056,17 @@ namespace cimg_library {
       }
 
       switch (ppm_type) {
-      case 1 : { // 2D B&W ascii
+      case 1 : { // 2D B&W ASCII
         assign(W,H,1,1);
         T* ptrd = _data;
         cimg_foroff(*this,off) { if (std::fscanf(nfile,"%d",&rval)>0) *(ptrd++) = (T)(rval?0:255); else break; }
       } break;
-      case 2 : { // 2D grey ascii
+      case 2 : { // 2D grey ASCII
         assign(W,H,1,1);
         T* ptrd = _data;
         cimg_foroff(*this,off) { if (std::fscanf(nfile,"%d",&rval)>0) *(ptrd++) = (T)rval; else break; }
       } break;
-      case 3 : { // 2D color ascii
+      case 3 : { // 2D color ASCII
         assign(W,H,1,3);
         T *ptrd = data(0,0,0,0), *ptr_g = data(0,0,0,1), *ptr_b = data(0,0,0,2);
         cimg_forXY(*this,x,y) {
@@ -57115,7 +57115,7 @@ namespace cimg_library {
           cimg_sscanf(item._data," VY%*[^0-9.+-]%f",voxel_size + 1);
           cimg_sscanf(item._data," VZ%*[^0-9.+-]%f",voxel_size + 2);
         }
-        if (cimg_sscanf(item._data," CPU%*[ =]%s",tmp1._data)) out[7] = cimg::strncasecmp(tmp1,"sun",3)?0:1;
+        if (cimg_sscanf(item._data," CPU%*[ =]%63s",tmp1._data)) out[7] = cimg::strncasecmp(tmp1,"sun",3)?0:1;
         switch (cimg_sscanf(item._data," TYPE%*[ =]%63s %63s",tmp1._data,tmp2._data)) {
         case 0 : break;
         case 2 :
@@ -59699,7 +59699,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a file.
+    //! Save the image as a file.
     /**
        \param filename Filename, as a C-string.
        \param number When positive, represents an index added to the filename. Otherwise, no number is added.
@@ -59828,7 +59828,7 @@ namespace cimg_library {
       return save_other(fn);
     }
 
-    //! Save image as an ascii file.
+    //! Save the image as an ASCII file.
     /**
       \param filename Filename, as a C-string.
     **/
@@ -59836,7 +59836,7 @@ namespace cimg_library {
       return _save_ascii(0,filename);
     }
 
-    //! Save image as an Ascii file \overload.
+    //! Save the image as an ASCII file \overload.
     const CImg<T>& save_ascii(std::FILE *const file) const {
       return _save_ascii(file,0);
     }
@@ -59857,7 +59857,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a .cpp source file.
+    //! Save the image as a .cpp source file.
     /**
       \param filename Filename, as a C-string.
     **/
@@ -59865,7 +59865,7 @@ namespace cimg_library {
       return _save_cpp(0,filename);
     }
 
-    //! Save image as a .cpp source file \overload.
+    //! Save the image as a .cpp source file \overload.
     const CImg<T>& save_cpp(std::FILE *const file) const {
       return _save_cpp(file,0);
     }
@@ -59894,7 +59894,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a DLM file.
+    //! Save the image as a DLM file.
     /**
        \param filename Filename, as a C-string.
     **/
@@ -59902,7 +59902,7 @@ namespace cimg_library {
       return _save_dlm(0,filename);
     }
 
-    //! Save image as a DLM file \overload.
+    //! Save the image as a DLM file \overload.
     const CImg<T>& save_dlm(std::FILE *const file) const {
       return _save_dlm(file,0);
     }
@@ -59934,7 +59934,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a BMP file.
+    //! Save the image as a BMP file.
     /**
       \param filename Filename, as a C-string.
     **/
@@ -59942,7 +59942,7 @@ namespace cimg_library {
       return _save_bmp(0,filename);
     }
 
-    //! Save image as a BMP file \overload.
+    //! Save the image as a BMP file \overload.
     const CImg<T>& save_bmp(std::FILE *const file) const {
       return _save_bmp(file,0);
     }
@@ -60041,7 +60041,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a WebP file.
+    //! Save the image as a WebP file.
     /**
       \param filename Filename, as a C-string.
       \param quality Image quality (in %)
@@ -60097,7 +60097,7 @@ namespace cimg_library {
 #endif
     }
 
-    //! Save image as a JPEG file.
+    //! Save the image as a JPEG file.
     /**
       \param filename Filename, as a C-string.
       \param quality Image quality (in %)
@@ -60106,7 +60106,7 @@ namespace cimg_library {
       return _save_jpeg(0,filename,quality);
     }
 
-    //! Save image as a JPEG file \overload.
+    //! Save the image as a JPEG file \overload.
     const CImg<T>& save_jpeg(std::FILE *const file, const unsigned int quality=100) const {
       return _save_jpeg(file,0,quality);
     }
@@ -60209,7 +60209,7 @@ namespace cimg_library {
 #endif
     }
 
-    //! Save image as a JPEG XL file.
+    //! Save the image as a JPEG XL file.
     /**
       \param filename Filename, as a C-string.
       \param distance Sets the level for lossy compression: lower = higher quality.
@@ -60427,7 +60427,7 @@ namespace cimg_library {
 #endif
     }
 
-    //! Save image, using built-in ImageMagick++ library.
+    //! Save the image, using built-in ImageMagick++ library.
     /**
       \param filename Filename, as a C-string.
       \param bytes_per_pixel Force the number of bytes per pixel for the saving, when possible.
@@ -60502,7 +60502,7 @@ namespace cimg_library {
 #endif
     }
 
-    //! Save image as a PNG file.
+    //! Save the image as a PNG file.
     /**
        \param filename Filename, as a C-string.
        \param bytes_per_pixel Force the number of bytes per pixels for the saving, when possible.
@@ -60511,7 +60511,7 @@ namespace cimg_library {
       return _save_png(0,filename,bytes_per_pixel);
     }
 
-    //! Save image as a PNG file \overload.
+    //! Save the image as a PNG file \overload.
     const CImg<T>& save_png(std::FILE *const file, const unsigned int bytes_per_pixel=0) const {
       return _save_png(file,0,bytes_per_pixel);
     }
@@ -60716,7 +60716,7 @@ namespace cimg_library {
 #endif
     }
 
-    //! Save image as a PNM file.
+    //! Save the image as a PNM file.
     /**
       \param filename Filename, as a C-string.
       \param bytes_per_pixel Force the number of bytes per pixels for the saving.
@@ -60725,7 +60725,7 @@ namespace cimg_library {
       return _save_pnm(0,filename,bytes_per_pixel);
     }
 
-    //! Save image as a PNM file \overload.
+    //! Save the image as a PNM file \overload.
     const CImg<T>& save_pnm(std::FILE *const file, const unsigned int bytes_per_pixel=0) const {
       return _save_pnm(file,0,bytes_per_pixel);
     }
@@ -60853,7 +60853,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a PNK file.
+    //! Save the image as a PNK file.
     /**
       \param filename Filename, as a C-string.
     **/
@@ -60861,7 +60861,7 @@ namespace cimg_library {
       return _save_pnk(0,filename);
     }
 
-    //! Save image as a PNK file \overload.
+    //! Save the image as a PNK file \overload.
     const CImg<T>& save_pnk(std::FILE *const file) const {
       return _save_pnk(file,0);
     }
@@ -60922,7 +60922,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a PFM file.
+    //! Save the image as a PFM file.
     /**
       \param filename Filename, as a C-string.
     **/
@@ -60931,7 +60931,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a PFM file \overload.
+    //! Save the image as a PFM file \overload.
     const CImg<T>& save_pfm(std::FILE *const file) const {
       get_mirror('y')._save_pfm(file,0);
       return *this;
@@ -61012,7 +61012,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a RGB file.
+    //! Save the image as a RGB file.
     /**
       \param filename Filename, as a C-string.
     **/
@@ -61020,7 +61020,7 @@ namespace cimg_library {
       return _save_rgb(0,filename);
     }
 
-    //! Save image as a RGB file \overload.
+    //! Save the image as a RGB file \overload.
     const CImg<T>& save_rgb(std::FILE *const file) const {
       return _save_rgb(file,0);
     }
@@ -61074,7 +61074,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a RGBA file.
+    //! Save the image as a RGBA file.
     /**
        \param filename Filename, as a C-string.
     **/
@@ -61082,7 +61082,7 @@ namespace cimg_library {
       return _save_rgba(0,filename);
     }
 
-    //! Save image as a RGBA file \overload.
+    //! Save the image as a RGBA file \overload.
     const CImg<T>& save_rgba(std::FILE *const file) const {
       return _save_rgba(file,0);
     }
@@ -61148,7 +61148,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a TIFF file.
+    //! Save the image as a TIFF file.
     /**
        \param filename Filename, as a C-string.
        \param compression_type Type of data compression. Can be
@@ -61157,8 +61157,8 @@ namespace cimg_library {
           15=JP2000 | 16=JPEG | 17=JXL | 18=LERC | 19=LZMA | 20=LZW | 21=NEXT | 22=OJPEG | 23=PACKBITS |
           24=PIXARFILM | 25=PIXARLOG | 26=SGILOG | 27=SGILOG24 | 28=T43 | 29=T85 | 30=THUNDERSCAN |
           31=WEBP | 32=ZSTD }</tt>
-       \param[out] voxel_size Voxel size, to be stored in the filename.
-       \param[out] description Description, to be stored in the filename.
+       \param[out] voxel_size Voxel size, to be stored in the file metadata.
+       \param[out] description Description, to be stored in the file metadata.
        \param use_bigtiff Indicates whether the file is saved as BigTIFF (>4 GB) or not.
        \note
        - libtiff support is enabled by defining the precompilation
@@ -61310,7 +61310,7 @@ namespace cimg_library {
     }
 #endif
 
-    //! Save image as a MINC2 file.
+    //! Save the image as a MINC2 file.
     /**
        \param filename Filename, as a C-string.
        \param imitate_file If non-zero, reference filename, as a C-string, to borrow header from.
@@ -61351,7 +61351,7 @@ namespace cimg_library {
 #endif
     }
 
-    //! Save image as an ANALYZE7.5 or NIFTI file.
+    //! Save the image as an ANALYZE7.5 or NIFTI file.
     /**
       \param filename Filename, as a C-string.
       \param voxel_size Pointer to 3 consecutive values that tell about the voxel sizes along the X,Y and Z dimensions.
@@ -61432,7 +61432,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a .cimg file.
+    //! Save the image as a .cimg file.
     /**
       \param filename Filename, as a C-string.
       \param is_compressed Indicates whether the file contains compressed image data.
@@ -61442,13 +61442,13 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a .cimg file \overload.
+    //! Save the image as a .cimg file \overload.
     const CImg<T>& save_cimg(std::FILE *const file, const bool is_compressed=false) const {
       CImgList<T>(*this,true).save_cimg(file,is_compressed);
       return *this;
     }
 
-    //! Save image as a sub-image into an existing .cimg file.
+    //! Save the image as a sub-image into an existing .cimg file.
     /**
       \param filename Filename, as a C-string.
       \param n0 Index of the image inside the file.
@@ -61465,7 +61465,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a sub-image into an existing .cimg file \overload.
+    //! Save the image as a sub-image into an existing .cimg file \overload.
     const CImg<T>& save_cimg(std::FILE *const file,
                              const unsigned int n0,
                              const unsigned int x0, const unsigned int y0,
@@ -61474,7 +61474,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save blank image as a .cimg file.
+    //! Save a blank image as a .cimg file.
     /**
         \param filename Filename, as a C-string.
         \param dx Width of the image.
@@ -61491,7 +61491,7 @@ namespace cimg_library {
       return CImgList<T>::save_empty_cimg(filename,1,dx,dy,dz,dc);
     }
 
-    //! Save blank image as a .cimg file \overload.
+    //! Save a blank image as a .cimg file \overload.
     /**
        Same as save_empty_cimg(const char *,unsigned int,unsigned int,unsigned int,unsigned int)
        with a file stream argument instead of a filename string.
@@ -61502,7 +61502,7 @@ namespace cimg_library {
       return CImgList<T>::save_empty_cimg(file,1,dx,dy,dz,dc);
     }
 
-    //! Save image as an INRIMAGE-4 file.
+    //! Save the image as an INRIMAGE-4 file.
     /**
       \param filename Filename, as a C-string.
       \param voxel_size Pointer to 3 values specifying the voxel sizes along the X,Y and Z dimensions.
@@ -61511,7 +61511,7 @@ namespace cimg_library {
       return _save_inr(0,filename,voxel_size);
     }
 
-    //! Save image as an INRIMAGE-4 file \overload.
+    //! Save the image as an INRIMAGE-4 file \overload.
     const CImg<T>& save_inr(std::FILE *const file, const float *const voxel_size=0) const {
       return _save_inr(file,0,voxel_size);
     }
@@ -61572,7 +61572,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as an OpenEXR file.
+    //! Save the image as an OpenEXR file.
     /**
        \param filename Filename, as a C-string.
        \note The OpenEXR file format is <a href="http://en.wikipedia.org/wiki/OpenEXR">described here</a>.
@@ -61644,7 +61644,7 @@ namespace cimg_library {
 #endif
     }
 
-    //! Save image as a Pandore-5 file.
+    //! Save the image as a Pandore-5 file.
     /**
        \param filename Filename, as a C-string.
        \param colorspace Colorspace data field in output file
@@ -61655,7 +61655,7 @@ namespace cimg_library {
       return _save_pandore(0,filename,colorspace);
     }
 
-    //! Save image as a Pandore-5 file \overload.
+    //! Save the image as a Pandore-5 file \overload.
     /**
         Same as save_pandore(const char *,unsigned int) const
         with a file stream argument instead of a filename string.
@@ -61846,7 +61846,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a raw data file.
+    //! Save the image as a raw data file.
     /**
        \param filename Filename, as a C-string.
        \param is_multiplexed Indicates whether the image channels are stored in a multiplexed way (\c true)
@@ -61858,7 +61858,7 @@ namespace cimg_library {
       return _save_raw(0,filename,is_multiplexed);
     }
 
-    //! Save image as a raw data file \overload.
+    //! Save the image as a raw data file \overload.
     /**
        Same as save_raw(const char *,bool) const
        with a file stream argument instead of a filename string.
@@ -61934,7 +61934,7 @@ namespace cimg_library {
       }
     }
 
-    //! Save image as a .yuv video file.
+    //! Save the image as a .yuv video file.
     /**
        \param filename Filename, as a C-string.
        \param chroma_subsampling Type of chroma subsampling. Can be <tt>{ 420 | 422 | 444 }</tt>.
@@ -61949,7 +61949,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a .yuv video file \overload.
+    //! Save the image as a .yuv video file \overload.
     /**
        Same as save_yuv(const char*,const unsigned int,const bool) const
        with a file stream argument instead of a filename string.
@@ -62111,7 +62111,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image using gzip external binary.
+    //! Save the image using gzip external binary.
     /**
        \param filename Filename, as a C-string.
        \note This function uses \c gzip, an external executable binary provided by
@@ -62162,7 +62162,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image using GraphicsMagick's external binary.
+    //! Save the image using GraphicsMagick's external binary.
     /**
        \param filename Filename, as a C-string.
        \param quality Image quality (expressed in percent), when the file format supports it.
@@ -62220,7 +62220,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image using ImageMagick's external binary.
+    //! Save the image using ImageMagick's external binary.
     /**
        \param filename Filename, as a C-string.
        \param quality Image quality (expressed in percent), when the file format supports it.
@@ -62279,7 +62279,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a Dicom file.
+    //! Save the image as a Dicom file.
     /**
        \param filename Filename, as a C-string.
        \note This function uses \c medcon, an external executable binary provided by
@@ -62326,7 +62326,7 @@ namespace cimg_library {
       return *this;
     }
 
-    // Save image for non natively supported formats.
+    // Save the image for non natively supported formats.
     /**
        \param filename Filename, as a C-string.
        \param quality Image quality (expressed in percent), when the file format supports it.
@@ -62416,7 +62416,7 @@ namespace cimg_library {
     unsigned int _width, _allocated_width;
     CImg<T> *_data;
 
-    //! Simple iterator type, to loop through each image of a list.
+    //! Simple iterator type to loop through each image of a list.
     /**
        \note
        - The \c CImgList<T>::iterator type is defined as a <tt>CImg<T>*</tt>.
@@ -63213,7 +63213,7 @@ namespace cimg_library {
       return (+*this).insert(list);
     }
 
-    //! Return image corresponding to the appending of all images of the instance list along specified axis.
+    //! Return the image corresponding to the appending of all images of the instance list along specified axis.
     /**
       \param axis Appending axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
       \note <tt>list>'x'</tt> is equivalent to <tt>list.get_append('x')</tt>.
@@ -63222,7 +63222,7 @@ namespace cimg_library {
       return get_append(axis,0);
     }
 
-    //! Return list corresponding to the splitting of all images of the instance list along specified axis.
+    //! Return the list corresponding to the splitting of all images of the instance list along specified axis.
     /**
       \param axis Axis used for image splitting.
       \note <tt>list<'x'</tt> is equivalent to <tt>list.get_split('x')</tt>.
@@ -66414,7 +66414,7 @@ namespace cimg_library {
       return false;
     }
 
-    //! Save image sequence as a GIF animated file.
+    //! Save the image sequence as a GIF animated file.
     /**
        \param filename Filename to write data to.
        \param fps Number of desired frames per second.
@@ -66484,7 +66484,7 @@ namespace cimg_library {
       return _save_yuv(0,filename,chroma_subsampling,is_rgb);
     }
 
-    //! Save image sequence into a YUV file.
+    //! Save the image sequence into a YUV file.
     /**
       \param file File to write data to.
       \param chroma_subsampling Type of chroma subsampling. Can be <tt>{ 420 | 422 | 444 }</tt>.
@@ -66933,7 +66933,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image sequence (using the OpenCV library when available).
+    //! Save the image sequence (using the OpenCV library when available).
     /**
        \param filename Filename to write data to.
        \param fps Number of frames per second.
@@ -67061,7 +67061,7 @@ namespace cimg_library {
 #endif
     }
 
-    //! Save image sequence, using the external tool 'ffmpeg'.
+    //! Save the image sequence, using the external tool 'ffmpeg'.
     /**
       \param filename Filename to write data to.
       \param fps Number of frames per second.
@@ -68358,7 +68358,7 @@ namespace cimg_library {
       return str;
     }
 
-    //! Return list of files/directories in specified directory.
+    //! Return the list of files/directories in specified directory.
     /**
        \param path Path to the directory. Set to 0 for current directory.
        \param is_pattern Indicates that a specified path has a matching pattern in it.

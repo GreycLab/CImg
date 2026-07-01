@@ -13335,7 +13335,7 @@ namespace cimg_library {
       return CImgList<_cimg_Tt>(list,false).insert(*this,0);
     }
 
-    //! Split image along specified axis.
+    //! Split the image along a specified axis.
     /**
        Return a new list of images (\c CImgList instance) containing the split components
        of the instance image along the specified axis.
@@ -37423,7 +37423,7 @@ namespace cimg_library {
       return (+*this).mirror(axes);
     }
 
-    //! Shift image content.
+    //! Shift the image content.
     /**
        \param delta_x Amount of displacement along the X-axis.
        \param delta_y Amount of displacement along the Y-axis.
@@ -37642,7 +37642,7 @@ namespace cimg_library {
     //! Permute axes order.
     /**
        \param axes_order Axes permutations, as a C-string of 4 characters.
-       This function permutes image content regarding the specified axes permutation.
+       This function permutes the image content according the specified axes order.
     **/
     CImg<T>& permute_axes(const char *const axes_order) {
       if (is_empty() || !axes_order) return *this;
@@ -37938,7 +37938,7 @@ namespace cimg_library {
       return res;
     }
 
-    //! Unroll pixel values along specified axis.
+    //! Unroll pixel values along the specified axis.
     /**
        \param axis Unroll axis (can be \c 'x', \c 'y', \c 'z' or c 'c').
     **/
@@ -37958,7 +37958,7 @@ namespace cimg_library {
       return (+*this).unroll(axis);
     }
 
-    //! Rotate image with arbitrary angle.
+    //! Rotate the image by an arbitrary angle.
     /**
        \param angle Rotation angle, in degrees.
        \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
@@ -38163,7 +38163,7 @@ namespace cimg_library {
       }
     }
 
-    //! Rotate volumetric image with arbitrary angle and axis.
+    //! Rotate a volumetric image by an arbitrary angle and axis.
     /**
        \param u X-coordinate of the 3D rotation axis.
        \param v Y-coordinate of the 3D rotation axis.
@@ -38262,7 +38262,7 @@ namespace cimg_library {
               Z = cimg::mod((float)(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc),dd);
             cimg_forC(res,c) res(x,y,z,c) = _cubic_atXYZ_c(X<width()?X:ww - X - 1,
                                                            Y<height()?Y:hh - Y - 1,
-                                                           Z<depth()?Z:dd - Z - z,c);
+                                                           Z<depth()?Z:dd - Z - 1,c);
           }
         } break;
         case 1 : { // Linear interpolation
@@ -38408,10 +38408,10 @@ namespace cimg_library {
       }
     }
 
-    //! Warp image content by a warping field.
+    //! Warp the image content using a warping field.
     /**
        \param p_warp Warping field.
-       \param mode Can be { 0=backward-absolute | 1=backward-relative | 2=forward-absolute | 3=foward-relative }
+       \param mode Can be { 0=backward-absolute | 1=backward-relative | 2=forward-absolute | 3=forward-relative }
        \param interpolation Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
        \param boundary_conditions Boundary conditions <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
     **/
@@ -39248,7 +39248,7 @@ namespace cimg_library {
       return res;
     }
 
-    //! Generate a 2D representation of a 3D image, with XY,XZ and YZ views.
+    //! Generate a 2D representation of a 3D image, with XY, XZ and YZ views.
     /**
        \param x0 X-coordinate of the projection point.
        \param y0 Y-coordinate of the projection point.
@@ -40115,7 +40115,7 @@ namespace cimg_library {
       return CImg<T>(_data,_width,_height,_depth,_spectrum,true);
     }
 
-    //! Split image into a list along specified axis.
+    //! Split the image into a list along specified axis.
     /**
        \param axis Splitting axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
        \param nb Number of split parts.
@@ -40279,7 +40279,8 @@ namespace cimg_library {
       return res;
     }
 
-    //! Split image into a list of sub-images, according to a specified splitting value sequence and optionally axis.
+    //! Split the image into a list of sub-images according to a specified sequence of splitting values
+    //! and optionally an axis.
     /**
        \param values Splitting value sequence.
        \param axis Axis along which the splitting is performed. Can be '0' to ignore axis.
@@ -40523,7 +40524,7 @@ namespace cimg_library {
     //@{
     //---------------------------------------
 
-    //! Correlate image by a kernel.
+    //! Correlate the image with a kernel.
     /**
        \param kernel = the correlation kernel.
        \param boundary_conditions Boundary condition. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
@@ -40589,7 +40590,7 @@ namespace cimg_library {
                         xoffset,yoffset,zoffset,xsize,ysize,zsize,false);
     }
 
-    //! Correlate image by a kernel \newinstance.
+    //! Correlate the image with a kernel \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> _correlate(const CImg<t>& kernel, const unsigned int boundary_conditions,
                                    const bool is_normalized, const unsigned int channel_mode,
@@ -40995,7 +40996,7 @@ namespace cimg_library {
       return res;
     }
 
-    //! Convolve image by a kernel.
+    //! Convolve the image with a kernel.
     /**
        \param kernel = the correlation kernel.
        \param boundary_conditions Boundary condition. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
@@ -41042,7 +41043,7 @@ namespace cimg_library {
                           xoffset,yoffset,zoffset,xsize,ysize,zsize).move_to(*this);
     }
 
-    //! Convolve image by a kernel \newinstance.
+    //! Convolve the image with a kernel \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> get_convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                                      const bool is_normalized=false, const unsigned int channel_mode=1,
@@ -44318,7 +44319,7 @@ namespace cimg_library {
       return CImg<Tfloat>(*this,false).diffusion_tensors(sharpness,anisotropy,alpha,sigma,is_sqrt);
     }
 
-    //! Estimate displacement field from given reference image to instance image.
+    //! Estimate the displacement field from a given reference image to the current image instance.
     /**
        \param reference Reference image R.
        \param smoothness Smoothness of estimated displacement field.

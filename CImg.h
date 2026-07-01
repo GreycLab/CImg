@@ -200,7 +200,7 @@ enum {FALSE_WIN = 0};
 
 // Check for C++11 support.
 #ifndef cimg_use_cpp11
-#if __cplusplus>201100
+#if __cplusplus>201100L || (defined(_MSVC_LANG) && _MSVC_LANG>=201103L)
 #define cimg_use_cpp11 1
 #else
 #define cimg_use_cpp11 0
@@ -4002,7 +4002,7 @@ namespace cimg_library {
         GetStartupInfoA(&si);
         si.cb = sizeof(si);
         si.wShowWindow = SW_HIDE;
-        si.dwFlags |= SW_HIDE | STARTF_USESHOWWINDOW;
+        si.dwFlags|=STARTF_USESHOWWINDOW;
         const BOOL res = CreateProcessA((LPCSTR)module_name,ncommand,0,0,FALSE,0,0,0,&si,&pi);
         delete[] ncommand;
         if (res) {
@@ -6094,8 +6094,8 @@ namespace cimg_library {
       if (first) {
         first = false;
         visu = cimg::option("-h",argc,argv,(char*)0,(char*)0,false)!=0;
-        visu |= cimg::option("-help",argc,argv,(char*)0,(char*)0,false)!=0;
-        visu |= cimg::option("--help",argc,argv,(char*)0,(char*)0,false)!=0;
+        visu|=cimg::option("-help",argc,argv,(char*)0,(char*)0,false)!=0;
+        visu|=cimg::option("--help",argc,argv,(char*)0,(char*)0,false)!=0;
       }
       if (!name && visu) {
         if (usage) {
@@ -7471,7 +7471,7 @@ namespace cimg_library {
     //! Display list of images on associated window.
     /**
        \param list List of images to display.
-       \param axis Axis used to append the images along, for the visualization (can be \c x, \c y, \c z or \c c).
+       \param axis Axis along which to append the images for the visualization (can be \c x, \c y, \c z or \c c).
        \param align Relative position of aligned images when displaying lists with images of different sizes
        (\c 0 for upper-left, \c 0.5 for centering and \c 1 for lower-right).
        \note This function returns immediately.
@@ -7658,10 +7658,10 @@ namespace cimg_library {
 
     //! Enable or disable fullscreen mode.
     /**
-       \param is_fullscreen Indicates whether the fullscreen mode must be activated.
+       \param is_fullscreen Indicates whether fullscreen mode must be activated.
        \param force_redraw Indicates whether the previous window content must be displayed as well.
        \note
-       - When the fullscreen mode is enabled, the associated window fills the entire screen but the size of the
+       - When fullscreen mode is enabled, the associated window fills the entire screen but the size of the
        current display is not modified.
        - The screen resolution may be switched to fit the associated window size and ensure it appears as large
        as possible.
@@ -7735,7 +7735,7 @@ namespace cimg_library {
     **/
     CImgDisplay& set_button(const unsigned int button, const bool is_pressed=true) {
       const unsigned int buttoncode = button==1U?1U:button==2U?2U:button==3U?4U:0U;
-      if (is_pressed) _button |= buttoncode; else _button &= ~buttoncode;
+      if (is_pressed) _button|=buttoncode; else _button&=~buttoncode;
       _is_event = buttoncode?true:false;
       if (buttoncode) {
 #if cimg_display==1
@@ -10822,7 +10822,7 @@ namespace cimg_library {
      Some of the most useful are:
 
      - operator()(): Read or write pixel values.
-     - display(): displays the image in a new window.
+     - display(): Displays the image in a new window.
   **/
   template<typename T>
   struct CImg {
@@ -15126,7 +15126,7 @@ namespace cimg_library {
        Return \c true, if image instance contains a 'inf' value, and \c false otherwise.
     **/
     bool is_inf() const {
-      if (cimg::type<T>::is_float()) cimg_for(*this,p,T) if (cimg::type<T>::is_inf((float)*p)) return true;
+      if (cimg::type<T>::is_float()) cimg_for(*this,p,T) if (cimg::type<T>::is_inf((double)*p)) return true;
       return false;
     }
 
@@ -15135,7 +15135,7 @@ namespace cimg_library {
        Return \c true, if image instance contains a NaN value, and \c false otherwise.
     **/
     bool is_nan() const {
-      if (cimg::type<T>::is_float()) cimg_for(*this,p,T) if (cimg::type<T>::is_nan((float)*p)) return true;
+      if (cimg::type<T>::is_float()) cimg_for(*this,p,T) if (cimg::type<T>::is_nan((double)*p)) return true;
       return false;
     }
 
@@ -15526,8 +15526,8 @@ namespace cimg_library {
 
     //! Test if the set {\c *this,\c primitives,\c colors,\c opacities} defines a valid 3D object.
     /**
-       Return \c true if the 3D object represented by the set {\c *this,\c primitives,\c colors,\c opacities} defines a
-       valid 3D object, and \c false otherwise. The vertex coordinates are defined by the instance image.
+       Return \c true if the 3D object represented by the set {\c *this,\c primitives,\c colors,\c opacities} is valid,
+         and \c false otherwise. The vertex coordinates are defined by the instance image.
        \param primitives List of primitives of the 3D object.
        \param colors List of colors of the 3D object.
        \param opacities List (or image) of opacities of the 3D object.
@@ -21164,8 +21164,7 @@ namespace cimg_library {
               p2 = size(arg2);
               p3 = (unsigned int)mem[arg3];
               arg5 = p2/p3;
-              arg4 = p1/arg5;
-              if (arg4*arg5!=p1 || arg5*p3!=p2) {
+              if (!arg5 || (arg4 = p1/arg5)*arg5!=p1 || arg5*p3!=p2) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Types of first and second arguments ('%s' and '%s') "
@@ -22031,13 +22030,11 @@ namespace cimg_library {
               _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_type(arg2,2,2,0);
               _cimg_mp_check_const_scalar(arg3,3,3);
-
               p1 = size(arg1);
               p2 = size(arg2);
               p3 = (unsigned int)mem[arg3];
               arg5 = p2/p3;
-              arg6 = p1/arg5;
-              if (arg6*arg5!=p1 || arg5*p3!=p2) {
+              if (!arg5 || (arg6 = p1/arg5)*arg5!=p1 || arg5*p3!=p2) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Types of first and second arguments ('%s' and '%s') "
@@ -55907,11 +55904,11 @@ namespace cimg_library {
       }
       if (png_get_valid(png_ptr,info_ptr,PNG_INFO_tRNS)) {
         png_set_tRNS_to_alpha(png_ptr);
-        color_type |= PNG_COLOR_MASK_ALPHA;
+        color_type|=PNG_COLOR_MASK_ALPHA;
       }
       if (color_type==PNG_COLOR_TYPE_GRAY || color_type==PNG_COLOR_TYPE_GRAY_ALPHA) {
         png_set_gray_to_rgb(png_ptr);
-        color_type |= PNG_COLOR_MASK_COLOR;
+        color_type|=PNG_COLOR_MASK_COLOR;
         is_gray = true;
       }
       if (color_type==PNG_COLOR_TYPE_RGB)

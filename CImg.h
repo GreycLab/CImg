@@ -116,7 +116,7 @@
 #define cimg_time __TIME__
 #endif
 
-// Disable silly warnings on some Microsoft and GCC compilers.
+// Suppress minor warnings on some Microsoft and GCC compilers
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable:4127)
@@ -198,9 +198,9 @@
 enum {FALSE_WIN = 0};
 #endif
 
-// Look for C++11 features.
+// Check for C++11 support.
 #ifndef cimg_use_cpp11
-#if __cplusplus>201100
+#if __cplusplus>201100L || (defined(_MSVC_LANG) && _MSVC_LANG>=201103L)
 #define cimg_use_cpp11 1
 #else
 #define cimg_use_cpp11 0
@@ -224,7 +224,7 @@ enum {FALSE_WIN = 0};
 #define cimg_pragma(x) _Pragma(#x)
 #endif
 
-// Define own datatypes to ensure portability.
+// Define custom datatypes to ensure portability.
 // ( 'sizeof(cimg_ulong/cimg_long) = sizeof(void*)' ).
 #define cimg_uint8 unsigned char
 #if defined(CHAR_MAX) && CHAR_MAX==255
@@ -290,24 +290,24 @@ enum {FALSE_WIN = 0};
 
 // Configure filename separator.
 //
-// Filename separator is set by default to '/', except for Windows where it is '\'.
-#ifndef cimg_file_separator
+// The directory separator is set to '/' by default, except on Windows where it is '\'.
+#ifndef cimg_directory_separator
 #if cimg_OS==2
-#define cimg_file_separator '\\'
+#define cimg_directory_separator '\\'
 #else
-#define cimg_file_separator '/'
+#define cimg_directory_separator '/'
 #endif
 #endif
 
 // Configure verbosity of output messages.
 //
 // Define 'cimg_verbosity' to: '0' to hide library messages (quiet mode).
-//                             '1' to output library messages on the console.
-//                             '2' to output library messages on a basic dialog window (default behavior).
-//                             '3' to do as '1' + add extra warnings (may slow down the code!).
-//                             '4' to do as '2' + add extra warnings (may slow down the code!).
+//                             '1' to print library messages on the console.
+//                             '2' to print library messages on a basic dialog window (default behavior).
+//                             '3' equivalent to '1' with warnings (may slow down the code!).
+//                             '4' equivalent to '2' with warnings (may slow down the code!).
 //
-// Define 'cimg_strict_warnings' to replace warning messages by exception throwns.
+// Define 'cimg_strict_warnings' to throw exceptions instead of displaying warning messages.
 //
 // Define 'cimg_use_vt100' to allow output of color messages on VT100-compatible terminals.
 #ifndef cimg_verbosity
@@ -326,8 +326,7 @@ enum {FALSE_WIN = 0};
 //
 // Define 'cimg_use_openmp' to enable OpenMP support (requires OpenMP 3.0+).
 //
-// OpenMP directives are used in many CImg functions to get
-// advantages of multi-core CPUs.
+// OpenMP directives are used in many CImg functions to leverage multi-core CPUs.
 #if !defined(cimg_use_openmp)
 #ifdef _OPENMP
 #define cimg_use_openmp 1
@@ -349,7 +348,7 @@ enum {FALSE_WIN = 0};
 // A typical signal handler can be defined in your own source like this:
 // #define cimg_abort_test if (is_abort) throw CImgAbortException("")
 //
-// where 'is_abort' is a boolean variable defined somewhere in your code and reachable in the method.
+// where 'is_abort' is a boolean variable defined somewhere in your code and reachable in the function.
 // 'cimg_abort_test2' does the same but is called more often (in inner loops).
 #if defined(cimg_abort_test) && cimg_use_openmp!=0
 
@@ -461,7 +460,7 @@ enum {FALSE_WIN = 0};
 // Define 'cimg_use_opencv' to enable OpenCV support.
 //
 // OpenCV library may be used to access images from cameras.
-// (see method 'CImg<T>::load_camera()').
+// (see function 'CImg<T>::load_camera()').
 #ifdef cimg_use_opencv
 #ifdef True
 #undef True
@@ -495,8 +494,8 @@ enum {FALSE_WIN = 0};
 //
 // Define 'cimg_use_png' to enable LibPNG support.
 //
-// PNG library may be used to get a native support of '.png' files.
-// (see methods 'CImg<T>::{load,save}_png()'.
+// PNG library may be used to get native support for '.png' files.
+// (see functions 'CImg<T>::{load,save}_png()').
 #ifdef cimg_use_png
 extern "C" {
 #include "png.h"
@@ -508,8 +507,8 @@ extern "C" {
 //
 // Define 'cimg_use_jpeg' to enable LibJPEG support.
 //
-// JPEG library may be used to get a native support of '.jpg' files.
-// (see methods 'CImg<T>::{load,save}_jpeg()').
+// JPEG library may be used to get native support for '.jpg' files.
+// (see functions 'CImg<T>::{load,save}_jpeg()').
 #ifdef cimg_use_jpeg
 extern "C" {
 #include "jpeglib.h"
@@ -522,8 +521,8 @@ extern "C" {
 //
 // Define 'cimg_use_jxl' to enable JPEG XL support.
 //
-// Libjxl may be used to get a native support of '.jxl' files.
-// (see methods 'CImg<T>::{load,save}_jxl()').
+// Libjxl may be used to get native support for '.jxl' files.
+// (see functions 'CImg<T>::{load,save}_jxl()').
 #ifdef cimg_use_jxl
 #include <jxl/decode.h>
 #include <jxl/encode.h>
@@ -534,8 +533,8 @@ extern "C" {
 //
 // Define 'cimg_use_tiff' to enable LibTIFF support.
 //
-// TIFF library may be used to get a native support of '.tif' files.
-// (see methods 'CImg[List]<T>::{load,save}_tiff()').
+// TIFF library may be used to get native support for '.tif' files.
+// (see functions 'CImg[List]<T>::{load,save}_tiff()').
 #ifdef cimg_use_tiff
 extern "C" {
 #define uint64 uint64_hack_
@@ -551,8 +550,8 @@ extern "C" {
 //
 // Define 'cimg_use_heif' to enable HEIF support.
 //
-// HEIF library may be used to get a native support of '.heic' and '.avif' files.
-// (see method 'CImg<T>::load_heif()').
+// HEIF library may be used to get native support for '.heic' and '.avif' files.
+// (see function 'CImg<T>::load_heif()').
 #ifdef cimg_use_heif
 #include <libheif/heif_cxx.h>
 #endif
@@ -562,8 +561,8 @@ extern "C" {
 //
 // Define 'cimg_use_webp' to enable WebP support.
 //
-// WebP library may be used to get a native support of '.webp' files.
-// (see method 'CImg<T>::{load,save}_webp()').
+// WebP library may be used to get native support for '.webp' files.
+// (see function 'CImg<T>::{load,save}_webp()').
 #ifdef cimg_use_webp
 #include <webp/decode.h>
 #include <webp/encode.h>
@@ -574,8 +573,8 @@ extern "C" {
 //
 // Define 'cimg_use_minc2' to enable LibMINC2 support.
 //
-// MINC2 library may be used to get a native support of '.mnc' files.
-// (see methods 'CImg<T>::{load,save}_minc2()').
+// MINC2 library may be used to get native support for '.mnc' files.
+// (see functions 'CImg<T>::{load,save}_minc2()').
 #ifdef cimg_use_minc2
 #include "minc_io_simple_volume.h"
 #include "minc_1_simple.h"
@@ -588,7 +587,7 @@ extern "C" {
 // Define 'cimg_use_zlib' to enable Zlib support.
 //
 // Zlib library may be used to allow compressed data in '.cimgz' files.
-// (see methods 'CImg[List]<T>::{load,save}_cimg()').
+// (see functions 'CImg[List]<T>::{load,save}_cimg()').
 #ifdef cimg_use_zlib
 extern "C" {
 #include "zlib.h"
@@ -600,8 +599,8 @@ extern "C" {
 //
 // Define 'cimg_use_curl' to enable libcurl support.
 //
-// Libcurl may be used to get a native support of file downloading from the network.
-// (see method 'cimg::load_network()'.)
+// Libcurl may be used to get native support for files downloaded from the network.
+// (see function 'cimg::load_network()').
 #ifdef cimg_use_curl
 #include "curl/curl.h"
 #endif
@@ -611,8 +610,8 @@ extern "C" {
 //
 // Define 'cimg_use_magick' to enable Magick++ support.
 //
-// Magick++ library may be used to get a native support of various image file formats.
-// (see methods 'CImg<T>::{load,save}()').
+// Magick++ library may be used to get native support for various image file formats.
+// (see functions 'CImg<T>::{load,save}()').
 #ifdef cimg_use_magick
 #include "Magick++.h"
 #endif
@@ -622,9 +621,9 @@ extern "C" {
 //
 // Define 'cimg_use_fftw3' to enable libFFTW3 support.
 //
-// FFTW3 library may be used to efficiently compute the Fast Fourier Transform.
+// FFTW3 library may be used to efficiently compute the Fast Fourier Transform
 // of image data, without restriction on the image size.
-// (see method 'CImg[List]<T>::FFT()').
+// (see function 'CImg[List]<T>::FFT()').
 #ifdef cimg_use_fftw3
 extern "C" {
 #include "fftw3.h"
@@ -636,8 +635,8 @@ extern "C" {
 //
 // Define 'cimg_use_openexr' to enable OpenEXR support.
 //
-// OpenEXR library may be used to get a native support of '.exr' files.
-// (see methods 'CImg<T>::{load,save}_exr()').
+// OpenEXR library may be used to get native support for '.exr' files.
+// (see functions 'CImg<T>::{load,save}_exr()').
 #ifdef cimg_use_openexr
 #if __GNUC__>=5
 #pragma GCC diagnostic push
@@ -685,10 +684,9 @@ extern "C" {
 
 // Check if min/max/PI macros are defined.
 //
-// CImg does not compile if macros 'min', 'max' or 'PI' are defined,
-// because it redefines functions min(), max() and const variable PI in the cimg:: namespace.
-// so it '#undef' these macros if necessary, and restore them to reasonable
-// values at the end of this file.
+// CImg does not compile if 'min', 'max', or 'PI' are defined as macros because it defines the functions
+// min(), max(), and the constant PI inside the 'cimg::' namespace. Therefore, it undefines these macros
+// if necessary and restores them to their previous values at the end of the file.
 #ifdef min
 #undef min
 #define _cimg_redefine_min
@@ -2321,9 +2319,9 @@ extern "C" {
  -------------------------------------------------*/
 //! Contains <i>all classes and functions</i> of the \CImg library.
 /**
-   This namespace is defined to avoid functions and class names collisions
-   that could happen with the inclusion of other C++ header files.
-   Anyway, it should not happen often and you should reasonably start most of your
+   This namespace is defined to avoid function and class names collisions
+   that should occur with the inclusion of other C++ header files.
+   Regardless, collisions are rare, and you should typically start most of your
    \CImg-based programs with
    \code
    #include "CImg.h"
@@ -2374,7 +2372,7 @@ namespace cimg_library {
     inline std::FILE* output(std::FILE *file=0);
     inline void info();
 
-    //! Avoid warning messages due to unused parameters. Do nothing actually.
+    //! Avoid warning messages due to unused parameters. This function intentionally does nothing.
     template<typename T>
     inline void unused(const T&) {}
 
@@ -2439,7 +2437,7 @@ namespace cimg_library {
 
     //! Set current \CImg openmp mode.
     /**
-       The way openmp-based methods are handled by \CImg can be changed dynamically, using this function.
+       The way openmp-based functions are handled by \CImg can be changed dynamically, using this function.
        \param mode Desired openmp mode. Possible values are:
        - \c 0: Never parallelize.
        - \c 1: Always parallelize.
@@ -2579,14 +2577,14 @@ namespace cimg_library {
      \par Overview
 
       CImgException is the base class of all exceptions thrown by \CImg (except \b CImgAbortException).
-      CImgException is never thrown itself. Derived classes that specify the type of error are thrown instead.
+      CImgException is never thrown directly. Derived classes that specify the type of error are thrown instead.
       These classes can be:
 
       - \b CImgAbortException: Thrown when a computationally-intensive function is aborted by an external signal.
         This is the only \c non-derived exception class.
 
       - \b CImgArgumentException: Thrown when one argument of a called \CImg function is invalid.
-      This is probably one of the most thrown exception by \CImg.
+      This is probably one of the most commonly thrown exceptions in \CImg.
       For instance, the following example throws a \c CImgArgumentException:
       \code
       CImg<float> img(100,100,1,3); // Define a 100x100 color image with float-valued pixels
@@ -2595,8 +2593,8 @@ namespace cimg_library {
 
       - \b CImgDisplayException: Thrown when something went wrong during the display of images in CImgDisplay instances.
 
-      - \b CImgInstanceException: Thrown when an instance associated to a called \CImg method does not fit
-      the function requirements. For instance, the following example throws a \c CImgInstanceException:
+      - \b CImgInstanceException: Thrown when an instance associated with a called \CImg function does not meet
+      the function's requirements. For instance, the following example throws a \c CImgInstanceException:
       \code
       const CImg<float> img; // Define an empty image
       const float value = img.at(0); // Try to read first pixel value (does not exist)
@@ -2612,8 +2610,8 @@ namespace cimg_library {
       - \b CImgWarningException: Thrown only if configuration macro \c cimg_strict_warnings is set, and
       when a \CImg function has to display a warning message (see cimg::warn()).
 
-      It is not recommended to throw CImgException instances by yourself,
-      since they are expected to be thrown only by \CImg.
+      It is not recommended to throw CImgException instances manually, as they are intended to be thrown only
+      by the \CImg library.
       When an error occurs in a library function call, \CImg may display error messages on the screen or on the
       standard output, depending on the current \CImg exception mode.
       The \CImg exception mode can be queried and set by functions cimg::exception_mode() and
@@ -2634,7 +2632,7 @@ namespace cimg_library {
           ... // Here, do what you want to stress CImg
         } catch (CImgException& e) { // You succeeded: something went wrong!
           std::fprintf(stderr,"CImg Library Error: %s",e.what()); // Display your custom error message
-          ... // Do what you want now to save the ship!
+          ... // Perform necessary recovery or cleanup steps here
           }
         }
       \endcode
@@ -2668,7 +2666,7 @@ namespace cimg_library {
     }
     ~CImgException() { delete[] _message; }
     CImgException& operator=(const CImgException& e) {
-      if (this!=&e) { // Protect against self-assignement
+      if (this!=&e) { // Protect against self-assignment
         char *new_message = 0;
         if (e._message) {
           const size_t size = std::strlen(e._message);
@@ -2681,7 +2679,7 @@ namespace cimg_library {
       }
       return *this;
     }
-    //! Return a C-string containing the error message associated to the thrown exception.
+    //! Return a C-string containing the error message associated with the thrown exception.
     const char *what() const cimg_noexcept { return _message; }
   }; // struct CImgException { ...
 
@@ -2699,7 +2697,7 @@ namespace cimg_library {
     }
     ~CImgAbortException() { delete[] _message; }
     CImgAbortException& operator=(const CImgAbortException& e) {
-      if (this!=&e) { // Protect against self-assignement
+      if (this!=&e) { // Protect against self-assignment
         char *new_message = 0;
         if (e._message) {
           const size_t size = std::strlen(e._message);
@@ -2712,7 +2710,7 @@ namespace cimg_library {
       }
       return *this;
     }
-    //! Return a C-string containing the error message associated to the thrown exception.
+    //! Return a C-string containing the error message associated with the thrown exception.
     const char *what() const cimg_noexcept { return _message; }
   }; // struct CImgAbortException { ...
 
@@ -2751,7 +2749,7 @@ namespace cimg_library {
     # Define cimg:: namespace
     #
     -----------------------------------*/
-  //! Contains \a low-level functions and variables of the \CImg Library.
+  //! Contains low-level functions and variables of the \CImg Library.
   /**
      Most of the functions and variables within this namespace are used by the \CImg library for low-level operations.
      You may use them to access specific const values or environment variables internally used by \CImg.
@@ -3878,2132 +3876,41 @@ namespace cimg_library {
 
     const double PI = 3.14159265358979323846; //!< Value of the mathematical constant PI
 
-    // Define a 10x13 binary font (small sans).
-    inline const char* data_font_small() {
-      return
-      "                      UwlwnwoyuwHwlwmwcwlwnw[xuwowlwmwoyuwRwlwnxcw     Mw                    (wnwnwuwpwuypwuwoy"
-      "ZwnwmwuwowuwmwnwnwuwowuwfwuxnwnwmwuwpwuypwuwZwnwnwtwpwtwow'y    Hw   cwnw  >{ jw %xdxZwdw_wexfwYwkw 7yowoyFx=w "
-      "ry    qw %wuw  !xnwkwnwoyuwfwuw[wkwnwcwowrwpwdwuwoxuwpwkwnwoyuwRwkwnwbwpwNyoyoyoyoy;wdwnxpxtxowG|!ydwnwuwowtwow"
-      "pxswqxlwnxnxmwDwoyoxnyoymwp{oyq{pyoy>ypwqwpwp{oyqzo{q{pzrwrwowlwqwswpwnwqwsxswpypzoyqzozq}swrwrwqwtwswswtxsxswq"
-      "ws}qwnwkwnydwew_wfwdwkwmwowkw(w0wmwmwGwtwdxQw swuwnwo{q{pynwp|rwtwtwqydwcwcwcwmwmxgwqwpwnzpwuwpzoyRzoyoyexnynwd"
-      "z\\xnxgxrwsxrwsyswowmwmwmwmwmwmwo}ryp{q{q{q{nwmwnwmwozqxswpyoyoyoyoyeyuwswrwrwrwrwrwrwrwrwqwrwmwtwnwmwnwuwpwuyp"
-      "wuwoyZwmwnwuwowuwmwqwkwuwowuwoxnwuxowmwnwuwpwuypwuwZwmwnwuwowuwnwowmwtw\\wuwuwqwswqwswqwswqwswEwqwtweypzr~qyIw "
-      "rwswewnwuwowuwozswtwuwqwtwmwnwlwowuwuwowOxpxuxqwuwowswqwswoxpwlwjwqwswqwsw<wrwowrwuwqwrwqwswrwswpwmwmwrwswrwowl"
-      "wqwtwownxsxsxswqwswqwswqwswrwswqwrwowpwrwrwqwtwswswswswqwswmwpwmwlwoxuxSw_wfwdwYwkw(w0wmwmwGwtwoxnwNw uwswpwuwp"
-      "wmwmwswq{rwrwrwtwtwrwswfydwdyZwnwtwrwqwrwswowowdwrwqxuwSwrwfwuwnwlwnw[yuw[wowtwgwswqwswqwswewuwowuwowuwowuwowuw"
-      "nwowuwowswqwmwmwmwjwmwnwmwowswrxswqwswqwswqwswqwswqwswrwrwqwswrwrwrwrwrwrwrwrwqwswqzpwtw #w DwPwtwtwswqwswuwuwu"
-      "wswswuwswqwGwqxtwf{qzr~r{qzqwrwpxowtwrw rzcwnwuwq}rwuwqwtwuwqwtwmwnwlwnynwOwowswowkwmwpwuwpwmwjwpwswqwswowmwjwi"
-      "wjxswsytwrwuwqwrwrwmwrwqwmwnwmwrwowlwqwuwnwnxsxswuwtwrwqwrwswrwqwswswqwjwpwrwqwswrwtwtwqwuwowuwmwowmwlwpxsx]ypz"
-      "oyozpypzozqznwmwowtwnwqzuyrzoypzozqwuxoypzpwswrwrwrwtwtwswrwrwrwq{owmwmwQyuwqwtwmwoxnypzqxswowowswqwswqwtxr|rwt"
-      "wtwqyp{q{qwswpwuwownwnwqwsxuwuxswrwrwtwtwswqwrwmwuwuwnwnwowtwpwuwuwewnzpwn{pwuwnwnxgwtxtwrwtwowtw_wuytwgynwmwlw"
-      "gwswpyuw[wowtwqwtwpwtwpwtwowuwmwnwuwowuwowuwowuwowuwowuwqxuwpwlwmwmwmwjwmwnwmwowrwswuwtwrwqwswqwswqwswqwswqwrwt"
-      "wqwswuwswrwrwrwrwrwrwrwpwuwpwswqwuwnyoyoyoyoyoyqyuyqyoyoyoyoymwqwjwmwnypzoyoyoyoyoynwnzqwswqwswqwswqwswrwrwqzqw"
-      "rw^}s}swtwtwswtwtwswtwtwK}rwuwe{s~t~s}rwtwqwrwpxowtwrw qwawewtwpwuwpxuwpycwlwnynwOwowswowkwpypwtwpzpzmwoypwsw[y"
-      "r}rymwrwtwtwtwrwuwq{qwmwrwq{q{rwm|owlwqxmwnwuwuwuwswuwtwrwqwrwswrwqwswswqylwpwrwqwswrwuwuwuwpwmwmwnwmwlwMwqwswq"
-      "wmwswqwswpwnwswqwswowmwowuwmwqwswswswswqwswqwswqwswqxnwswpwnwswrwrwrwtwtwrwtwqwrwmwqxlwlx]xuxrwtyqwuwlwpwtwpwmw"
-      "swqwtxpxowswrwqwswtwuxrwtwqwtwtwrwswrwswnwo{pwuwnxpwnwqwswtwtwswrwrwtwtwswuyuwswjwkwowpwrwowcwowuwnwnwswqxuxowo"
-      "wtwhwuwrwrzpwtwq}jwuwtwuw_}qyoxfwswpyuwowdyoxowtwryuwqyuwqyuwmwnwuwowuwowuwowuwowuwowuwqwt{twl{q{q{q{nwmwnwmwpz"
-      "twswuwtwrwqwswqwswqwswqwswqwqxpwtwtwswrwrwrwrwrwrwrwowowswqwuwkwmwmwmwmwmwowswswmwswqwswqwswqwswnwqwjwmwowswqws"
-      "wqwswqwswqwswqwswqwswgwtxqwswqwswqwswqwswrwrwqwswrwrw^wtwtwswqwswuwuwuwswuwswswqwHwowuwf}t~s|r}swrwrwrwqwtwpwtw"
-      "r~#zcwewtwoynwuxtwtwswgwlwowuwuwr}gyexowswowlwlwrwswlwqwswowowswpz^yayqwqwtwtwuwrwswrwrwrwmwrwqwmwnwsyswrwowlwq"
-      "wuwnwnwuwuwuwswtwuwrwqwrzqwqwszmyowpwrwpwuwqwuwuwuwpwmwmwnwlwmwPzqwswqwmwswq{pwnwswqwswowmwoxlwqwswswswswqwswqw"
-      "swqwswqwlxnwnwswqwtwqwuwuwuwqxowtwmwnwmwmwoytwiwtwtwswswpwtxqzpwswpxowswpwuwowuwpwswrwtwtwswtwtwrwtwqwtwtwrwswr"
-      "wswnwowswqwswowownwqwswtwtwswrwqwuwuwrwuyuwt~pwq~pwq~pwcwowuwozpwswowewswiwuwrwiwtwjwjwuytw\\wRwswoxuwHwtwpwswq"
-      "wtxqwswqxowswqwswqwswqwswqwswqwswrwtwpwlwmwmwmwjwmwnwmwowrwswtwuwrwqwswqwswqwswqwswqwqxpwtwtwswrwrwrwrwrwrwrwow"
-      "owswqwtwozpzpzpzpzpzr~swm{q{q{q{nwqwjwmwowswqwswqwswqwswqwswqwswqwswr}rwuwuwqwswqwswqwswqwswqwtwpwswqwtw\\wuwuw"
-      "qwswqwswqwswqwswJ}qxf}t~rzp{rwrwrwrwqwtwpwtwrw qwawg}owuwpwuwtwuwswuwfwlwmwmwPwnwswowmwkwr|mwqwswowowswmw^yo}oy"
-      "qwqwszq{rwrwrwmwrwqwmwnwqwswrwowlwqwtwownwtwtwswtwuwrwqwrwnwqwswtwkwowpwrwpwuwqwuwuwuwqwuwnwnwmwlwmwQwswqwswqwm"
-      "wswqwlwnwswqwswowmwowuwmwqwswswswswqwswqwswqwswqwjwownwswqwtwqwuwuwuwqxowtwnwmwmwmwpwtyhwtwtwswswpwswqwtwpwswqw"
-      "mwswpwuwpwtwpwswrwtwtwswtwtwrwtwqwtwtwrwswrwswnwowswqwswpwnwnwqwsxuwuxswrwpyqwqwswjwkwqwuwuwrwrwqwuwuwewowuwnwn"
-      "wswq{ownxuwiwtxtwrzpwtwkwjwuwtwuw\\wRwswnwuwSzpwtwowtxqwrwrwtxrxn{q{q{q{q{q{s{pwlwmwmwmwjwmwnwmwowrwswtwuwrwqws"
-      "wqwswqwswqwswqwrwtwqwuwswswrwrwrwrwrwrwrwowozpwswqwswqwswqwswqwswqwswqwswswswowmwmwmwmwjwqwjwmwowswqwswqwswqwsw"
-      "qwswqwswqwswgwuwuwqwswqwswqwswqwswqwtwpwswqwtw[yoyoyoyoyGwmwdwuwuwpxnxnyqwrwqwtwpwtwoxpw rwswSwuwmwuwpwuwtwuxsw"
-      "ewlwcwPwnxuxownwnwswnwlwqwswowowswnwZygygwkwswrwrwqwswrwswpwmwmwrwswrwowlwqwswpwnwqwswsxqwswqwmwswrwswqwrwowpxt"
-      "xowowswqwswowowlwlwmwQwswqwswqwmwswqwswpwnwswqwswowmwowtwnwqwswswswswqwswqwswqwswqwmwswpwnwswpxowswqwtwoxnwlwmw"
-      "mw[xuxrwtxpwswqwtwpwswqwmwswpypwtwpwswrwtwtwsxuwuxrwtwqwtwtwrwswrwswnwnwuwpwswqwmwmwswq{rwrwowowswqwkwlwoypwtwo"
-      "ydwowuwnwn{owmwlwgwrwfwtw^wrw6wswnwuwJwtwowtzswrwrwtzswmwswqwswqwswqwswqwswqwswswswowswqwmwmwmwjwmwnwmwowswrwsx"
-      "qwswqwswqwswqwswqwswrwrwqwswrxtxrxtxrxtxrxtxowowmwswqwswqwswqwswqwswqwswqwswswtxowmwswqwswqwswqwswnwqwjwmwowswq"
-      "wswqwswqwswqwswqwswqwswowoxtwqwswqwswqwswqwswpxowswpx Wwlwbwnxcwpwrwqzpwtwoxo|!ydwfwtwozpwsxszuxgxnxcwmwcwoxmyp"
-      "{q{pymwpzoyowmypymwmwjwiwkwowrwrwqws{oyqzo{qwlzrwrwowlwqwrwq{rwqwswsxpypwlyqwrwqznwoznwowswrxsxpwp}qwkwnwPzqzoy"
-      "ozpyowmzqwswowmwowswowqwswswswswpypzozqwlynxozpxowswrwrwpwn{owmwmwQxuxqzoxnyoypwswowpwrwqzpxuxq{qwtxq{qzpylwoyq"
-      "}r{qwnyuypwpwrwownydwcwcwcwnzq{rwqwpwmwkwgzHz]}U|owuw@wqwswrytwqwqyqwqwswqwswqwswqwswqwswqwuwr{ryp{q{q{q{nwmwnw"
-      "mwozqwsxpyoyoyoyoygwuypzpzpzpznwowmwuypzpzpzpzpzpzryuzryoyoyoyoymwqwjwmwnypwswpyoyoyoyoyfzozpzpzpzpwnzow    \\w"
-      "OwnwXw[w SwGz kx0x lxdx gw[w=wiw*wbyowoyGwKwowewawcwow  YwOwoz Ewjwuwdw 7w   9w  Iwnwlw    \\w      0|*y[x=wiw,"
-      "xWw=wKwowewawcwow  Yw  hwVx 8w   9w  Jxmwnxp"; }
-
-    // Define a 26x32 font (normal sans).
-    inline const char* data_font_normal() {
-      return
-      "                                                      #{}~}a{|y~f{|y~}f{|}|x{}|j{|y}y{|y}g{}y~}|2y~|a{}~}f{}y~|"
-      "gy}|yy}|i{}~}a{}~}f{}y~}gy}|yx}N{|}|x{}|hy~|ay~|fx~|g{}y~|y{}~j{|y~|yy~}5{}~}a{}~}f{}y~}gy~}yy~}e{|y~          "
-      "                                                      2{}~}c{|y~f{|y~}~}h{}w~y}~|j{}y~y{}y~h{}~y}y~|2y~|c{}~}f{"
-      "}~y}~|hy~}yy~}hy~|c{|~}f{|~y}~|hy~}y{}y~O{}w~y}~|gy~|cy~|fy~|}~|i{|~y}y~}~}j{|y~|yy~}4{}~|c{}~}f{}~|}~}hy~}yy~}"
-      "ey~|  g{|}y~}                                                              J{}~|dy~|fy~y{}~|i{~}{|}y~}i{}y~y{}y"
-      "~i{|~}x{~}2{|y~d{|~}f{|~}yy~hy~}yy~}gy~cy~f{|~}y{}~|iy~}y{}y~P{|~}{|}y~|ey~d{}~|fy~x{}~|j{}~y{|}~}i{|y}|yy}|3{}"
-      "~|e{}~}f{}~|y{|~|iy}|yx}f{}~|  fy~y}~}           k{|y~|                       /{|y~|                        y{}"
-      "~}   Xy|e{|}|f{|}wy|5{|~|x{}~1{|}|ey|ey|wy|M{|}|e{|}|fy|wy|    g{|}|3{|y~|_{}~}g{|y~2{}~|y{}~|5{|y~^y~}g{}y~N{|"
-      "}|^{|}|g{|}| s{}~}_{|y~|gy~} Z{}~}_{|y~|gy~}    )y}|                       -{|y~                    Jy}|yy}|   "
-      "X{}y~    4{|~}y{|~}     P{|  n{|y~`{|y~fx~}3{}~x{|~|4{}~}`{}~}g{|x~}N{}~}`{|y~|gx~| sy~|`y~|g{}x~| Z{}~}`y~}g{}"
-      "x~|I{}y~  1{|x~|oi| r{|~|O{|d{|y}|j{|y}|u{|y}|h{|   \"{|}x~}|Ny~}g{|y~y{|~}g{|~}x{|~}i{|~l{|}y~}|s{|~}l{|}x~}|e"
-      "{|y~by~g{}~}b{~} S{|y~i{|}x~}|i{|y}x~|i{|y}x~y}i{|y}w~}|d{}x~kq~|i{|}w~}|m{}o~k{|}x~y}h{|}x~}| B{|}w~}L{|x~j{|s"
-      "~y}g{|}w~}|o{|s~y}|k{|o~n{|p~j{|}w~y}|o{|y~|ry~}k{|y~|e{|y~|j{|y~|t{|x~n{|y~|i{|x~}r{|x~}s{|x~|sy~}l{|}x~y}|l{|"
-      "s~}|i{|}x~y}|m{|s~}|hy}w~y}|ok~}r{}y~r{|y~|r{}y~|p{}y~vy~}t{|x~sy~}ux~rx~q{}y~|r{}y~|r{|l~l{}v~hy~|c{|v~|f{|}|L"
-      "{}~}M{}y~@{}~}O{|}w~R{}y~`{|y~d{|y~h{}y~`{|y~    ay}y~}h{}~}h{}y~y} Wy}x~}|O{|y}w~}| xx~}  I{|}x~}f{|x~i{|o~m{|"
-      "o~m{|y}x~}|f{}y~k{|m~}r{|y~|w{}y~vy~}n{|}x~y}|My}Iy}|J{}~| q{|}x~y}T{}y~r{}~}R{}w~}|j{|y~}yy~}O{|}w~} \\{|t~}h{"
-      "|}y~}M{|}x~}|h{|}x~}|e{|y~L{|}t~|7y}y~}f{|}x~}Uy|y}|py}p{|n{|t{|}w~}r{|y~P{|x~e{|x~e{|x~e{|x~e{|x~f{}v~|jk~|o{|"
-      "}w~}|m{|o~n{|o~n{|o~n{|o~j{|y~|e{|y~|e{|y~|e{|y~|k{|s~y}|m{|x~|sy~}l{|}x~y}|i{|}x~y}|i{|}x~y}|i{|}x~y}|i{|}x~y}"
-      "|O{|}x~y}|y{|~}s{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~|r{}y~|p{|y~|b{|}x~}|h{}~}b{|y~|g{}~|}~|h{|y~}|"
-      "{}~iy~}yy~}i{}~|y{}~|3{}~}b{|~}fy~{}~|i{|y~|{|y~}iy~|ay~}g{}~}y~gy~}yy~}i{|y~}wy|j{|y~}y{}~hy~|b{}~}g{|~}|~}h{|"
-      "}y~}{|~}j{}y~y{}y~|4y~|b{}~}g{|~}{y~h{}y~y{|y~|f{|y~|k{}y~by~}y{}y~  ev~o{}k~} r{}~O{|~e{}v~l{}v~w{}w~}j{}~ Y{}"
-      "o~  S{|s~}Oy~}g{|y~y{|~}g{}~|x{}~|i{|~m{|y~y}y~|ty~l{}t~}f{|y~c{}~}fy~b{~} S{}~}j{}t~}kt~|j{}r~|l{|r~}f{|w~kq~|"
-      "j{}s~|n{}p~}m{|r~|l{|s~| D{}s~|i{|y}y~y}|hw~|k{|p~|k{|q~}q{|p~}|m{|o~n{|p~l{|p~}q{|y~|ry~}k{|y~|e{|y~|j{|y~|u{|"
-      "x~m{|y~|i{|w~|sw~}s{|w~sy~}n{}r~}m{|q~}l{}r~}n{|q~}k{|q~|pk~}r{}y~r{|y~|r{|y~}py~}v{}y~t{}x~|u{|y~|u{|y~}t{}y~|"
-      "py~}s{|y~}q{|l~l{}w~}h{}~}c{|v~|gw~}L{}~|N{}y~@{}~}P{|u~R{}y~`{|y~d{|y~h{}y~`{|y~  e{}y~  {}w~}h{}~}h{}v~ Ys~}Q"
-      "{|r~| yv~  K{}t~|hw~|j{|o~m{|o~n{}r~|h{}y~k{|m~}r{|y~|w{}y~vy~}p{}r~}O{}x~Jy~|K{}x~|/{~|f{}t~}Ty~|t{|y~|Ss~j{|y"
-      "~}yy~}i{|}v~}|j{}~w}y~ v{|}v~}|k{|t~}i{|y~}x~N{}~}|}y~|i{|y}y|}~}fy~|N{|u~y}y~|8{|~y}~}g{|y~x}y~W{|w~}q{}~}s{}x"
-      "~}q{|y~t{|}x|}~}s{}~|Pw~|fw~|fw~|fw~|fw~|fw~|j{|k~|q{|q~}o{|o~n{|o~n{|o~n{|o~j{|y~|e{|y~|e{|y~|e{|y~|k{|o~|o{|w"
-      "~sy~}n{}r~}l{}r~}l{}r~}l{}r~}l{}r~}R{}r~}|y~|s{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|py~}s{|y~}o{|y~|cs~}h{"
-      "}~}cy~|g{|~}yy~i{|y~}w~}iy~}yy~}hy~y}~}1y~|d{|y~f{}~|{|~}i{|y~|{|y~}i{|y~b{}~}g{|~}{|~}hy~}yy~}h{|y~y}y~}|k{|y~"
-      "}y~}~}h{|y~c{|~}fy~y{|~|i{}~}v~|j{}y~y{}y~|4{|y~c{|~}fy~y{|~}i{}y~y{|y~|fy~|j{}y~by~}y{}y~  f{|y~{}~|p{|k~| r{~"
-      "}Oy~}g{}u~}n{}t~y{}u~}l{}y~} \\{}m~  T{|x~}|{y|y~|Py~}g{|y~y{|~}gy~|xy~|i{|~my~|y{|y~u{}~}m{}y~}|y{|y}f{|y~d{|y"
-      "~e{}~}hy|x{~}x{| Wy~|k{|y~}|{|}y~}lx~y}y~|jx~}x|}x~|m{|~}v|x~}gv~ky~s|j{}x~w|}~|nr|}y~|mx~}|{y|x~|mx~y|{|}y~| E"
-      "y~}x|}x~k{}q~|k{|w~}k{|y~u|}x~l{}x~}v|}y~|r{|y~u|y}x~}n{|y~q|n{|y~r|m{}x~}v|}x~|r{|y~|ry~}k{|y~|e{|y~|j{|y~|v{|"
-      "x~l{|y~|i{|w~}t{|w~}s{|w~}ty~}o{}x~}|{y|}x~n{|y~v|}x~|n{}x~}|{y|}x~o{|y~v|}x~}m{|x~}v|}~|pt|y~}u|q{}y~r{|y~|qx~"
-      "q{|y~|v{|y~|u{}x~|u{}y~|t{}y~|v{|y~}o{|y~|tx~op|}y~}l{}~}e{|y~`{|y~|h{}v~}L{}~|O{}y~@{}~}Py~}|O{}y~`{|y~d{|y~h{"
-      "}y~`{|y~  e{}y~ !{|y~}e{}~}e{|y~| [{}y~|x{}y~|jy}~y}|ix~|w{|}| w{}y~|  M{}y~|y{|}y~i{|w~}ix~r|m{|y~q|p{|w~}x|}x"
-      "~}l{|y}x~y}|n{|y~q|y~}r{|y~|w{}y~vy~}q{}x~}|{y|}x~Q{}v~Ky~|L{}v~|0{~|g{|y~}|y{|y}T{}y~t{}~}i{}~}h{}y~|x{|}P{}~y"
-      "}x|y}~}k{|v{}~| x{}~y}x|y}~}Qy~x{|~}J{|y~cy~g{}~|Mt~y{}~|5{|~}gy~|x{}~}U{|~}r{|y~r{}y|~}qy~|ny~t{|~}P{|w~}g{|w~"
-      "}g{|w~}g{|w~}g{|w~}fw~}j{}y~y|y~}r|q{}x~}v|}y~|p{|y~q|n{|y~q|n{|y~q|n{|y~q|j{|y~|e{|y~|e{|y~|e{|y~|k{|y~}u|}x~}"
-      "p{|w~}ty~}o{}x~}|{y|}x~n{}x~}|{y|}x~n{}x~}|{y|}x~n{}x~}|{y|}x~n{}x~}|{y|}x~T{}x~}|{y|v~|r{}y~r{|y~|q{}y~r{|y~|q"
-      "{}y~r{|y~|q{}y~r{|y~|p{|y~|tx~n{|y~|d{}y~|x{}y~|h{}~|e{}~|f{~}x{|~}j{|}xx}hy}|yy}|h{|}y~}/y~dy~|g{|~}x{|~|j{|y}"
-      "|yy}|h{|~}d{|~}f{}~x{}~|iy}|yy}|iy|w~|h{}~y{|}~}f{|~}e{|~}f{}~|x{}~|j{}|y{|y}|i{|y}y{|y}2{|~}dy~f{}~|x{}~|j{|y}"
-      "y{|y}|g{}~|i{}y~by}|y{|y}5{|}w~}|i{|}w~}|i{|}w~}|i{|}w~}|i{|}w~}|f{}~}{y|ny~}q{}y~ r{|~O{}x~|hs~|p{|s~y|s~|n{|w"
-      "~} ^{}y~}|  Ix~|u{}|Py~}g{|y~y{|~}gy~wy~k{|}v~y}|s{|y~w{}~|w{|y~ly~}_{|y~d{}~}dy~|iy~}y{~}{|y~|hy}| o{|y~jx~v{}"
-      "y~l{|x{|y~|j{}|u{|x~d{}y~|i{}~|}y~ky~|d{|y~}]{}y~m{|y~|v{|y~}n{}y~|v{}y~ E{}u{}y~|n{|x~}|w{|}y~}|m{}y~}y~k{|y~|"
-      "u{|y~}n{}y~}s{|~|r{|y~|t{|x~|o{|y~|e{|y~|f{}y~}r{}~|r{|y~|ry~}k{|y~|e{|y~|j{|y~|w{}y~}k{|y~|i{|y~}y~t{}~}y~}s{|"
-      "v~ty~}p{}y~}t{}y~}o{|y~|v{|x~o{}y~}t{}y~}p{|y~|v{|x~mx~r{|iy~}k{}y~r{|y~|q{|y~|r{}y~u{|y~|uy~}~}u{}y~rx~vx~m{}y"
-      "~u{}y~|e{|y~}k{}~}dy~|a{|y~|i{}y~|{}y~| y{}y~@{}~}Py~|N{}y~0{}y~`{|y~  e{}y~ !{|y~d{}~}dy~} [y~}v{}~}ju~}jy~| n"
-      "{}y~  N{|y~|v{}~}j{}y~}y~i{|y~}e{|y~|gx~}t{}y~}o{|}q~|p{|y~|ry~}r{|y~|w{}y~vy~}r{}y~}t{}y~}S{}t~Ly~|M{}t~|1{~|g"
-      "{}y~Ly~|v{|y~|i{}~}hy~}L{|y~|t{|y~|g{|~} {{|y~|t{|y~|T{|~|wy~f{}~|ay~ey|y~7{}t~y{}~|5{|~}h{|~}vy~U{|~}r{}~|p{|~"
-      "}r{|~}my~ty~O{}y~}y~g{}y~}y~g{}y~}y~g{}y~}y~g{}y~}y~g{|y~}y~jy~}yy~}i{}y~}s{|~|p{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{"
-      "|y~|e{|y~|e{|y~|k{|y~|t{|x~}q{|v~ty~}p{}y~}t{}y~}p{}y~}t{}y~}p{}y~}t{}y~}p{}y~}t{}y~}p{}y~}t{}y~}V{}y~}t{}x~q{}"
-      "y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|o{}y~u{}y~|n{|y~|e{|y~|v{}~}   A{|}|ey|e{}|wy|Py~}y|y~}   ?{}~}h{}y~ p"
-      "{}r~|l{}r~|l{}r~|l{}r~|l{}r~|h{}~}k{}y~qy~}1{|~}dy}P{}v~|is~|p{|r~}s~}nu~|h{|w}|k{|y}sy}|jx}|j{|y}t{|y}o{}y~|  "
-      "H{|y~|Gy~}g{|y~y{|~}h{|~}x{|~}l{}r~}s{|~}w{}~}w{}~|ly~}_{|y~dy~|d{}~}h{|y~|~y}~}|g{}~| o{}~}k{|y~|uy~}i{|y~|a{}"
-      "y~|e{|y~}j{|~}{}y~ky~|dy~}]{|y~}m{}y~tx~ny~}u{|y~|,{|X{|X{|y~|o{}y~|q{}y~my~}|y~|l{|y~|ty~}o{|x~p{|r{|y~|s{|x~o"
-      "{|y~|e{|y~|g{|x~p{|q{|y~|ry~}k{|y~|e{|y~|j{|y~|x{}y~}j{|y~|i{|y~|y~|uy~|y~}s{|y~|y~}uy~}q{|x~r{}y~|p{|y~|u{}y~|"
-      "q{|x~r{}y~|q{|y~|u{}y~|ny~}_y~}k{}y~r{|y~|py~}s{|y~}ty~}v{|y~|y~uy~}r{|y~}x{}y~|ly~}w{|y~}e{|x~j{}~}d{}~}a{|y~|"
-      "j{}y~|x{}y~| {{}y~@{}~}Py~|N{}y~0{}y~`{|y~  e{}y~ !{}y~d{}~}d{}~} \\{|y~u{}y~j{}x|}y~|kx~| o{|y~|  O{}~}u{|y~jy"
-      "~}|y~|i{|y~}f{|y~|h{}y~|rx~|q{|w~y}y~y}x~}q{|y~|ry~}r{|y~|w{}y~vy~}s{|x~r{}y~|U{}y~|y~}x~My~|N{}y~|y~|x~|2{~|gy"
-      "~}g{|p{}m{}y~v{}~}h{}~}h{}~}L{~}xy|}y|x{}~l{|}u~ {{~}p{}~T{|~|wy~f{}~|b{}~}g{}w~|7{}t~y{}~|5{|~}h{}~|v{}~|V{|~}"
-      "s{|~}o{|~}ry~n{|}~|u{}~}Oy~}|y~|hy~}|y~|hy~}|y~|hy~}|y~|hy~}|y~|hy~}|y~|l{}y~|yy~}j{|x~p{|p{|y~|e{|y~|e{|y~|e{|"
-      "y~|a{|y~|e{|y~|e{|y~|e{|y~|k{|y~|rx~q{|y~|y~}uy~}q{|x~r{}y~|r{|x~r{}y~|r{|x~r{}y~|r{|x~r{}y~|r{|x~r{}y~|q{|}q{|"
-      "}p{|x~s{}x~|r{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|ny~}w{|y~}m{|s~}|l{|y~u{|y~    8{|w{|y~}  _{} G{}y~ r{|"
-      "x~|w{|}y~|o{|x~|w{|}y~|o{|x~|w{|}y~|o{|x~|w{|}y~|o{|x~|w{|}y~|i{}~|jy~|s{|y~|1y~}d{~|Q{|t~is~|p{}i~}os~j{|s~|m{"
-      "|y~sy~|jw~j{|y~|u{}y~p{|y~|  Gx~Fy~}g{|y~y{|~}h{}~}x{}~}m{|y~}{|~x{|}s{|~}w{}~}x{|~}ky~}_{|y~e{|y~c{|y~f{}x~}|e"
-      "{}~| oy~|k{}y~t{}y~i{|y~|a{|y~|dy~|jy~|{}y~ky~|e{|y~|]{}y~|m{}y~ty~}o{|y~|ty~}/{|}~}Xy~}|[{|y~|p{}y~|o{}y~o{|y~"
-      "|{y~}l{|y~|ty~}o{}y~|f{|y~|r{}y~|p{|y~|e{|y~|g{}y~|e{|y~|ry~}k{|y~|e{|y~|j{|y~|y{}y~}i{|y~|i{|y~|}~}v{|y~{y~}s{"
-      "|y~|}y~uy~}q{}y~|qx~p{|y~|u{}y~|q{}y~|qx~q{|y~|u{}y~|o{|y~|_y~}k{}y~r{|y~|p{}y~s{}y~|t{}y~v{|~}{y~|w{|y~|q{}y~|"
-      "{|y~}k{|y~|xx~dx~|j{}~}d{|y~a{|y~|k{}y~|v{}y~|9{|y}x~y}j{}y~y{}x~}|h{|}x~y}|j{}x~}|{}~}k{|}x~}|j{|s~|i{}x~}|{}~"
-      "}n{}y~y{}x~}|h{|y~d{|y~h{}y~u{|y~}j{|y~m{}y~y{}x~}w{|}y~}|p{}y~y{}x~}|i{|}x~}|k{}y~y{}x~}|i{}x~}|{}~}k{}y~y{}x~"
-      "k{|}w~y}|k{|r~l{}~}t{}~}oy~}s{}y~r{}~}v{}y~}v{}~}r{|y~|u{|y~|oy~}s{}y~n{}p~h{}y~d{}~}d{}~} t{}x~}|y{|~}n{|y~u{}"
-      "~}e{}y~k{|w~y}|g{|}w~y}l{}y~y{}x~}|n{}~}|s{}y~iy~}i{}~}t{}~}p{|y~|r{}y~n{|y}y{}y~}lm~p{}y~x{|y~x{|y~|k{}w~}|j{|"
-      "}q~|q{}n~ny~|ty~|l{|y~|{y~}h{|y~}g{|y~|hy~}q{|y~}qx~}y{}y~y{|x~|r{|y~|ry~}r{|y~|w{}y~vy~}s{}y~|qx~V{|y~|{y~y|y~"
-      "}Ny~|O{|y~|{y~|{y~}Ny~}e{|}w~}|jy~}h{|y~r{}~}my~|x{|y~|h{}~}h{|y~}Ny}x{}u~|yy}n{}y~w}y~ y}y{}v~}|xy}T{~}x{|~}f{"
-      "}~|c{|~}fx|y}|Q{}~}t{}~}ns~y{}~|5{|~}h{}~|v{}~|V{|~}sy~n{|~}s{}~|p{}x~}u{|y~f{|y~|h{|y~|{y~}i{|y~|{y~}i{|y~|{y~"
-      "}i{|y~|{y~}i{|y~|{y~}i{|y~|{y~}ly~}xy~}j{}y~|d{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{|y~|e{|y~|e{|y~|k{|y~|r{|y~}r{|y~|"
-      "}y~uy~}q{}y~|qx~r{}y~|qx~r{}y~|qx~r{}y~|qx~r{}y~|qx~qy~}s{|y~}q{}y~|t{}~}x~r{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}"
-      "y~r{|y~|n{|y~|xx~l{|q~}m{}y~w{|w~l{|y}x~y}i{|y}x~y}i{|y}x~y}i{|y}x~y}i{|y}x~y}i{|y}x~y}n{|y}x~y}w{|}x~}|l{|}x~y"
-      "}|j{|}x~}|h{|}x~}|h{|}x~}|h{|}x~}|g{|y~d{|y~d{|y~d{|y~e{|}v~|l{}y~y{}x~}|i{|}x~}|h{|}x~}|h{|}x~}|h{|}x~}|h{|}x~"
-      "}|g{|x~f{|}x~}|{}~|o{}~}t{}~}n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}oy~}s{}y~n{}y~y{}x~}|my~}s{}y~;y~}xy~|y{|y~|py~}s{|y"
-      "~|py~}s{|y~|py~}s{|y~|py~}s{|y~|j{}~|j{}y~sy~}1y~}d{|~Q{|s~}j{}t~o{|i~}p{}s~}kx~}y|}x~m{|y~sy~|k{|w~|jy~}uy~}py"
-      "~}  Fy~}Fy~}g{|y~y{|~}m{|k~}q{}y~y{|~n{|~}w{}~|xy~j{}y~|`{|y~e{}~}by~|g{|x~}d{}~| p{|y~jy~}t{}y~i{|y~|a{|y~|e{|"
-      "y~|k{}~}y{}y~ky~|{|g{}y~\\x~l{|y~|v{|y~|o{|y~|tx~i{}y~d{}y~a{|}w~}Xv~}|^x~p{|y~l{}~}p{}y~y{|y~|m{|y~|ty~}ox~e{|"
-      "y~|qy~}p{|y~|e{|y~|gx~d{|y~|ry~}k{|y~|e{|y~|j{|y~|{}y~}h{|y~|i{|y~y|y~v{}~}{y~}s{|y~|{y~}vy~}qx~p{}y~|q{|y~|u{|"
-      "y~|qx~p{}y~|r{|y~|u{}y~|ny~}_y~}k{}y~r{|y~|p{|y~|ty~}s{}y~|w{}~|{}~|w{|y~|py~}{x~i{}y~y{}y~|e{}y~|i{}~}cy~|b{|y"
-      "~|l{}y~|t{}y~|;{|r~|l{}y~|t~|j{}s~|m{|t~|}~}l{}s~|l{|s~|k{|t~|}~}n{}y~|t~|i{|y~d{|y~h{}y~v{}y~}i{|y~m{}y~|t~y{}"
-      "u~}q{}y~|t~|l{|s~}l{}y~|t~|l{|t~|}~}k{}y~|v~l{|r~k{|s~}l{}~}t{}~}o{}y~sy~}r{|y~v{}x~vy~}q{}y~|w{|y~}n{}y~sy~}n{"
-      "|p~h{}y~d{}~}d{}~} v{|t~|{}~|n{|y~u{}~}e{|y~|k{|t~|j{}s~|m{}y~|t~|o{}x~|ty~}ix~i{}~}t{}~}py~}q{|y~|p{|y~}{}v~|n"
-      "m~p{}y~x{|y~x{|y~|ls~|l{|o~|q{}n~o{|y~|t{}~}l{}y~y{}y~|h{}y~}h{|y~|i{|y~|p{}y~r{}y~|x{}y~x{|x~r{|y~|ry~}r{|y~|w"
-      "{}y~vy~}sx~p{}y~|p{}b{}|yy~|{|}b{}|hy~|i{|}s{}|ly|yy~|y{}My~}g{|r~k{|y~|gx~|}x~}|}y~|m{}y~xy~}g{}~}g{}x~|Q{|~|y"
-      "y~}|yx|y{|~|p{|~}w{|y~gy|w{|<{|~|y{}~}x|y~|y{|~|U{}y~y}y~e{}~|d{|y~a{}~Q{}~}t{}~}n{}t~y{}~|5{|~}h{}~|v{}~|m{|v{"
-      "|k{|~}t{}~|n{|~}t{|~}ox|}y~v{}~|f{|y~|h{}y~y{|y~|j{}y~y{|y~|j{}y~y{|y~|j{}y~y{|y~|j{}y~y{|y~|j{}y~y{}y~m{|y~|xy"
-      "~}jx~c{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{|y~|e{|y~|e{|y~|k{|y~|qx~r{|y~|{y~}vy~}qx~p{}y~|sx~p{}y~|sx~p{}y~|sx~p{}y~"
-      "|sx~p{}y~|r{|y~}u{|x~px~t{}~}{}y~|s{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|m{}y~y{}y~|l{|y~v|}x~}n{}y~x{}y~|"
-      "k{|r~|l{|r~|l{|r~|l{|r~|l{|r~|l{|r~|q{|r~|{}s~n{}s~|l{}s~|k{}s~|k{}s~|k{}s~|i{|y~d{|y~d{|y~d{|y~g{|r~l{}y~|t~|l"
-      "{|s~}k{|s~}k{|s~}k{|s~}k{|s~}h{|x~h{|q~|n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}o{}y~sy~}n{}y~|t~|n{}y~sy~}<{}~"
-      "}wy~|x{|y~q{}~}q{|y~q{}~}{~}w{|~y|y~q{}~}t{|~y|y~q{}~}q{|y~j{}~|j{|y~|u{|y~|<q|}y~w|p{|y}uy}Qq~}k{|u~}o{|i~|q{|"
-      "q~}m{}y~uy~}n{|y~sy~|k{}w~|j{}y~v{|y~|q{|y~  H{}o~My~}fy|xy|m{|k~}q{}~}y{|~n{|y~wy~|y{}~|ix~_y|ey~|by~}i{|}~}~}"
-      "y~}f{}~| p{|~}jy~}t{|y~|j{|y~|a{}y~f{|}y~}k{|y~x{}y~kt~}|ky~}{|w~}|e{|y~|kx~|x{|y~}n{|y~|tx~i{}y~d{}y~d{|}v~}|q"
-      "k|p{|}w~}|a{}y~|p{}~|w{|}y~}|{y|xy~|qy~}xy~}m{|y~|u{|y~|p{|y~}e{|y~|qx~p{|y~|e{|y~|h{|y~}d{|y~|ry~}k{|y~|e{|y~|"
-      "j{|y~|}y~}g{|y~|i{|y~|{y~|wy~|{y~}s{|y~|{}y~vy~}r{|y~}p{|y~|q{|y~|u{}y~|r{|y~}p{|y~|r{|y~|u{}y~mx~}`y~}k{}y~r{|"
-      "y~|oy~}u{|y~|s{|y~|wy~|{|~}w{}y~o{|v~|hy~}|y~}e{}y~}h{}~}c{}~}b{|y~|m{}y~|r{|y~|<{|}y|x{|}y~l{}w~|y{|x~|lx~}|yy"
-      "|}|mx~|y{|}x~}mx~y|y{|x~iy~|h{|x~|y{|}x~}n{}w~|y{|x~i{|y~d{|y~h{}y~w{}y~|h{|y~m{}w~|y{|y~}|~}|{|}y~|r{}w~|y{|x~"
-      "lx~|y{|}y~}m{}w~|y{|x~|mx~|y{|}x~}k{}w~w|ly~}|xy|}i{}y~g{}~}t{}~}o{|y~|u{|y~|r{|y~|ww~vy~|px~wx~m{|y~|u{|y~|f{|"
-      "y~}h{}y~d{}~}d{}~}6{|}x~|x{}x~|o{|y~}|{|}y~{y~m{|y~v{|y~|dy~|l{}~}x{|x~|l{}y~}|yy|}|m{}w~|y{|x~n{|}~}u{|y~|j{|x"
-      "~|j{}~}t{}~}q{|y~|py~}q{|x~y|y~y|x~ny|y~}w|}y~}|p{}y~x{|y~x{|y~|mx~|y{|x~|n{|x~|x{}x~y|pu|y~}v|o{|y~s{}y~ly~}xy"
-      "~}g{}y~|i{|y~|i{}y~o{}y~|sx~w{}y~w{}y~|s{|y~|ry~}r{|y~|w{}y~w{|y~}t{|y~}p{|y~|qy~}_y~|`{|y~|iy~|j{|y~}u{|y~|iy~"
-      "|Jy~}h{|x~y|~|{|}k{|y~|fp~|ky~}{|y~f{}~}h{}~y}y~}|Sy}y{}~}qy}p{|~}w{|y~h{|~|x{}~<y}x{}~}x{|~}xy}T{|}y~}d{}~|e{|"
-      "~}`{}~|R{}~}t{}~}n{}t~y{}~|5{|~}h{|~}vy~l{|~|xy}l{|~}u{|~}m{|~}ty~|k{}~|x{|~}e{|y~|hy~}xy~}jy~}xy~}jy~}xy~}jy~}"
-      "xy~}jy~}xy~}jy~}xy~|n{}y~wy~}k{|y~}c{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{|y~|e{|y~|e{|y~|k{|y~|q{}y~r{|y~|{}y~vy~}r{|"
-      "y~}p{|y~|t{|y~}p{|y~|t{|y~}p{|y~|t{|y~}p{|y~|t{|y~}p{|y~|q{|y~}w{|x~p{|y~}u{|~}y{|y~|s{}y~r{|y~|q{}y~r{|y~|q{}y"
-      "~r{|y~|q{}y~r{|y~|ly~}|y~}k{|y~|ux~n{}y~y{|y~|j{|}y|x{|}y~l{|}y|x{|}y~l{|}y|x{|}y~l{|}y|x{|}y~l{|}y|x{|}y~l{|}y"
-      "|x{|}y~q{|}y|x{|}v~|x{|y~}px~}|yy|}|mx~y|y{|x~lx~y|y{|x~lx~y|y{|x~lx~y|y{|x~i{|y~d{|y~d{|y~d{|y~gx~|x{|y~}m{}w~"
-      "|y{|x~lx~|y{|}y~}lx~|y{|}y~}lx~|y{|}y~}lx~|y{|}y~}lx~|y{|}y~}i{|x~hx~|y{|}y~}m{}~}t{}~}n{}~}t{}~}n{}~}t{}~}n{}~"
-      "}t{}~}o{|y~|u{|y~|n{}w~|y{|x~|o{|y~|u{|y~|={|y~vy~|w{}~|s{|y~o{}~|s{|y~{}y~}y{|y~}{}~|s{|y~t{|y~}{}~|s{|y~o{}~|"
-      "ky~|iy~}u{}y~;k~}qw~u{~|R{}p~|k{}w~}mi~q{|o~|ny~|u{}y~n{|y~sy~|ky~}y~}j{|y~|w{}y~p{}~}  Hx}y~t}|My~}M{|y~x{|~}l"
-      "{}y~y{|~m{}~}y{}~}y{|~}i{|w~I{|y~|b{}y~j{}~}|{~}{|y~|h{}~| p{}~|jy~}t{|y~|j{|y~|b{|y~}j{}u~}jy~|x{}y~kr~}ly~y}t"
-      "~}f{}y~i{}t~|ly~}u{|x~|j{}y~d{}y~f{}v~}|nk~}n{|}w~}|e{}y~|p{|~}w{|u~y}~x{|~}r{|y~|x{}y~m{|y~|xy|}y~}o{|y~|e{|y~"
-      "|q{}y~p{|y~r|m{|y~s|o{|y~|d{|y~q|y~}k{|y~|e{|y~|j{|v~}f{|y~|i{|y~|{}~}x{|~}yy~}s{|y~|yy~}wy~}r{|y~|p{|y~}q{|y~|"
-      "ux~q{|y~|p{|y~}r{|y~|v{|y~}m{|v~}y|ey~}k{}y~r{|y~|o{}y~u{}y~qy~}x{|y~y{|y~wy~}n{}x~}g{|v~e{|y~}g{}~}c{|y~b{|y~|"
-      " o{}~}m{}x~ux~m{}y~|f{}y~u{}y~}n{}y~|uy~}jy~|h{}y~u{}y~}n{}x~v{|y~|j{|y~d{|y~h{}y~x{}y~|g{|y~m{}x~v{}x~|vy~}r{}"
-      "x~v{|y~|n{}y~|v{}y~|n{}x~ux~n{}y~u{}y~}k{}x~h{|y~a{}y~g{}~}t{}~}ny~}u{}y~py~|x{|y~}~|x{|y~o{|y~}y{}y~|l{}~}u{}~"
-      "}ex~g{}y~d{}~}d{}~}6y~y}y~|{}y~}y~}p{}y~vy~}y~m{|y~x{|}x~c{}~}m{|y~u{}y~l{}~}e{}x~v{|y~|n{|y~u{}~}i{}x~}j{}~}t{"
-      "}~}q{}y~o{}y~q{}y~|{|y~y{|y~}my~|w{|y~|o{}y~x{|y~x{|y~|n{}y~ux~n{}y~u{}y~|iy~|j{|n~m{|y~|x{}y~f{}y~|j{|y~|i{}y~"
-      "o{|y~|t{|y~}w{}y~w{|y~}s{|y~|ry~}qy~}w{}y~w{|y~|t{|y~|{r~y|y~}rx~|_y~|_{}y~|jy~|k{|x~s{}y~|jy~|Jx|h{}y~|y{~|h{|"
-      "y~|f{|y~}|y{}y~|n{|u~{u~|j{}~}i{|~}y{|}y~}T{~|yy~p{|~p{|~}wx~i{|y~|y{}y~ok|X{~|x{}~}x{|~}x{|~?k~}m{}~}_y~|R{}~}"
-      "t{}~}mt~y{}~|ix|J{|~}gy~|x{}~}l{|y~|y{}~}m{|~}uy~|u{|t{|~}u{}~}j{}~|xy~cy|h{|y~|x{}y~k{|y~|x{}y~k{|y~|x{}y~k{|y"
-      "~|x{}y~k{|y~|x{}y~k{|y~|x{}y~ny~}wy~}r|t{|y~|c{|y~r|m{|y~r|m{|y~r|m{|y~r|i{|y~|e{|y~|e{|y~|e{|y~|k{|y~|q{}y~|s{"
-      "|y~|yy~}wy~}r{|y~|p{|y~}t{|y~|p{|y~}t{|y~|p{|y~}t{|y~|p{|y~}t{|y~|p{|y~}p{|y~}y{|x~o{|y~|v{|y~wy~}s{}y~r{|y~|q{"
-      "}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|l{|v~j{|y~|u{}y~|o{}y~y{|y~`{}~}d{}~}d{}~}d{}~}d{}~}d{}~}i{}x~u{|y~|r{}y~|f{}y~|"
-      "uy~}n{}y~|uy~}n{}y~|uy~}n{}y~|uy~}j{|y~d{|y~d{|y~d{|y~h{}y~|v{|y~|n{}x~v{|y~|n{}y~|v{}y~|n{}y~|v{}y~|n{}y~|v{}y"
-      "~|n{}y~|v{}y~|n{}y~|v{}y~|ix|i{}y~|w{|x~|n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}n{}~}u{}~}m{}x~ux~n{}~}u{}~}<{"
-      "|~}vy~|w{|~}s{|~}o{|~}s{|~}y{}y~}|y~}y{|~}s{|~}u{|y~}y{|~}s{|~}o{|~}ky~|i{}y~uy~};k~}q{|{y~|w{}~R{|n~o{}o~}|r{|"
-      "k~}qm~|oy~|u{|y~n{|y~sy~|l{|y~|}y~iy~}wy~}p{}~}  F{|y~|Fy~}M{}~}x{}~}l{|y~}y|~lu~xy~|xx}|q{|y~|x~ty|S{|y~a{}y~j"
-      "{}|x{~}x{}|h{}~| py~j{|y~|t{|y~|j{|y~|bx~i{}v~}|k{}~}w{}y~k{}y|x{|x~}mw~}|y{|x~|gy~}h{}u~}l{}y~|v{}x~|jx|dx|i{|"
-      "}w~}|kk~}l{|}v~}|i{}y~|o{}~|wy~}x{}x~wy~rx~w{|y~|n{|q~|n{|y~|e{|y~|q{}y~|q{|p~}n{|q~o{|y~|tu|q{|m~}k{|y~|e{|y~|"
-      "j{|v~e{|y~|i{|y~|yy~xy~|yy~}s{|y~|y{}y~|xy~}r{|y~|oy~}q{|y~|w{|x~}q{|y~|oy~}r{|y~v|}y~}k{|}t~}gy~}k{}y~r{|y~|o{"
-      "|y~}vy~}q{}y~x{|~}xy~|y{|y~|n{|x~e{}x~|ex~f{}~}by~|c{|y~| o{|y~m{}y~|u{|y~|ny~}ey~}u{|y~}ny~|t{}y~jy~|hy~}u{|y~"
-      "}n{}y~|u{}~}j{|y~d{|y~h{}y~y{}y~|f{|y~m{}y~|v{|x~u{}y~r{}y~|u{}~}ny~}ty~}n{}y~|u{|y~|oy~}u{|y~}k{}y~|h{|y~a{}y~"
-      "g{}~}t{}~}n{}y~uy~}p{}~}x{}~}|~}x{}~}n{|y~y|y~}k{|y~uy~|f{}y~f{}~}d{}~}d{}y~7{}~x{|y~|~}x{}~py~}v{}x~}m{|y~{|v~"
-      "|i{}y~}|{}~}my~|ty~}m{}~}e{}y~|u{}~}my~|vy~|j{|y~}y~j{}~}t{}~}qx~o{|y~|ry~}y{|y~x{}y~my~|w{|y~|o{}y~x{|y~x{|y~|"
-      "ny~|u{|y~|oy~}ty~}iy~|j{|n~mx~w{|y~|g{|y~}j{|y~|i{}y~o{|y~|t{|y~|w{}y~vy~}s{|y~|ry~}qx~w{}y~w{}y~|t{|y~|{r~|{y~"
-      "}sx~|^y~|^{}y~|ky~|l{|x~q{}y~|ky~|5{|y~|x{~|h{|y~|f{}~}v{|~}mw}v~w}|j{}~}i{}~|w{|y~}U{~y{|y~p{|~ox~y}~}y~j{}y~|"
-      "y{}y~nk~}Y{~w{}~}y{|}~|x{|~?k~}n{}y~v|ix}|}y~}Q{}~}t{}~}m{|u~y{}~|iy~}Ly|}~}y|i{|y~x}y~j{}y~|y{}y~n{|~}v{|~}v{|"
-      "y~}u{|~}v{|y~y{}w~}wx|{|}y~x{}~|uy~}Wx~w{|y~|lx~w{|y~|lx~w{|y~|lx~w{|y~|lx~w{|y~|l{}y~w{|y~|p{}y~|wo~t{|y~|c{|p"
-      "~}n{|p~}n{|p~}n{|p~}j{|y~|e{|y~|e{|y~|e{|y~|mq~u{}y~|s{|y~|y{}y~|xy~}r{|y~|oy~}t{|y~|oy~}t{|y~|oy~}t{|y~|oy~}t{"
-      "|y~|oy~}o{|y~}|x~n{|y~|vy~|wy~}s{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|k{}x~|j{|y~|u{|y~|o{}y~y{|y~|a{|y~d{"
-      "|y~d{|y~d{|y~d{|y~d{|y~i{|y~|t{}~}ry~}ey~|t{}y~ny~|t{}y~ny~|t{}y~ny~|t{}y~j{|y~d{|y~d{|y~d{|y~hy~}ty~}n{}y~|u{}"
-      "~}ny~}ty~}ny~}ty~}ny~}ty~}ny~}ty~}ny~}ty~}Ty~}w{|~}y~}n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}n{|y~uy~|m{}y~|u{"
-      "|y~|o{|y~uy~|<{}~u|y~}w|{y~s{}~n|{y~s{}~|x{}w~}wy~s{}~|v{|y~}wy~s{}~|vy~}vy~ky~|i{|y~|w{|y~|4{|y~}i{}~}w{~}Rm~}"
-      "qk~|r{}l~q{|m~|p{|y~sy~|o{|y~sy~|l{}y~{|y~|j{}y~x{|y~|p{}i~  V{|y~|F{}~}M{}~|x{}~|k{}v~}|m{|y}|x{}~}y{|v~}s{|y~"
-      "|{|x~v{|y~S{}y~a{|y~e{~}jt|y~}u| w{|~}j{|y~|t{|y~|j{|y~|cx~|hw|}y~|m{|y~v{}y~cx~|nx~}ux~h{|y~|j{|y~}|{y|x~m{|x~"
-      "|y{|}w~|={}w~}|E{|}v~|l{|y~|ny~w{}~}v{}y~wy~s{|y~|vy~}n{|q~}|o{|y~|e{|y~|q{}y~p{|p~}n{|q~o{|y~|u{|u~}r{|m~}k{|y"
-      "~|e{|y~|j{|y~}x~f{|y~|i{|y~|y{}~|{|y~xy~}s{|y~|xy~}xy~}r{|y~|oy~}q{|q~}p{|y~|oy~}r{|r~}h{|y}u~|iy~}k{}y~r{|y~|n"
-      "x~w{|y~|q{}y~x{}~|x{}~|y{|y~|nw~|ey~}e{}y~|f{}~}b{}~}c{|y~| v{|y}t~m{}y~sy~|o{|y~|f{|y~|ty~}o{|y~|t{|y~jy~|i{|y"
-      "~|ty~}n{}y~t{}~}j{|y~d{|y~h{}y~{x~|e{|y~m{}y~ty~}u{|y~r{}y~t{}~}o{|y~|t{}y~n{}y~sy~|p{|y~|ty~}k{}y~g{|y~}b{}y~g"
-      "{}~}t{}~}n{|y~|w{|y~o{|y~x{}~y|y~xy~}m{}w~}iy~|w{}y~f{}y~|g{|y~|d{}~}d{|y~}jy}y~}|t{|}X{~}w{|y~}v{~|r{|y~|v{|x~"
-      "|m{|y~{|v~}|ku~|y~}n{|y~|t{}y~m{|y~}f{}y~t{}~}m{}y~w{}y~i{}y~{y~}k{}~}t{}~}qy~}ny~}s{|y~|y{|y~x{|y~my~|w{|y~|o{"
-      "}y~x{|y~x{|y~|o{|y~sy~|p{|y~|t{}y~iy~|j{|y~s|}y~n{|y~}vy~}gx~|j{|y~|i{}y~o{|y~|t{|y~|w{}y~vy~}s{|y~|ry~}q{}y~|x"
-      "{}y~x{|y~}s{|y~|{r|yy~}tx~}l|ly~|mk|x~|ly~|m{|x~o|x~|ly~|5{}y~w{~|j{}r~}ky~|uy~i{|x~}e{}~}i{}~}v{|y~V{|~y{|y~o{"
-      "~|o{}x~|{y}k{}y~|y{}~}mk~}Z{|~w{}u~|v{~|@t|y~}t|n{}t~i{|}x~y}P{}~}t{}~}k{|}x~y{}~|iy~}Lt~|i{|}x~}h{|y~|y{}y~|rt"
-      "~|yy~ux~}wt~|y{}~|{|~}y|}y~x{}v~}|y{|y~u{}y~}m{|y}i{|y~|vy~}m{|y~|vy~}m{|y~|vy~}m{|y~|vy~}m{|y~|vy~}ly~|vy~}py~"
-      "}vo~t{|y~|c{|p~}n{|p~}n{|p~}n{|p~}j{|y~|e{|y~|e{|y~|e{|y~|m{}s~}u{}y~|s{|y~|xy~}xy~}r{|y~|oy~}t{|y~|oy~}t{|y~|o"
-      "y~}t{|y~|oy~}t{|y~|oy~}n{|v~m{|y~|wy~|vy~}s{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|jy~}i{|y~|u{}y~|o{}y~xx~|"
-      "i{|y}t~k{|y}t~k{|y}t~k{|y}t~k{|y}t~k{|y}t~p{|y}t~s{|y~s{|y~|f{|y~|t{|y~o{|y~|t{|y~o{|y~|t{|y~o{|y~|t{|y~j{|y~d{"
-      "|y~d{|y~d{|y~i{|y~|t{}~}n{}y~t{}~}o{|y~|t{}y~o{|y~|t{}y~o{|y~|t{}y~o{|y~|t{}y~o{|y~|t{}y~pk~}q{|y~|w{~}{}y~n{}~"
-      "}t{}~}n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}my~|w{}y~l{}y~sy~|ny~|w{}y~;{}~|}p~{y~s{}~|}p~{y~s{}~|w{}x~vy~s{}~|w{|y~}vy"
-      "~s{}~|vy~}vy~ky~|h{}~}w{}y~3y~}h{|y~x{|~|S{|l~r{}k~}qm~|p{}o~}o{|y~sy~|o{|y~sy~|ly~}yy~}j{|y~|y{|y~o{}i~  X{|y}"
-      "y~u}K{}~}My~|xy~i{|}u~}i{|y~y{|y~|{|y~|t{}~}x{|x~w{|y~S{}y~a{|y~|f{~}jk~} x{}~}iy~}t{|y~|j{|y~|d{}y~|b{}y~|ny~|"
-      "v{}y~c{|y~}nx~|u{}y~|ix~j{|y~|v{|y~}m{|t~y}y~|=x~}?{|x~}l{}y~m{~}wy~|v{|y~w{}~s{}y~u{}y~n{|y~|v{|}y~|p{|y~|e{|y"
-      "~|q{}y~p{|y~|e{|y~|h{|y~|u{|u~}r{|y~|ry~}k{|y~|e{|y~|j{|y~|}x~g{|y~|i{|y~|y{|y~{}~}xy~}s{|y~|x{|y~|yy~}r{|y~|p{"
-      "|y~}q{|s~}|o{|y~|p{|y~}r{|q~|ey|w~iy~}k{}y~r{|y~|n{|y~|x{}y~p{|y~|yy~|x{}~}y{}y~n{}v~ey~}f{}y~|e{}~}b{|~}c{|y~|"
-      " w{}q~m{}y~sy~}o{|y~e{|y~s{}~}o{|n~jy~|i{|y~s{}~}n{}y~t{}~}j{|y~d{|y~h{}v~c{|y~m{}y~ty~|u{|y~r{}y~t{}~}o{|y~s{}"
-      "y~n{}y~sy~}p{|y~s{}~}k{}y~f{}w~}|f{}y~g{}~}t{}~}m{}~}w{}~}o{|y~|yy~yy~xy~|lw~h{}y~wy~}g{}y~|i{}w~}c{}~}c{|w~}o{"
-      "|s~}w|}~}X{~|vy~|vy}r{|y~tx~l{|y~w{|}x~|m{}y~x{}x~|n{|y~s{}y~l{|}v~j{}y~t{}~}m{|y~|xy~}j{|y~|{}y~k{}~}t{}~}qy~}"
-      "vy~|vy~}s{|y~x{|y~x{|y~|ny~|w{|y~|o{}y~x{|y~x{|y~|o{|y~sy~}p{|y~s{}y~iy~|j{|y~s{}y~n{}y~u{}y~h{}y~|i{|y~|i{}y~|"
-      "p{}y~s{|y~}w{}y~w{|y~}s{|y~|ry~}px~x{}y~x{}y~|s{|y~|p{|y~}u{}h~ly~|m{}h~ly~|mg~ly~|J{}~}i{}y~w{~|j{}r~}ky~ty~|i"
-      "x~d{}~}i{}y~|vy~|W{|~y{|y~o{~|X{}y~xy~}^{|~}Z{|~w{}~}|}~}u{~|9{}~| v{}~}t{}~}hy~y{}~|iy~} s{|y~}y{}y~|st|y{}~|v"
-      "{}~|~}wt|y{|~}sy~|wx|v{}~|vy}|~}m{|y~i{}y~u{}y~m{}y~u{}y~m{}y~u{}y~m{}y~u{}y~m{}y~u{}y~m{}y~u{}y~q{|y~|vy~}k{|y"
-      "~|c{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{|y~|e{|y~|e{|y~|k{|y~|q{}y~|s{|y~|x{|y~|yy~}r{|y~|p{|y~}t{|y~|p{|y~}t{|y~|p{|"
-      "y~}t{|y~|p{|y~}t{|y~|p{|y~}m{}x~|m{|y~|x{}~|v{|y~}s{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|jy~}i{|y~|ux~n{}y"
-      "~x{|x~}k{}q~l{}q~l{}q~l{}q~l{}q~l{}q~q{}f~s{|y~e{|n~o{|n~o{|n~o{|n~j{|y~d{|y~d{|y~d{|y~i{|y~s{}y~n{}y~t{}~}o{|y"
-      "~s{}y~o{|y~s{}y~o{|y~s{}y~o{|y~s{}y~o{|y~s{}y~pk~}q{|y~wy~y{}y~n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}m{}y~wy~"
-      "}l{}y~sy~}n{}y~wy~};{}~|}q~}{y~s{}~|}q~}{y~s{}~|x{|w~}wy~s{}~|x{|y~}uy~s{}~|vy~}vy~ky~g{|y~|xy~|4{}y~fy~|yy}R{|"
-      "l~ri~po~|n{}p~n{|y~sy~|o{|y~sy~|m{|y~|y{}y~iy~}y{}~}o{}~}  H{}r~}K{}~}N{|y~x{|y~f{|~}w~j{}~|y{}~}x{|y~ty~|w{|x~"
-      "x{}~}S{}y~a{|y~|f{|ik~}T{}u~|Ly~|iy~}t{|y~|j{|y~|e{}y~|`y~}o{}~}u{}y~by~}nx~t{|y~|j{|y~}jy~}t{}y~k{}x~}|{}y~<v~"
-      "}|hk|g{|}w~}l{}~}n{|~}wy~ty~wy~sy~}t|y~|o{|y~|t{}y~p{|y~}e{|y~|qx~p{|y~|e{|y~|h{|y~}py~}r{|y~|ry~}k{|y~|e{|y~|j"
-      "{|y~|{}y~}h{|y~|i{|y~|xy~|y~|xy~}s{|y~|wy~}yy~}r{|y~}p{|y~|q{|y~w|k{|y~}p{|y~|r{|y~|w{}x~bx~|jy~}k{}y~r{|y~|my~"
-      "}xy~}oy~}{|y~w{|y~yy~}o{|y~}{y~}fy~}g{|y~}d{}~}ay~c{|y~| x{}y~}|w{|y~m{}y~sy~}o{|y~e{}y~s{}~}o{|n~jy~|i{}y~s{}~"
-      "}n{}y~t{}~}j{|y~d{|y~h{}w~}c{|y~m{}y~ty~|u{|y~r{}y~t{}~}o{}y~s{}y~n{}y~sy~}p{}y~s{}~}k{}y~e{|u~}h{}y~g{}~}t{}~}"
-      "m{|y~wy~|ny~}{|~}y{}~|{|y~k{}y~}h{|y~|y{|y~|h{|y~}h{}w~|c{}~}c{|}x~}oy~}x|}r~|X{~|v{}~|v{~}r{}y~ty~}l{|y~t{}y~n"
-      "{|y~|wx~|n{|y~s{}y~l{|u~j{}y~t{}~}ly~}y{|y~|j{}y~y{|y~|l{}~}t{}~}r{|y~}vy~|vy~}s{}y~x{|y~x{|y~|ny~|w{|y~|o{}y~x"
-      "{|y~x{|y~|o{}y~sy~}p{|y~s{}y~iy~|j{|y~|t{}y~ny~}u{|y~|j{|y~}h{|y~|i{|y~}px~ry~}w{}y~w{}y~|s{|y~|ry~}p{|x~|{}y~y"
-      "{}y~}r{|y~}p{|y~|u{|h~ly~|m{}h~ly~|m{}h~ly~|J{}~}i{}y~w{~|h{|y~|fy~|uy~mv}x~v}|Tx~|wy~U{~|yy~|q{|~or}ly~}xy~|^{"
-      "|~}Y{~|x{}~}y{}~}w{|~8{}~| v{}~}t{}~}hy~y{}~| yr}h{}~}y{|y~|k{|~}v{|~y|~}ny~r{}~|p{|~}v{|~{|~}m{|y~iy~}t|y~|ny~"
-      "}t|y~|ny~}t|y~|ny~}t|y~|ny~}t|y~|ny~}t|y~|r{}y~u|y~}k{|y~}c{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{|y~|e{|y~|e{|y~|k{|y~"
-      "|q{}y~r{|y~|wy~}yy~}r{|y~}p{|y~|t{|y~}p{|y~|t{|y~}p{|y~|t{|y~}p{|y~|t{|y~}p{|y~|n{|w~}m{|y~}y{}~}u{|y~|s{}y~r{|"
-      "y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|jy~}i{|y~|w{|x~}n{}y~v{}x~|n{}y~}|w{|y~m{}y~}|w{|y~m{}y~}|w{|y~m{}y~}|w{|y~"
-      "m{}y~}|w{|y~m{}y~}|w{|y~r{}y~}|w{|n~s{|y~e{|n~o{|n~o{|n~o{|n~j{|y~d{|y~d{|y~d{|y~i{|y~s{}y~n{}y~t{}~}o{}y~s{}y~"
-      "o{}y~s{}y~o{}y~s{}y~o{}y~s{}y~o{}y~s{}y~pk|p{}y~x{}~|y{}y~n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}m{|y~|y{|y~|l"
-      "{}y~sy~}n{|y~|y{|y~|;{|~}vy~|w{|~}s{|~}o{|~}s{|~}y{}y~}|y~}y{|~}s{|~}y{}y~}u{|~}s{|~}vy|v{|~}ky~fy~}y{}y~9k~}n{"
-      "}y~y{~|R{}l~ri~p{|q~}lq~m{|y~sy~|o{|y~sy~|m{}y~x{|y~|j{}y~yy~}o{|y~  Ey~}E{|Qj~j{|~y{|y~}l{|~}xy~|wy~u{|y~|v{|x"
-      "~{|y~R{}y~a{|y~K{}~|M{}u~|M{|y~hy~}t{}y~i{|y~|f{}y~|_{}y~o{}n~}ey~}n{}y~t{|y~|j{}y~|jy~}t{|y~|e{}y~;{|}v~}jk~}k"
-      "{|}v~}j{}~}n{|~}wy~ty~wy~t{|o~}o{|y~|t{|y~|px~e{|y~|qy~}p{|y~|e{|y~|gx~py~}r{|y~|ry~}k{|y~|e{|y~|j{|y~|y{}y~}i{"
-      "|y~|i{|y~|x{}w~wy~}s{|y~|w{|y~|{y~}qx~p{}y~|q{|y~|gx~p{}y~|r{|y~|v{|y~}c{|y~}jy~}k{}y~r{|y~|m{}y~y{}y~|o{}y~{|~"
-      "}vy~{|y~|ox~y{|y~|gy~}h{|x~c{}~}a{}~|d{|y~| xy~|u{|y~m{}y~sy~}o{|y~e{|y~s{}~}o{|y~_y~|i{|y~s{}~}n{}y~t{}~}j{|y~"
-      "d{|y~h{}y~|y~}d{|y~m{}y~ty~|u{|y~r{}y~t{}~}o{|y~s{}y~n{}y~sy~}p{|y~s{}~}k{}y~b{|}w~i{}y~g{}~}t{}~}ly~|y{}y~m{}~"
-      "}{}~}y{|~}{}~}l{|w~|h{}~}y{}y~h{|y~}d{}y~|d{}~}d{|y~}|m{}t{|}x~}|V{~}w{|x~v{~|r{|y~ty~|l{|y~t{|y~|o{}y~v{}y~m{|"
-      "y~s{}y~m{}y~}f{}y~t{}~}l{|y~y{}~}iy~|xy~}l{}~}t{}~}qy~}vy~}vy~}s{|y~x{|y~x{|y~|ny~|w{|y~|o{}y~x{|y~x{|y~|o{}y~s"
-      "y~}p{|y~s{}y~iy~|j{|y~|ty~}o{|y~|ty~}k{|x~g{|y~|hx~q{|y~}r{}y~|x{}y~x{|x~r{|y~|ry~}o{}x~}x~}x~}px~p{}y~|t{}y~}]"
-      "y~|^{|x~oy|yy~|y{|o{}y~|q{|x~oy|yy~|y{|M{}~}i{}y~w{~|h{|y~|f{}~}v{}~}n{|n~|S{}x~|{}~}Uy}y{}~}qy}p{|r~ky~}y{|y~}"
-      "_{|~}Yy}x{}~}xy~|xy}8{}~| v{}~}t{}~}hy~y{}~| {{|r~iy~}y{|y~}jy~|w{|~|{|~}o{}~|s{|y~oy~v{|~|{|~}m{|y~j{|o~}o{|o~"
-      "}o{|o~}o{|o~}o{|o~}o{|o~}s{|p~}jx~c{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{|y~|e{|y~|e{|y~|k{|y~|qx~r{|y~|w{|y~|{y~}qx~p"
-      "{}y~|sx~p{}y~|sx~p{}y~|sx~p{}y~|sx~p{}y~|o{|x~|y~}my~}{}~}t{}y~|s{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|jy~"
-      "}i{|q~}m{}y~u{|x~|oy~|u{|y~my~|u{|y~my~|u{|y~my~|u{|y~my~|u{|y~my~|u{|y~ry~|u{|y~h{|y~e{|y~d{|y~d{|y~d{|y~_{|y~"
-      "d{|y~d{|y~d{|y~i{|y~s{}y~n{}y~t{}~}o{|y~s{}y~o{|y~s{}y~o{|y~s{}y~o{|y~s{}y~o{|y~s{}y~U{|y~y{}~|x{}y~n{}~}t{}~}n"
-      "{}~}t{}~}n{}~}t{}~}n{}~}t{}~}l{}~}y{}y~k{}y~sy~}m{}~}y{}y~:{|y~vy~|w{}~|s{|y~o{}~|s{|y~{|y~}y{|y~}{}~|s{|y~{|y~"
-      "}t{}~|s{|y~o{}~|ky~f{}y~yy~}9k~}n{|y~y|~Q{|u~|y}u~r{}t~y}s~o{|s~}k{|s~|m{|y~sy~|ny~sy~ly~}wy~}j{|y~y|y~|ny~|  F"
-      "x~ uj~j{|~x{}y~ly~wy~|wy~u{|y~|u{|x~}~}R{|y~a{}y~K{}~| r{}~}h{}y~t{}y~i{|y~|g{}y~|^{}y~o{}n~}ey~}n{}y~t{|y~|jy~"
-      "}iy~}t{|y~|ey~}8{|}w~}|mk~}n{|}v~}|hx}m{~}wy~|v{|y~x{|~}t{}n~|p{|y~|t{|y~}p{}y~|f{|y~|r{}y~|p{|y~|e{|y~|g{}y~|q"
-      "y~}r{|y~|ry~}k{|y~|e{|y~|j{|y~|x{}y~}j{|y~|i{|y~|x{|x~}wy~}s{|y~|vy~}{y~}q{}y~|qx~p{|y~|g{}y~|qx~q{|y~|u{}y~|d{"
-      "|y~}jy~}k{|y~|s{}y~|m{|y~|{y~}n{}y~{}~}v{}~y|y~|p{}y~|x{}y~gy~}hx~|c{}~}a{|~}d{|y~| y{|y~t{}y~m{}y~sy~|o{|y~|f{"
-      "|y~|ty~}o{|y~|`y~|i{|y~|ty~}n{}y~t{}~}j{|y~d{|y~h{}y~{|x~e{|y~m{}y~ty~|u{|y~r{}y~t{}~}o{|y~|t{}y~n{}y~sy~|p{|y~"
-      "|ty~}k{}y~_{|y~}j{}y~g{}~}ty~}l{}y~yy~}m{|y~{y~|y{|y~{y~}m{|y~y}y~h{|y~yy~|hx~by~}d{}~}d{}y~7{}~|y{|~}|~}x{}~q{"
-      "|y~|v{|y~}l{|y~t{|y~|o{}~}v{}~}m{|y~|t{}y~my~|e{}y~t{}~}ky~|{y~|j{}y~w{}y~l{}~}ty~}qy~}vy~}vy~}s{|y~|y{|y~x{}y~"
-      "my~|w{|y~|o{|y~x{|y~x{|y~|o{}y~sy~|p{|y~|t{}~}iy~|iy~}ty~|o{}y~s{}y~|lx~|g{|y~|h{|y~}rx~px~|y{}y~y{|x~|r{|y~|ry"
-      "~}n{|r~}o{}y~|qx~r{}y~}^y~|_{|x~o{|y~|{y~|{}~}o{}y~|s{|x~o{|y~|{y~|{}~}Ny~}i{}y~w{~|h{|y~|f{|y~}|{|}y~|h{}y~L{|"
-      "v~}T{|~xy~}|yx|x{~|U{}y~y{|y~}`{|~}Y{|~x{}~}x{|y~x{~|8{}~| v{}~}ty~}hy~y{}~| `{|y~}y{|y~|j{}~}v{~}y{|~}p{|y~ry~"
-      "|p{}~|v{~}y{|~}mx~j{}n~|p{}n~|p{}n~|p{}n~|p{}n~|p{}n~s{}p~}j{}y~|d{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{|y~|e{|y~|e{|y"
-      "~|k{|y~|r{|y~}r{|y~|vy~}{y~}q{}y~|qx~r{}y~|qx~r{}y~|qx~r{}y~|qx~r{}y~|qx~o{|x~y{|y~}n{}y~}~}sx~r{|y~|s{}y~|q{|y"
-      "~|s{}y~|q{|y~|s{}y~|q{|y~|s{}y~|jy~}i{|s~}|l{}y~sy~}p{|y~t{}y~n{|y~t{}y~n{|y~t{}y~n{|y~t{}y~n{|y~t{}y~n{|y~t{}y"
-      "~s{|y~t{}y~|i{|y~|f{|y~|e{|y~|e{|y~|e{|y~|`{|y~d{|y~d{|y~d{|y~i{|y~|t{}y~n{}y~t{}~}o{|y~|t{}y~o{|y~|t{}y~o{|y~|"
-      "t{}y~o{|y~|t{}y~o{|y~|t{}y~ix|j{|y~|}~}w{}y~n{}~}ty~}n{}~}ty~}n{}~}ty~}n{}~}ty~}l{|y~yy~|k{}y~sy~|m{|y~yy~|9{}~"
-      "}wy~|x{|y~q{}~}q{|y~q{}~}{~}w{|~y|y~q{}~}{~}t{|y~q{}~}q{|y~k{|y~f{|y~y|y~|9x|}y~}q|m{}~x}P{}w~}{}{v~|r{|t~y|}u~"
-      "|n{}u~}i{|u~}l{|y~sy~|ny~|u{|y~ly~|w{}y~iy~y}y~m{|y~|  G{|y~| ry~|xy~|f{|~x{}y~m{}~|wy~|wy~ty~}t{|w~Q{|y~|b{}y~"
-      "K{}~| ry~|h{|y~|uy~}i{|y~|h{}y~|]x~ns|x~y|e{|y~}n{|y~|u{}y~|k{|y~|iy~}t{}y~e{}y~4{|}w~}|U{|}v~}|Ty~w{}~}v{}y~xy"
-      "~sy~}ry~}p{|y~|t{|y~}p{|x~p{|r{|y~|s{|x~o{|y~|e{|y~|g{|x~qy~}r{|y~|ry~}k{|y~|e{|y~|j{|y~|w{}y~}k{|y~|i{|y~|wx~|"
-      "wy~}s{|y~|v{|y~|y~}q{|x~r{}y~|p{|y~|g{|y~}r{}y~|q{|y~|u{|y~}d{|y~}jy~}k{|y~}sx~ky~}|y~|n{|y~|y~|v{}~y}y~p{|y~}w"
-      "{|y~}hy~}i{}y~|b{}~}a{|y~d{|y~| y{|y~tx~m{}y~|u{|y~|ny~}ey~}u{|y~}ny~}`y~|hy~}u{|y~}n{}y~t{}~}j{|y~d{|y~h{}y~y{"
-      "|x~f{|y~m{}y~ty~|u{|y~r{}y~t{}~}ny~}ty~}n{}y~|u{|y~|oy~}u{|y~}k{}y~^{}~}j{|y~g{}y~u{|y~}l{|y~y|y~|ly~|y~wy~|y~|"
-      "mx~yy~}hy~y|y~hx~a{}y~d{}~}d{}~}6u~y{}y~}y~|py~|v{}y~}l{|y~t{|y~|o{}~}vy~|ly~}ty~}n{|y~|e{}y~t{}~}k{}~y}y~iy~}v"
-      "y~|m{}y~ty~}qx~w{|x~w{|y~|ry~}y{|y~x{}~}my~|w{|y~|o{|y~x{|y~x{|y~n{}y~|u{|y~|oy~}ty~}iy~|i{}y~u{|y~ny~}s{|y~}m{"
-      "}y~|f{|y~|g{}y~|t{}y~|p{|w~y}y~y}x~}q{|y~|ry~}ly}x~y}|n{|x~r{}y~|q{}y~}_y~|`{|x~mx~|y~|}y~|n{}y~|u{|x~mx~|y~|}y"
-      "~|Ny~}i{|y~|x{~|h{|y~|fp~|i{}y~d{}~}d{|x~|S{~}x{}u~|y{}~S{}y~xy~}a{|~}X{~}y{|~|w{}~|{}~7y| u{}y~ty~}hy~y{}~| a{"
-      "|y~}y{|y~|j{|y~v{}~x{|~}p{}~|s{}~|p{|y~v{}~x{|~}n{}y~|jy~}ry~}py~}ry~}py~}ry~}py~}ry~}py~}ry~}py~}ry~}ty~}ty~}j"
-      "{|x~p{|p{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{|y~|e{|y~|e{|y~|k{|y~|rx~q{|y~|v{|y~|y~}q{|x~r{}y~|r{|x~r{}y~|r{|x~r{}y~"
-      "|r{|x~r{}y~|r{|x~r{}y~|p{|x~w{|y~}o{|w~s{}y~|r{|y~}sx~p{|y~}sx~p{|y~}sx~p{|y~}sx~iy~}i{|y~w|h{}y~s{}~}p{|y~tx~n"
-      "{|y~tx~n{|y~tx~n{|y~tx~n{|y~tx~n{|y~tx~s{|y~tx~}hy~}ey~}dy~}dy~}dy~}`{|y~d{|y~d{|y~d{|y~hy~}ty~}n{}y~t{}~}ny~}t"
-      "y~}ny~}ty~}ny~}ty~}ny~}ty~}ny~}ty~}j{|x~iy~}~}vy~}n{}y~u{|y~}n{}y~u{|y~}n{}y~u{|y~}n{}y~u{|y~}ky~y|y~j{}y~|u{|y"
-      "~|ly~y|y~7y~}xy~|y{|y~|py~}s{|y~|py~}s{|y~|py~}s{|y~|py~}s{|y~|k{|y~ey~y}y~6{|y~}b{|x~|O{}y~}y{}{|}y~|p{|w~}{|}"
-      "{}w~}l{}v~g{}w~}k{|y~sy~|n{}y~uy~}m{|y~v{|y~|j{}w~}l{}y~|  Gx~|u{}|Px|O{|y~x{|y~j{|w{|~x{}~}n{|y~v{}~|x{|y~t{}y"
-      "~}t{}x~Py~|by~}K{}~|dx|Jx|f{|y~fx~v{}y~h{|y~|i{}y~|f{|s{}y~}f{}y~l{|t{|x~l{}y~ux~j{}y~h{}y~|v{|x~f{|y~}hx|dx|a{"
-      "}v~}Xv~}|bx|m{}~|x{|y~}x{|x~{|y~|t{|y~|r{}y~p{|y~|t{}y~|o{}y~}s{|~|r{|y~|t{|x~|o{|y~|e{|y~|f{}y~}ry~}r{|y~|ry~}"
-      "k{|y~|e{|y~|j{|y~|v{}y~}l{|y~|i{|y~|oy~}s{|y~|uv~}p{}y~}t{}y~}o{|y~|f{}y~}t{}y~}p{|y~|t{}y~|o{}r{}y~|jy~}j{}y~|"
-      "u{|y~}k{}y~}y~ly~}y~u{|w~}px~u{|y~|iy~}j{}y~}a{}~}`y~|e{|y~| y{|y~|v{}x~m{}x~ux~m{}y~|f{}y~u{}y~}n{}y~|ay~|h{}y"
-      "~u{}y~}n{}y~t{}~}j{|y~d{|y~h{}y~x{|x~g{|y~m{}y~ty~|u{|y~r{}y~t{}~}n{}y~|v{}y~|n{}x~ux~n{}y~u{}y~}k{}y~^y~}j{|y~"
-      "g{|y~|v{}y~}ky~y}y~kw~}w{}w~m{}y~|y{|y~}i{}~}y~}i{}y~|a{}y~d{}~}d{}~}5{}y~}w{|y~}|o{}y~w{|w~l{|y~}u{}y~n{}~}w{}"
-      "y~k{}y~|v{}y~|my~|e{}y~t{}~}k{|w~}j{}y~u{}~}m{}y~|v{}y~}q{}y~|x{}~}~|x{}y~q{}y~|{|y~y{|y~|my~|w{|y~|ny~}y{|y~x{"
-      "}y~n{}x~ux~n{}y~|v{}y~|iy~|i{|y~}vy~}o{|y~|rx~n{|y~}e{|y~|fx~|v{}y~}n{|}q~|p{|y~|ry~}j{}y~j{}y~}t{}y~}o{}~}_y~|"
-      "`{|y~ks~|l{}~|u{|y~ks~|My~}hx~x{~|h{|y~|gx~|}x~}|}y~|j{}y~d{}~}c{|x~S{|~}xy|}y|x{}~|R{}~|x{}~a{|}|X{|~}p{}~| /{"
-      "}y~|v{}y~}hy~y{}~| a{|~|x{}~|i{}~|vr~|s{|~}s{}~|o{}~|vr~|q{}y~}j{|y~|r{}y~q{|y~|r{}y~q{|y~|r{}y~q{|y~|r{}y~q{|y"
-      "~|r{}y~q{|y~|r{}y~u{|y~|ty~}i{}y~}s{|~|p{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{|y~|e{|y~|e{|y~|k{|y~|t{|x~}q{|y~|uv~}p{"
-      "}y~}t{}y~}p{}y~}t{}y~}p{}y~}t{}y~}p{}y~}t{}y~}p{}y~}t{}y~}p{|x~u{|y~}o{}y~}t{}y~}p{}y~|u{|y~}o{}y~|u{|y~}o{}y~|"
-      "u{|y~}o{}y~|u{|y~}iy~}i{|y~|e{}y~sy~}p{|y~|v{}x~n{|y~|v{}x~n{|y~|v{}x~n{|y~|v{}x~n{|y~|v{}x~n{|y~|v{}x~s{|y~|v{"
-      "}w~|i{}y~|f{}y~|e{}y~|e{}y~|e{}y~|a{|y~d{|y~d{|y~d{|y~h{}y~|v{}y~|n{}y~t{}~}n{}y~|v{}y~|n{}y~|v{}y~|n{}y~|v{}y~"
-      "|n{}y~|v{}y~|n{}y~|v{}y~|j{|x~i{}y~}v{}y~|n{|y~|v{}y~}n{|y~|v{}y~}n{|y~|v{}y~}n{|y~|v{}y~}k{}~}y~}j{}x~ux~k{}~}"
-      "y~}7{|y~}|{y|{|}y~|o{|y~}|w{|}y~|o{|y~}|w{|}y~|o{|y~}|w{|}y~|o{|y~}|w{|}y~|j{|y~e{|w~|6y~}`x~I{|~hx|y{|}yw|jw~|"
-      "f{}x~j{|y~sy~|mx~w|x~l{}~}uy~}j{}w~|k{}y~}|  I{|x~}|{y|y~|Py~}O{|~}x{|~}j{}~|y{|~{|}y~|n{}~|v{|y~x{}~}sx~}|y{|}"
-      "u~Q{}~}by~|K{}~|d{}y~Jy~}f{}~}f{|y~}|{|}y~}kw|y~w|m{}y~}s|my~}w|}w~e{}y~ly~}w|}x~}l{|x~|y{|x~|jy~}h{|x~}|{y|x~|"
-      "m{~}w|}y~}g{}y~d{}y~_{|}y~}Xy~}|_y~}m{|~}w{|u~y}w~|sx~q{|y~|q{|y~t|}y~}m{}x~}v|}y~|r{|y~u|y}x~}n{|y~q|n{|y~|e{}"
-      "x~}v|}x~}r{|y~|ry~}k{|y~|e{|y~|j{|y~|u{}y~}m{|y~q|r{|y~|oy~}s{|y~|u{|w~}o{}x~}|{y|}x~n{|y~|e{}x~}|{y|}x~o{|y~|t"
-      "{|y~}oy~}x|{y|x~}iy~}j{|x~}w|}x~j{|w~}l{}x~}tw~|q{}y~|t{}y~iy~}k{|x~o|l{}~}`{}~}e{|y~| xx~|y{|}w~m{}w~|y{|x~|lx"
-      "~}|yy|}|mx~|y{|}x~}m{}y~}|x{|}~}jy~|h{|x~|y{|}x~}n{}y~t{}~}j{|y~d{|y~h{}y~w{|x~h{|y~m{}y~ty~|u{|y~r{}y~t{}~}mx~"
-      "|y{|}y~}m{}w~|y{|x~|mx~|y{|}x~}k{}y~g{}~}|x{|}y~|j{|y~}gx~|y{|}x~}k{}w~}k{}x~}w{|x~}n{|y~|w{}y~|j{|w~|j{}y~|`{}"
-      "y~d{}~}d{}~} w{|y~}|{|y~}y~}m{|x~}|y{|}y~}n{|~}x{|y~|jx~|y{|}y~}l{}y~}|x{|y}m{}y~t{}~}jw~|jy~}u{|y~|n{}x~}|{|}w"
-      "~y|s{|x~|{|y~|~}|{}y~}px~y|y~|}y~}ly~|vy~}n{}y~|{|y~y{}y~|n{}w~|y{|x~|mx~|y{|}y~}h{}y~|i{}y~}y{|x~nx~q|}y~|ox~r"
-      "|m{|y~|iw|x~}x{}y~}w|o{|y}x~y}|n{|y~|ry~}j{}y~i{}x~}|{y|}x~m{|^y~|_{|iu~|j{|s{|iu~|Ly~}h{|y~}|{~|{|}mx|y~}t|o{|"
-      "y~r{}~}j{}y~d{}~}b{|y~|S{|~}r{}~|Py|w{}:{|~}r{}~|=k|!{}x~}|{|}w~y|jy~y{}~| ay|w{}h{|~}uv|}~}|ry~s{}~|o{|~}uv|}~"
-      "}|q{|y~}ix~q{|y~|rx~q{|y~|rx~q{|y~|rx~q{|y~|rx~q{|y~|r{}y~q{|y~|vx~sy~}r|q{}x~}v|}y~|p{|y~q|n{|y~q|n{|y~q|n{|y~"
-      "q|j{|y~|e{|y~|e{|y~|e{|y~|k{|y~}u|}x~}p{|y~|u{|w~}o{}x~}|{y|}x~n{}x~}|{y|}x~n{}x~}|{y|}x~n{}x~}|{y|}x~n{}x~}|{y"
-      "|}x~ox~s{|y~}pv~}|{y|}x~o{|x~}w|}x~n{|x~}w|}x~n{|x~}w|}x~n{|x~}w|}x~hy~}i{|y~|e{}y~{x|y{|}y~|ox~|y{|}w~mx~|y{|}"
-      "w~mx~|y{|}w~mx~|y{|}w~mx~|y{|}w~mx~|y{|}w~rx~|y{|}y~|}y~}|x{|}~}qx~}|yy|}|m{}y~}|x{|}~}m{}y~}|x{|}~}m{}y~}|x{|}"
-      "~}m{}y~}|x{|}~}j{|y~d{|y~d{|y~d{|y~gx~|y{|}y~}m{}y~t{}~}mx~|y{|}y~}lx~|y{|}y~}lx~|y{|}y~}lx~|y{|}y~}lx~|y{|}y~}"
-      "i{|x~i{|x~|y{|}y~}lx~|y{|}x~}mx~|y{|}x~}mx~|y{|}x~}mx~|y{|}x~}k{|w~|j{}w~|y{|x~|k{|w~|6{|q~|m{|q~|m{|q~|m{|q~|m"
-      "{|q~|i{|y~dw~5{}~_{}~}I{}~c{}~d{|y~|dy~|j{|y~sy~|m{|s~|ly~}u{}~}j{|w~i{}m~  S{|s~}Oy~}O{}~|x{}~|j{}q~}n{|~}t{}y"
-      "~}x~q{}s~}{|y~}R{|y~c{|y~J{}~|dx~Jy~}fy~|e{}t~}k{}q~}no~|nq~}d{}y~lq~|j{|s~|j{|y~|g{|r~|ls~}f{}y~dx~\\y|X{}|]y~"
-      "}ly~|w{|}y~}|{}~}|r{|y~}py~}q{|p~}k{|q~}q{|p~}|m{|o~|o{|y~|d{|p~}q{|y~|ry~}k{|y~|e{|y~|j{|y~|t{}y~}n{|o~r{|y~|o"
-      "y~}s{|y~|t{}x~}n{}r~}m{|y~|d{}r~}n{|y~|s{}y~|pp~}hy~}i{|r~}hw~|l{}x~}tw~|r{|y~}s{|y~}jy~}k{}l~|m{}~}`{|y~e{|y~|"
-      " x{|t~}|y~m{}y~|t~|j{}s~|m{|t~|}~}l{}r~}jy~|g{|t~|}~}n{}y~t{}~}j{|y~d{|y~h{}y~v{|x~i{|y~m{}y~ty~|u{|y~r{}y~t{}~"
-      "}m{|s~}l{}y~|t~|l{|t~|}~}k{}y~g{}r~}h{}u~k{|t~|}~}k{|w~|k{|x~|w{|x~|ny~}u{}y~iw~io~h{}y~d{}~}d{}~} v{}t~{}x~}o{"
-      "|q~}ly~}y|y~}i{|s~}j{}s~}m{}y~t{}~}j{}x~j{}y~sy~}n{}~}t~}x~}r{|u~|{t~o{|q~ky~|vw~}ot~}x~}m{}y~|t~|l{|s~}g{|v~j{"
-      "}t~|o{|k~}p{|o~|n{|y~|is~y{|t~}l{}y~k{|y~|ry~}j{}y~h{}r~}Ny~|Kw~|Lw~|Ky~}g{|r~n{|o~}n{|p{|i{}y~d{}~}ay~|R{|y~}y"
-      "|{y|}y~| a{|y~}y|{y|}y~|<k~}\"{}~}t~}x~}jy~y{}~| Gy~o{|~}r{}~|ty~|ny~o{|~}q{|y~}i{|y~}py~}s{|y~}py~}s{|y~}py~}s"
-      "{|y~}py~}s{|y~}py~}s{|y~}py~}w{|y~|so~}q{|q~}o{|o~|o{|o~|o{|o~|o{|o~|k{|y~|e{|y~|e{|y~|e{|y~|k{|o~|o{|y~|t{}x~}"
-      "n{}r~}l{}r~}l{}r~}l{}r~}l{}r~}n{|~q{|~p{}~y|r~}m{|r~}l{|r~}l{|r~}l{|r~}gy~}i{|y~|e{}y~{}t~}n{|t~}|y~m{|t~}|y~m{"
-      "|t~}|y~m{|t~}|y~m{|t~}|y~m{|t~}|y~r{|s~|y{}r~|p{}s~|l{}r~}l{}r~}l{}r~}l{}r~}j{|y~d{|y~d{|y~d{|y~fs~}l{}y~t{}~}m"
-      "{|s~}k{|s~}k{|s~}k{|s~}k{|s~}Rq~}k{|t~|}~}m{|t~|}~}m{|t~|}~}m{|t~|}~}jw~i{}y~|t~|iw~3{|}w~}|i{|}w~}|i{|}w~}|i{|"
-      "}w~}|i{|}w~}|g{|~}d{}y~} r{|~|Iy~|dy~|d{|}cy|i{|y}sy}|k{}w~}k{|y~|u{|y~ix~}gy}p~  Q{|}x~}|Ny~}Oy~wy~h{|y}v~}|my"
-      "~r{|x~}o{|}w~}|x{}y~}Ry~|d{}~}J{}~|dy~}Jy~}g{|y~c{|}x~}|j{}q~}no~|m{|}w~y}|c{}y~l{|y}w~y}f{}w~}hx~dy}x~y}|k{|}w"
-      "~}|e{}y~dy~} ry~}l{|y~c{}y~|p{}y~q{|r~}|h{|}w~}|o{|s~y}|k{|o~|o{|y~|b{|}w~y}|o{|y~|ry~}k{|y~|e{|y~|j{|y~|s{}y~}"
-      "o{|o~r{|y~|oy~}s{|y~|t{|x~}l{|}x~y}|l{|y~|b{|}v~}m{|y~|ry~}o{|y}w~y}|gy~}g{|}w~}|g{|x~k{|x~|t{}x~qx~q{}y~|ky~}k"
-      "{}l~|m{}~}_y~|f{|y~| v{}x~}|{|y~m{}y~{|}x~}|h{|}x~y}|j{}x~}|{}~}k{|}w~y}|iy~|e{}x~}|{}~}n{}y~t{}~}j{|y~d{|y~h{}"
-      "y~u{|x~j{|y~m{}y~ty~|u{|y~r{}y~t{}~}k{|}x~}|k{}y~{|}x~}|i{}x~}|{}~}k{}y~f{|y}w~}|fy}w~j{|}x~}y{}~}jx~}ix~ux~|o{"
-      "}y~t{|y~}j{|y~}io~h{}y~d{}~}d{}~} u{|}x~}|y{}y~}o{|y~|}w~}|k{|v~}f{|}x~}|h{|}w~y}|m{}y~t{}~}j{|y~|jy~}s{}y~n{}~"
-      "}{}x~}y{}~}|q{|}y~}|x{}x~}l{}v~}|jy~|v{|}y~}n{}s~|l{}y~{|}x~}|i{|}x~}|e{|}x~i{|}x~}m{}j~p{|o~|n{|y~|is~y{|t~}l{"
-      "}y~k{|y~|ry~}j{}y~f{|}x~y}|My~|Jy~|Jy~|Jy~}f{|}u~}n{|o~}O{}y~d{}~}h{}|w{}y~O{|}v~}| ]{|}v~}|:k~}\"{}~}{}x~}y{}~"
-      "}|jy~y{}~| H{}~|o{|~|s{|~}t{|t~|t{}~|o{|~|q{}y~h{}y~|p{}y~s{}y~|p{}y~s{}y~|p{}y~s{}y~|p{}y~s{}y~|p{}y~s{}y~|p{}"
-      "y~w{}y~ro~}o{|}w~}|m{|o~|o{|o~|o{|o~|o{|o~|k{|y~|e{|y~|e{|y~|e{|y~|k{|s~y}|m{|y~|t{|x~}l{|}x~y}|i{|}x~y}|i{|}x~"
-      "y}|i{|}x~y}|i{|}x~y}|U{|~}x{|}x~y}|j{|}w~}|i{|}w~}|i{|}w~}|i{|}w~}|fy~}i{|y~|e{}y~{|}w~}|k{}x~}|{|y~k{}x~}|{|y~"
-      "k{}x~}|{|y~k{}x~}|{|y~k{}x~}|{|y~k{}x~}|{|y~p{}x~}|v{|}w~y}|n{|}x~y}|j{|}w~y}|j{|}w~y}|j{|}w~y}|j{|}w~y}|i{|y~d"
-      "{|y~d{|y~d{|y~e{|}x~}|k{}y~t{}~}k{|}x~}|h{|}x~}|h{|}x~}|h{|}x~}|h{|}x~}|R{}~|{|}x~}|i{|}x~}y{}~}l{|}x~}y{}~}l{|"
-      "}x~}y{}~}l{|}x~}y{}~}j{|y~}i{}y~{|}x~}|h{|y~}  e{|~} V{|      .{|~ p{}~}dy~|1{|y~2{}~}   U{|y~ ^{}~}  ){|y~|  {"
-      "}y~}  6{}~}_{}~}f{|y~|  -y~}6{|y~ A{}y~Z{}~}  j{|y~I{}y~d{}~}d{}~} \\{|y~a{|}y|*{}~}j{|y~|O{}~}F{|y~K{|}y~y|j{}"
-      "y~     Ry~}c{|~| r{}~}h{}t~|K{| U{| '{}~}^y~y{}~|O{|~| wy|cy}|st|sy|ay~}  ^{|~|    9{|    Y{|~|    8y| Q{|y~h{}"
-      "y~`{|y~  d{|~}        c{|~ oy~e{}~}0{}~}2y~|   U{}~} ]{}y~|r{|y}  7{}y~  y{}y~|  7{}~}_{|y~f{|y~|  .{|y~|6{|y~ "
-      "A{}y~Z{}~}  j{}~}I{|y~d{}~}dy~} \\{|y~ g{}~}j{|y~|O{}~}F{|y~J{|y~h{}y~     Ry~}b{~| r{}~}h{|y}x~}|   ){}~}^y~y{"
-      "}~|N{}~ 'y~}  ]y~         p{~}      g{}~}h{}y~`{}~}  h{|}|{}~}        c{|~ o{}~}fy~/{}~    c{}~ [{}y~}|v{|}y~} "
-      " 7x~  x{}y~|  8{}v~M{|v~|  .{}y~5{}~} A{}y~Z{}~}  k{|y~|I{|y~}e{}~}e{|y~| \\{|y~ g{}~}j{|y~|O{}~}F{|y~J{|y~h{}y"
-      "~     Ry~}b{~| r{}~}    i{}~}*{}~| (x~uy|  e{}~|         q{}~      h{|y~|h{}y~a{|y~|  h{|y~|y~|        c{|~ ny~"
-      "g{}~}      M{|}q~|  9y|}y~|    1{}w~}M{|v~|  6y}|x{|}y~|6{|y~} A{}y~Z{}~}  l{|x~G{}w~}h{}~}h{}w~} [{|y~ g{}~}j{"
-      "|y~|O{}~}F{|y~J{|y~h{}y~     Ry~}b{~| r{}~}    i{}~}-x}y~ '{}x~w|y~|  e{}~|         qy~      i{|x~g{}y~b{|x~  f"
-      "{}w~                e{|y}w~}|  8{|w~}     ({|n~}  m{}s~}7{|w~ @{}y~Z{}~}  nv~|F{|y}~}h{}~}h{}~y}| Z{|y~ g{}~}j{"
-      "|y~|O{}~}F{|y~J{|y~h{}y~     Rx| W{}~}    i{}~}-{}y~}| &{}s~|  i{|~y}y~         t{|~y}y~      kv~|g{}y~dv~|  ex"
-      "}                   s{|y~}|     '{|n~}  m{|y}w~}|6{|y~} ?{}y~Z{}~}  nx~}|-{}~} B{|y~ g{}~}j{|y~|O{}~}F{|y~J{|y~"
-      "h{}y~           q{}~}  -{|}x~}|  f{}y~}|         t{|x~}|      kx~}|f{}y~dx~}|                                  "
-      " :{}~}                                     I{"; }
-
-    // Define a 52x64 font (large sans).
-    inline const char* data_font_large() {
-      const char *const chunk0 =
-      "                                                                                                               "
-      " -{|                                                                                                           "
-      "                                    [{|x}|Dw}|Pw}| @{}v~} C{|w}|Ew}|Pv}| xv|Ev|Pu|  kv|Dw|P{|v}  6{|w}|E{|x}|P{"
-      "|w}| pw}|                                                                                                      "
-      "                           G{|w~}F{}w~P{}v~}Q{}w~}|w{|x~X{|v~vv~|U{|r~| D{}w~F{}w~P{}u~S{|v~|wv~}V{}w~|G{|w~|Q{"
-      "|u~|Sv~}w{}w~}\"{|}x~}|v{|x~W{}w~|F{}w~Q{|u~}Q{}x~}|v{|x~X{}w~}w{|v~ G{}w~F{}w~|Q{}u~Rv~|w{}w~}O{}w~           "
-      "                                                                                                               "
-      "       E{|w~|H{}w~P{}t~}Ss~}|y{}x~X{|v~vv~|V{|p~ Cw~}H{|w~|Q{|t~}T{|v~|wv~}U{}w~Gw~}Q{|s~|Tv~}w{}w~}#{|s~}|{|x~"
-      "}V{}w~|H{}w~Ps~}St~}w{}y~}X{}w~}w{|v~ Fw~}H{|w~|Q{|t~}Sv~|w{}w~}P{|w~|                                         "
-      "                                                                                        D{|w~|J{|w~|Q{|x~}{w~|U"
-      "{}l~}X{|v~vv~|Vw~}x{}x~} D{|w~|J{|w~|Q{|w~{}x~}U{|v~|wv~}T{}x~}Iw~}Pw~y|w~Tv~}w{}w~}#k~|U{}w~I{|w~|Q{}x~|{}x~|U"
-      "{}r~|{|x~}X{}w~}w{|v~ Ew~|Iw~}Pw~|}x~}Tv~|w{}w~}Q{|w~|    M{|                                                  "
-      "                                                                           q{}w~Jw~|Q{|x~}xw~Ux~}y{|}t~}W{|v~vv"
-      "~|W{|x~|v{|x~| D{|w~|Kw~}Pw~x{}x~|V{|v~|wv~}S{}x~}K{}x~}P{}x~|y{|x~}Uv~}w{}w~}${|x~|y{|s~}S{}x~}K{|w~|Q{}x~}xw~"
-      "Ux~}{|}r~W{}w~}w{|v~ E{|w~|K{}x~}Pw~|y{}x~|Uv~|w{}w~}Qw~|    O{}v~}                                            "
-      "                                                                                 s{}x~}L{}x~|Pw~vw~W{|x~v{|}w~}"
-      "V{|v~vv~|W{}y~}tx~} C{|w~L{}x~}P{}x~|w{}x~|W{|v~|wv~}R{}x~|M{}x~}P{}x~|w{|x~}Vv~}w{}w~}${|x~v{|}w~|Q{}x~}Lw~|Q{"
-      "|x~}vw~W{|x~w{|t~|W{}w~}w{|v~ D{|w~L{|x~}P{}x~|w{}x~|Vv~|w{}w~}R{}x~}    P{|r~|                      Y{}w~|    "
-      "                                                                                                  A{}x~|N{}x~}P"
-      "{}x~u{|x~}\"v|vv|V{}y~}t{}y~} B{}x~}N{|x~}P{}x~|u{}x~Vv|vv|P{}x~|O{|x~}P{}x~|u{|x~}Wv|uv| D{}x~|N{}x~|Q{|x~}tx~"
-      "}X{|x~u{|}y~}|Vu|vv| C{|x~}N{|w~P{|x~|u{}x~Vv|vu|S{|x~}    Op~|                      Zv~|                      "
-      "                         ;v~                                                u{|v~      6{|y}|N{|y}|P{|x}s{|x} I"
-      "{}y~}t{}y~} Aw|Nw|Ow|sw|    Qw|Nw|Pw|rx|  5{|x}N{|x}O{|y}|s{|y}| {{|y}| Dv|@v|Rv| C{}x~}x{|w~ Hu|@v|Rw| yv}@v}R"
-      "{|w}  lv|@v|Rv|  8v}@v}|S{|w} m{}w~|        E{|y~x}|                                               ;{|w~}      "
-      "                                          vv~|         J{}y~}t{}y~}               e{}w~}B{|w~}Rv~| Dx~|v{|x~| H"
-      "v~A{}w~|S{|w~} {{|w~}B{}w~|S{|v~| Ay|sx|Y{}w~|B{|w~}Rv~  8{|w~}B{|w~}Rv~| o{|w~}     ?y}~}|  *x~             J{"
-      "|y~|  b{}x~|T{|x~}                            L{|q~} y{}q~| H{|w~} xw~} `{|w~| {{|}t~)w~}Cv~Lv~Tw~}Dv~        G"
-      "{|x}w~}Tw~|U{|v~y}|  1{|y}v~y}|   cv~y}     p{|y}x~y}|             {{v|vv|      3{}w~|         I{|x~|v{|x~|    "
-      "      %{|   5{|y}w~y}|U{}w~|Cv~R{}v~}Q{|}y~}|ux~|Y{|v~|wv~}W{|x~t{}y~} H{|w~}C{}w~|Ru~|S{}w~}w{|v~W{}w~|D{|w~}R"
-      "t~S{|v~vv~|X{|v~}K{}w~}ux~X{}w~C{|w~}R{}v~}Q{|}y~}|ux~|Y{|v~vv~| J{|w~}D{|w~}R{}u~Rv~|w{}w~}N{|w~}Zw~}Hv~}w{}w~"
-      "}    N{|u~}  ,{|y~} Ix|Tx|kw|        Ru|  6{|y~|Yv|fx}|Zu| o{|w~Rw~|Hx|   Xu| vt|Ns| =t| xt|Ot|   [u|  ds|  kr|"
-      "    Qt| ut| ts|    S{|q~} y{}q~| G{}w~| yw~} `{|w~|!{}q~)w~}Cv~Lv~Tw~}Dv~        I{|r~}Tw~|U{|r~}  5{|}o~| yr| "
-      " ps~}     t{|p~|  kt|  is| s{|y} r{|x}| rx}|  bt|  lu|S{|v~vv~|!{|y}w~y}|  :{|l~|Qx| u{|y}w~}|Q{|x}w~y}|K{|w~| "
-      " 9y|y}w~|O{|y}w~}|)y|x}dw~|hy|x}dw~|ly|x}y~y}|e{}x~|   6w~}x{}x~} us|      lt|Nt|Nt|Nt|Nt| ut|p{}~|   9{|}o~|V{"
-      "}w~D{}w~R{|t~|S{|u~}vx~|Y{|v~|wv~}W{}y~}t{|x~ G{|w~}E{|w~}R{}t~S{}w~}w{|v~V{}w~E{|w~}R{}t~}T{|v~vv~|W{|v~}s{|y}"
-      "X{}u~}w{|x~Ww~}Dv~R{|t~|S{|u~}w{|x~X{|v~vv~| I{}w~|Ew~}R{|t~}Sv~|w{}w~}Nw~}Yw~}Hv~}w{}w~}    O{|s~|cW}  i{}y~|"
-      "\"{|}L{|u~}|Z{|}v~}|p{}u~}V{|}  /g|    ({}r~}| v~}R{}x~}vw~}R{|x}|t{|x}|V{|y~|\\{|}t~|i{}x~|]{}q~}|O{}x~}Iw~|R{|"
-      "w~Hx~  *{|w~V{|}s~}|Sy|y}v~}T{|}q~}|V{|y}p~}|L{|u~}\\{|g~}T{}q~y}|_{}c~}[{|}q~}|U{|}r~}|   b{|}q~| w{}v~}X{}k~y"
-      "}|R{|y}p~}|b{}m~x}y|W{}c~|`{}e~Y{|}o~}|a{}w~}hv~|Y{}w~}M{}w~}W{}w~}k{|u~}b{}w~}V{}t~|h{}t~|h{}u~}jv~^{|}p~}|Z{}"
-      "m~y}|U{|}p~}|\\{}m~y}y|S{|}o~}y|bZ~g{|v~h{}w~}i{|v~|d{|v~|rv~|l{|v~}kv~|p{|v~|i{}v~g{}v~fv~}g\\~]{|q~}Uw~}I{}q~"
-      "|P{|w}| w{}w~ yw~} `{|w~|\"o~)w~}Cv~Lv~Tw~}Dv~        J{|q~}Tw~|U{|q~}  7{}l~}\"y}p~y}  sr~}     v{}n~}R{}v~}V{"
-      "}c~|_{}d~}^{|}p~}|R{|v~Y{}^~|iv~}r{|v~qv~}a{|}p~}| x{}x~} s{}w~ s{}w~|  f{|}r~}|-{}w~|i{|v~({|q~}|W{|v~vv~|Ty|u"
-      "}y|U{|}o~|  ly|u}y|U{|l~|T{|}v~}| {|}p~|T{}p~}|N{|w~} yy|}m~} N{|r~|P{}q~|0{|y}t~|f{}x~}l{|y}t~|f{}x~}l{}p~}h{}"
-      "x~}%{}v~}N{}v~}N{}v~}N{}v~}N{}v~}Q{|p~W{}\\~}b{|y}p~}|^{}c~|a{}c~|a{}c~|a{}c~|X{}w~}M{}w~}M{}w~}M{}w~}Z{|m~x}y|"
-      "Z{}u~}jv~^{|}p~}|V{|}p~}|V{|}p~}|V{|}p~}|V{|}p~}|\"{|}q~y}t{}x~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}g{}"
-      "v~fv~}c{}w~}J{|l~}Vw~}F{}w~|R{}x~|w~Ss~}x{|x~X{|v~|wv~}W{}y~}t{|x~ F{|w~|Fw~}R{|x~y}x~}T{}w~}w{|v~U{}x~}Fw~}R{|"
-      "w~{w~|U{|v~vv~|V{}v~|x{|}v~Y{|s~}x{}x~W{|w~}F{}w~Qw~|w~Ss~}x{|x~X{|v~vv~| H{}w~F{}w~Qw~|}x~|Tv~|w{}w~}O{}w~Xw~}"
-      "Hv~}w{}w~}    P{|q~c{}Y~}  ix~!y~|N{}r~}\\{}r~}s{|q~|Y{|y~}  5{|}e~}    *{}m~|\"v~}R{}x~}vw~}Rw~|tw~|V{|y~|]{}q"
-      "~}k{|w~^{|l~|Q{}x~}J{}w~P{}x~}Ix~  *{}x~}W{}n~|Zy|}p~}W{|}k~}Z{}i~|Nt~}\\{|g~}V{}l~|`{}c~}\\{}l~|X{}n~}   e{|l~"
-      "|Ty|y}u~y}|Rt~X{}g~}V{|}j~}d{}g~}|Z{}c~|`{}e~\\{|}i~}|d{}w~}hv~|Y{}w~}M{}w~}W{}w~}l{|u~}a{}w~}V{}t~}i{|s~|h{}t~"
-      "|kv~`{|k~}|\\{}i~}|Z{|k~}|^{}i~}|W{|h~}dZ~g{|v~h{}w~}hv~}d{}v~q{}w~}l{}u~kv~|o{}v~j{|v~|fv~}h{}v~f\\~]{|v~u}U{}"
-      "w~Iu}v~|Qt~| w{}x~} {{w~} `{|w~|#{}o~)w~}Cv~Lv~Tw~}Dv~    Ov|    s~x}|Tw~|U{|x}s~|  9{}j~}%{}j~|  uq~|     x{}l"
-      "~}St~V{}c~|_{}d~}`{|}k~|T{|v~Y{}^~|iv~}r{|v~qv~}c{|k~}| {}v~} t{}w~ t{}u~|  i{|l~-v~i{}w~|Xw}|R{|l~X{|v~vv~|W{|"
-      "}o~}|X{|m~|  p{|}o~}|X{|l~|U{}r~}!{|n~}U{}n~|Ow~} {{|}j~} N{|r~|R{|n~}1{|r~|g{|w~k{|r~|g{|w~k{}n~iw~$t~Nt~Nt~Nt"
-      "~Nt~P{|r~V[~}d{|}j~}`{}c~|a{}c~|a{}c~|a{}c~|X{}w~}M{}w~}M{}w~}M{}w~}Z{|g~}|]{}t~|kv~`{|k~}|Z{|k~}|Z{|k~}|Z{|k~}"
-      "|Z{|k~}|&{|k~}w{|w~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}fv~}h{}v~b{}w~}K{}j~}W{|w~|H{|w~|R{|x~}{|x~}U{|"
-      "x~}|w~}|{}x~X{|v~|wv~}W{|x~t{}y~} E{}w~G{}x~}Qw~|{}x~|U{}w~}w{|v~Tw~}H{}w~Q{}x~|{|x~}U{|v~vv~|U{}v~|}t~}Y{}x~|{"
-      "}w~y|x~}V{|w~|H{|w~|R{}x~|{|x~}U{}x~}|w~}{|x~}X{|v~vv~| G{}x~}H{|w~|R{}x~|yw~Tv~|w{}w~}P{|w~|Xw~}Hv~}w{}w~}    "
-      "P{}w~y|w~|d{|Y~|  j{|y~}\"{}x~Oo~}_{|o~}u{|o~}Zw~|  8{}b~}    ,{|j~}#v~}R{}x~}vw~}Rw~sw~U{|y~|^{}o~}lw~|_{}k~|Q"
-      "{}x~}Jw~|P{|w~|Jx~  *w~|Xk~|[m~}X{}h~}[{}h~}P{}t~}\\{|g~}X{|j~|`{}c~}^{|i~}[{|j~   gi~|X{|}l~}|V{}t~|Y{}e~|Y{}f"
-      "~}f{}d~}\\{}c~|`{}e~]{}e~}|f{}w~}hv~|Y{}w~}M{}w~}W{}w~}m{|u~|`{}w~}V{}s~|j{}s~|h{}t~}kv~b{|g~}]{}g~}]{|g~}_{}g~"
-      "}Y{}f~dZ~g{|v~h{}w~}h{}v~dv~}q{}w~}lt~|m{|v~mv~}kv~}e{|v~|j{|v~|f\\~]{|w~}O{|w~|D{|w~|Rr~| ww~} w~} `{|w~|${|v~"
-      "}|#w~}Cv~Lv~Tw~}Dv~    Ov~   !{|v~}Nw~|O{|v~}  :{|u~}|w{|}v~|'{}i~|  r{|}v~}     y{}v~}|x{|}v~}U{}t~|W{}c~|_{}d"
-      "~}a{}g~|V{|v~Y{}^~|iv~}r{|v~qv~}e{|g~}\"{}t~} u{}w~ u{}s~| >y~}P{|k~-{|w~}k{|w~}Ww~|S{|k~X{|v~vv~|Y{|}k~}|Z{|y~"
-      "}y|xy|}w~|  s{|}k~}|Z{|l~|V{}p~}\"{|y~}|w{|}w~|V{|}|u{|v~P{}x~} {{}h~} N{|~y}y|}x~|S{|v~}|y{|}w~}2{|w~y}x~|g{}x"
-      "~|k{|w~y}x~|g{}x~|kx}|w{|}w~}k{}x~}%{}t~|P{}t~|P{}t~|P{}t~|P{}t~|P{}t~}W{|[~}e{}f~}b{}c~|a{}c~|a{}c~|a{}c~|X{}w"
-      "~}M{}w~}M{}w~}M{}w~}Z{|d~}|`{}t~}kv~b{|g~}]{|g~}]{|g~}]{|g~}]{|g~}){|g~|{|w~|h{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f"
-      "{|v~h{}w~}f{|v~|j{|v~|b{}w~}L{|u~}|w{|}v~|W{|w~|Iw~}Qw~x{}x~|V{}y~}x{}s~|X{|v~|wv~}Vx~}v{|x~| D{}x~}I{}w~Q{}x~|"
-      "xw~U{}w~}w{|v~T{|w~|J{|w~Q{|x~}x{|x~|V{|v~vv~|T{}q~}|Wx~|x{}s~T{|w~I{|w~|R{|x~}x{}x~|Vx~}x{}s~|X{|v~vv~| Fw~}J{"
-      "|w~|R{|x~}x{|x~}Uv~|w{}w~}Q{|w~|Ww~}Hv~}w{}w~}    Pw~}y{|x~}cY~  i{}y~|#{|w~}Qm~|`m~}w{|m~|\\{}v~|  ;{}`~}    -"
-      "{|r~x}t~}$v~}R{}x~}vw~}S{|w~t{|x~}U{|y~|_{|w~}w{}w~|n{}x~}_{|t~w}u~|Q{}x~}K{}w~N{}x~}Jx~  +{|w~Xs~y}s~|\\m~}X{}"
-      "f~\\{}g~}R{|s~}\\{|g~}Y{|i~|`{}c~|_{|s~w}s~}]{|s~x}s~   hr~}r~|[{|f~}Xs~}Y{}d~|\\{|c~}g{}b~|^{}c~|`{}e~_{|a~|g{"
-      "}w~}hv~|Y{}w~}M{}w~}W{}w~}n{|u~|_{}w~}V{}s~}jr~|h{}s~|lv~c{|p~}q~}^{}f~}_{|p~}q~}`{}e~[{}q~}p~dZ~g{|v~h{}w~}h{|"
-      "v~|f{|v~p{|v~m{|t~}m{}w~}m{|v~|m{}v~c{}v~jv~}e\\~]{|w~}Nw~}D{|w~|Sp~| ww~|!w~} `{|w~|${}w~}!w~}Cv~Lv~Tw~}Dv~   "
-      " Ov~   !{}w~}Mw~|N{|v~  :{}v~|s{|v~V{|t}|V{|t~s}w~|  p{|v~     {{|v~|t{|v~|Vs~}W{}c~|_{}d~}c{|d~|W{|v~Y{}^~|iv~"
-      "}r{|v~qv~}f{|p~}q~}${}r~} v{}w~ v{}q~| ?y~}Ps~x}u~,v~k{}w~|Ww~|Su~}v|}w~X{|v~vv~|Z{}v~}y|wy|}v~}[{|}q{}x~}  t{}"
-      "v~}y|wy|}v~}&{}w~|x{|w~}#y|r{}x~}Kw~|R{|w~ {{}p~}v|x~} H{}x~|S{}w~t{}w~|3x|x{}x~|h{|x~}j{|}|x{}x~|h{|x~}`{|w~l{"
-      "|w~$s~}Ps~}Ps~}Ps~}Ps~}Pr~W{}[~}g{|c~}c{}c~|a{}c~|a{}c~|a{}c~|X{}w~}M{}w~}M{}w~}M{}w~}Z{|b~}a{}s~|lv~c{|p~}q~}_"
-      "{|p~}q~}_{|p~}q~}_{|p~}q~}_{|p~}q~}+{|p~}q~}w~|g{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}e{}v~jv~}a{}w~}Lu~r{"
-      "|v~V{|w~J{}x~}Q{}x~|w{}x~Vx~|w{}u~}Vv|vv|U{}x~}x|}w~ Bw~|K{|w~|R{|x~}w{|x~}Vu|vv|S{|w~K{|w~|Qx~}v{}x~Uv|vv|T{|}"
-      "t~}|Tx~|w{|u~|S{}x~}Jw~}Qw~vw~Vx~|w{}u~}Vv|vv| Dw~|Kw~|Qw~v{}x~|Vv|vv|Pw~|Vw~}Hv|uv| G{|t}|P{|t}|P{|t}|P{|t}|P{"
-      "|t}|Lw~|xw~c{|[~}  iy~}\"u~|S{|l~a{}l~|x{}l~]{}t~  ={|^~}    .{|u~}|u{|}w~}$v~}R{}x~}vw~}S{}x~}t{}x~}Xy|y}y~y}x"
-      "|cw~}u{}w~o{|w~^u~}t{|}y~|Q{}x~}Kw~|N{|w~|T{}sx~s{}  4{}x~}Y{}v~}|v{}u~\\m~}X{}v~y}|wy|s~]{}x~}x|v{|}t~}Sr~}\\{"
-      "|v~k|Z{|t~}|v{|y}y~|`h|u~^t~|u{|}u~|^u~}|v{|}v~}   iv~y|v{|t~]{|o~y}p~|[{|r~|Z{}w~}q|}s~]{|s~}|t{|}u~}g{}w~}r|y"
-      "}q~}_{}w~}h|_{}w~}j|`{|s~}|s{|}t~|g{}w~}hv~|Y{}w~}M{}w~}W{}w~}o{}u~|^{}w~}V{}r~k{|r~|h{}r~lv~d{|t~}|uy|s~_{}w~}"
-      "s|y}t~}a{|t~}|uy|s~a{}w~}s|y}s~]{}u~}|ty|}v~dn|}v~}n|g{|v~h{}w~}gv~}f{}w~}ov~|n{|t~}mv~|l{}v~|o{|v~|bv~}l{}v~dc"
-      "|u~}]{|w~}N{}w~D{|w~|T{}o~| x{|w~!w~} `{|w~|${}w~ w~} >w~}Dv~    Ov~   !{}w~|Mw~|M{}w~  :v~|q{}w~|Xp~}X{}v~|p{|"
-      "}|  o{}w~|     v~|r{|v~W{|r~|X{}v~}i|^{}w~}h|d{|s~}y|xy|}s~}[{|y}u~y}y|]{}w~}h|v~|iv~}r{|v~qv~}g{|t~}|uy|s~&{}p"
-      "~} w{}w~ w{}o~| @y~}Q{}v~}|u{|}y~,{|w~}m{|w~}Vw~|T{|v~|s{|}~({|w~}|o{|}w~|P{}x~|  w{|w~}|o{|}w~|(x~}tw~ rw~K{}x"
-      "~|Rw~ {{}o~}w{|x~} H{}x~|T{|w~r{}x~}-{}x~|hw~|d{}x~|hw~|_{}x~|mw~|%{|r~|R{|r~|R{|r~|R{|r~|R{|r~|R{}r~|Y{|v~|y{|"
-      "v~}h|h{|s~}|t{|}u~}c{}w~}h|`{}w~}h|`{}w~}h|`{}w~}h|W{}w~}M{}w~}M{}w~}M{}w~}Z{|v~r|x}q~b{}r~lv~d{|t~}|uy|s~a{|t~"
-      "}|uy|s~a{|t~}|uy|s~a{|t~}|uy|s~a{|t~}|uy|s~-{|t~}|u{|}q~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}dv~}l{}v~`"
-      "{}w~}M{|v~p{}w~|V{}x~}L{}x~}Q{|x~|ux~}Wx~|v{|w~} {{}q~| Aw~|Lw~|Qw~u{}x~| y{|x~}Lw~|Q{}x~tx~}#{|}r~}Rx~u{|}y~}|"
-      "Q{}x~}L{}x~}Q{}x~|v{|x~}Wx~|v{}w~}  j{|w~L{}x~}Q{}x~|u{}x~ x{}x~}Uw~}  b{|}p~}|V{|}p~}|V{|}p~}|V{|}p~}|V{|}p~}|"
-      "P{|w~|xx|av~|fv~|  j{|y~|#{}t~Sk~|c{|k~}y{|k~}_{|s~}  ?{}t~}y|     u{|u~|p{}y~}$v~}R{}x~}vw~}Sw~|tw~|[{|}m~}|h{"
-      "|w~sw~|p{}x~|_{}v~|q{|}|Q{}x~}L{}w~Lw~}U{}y~|ux~u{|y~}U{|x}|  `w~|Z{|v~}s{|v~}]w~y}y|{}w~}X{}x~|p{|u~|^y}|n{|u~"
-      "|U{}x~y}w~}\\{|w~}K{|u~}o{}|Mv~|_{}v~}q{|u~_{}v~}r{|v~|   jy~}|qu~|_{}t~}y|s{|}t~}\\{}w~}w~}Z{}w~}o{|u~}_{|t~|n"
-      "{|}x~}g{}w~}n{|}t~}`{}w~}L{}w~}P{|t~}m{|}w~|g{}w~}hv~|Y{}w~}M{}w~}W{}w~}p{}u~|]{}w~}V{}w~}w~|l{}r~|h{}r~|mv~e{|"
-      "u~}|p{|t~`{}w~}q{|}u~|c{|u~}|p{|t~b{}w~}p{}u~|_{|u~|n{|}y~W{|v~|Z{|v~h{}w~}g{|v~fv~|o{}w~}n{}x~}w~mv~|kv~}ov~}a"
-      "{|v~|n{|v~|M{}v~}\\{|w~}N{|w~|E{|w~|U{}v~}{|u~| x{|x~}\"w~} `{|w~|$v~ w~} >w~}Dv~    Ov~   !v~Lw~|M{}w~|  <{|w~"
-      "}p{|w~}Xn~|Zv~  _{|v~    !{|w~}p{}w~}X{}w~}w~}W{}v~|M{}w~}R{|t~|p{|t~|_{|}l~}|`{}w~}hv~|iv~}r{|v~qv~}h{|u~}|p{|"
-      "t~({}n~} x{}w~ x{}m~| Ay~}R{|v~}p{}+{}w~|nv~Uw~|T{}w~| x{|w~|k{|w~|Q{|x~|  x{|w~|k{|w~|*{|x~rx~|R{|w}Fw~Kw~|S{}"
-      "x~| {|n~}w{|x~} H{}x~|T{}x~}qw~|.{}x~|i{}x~}c{}x~|i{}x~}^{}x~|n{}x~}${}w~}w~}R{}w~}w~}R{}w~}w~}R{}w~}w~}R{}w~}w"
-      "~}Rv~|w~}Y{}w~}x{|v~U{|t~|n{|}x~}c{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~n{|}s~c{}r~|mv~e{|u~}|p{|"
-      "t~c{|u~}|p{|t~c{|u~}|p{|t~c{|u~}|p{|t~c{|u~}|p{|t~/{|u~}|p{}t~}e{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}d{|v"
-      "~|n{|v~|`{}w~}M{}w~}ow~}U{}x~|N{|w~Px~}t{|x~|Xx|sy| w{}s~| @{|w~M{}x~|Q{}x~|tw~ x{}x~}N{}x~|Q{|x~|t{|x~|&{}t~}v"
-      "~} t{}x~|N{|x~}Q{|x~}t{}x~|Xx|sy|  g{|x~}N{|x~}Q{|x~}sx~} {{|x~}Tw~}  d{|j~|Z{|j~|Z{|j~|Z{|j~|Z{|j~|R{|w~Z{}w~}"
-      "g{}w~} Ay|J{}y~#{|s~}Tk~}c{}j~|{}j~_q~|  A{}u~}     q{}v~|n{}~}$v~}R{}x~}vw~}Sw~t{|w~\\{|h~|i{}x~}s{}x~}q{|x~}^"
-      "v~|C{}x~}Lw~}L{}w~V{|v~|wx~w{|v~|V{}w~  a{|w~Yv~}q{|v~|^{}y|u{}w~}Xy}|m{|u~M{|v~}V{|w~|}w~}\\{|w~}Ku~|?{|v~^u~o"
-      "{}v~|a{|v~}p{}v~   j{~|nv~}`u~}|l{|}u~]v~{v~Z{}w~}mu~_u~}j{|y~}g{}w~}l{|}u~}a{}w~}L{}w~}Q{|u~}i{|}y~|g{}w~}hv~|"
-      "Y{}w~}M{}w~}W{}w~}q{}u~|\\{}w~}V{}w~|w~}lw~|v~|h{}q~mv~f{|u~}m{|u~}a{}w~}o{}v~}d{|u~}m{|u~}c{}w~}o{|u~_{}v~|j{|"
-      "W{|v~|Z{|v~h{}w~}fv~|h{}v~n{}w~}nw~|w~|o{|v~j{|v~}q{}v~_{}v~nv~}M{|u~[{|w~}Mw~}E{|w~|V{}v~}x{|u~|  vw~} `{|w~|$"
-      "w~} w~} >w~}Dv~    Ov~   !v~Lw~|M{}w~|  <{}w~|ow~}Xm~|[v~  ^v~|    \"v~|p{|v~Xv~{v~V{}v~|N{}w~}Ru~}l{}u~|b{|g~}"
-      "|b{}w~}hv~|iv~}r{|v~qv~}i{|u~}m{|u~}*{}l~} y{}w~ y{}k~| By~}R{}v~ y{|w~}o{|w~}Uw~|T{}w~ x{|x~}g{}x~|R{|x~}  y{|"
-      "x~}g{}x~|+{}y~}r{}y~}R{}w~Fx~}M{|}w~ Mm~}w{|x~} H{}x~|Tw~p{}x~|.{}x~|j{|w~b{}x~|j{|w~]w~n{|w~#v~{v~Rv~{v~Rv~{v~"
-      "Rv~{v~Rv~{v~S{|w~}{}w~|Zv~|x{|v~Uu~}j{|y~}c{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~k{}t~d{}q~mv~f{|"
-      "u~}m{|u~}e{|u~}m{|u~}e{|u~}m{|u~}e{|u~}m{|u~}e{|u~}m{|u~}1{|u~}m{|u~}e{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w"
-      "~}c{}v~nv~}_{}w~}Mv~n{}w~Tw}N{|x}P{|x}r{|x} F{|}x~}| ={|x}|O{|x}|Px}|s{|x}| xw|Nw|Pw|rw|'{|v~}|y{|v~} tw}Nw}P{|"
-      "x}rx}|  6w|Nw|Ox|rw| Nw~}  e{}h~}\\{}h~}\\{}h~}\\{}h~}\\{}h~}S{|w~Z{|v~gv~| Ay~}L{|y~}${|q~}V{|j~ci~}|i~|a{}p~|"
-      "Oy|Uw|jw|Vu|Wv|kw|b{}v~}     p{|v~|l{|}$v~}R{}x~}vw~}T{|x~}t{|x~}]{|g~|i{}x~|s{|w~qw~|^v~B{}x~}M{|w~|L{|w~}V{|}"
-      "w~}xx~x{}w~}|U{}w~  a{}w~Z{|v~o{}w~}U{}w~}X{|j{}v~|M{}v~Vw~}{}w~}\\{|w~}L{|v~|>v~}_{|v~|nv~}a{}v~nv~|   \\{}w~}"
-      "b{|u~|h{|}v~|`{|w~}{}w~|[{}w~}m{|v~|a{}v~}gy}g{}w~}j{}u~|b{}w~}L{}w~}Q{}v~}f{|~|g{}w~}hv~|Y{}w~}M{}w~}W{}w~}r{}"
-      "u~|[{}w~}V{}w~y|w~m{|w~{v~|h{}w~}v~|nv~f{}v~}ju~|b{}w~}nu~d{}v~}ju~|d{}w~}n{}v~|`v~}D{|v~|Z{|v~h{}w~}f{}w~}hv~}"
-      "n{|v~o{|w~{}x~}o{}w~}i{}v~|s{|v~|^v~}p{}v~M{|u~|[{|w~}M{}x~}E{|w~|W{}v~|v{|u~|  ww~} `{|w~|$w~} w~} >w~}Dv~    "
-      "Ov~   !v~Lw~|M{|w~|  <{}w~|ow~}Xy~}w|}t~[v~|  _{}w~}    #{|w~}n{}w~|Z{|w~}{}w~|Vu~|O{}w~}S{}v~}j{}u~c{}d~|c{}w~"
-      "}hv~|iv~}r{|v~qv~}i{}v~}ju~|,{}v~y}w~|v~} {{}w~ {{}v~y}w~|u~| Cy~}R{}w~}R{|ey|_{}w~|pv~Tw~|T{}w~ y{|x~}e{}x~|\\"
-      "{|}p~}  {{|x~}e{}x~|,{}y~}r{}y~}R{}w~G{}x~|Rq~| N{|m~}w{|x~} H{}x~|U{|w~p{|x~}.{}x~|j{}x~|b{}x~|j{}x~|_{|w~|n{}"
-      "x~|${|w~}{}w~|T{|w~}{}w~|T{|w~}{}w~|T{|w~}{}w~|T{|w~}{}w~|T{}w~|{|w~}[{|v~w{|v~V{}v~}gy}c{}w~}M{}w~}M{}w~}M{}w~"
-      "}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~j{|u~}e{}w~}v~|nv~f{}v~}ju~|f{}v~}ju~|f{}v~}ju~|f{}v~}ju~|f{}v~}ju~|c{}d{}|d{}v~}"
-      "k{}u~|f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}bv~}p{}v~^{}m~y}|Yv~o{|}w~         Py~}|u{|v~}       2w~}  f{"
-      "}u~}x|{x|}t~^{}u~}x|{x|}t~^{}u~}x|{x|}t~^{}u~}x|{x|}t~^{}u~}x|{x|}t~T{|w~Yv~|i{|v~ A{}x~}M{}y~|$o~|W{|j~ch~}i~}"
-      "b{}n~T{|}t~y}|Zw~}kw~}X{}u~|X{}w~|m{}w~|d{|v~|     ov~}j{|$v~}R{}x~}vw~}T{}x~}t{}x~}]u~}|{|y~|y{|y}x~|iw~|rw~r{"
-      "}x~}]v~B{}x~}Mv~Jv~T{|}w~|{x~{|w~}|S{}w~  aw~}Z{}w~}o{|v~U{}w~}Ev~}M{|v~W{}w~y{}w~}\\{|w~}Lv~}>{|v~|_{|v~m{}w~}"
-      "av~|n{|v~ 8{|y}6{|~|4{}v~c{|v~}d{|v~`{}w~|{|w~}[{}w~}lv~|b{|v~}e{|g{}w~}i{}u~b{}w~}L{}w~}R{|v~}dy|g{}w~}hv~|Y{}"
-      "w~}M{}w~}W{}w~}s{}u~Y{}w~}V{}w~|{w~|nw~}{v~|h{}w~y|v~nv~g{|v~}i{|u~b{}w~}n{|v~|f{|v~}i{|u~d{}w~}n{|v~|a{|v~C{|v"
-      "~|Z{|v~h{}w~}f{|v~|j{|v~|mv~|p{|w~{|x~}ov~|hv~}sv~}]{|v~|r{|v~|Mu~|Z{|w~}M{|w~E{|w~|X{}v~|t{|u~|  xw~} `{|w~|$w"
-      "~} w~} >w~}Dv~    Ov~   !w~}Lw~|M{|w~|  <v~nw~}X{|s{}v~}\\{}v~|  `{|v~    #{}w~|n{|w~}Z{}w~|{|w~}Uu~|P{}w~}T{|u"
-      "~h{}v~}f{|r~y}v~}r~}d{}w~}hv~|iv~}r{|v~qv~}j{|v~}i{|u~-{}v~}{}w~{|v~} {}w~ {}v~}{}w~{|u~ Cy~}Rv~|S{}~}g{|y~|_v~"
-      "q{}w~|Tw~|T{}w~| {{x~}t{|y}u~}|u{}x~^{}m~}  {{x~}wq}y|s{}x~,{}y~}r{}y~}R{}w~H{|x~}Qs~} L{}m~}w{|x~} H{}x~|U{|x~"
-      "}p{|x~}.{}x~|k{|x~}a{}x~|k{|w~cx}u~|n{|x~}#{}w~|{|w~}T{}w~|{|w~}T{}w~|{|w~}T{}w~|{|w~}T{}w~|{|w~}Tv~xv~[v~}w{|v"
-      "~W{|v~}e{|c{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~i{|u~|f{}w~y|v~nv~g{|v~}i{|u~g{|v~}i{|u~g{|v~}i{"
-      "|u~g{|v~}i{|u~g{|v~}i{|u~d{}y~f{}y~|f{|v~}k{|s~f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}b{|v~|r{|v~|^{}i~}|"
-      "\\v~q{}t~|         F{}v~|    C{~|   mw~}  gu~}p{}u~|au~}p{}u~|au~}p{}u~|au~}p{}u~|au~}p{}u~|V{|w~Y{}w~}i{}w~} B{"
-      "}w~}Mx~${}n~W{|k~}d{|U~}c{|m~}W{|n~}[w~}kw~}Xt~}X{|w~}mv~cv~|     o{|v~| mv~}R{}x~}vw~}Tw~|tw~|^{}v~|x{|y~|u{|~"
-      "|iw~|rw~s{|w~\\v~B{}x~}N{|w~}J{}w~|S{|n~|Q{}w~  b{|w~|Zv~|nv~|V{}w~}E{}w~}M{|v~X{|w~|y{}w~}\\{|w~}M{|v~={}v~^{|"
-      "v~m{}w~}b{|v~lv~| <{|}x~}6{|x~}|7{}w~}cv~|b{|w~}b{|v~xv~[{}w~}l{}w~}bu~|P{}w~}h{}v~}c{}w~}L{}w~}Ru~M{}w~}hv~|Y{"
-      "}w~}M{}w~}W{}w~}t{}u~X{}w~}V{}w~|{}x~}o{|w~|{v~|h{}w~|{v~}ov~gu~|h{}v~|c{}w~}mv~}fu~|h{}v~|e{}w~}mv~}a{|v~C{|v~"
-      "|Z{|v~h{}w~}ev~}j{}v~l{}w~}p{}x~}{|w~ov~|h{|v~}u{}v~[{}v~rv~}M{}v~}Y{|w~}Lw~|F{|w~|Y{}v~|qu~| Kt|Uw~}uu|Mt|Ru|u"
-      "{|w~|Wt|Ow~}Mu|Tw~}uu| Jw~}Dv~Tu|mv|Vu|Pt|Ku|Qu|Bv|Us|Rv~   !w~}Lw~|M{|w~|  iv|Sv~o{|w~}N{}v~\\{|t~}|Is|Mu| u{}"
-      "w~|   Zt| Lv~|n{|v~[{|v~xv~Tu~P{}w~}T{}v~|gu~g{|t~}|y{|v~x{}t~}e{}w~}hv~|iv~}r{|v~qv~}ju~|h{}v~|/{}v~}y{}w~y{|v"
-      "~}!{}w~!{}v~}y{}w~y{|u~ F{|}y~}x|V{|v~S{}x~}i{|w~|`{}w~|rw~}Sw~|T{|v~|!{}y~}u{|n~}v{}y~}a{|k~}  {}y~}vn~}t{}y~}"
-      "-{}y~}r{}y~}R{}w~I{|w~Pt~}| L{}m~}w{|x~} H{}x~|U{|x~}p{|w~.{}x~|kw~|a{}x~|kw~|ct~}lw~|${|v~xv~U{|v~xv~U{|v~xv~U"
-      "{|v~xv~U{|v~xv~U{|w~}x{}w~|]{|v~v{|v~Wu~|L{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~h{|v~}f{}w~|{v~}o"
-      "v~gu~|h{}v~|hu~|h{}v~|hu~|h{}v~|hu~|h{}v~|hu~|h{}v~|f{}w~h{}w~|gu~|l{|r~|g{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~"
-      "h{}w~}a{}v~rv~}]{}g~}]w~}s{|r~|Xt|Nt|Nt|Nt|Nt|Nt|Xt|lu|Ut|Pt|Nt|Nt|Nt|  0{}v~|Pu|Pt|Nt|Nt|Nt|Nt| ut|t{}y~}   nw"
-      "~}uu|  t{}w~}|wv|v{}v~b{}w~}|m{}v~b{}w~}|m{}v~b{}w~}|m{}v~b{}w~}|m{}v~V{|w~Xv~iv~| C{|v~M{|y~}%{}m~}Wk~}d{|U~}d"
-      "{|k~}Y{}k~|]w~}kw~}Y{|s~X{|v~n{|w~}d{}w~}     n{}w~} lv~}R{}x~}vw~}U{|w~t{|w~]v~|w{|y~|`w~|rw~s{}x~|\\v~|C{}x~}"
-      "N{}w~|J{|w~}Q{|r~|O{}w~  b{}w~Z{|v~m{}w~}V{}w~}E{}w~}M{|v~Xw~}x{}w~}\\{|w~}M{}w~}=v~}^{|v~m{}w~}b{|v~lv~} ?{|}u"
-      "~}6{|u~}|:{}w~}d{}w~|`{|w~}c{}w~|x{}w~}\\{}w~}l{}w~}c{|v~}O{}w~}gu~c{}w~}L{}w~}S{|v~}M{}w~}hv~|Y{}w~}M{}w~}W{}w"
-      "~}uu~}W{}w~}V{}w~|{|w~|p{}w~yv~|h{}w~|{|v~ov~h{|v~}fu~c{}w~}mv~}g{|v~}fu~e{}w~}mv~}a{|v~C{|v~|Z{|v~h{}w~}e{}v~j"
-      "v~|l{}w~}pw~|yw~|q{|v~f{}v~|w{|v~|Zv~}t{}v~M{}v~}X{|w~}L{}x~}F{|w~|Z{}v~|o{}v~| P{|}q~}|Xw~}w{}s~}|S{|}q~}|X{}s"
-      "~}|x{|w~|Z{|}r~}|W{}k~}W{}s~}|x{|w~|`w~}w{|s~}|Rv~Lv~Tw~}n{|v~}Xv~_w~}w{}s~}r{|s~}cw~}w{|s~}|V{|}r~}|Yw~}w{}s~}"
-      "|V{}s~}|x{|w~|Zw~}w{}t~|Y{}o~}|Z{}i~]{|w~|m{}w~|c{|v~iv~i{}w~|pu~ow~}hv~}m{|v~|d{|v~iv~`d~Uw~}Lw~|M{|w~|  l{|s~"
-      "}|u{}x~}av~o{|w~}M{}w~|\\{}q~}|P{}o~}|\\w~}w{|s~}|^x~y}hv~W{}w~}X{|w~|m{}w~|d{}w~}h{}w~}]{|y}w{|}x~}|]_~|dv~t{}"
-      "w~t{|w~}[{|q~}|U{|y}i~}f{|`~b{|v~lv~|\\{}w~|x{}w~}U{|u~Q{}w~}U{|v~}f{|v~|ht~|w{|v~v{}u~}f{}w~}hv~|iv~}r{|v~qv~}"
-      "k{|v~}fu~/{|w~}x{}w~x{|w~}I{|T{}w~S{|i{|\\w~}x{}w~x{|w~|!v~}O{|}p~}|Y{|v~T{|v~}k{|v~}_v~s{}w~|Sw~|Su~|#{|x~u{}l"
-      "~ux~|bv~}y|v{|x~} !{|x~ul~|ux~|.{|x~|t{|x~|R{}w~J{|w~|L{|}x~}&{|w~|m{}w~|a{}m~}w{|x~} H{}x~|U{|x~}p{|w~.{}x~|l{"
-      "}x~}`{}x~|l{}x~}br~|o{}x~}Qv~|S{}w~|x{}w~}V{}w~|x{}w~}V{}w~|x{}w~}V{}w~|x{}w~}V{}w~|x{}w~}V{}w~|x{|w~}]{}w~}v{|"
-      "v~X{|v~}K{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~gu~|g{}w~|{|v~ov~h{|v~}fu~i{|v~}fu~i{|v~}fu~i{|v~}"
-      "fu~i{|v~}fu~g{|u~j{}v~}h{|v~}l{|w~}v~}g{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}`v~}t{}v~\\{}f~}^w~}t{}v~}y|Y"
-      "{|}q~}|U{|}q~}|U{|}q~}|U{|}q~}|U{|}q~}|U{|}q~}|_{|}q~}|r{|}r~}[{|}q~}|W{|}r~}|T{|}r~}|T{|}r~}|T{|}r~}|Qv~Lv~Lv~"
-      "Lv~O{|y}w~}u~|\\w~}w{|s~}|V{|}r~}|T{|}r~}|T{|}r~}|T{|}r~}|T{|}r~}|Q{}u~Q{|}r~}|x{}x~}b{|w~|m{}w~|a{|w~|m{}w~|a{"
-      "|w~|m{}w~|a{|w~|m{}w~|c{|v~iv~aw~}w{}s~}|^{|v~iv~ W{}w~}u{}w~u{}w~}d{}w~}j{}w~}d{}w~}j{}w~}d{}w~}j{}w~}d{}w~}j{"
-      "}w~}W{}w~X{}w~}k{|v~ C{|v~|M{}y~|&{|k~}X{}l~|cU~}di~|[{}i~|^w~}kw~}Y{}s~|Xv~|o{}w~|dw~}     mv~| lv~}R{}x~}vw~}"
-      "^{}Z~f{|w~}v{|y~|`w~|rw~t{|x~}[{}w~}C{}x~}Nv~Hv~O{}v~}M{}w~  bw~}Z{}w~}m{|v~V{}w~}E{}w~}M{|v~Y{}w~w{}w~}\\{|w~}"
-      "Mv~|>{|v~]{|v~m{}w~}b{|w~}l{}w~}W{|v}M{}v~D{}r~}6{|r~}|>{|v~|e{}w~|^{|w~|dv~w{|v~\\{}w~}lv~|c{}v~N{}w~}g{}v~|d{"
-      "}w~}L{}w~}S{}v~L{}w~}hv~|Y{}w~}M{}w~}W{}w~}vu~}V{}w~}V{}w~|yw~}pw~}yv~|h{}w~|y{}w~}pv~h{}v~e{}v~|d{}w~}mv~}g{}v"
-      "~e{}v~|f{}w~}mv~}a{|v~C{|v~|Z{|v~h{}w~}dv~|l{|v~k{|v~q{|w~x{}x~}q{}w~}e{}v~wv~}Y{|v~|v{|v~|N{|v~}W{|w~}L{|w~F{|"
-      "w~|[{}v~l{}v~ S{|}k~|Zw~}y{|o~}V{|k~|\\{|o~}y{|w~|\\{|m~}X{}k~}Y{|o~}y{|w~|`w~}y{|o~}Sv~Lv~Tw~}o{|v~}Wv~_w~}y{|"
-      "o~|v{|o~|ew~}y{|o~}Y{|}n~}|[w~}y{|o~}Y{|o~}y{|w~|Zw~}y{|r~|[{}j~[{}i~]{|w~|m{}w~|b{}w~|k{|w~}i{|w~}q{|u~|q{|w~|"
-      "h{|v~|o{|v~}b{}w~|k{|w~}`d~Uw~}Lw~|M{|w~|  n{|o~}vw~|av~o{}w~|M{|v~[{|o~}|U{}k~}]w~}y{|o~}_u~|k{|w~}Wu~X{|w~|m{"
-      "}w~|dv~|h{|v~_{}x~}x{}s~}__~|dv~t{}w~t{|w~}\\{}n~}Y{|}e~}f{|`~b{|w~}l{}w~|\\v~w{|v~T{|u~R{}w~}U{}v~dv~}i{}u~u{|"
-      "v~u{|u~|g{}w~}hv~|iv~}r{|v~qv~|k{}v~e{}v~|c{~}I{|y~}w{}w~w{|y~}I{}~|U{}w~T{}~|k{}~|\\y~}w{}w~w{|y~| v~}P{}k~Z{|"
-      "v~S{|v~}x{|}v~}|y{|v~}^{|w~}u{|w~}Rw~|S{|u~}${}y~|v{}v~}|wy|}y~u{|y~}c{|x~}r{|x~}Q{|q{| W{}y~|uw~vy|v~u{|y~}-w~"
-      "|v{|w~Q{}w~K{|w~|I{|w~'{|w~|m{}w~|a{}m~}w{|x~} H{}x~|U{|x~}p{|x~}]{|q{|X{}x~|m{|w~_{}x~|m{|w~]{|}w~}q{|w~Pv~|Sv"
-      "~w{|v~Vv~w{|v~Vv~w{|v~Vv~w{|v~Vv~w{|v~W{|v~vv~^{|v~|v{|v~X{}v~J{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z"
-      "{|v~g{|v~}g{}w~|y{}w~}pv~h{}v~e{}v~|j{}v~e{}v~|j{}v~e{}v~|j{}v~e{}v~|j{}v~e{}v~|g{|u~l{}v~}g{}v~kw~}{}v~g{|v~h{"
-      "}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}`{|v~|v{|v~|\\{}w~}s|y}t~}_w~}u{|v~|Y{|}k~|Z{|}k~|Z{|}k~|Z{|}k~|Z{|}k~|Z{|"
-      "}k~|d{|}k~|v{|m~}_{|k~|[{|m~}W{|m~}W{|m~}W{|m~}Rv~Lv~Lv~Lv~Q{|}l~\\w~}y{|o~}Y{|}n~}|X{|}n~}|X{|}n~}|X{|}n~}|X{|"
-      "}n~}|S{}u~S{|}n~}{|x~}a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|b{}w~|k{|w~}aw~}y{|o~}^{}w~|k{|w~} X{|w~}"
-      "t{}w~t{|w~}f{|w~}h{|w~}f{|w~}yy|p{|}y{|w~}f{|w~}ly|y{|w~}f{|w~}h{|w~}X{}x~}X{|v~kv~| Cv~|Lx~&{|i~|Y{|m~}bU~|e{}"
-      "h~\\{|u~}|xy|}u~^w~}kw~}Yr~}X{}w~}ov~d{}w~     lv~| lv~}R{}x~}vw~}^{}Z~f{|w~|v{|y~|`w~|s{|w~tw~|[{|v~|D{}x~}Nw~"
-      "}H{}w~|Q{|t~|N{}w~  c{|w~|Zv~|lv~|W{}w~}E{}w~}M{}w~}Z{|w~|w{}w~}\\{|w~}N{|v~={}w~}\\v~|nv~|b{}w~}l{}v~W{}v~M{}v"
-      "~G{|}p~|6{|o~}@u~e{|w~|\\{}w~e{|w~}v{}w~|]{}w~}m{|v~|cv~}N{}w~}g{|v~}d{}w~}L{}w~}Sv~}L{}w~}hv~|Y{}w~}M{}w~}W{}w"
-      "~}x{|u~}U{}w~}V{}w~|y{}w~q{|w~|yv~|h{}w~|y{|v~pv~hv~}e{|v~}d{}w~}mv~}gv~}e{|v~}f{}w~}mv~}a{|v~|D{|v~|Z{|v~h{}w~"
-      "}d{}w~}l{}w~}jv~|r{|w~x{|x~}qv~|e{|v~}y{}v~W{}v~vv~}N{|u~V{|w~}Kw~|G{|w~|\\{}w~}j{}v~ T{}i~}[w~}{}m~}X{}j~|]{}m"
-      "~}{|w~|]{}j~Y{}k~}Z{}m~}{|w~|`w~}{|l~Tv~Lv~Tw~}p{}v~}Vv~_w~}{|m~|x{|m~|fw~}{|m~}[{|j~|\\w~}{}m~}[{}m~}{|w~|Zw~}"
-      "{|q~|\\{}i~[{}i~]{|w~|m{}w~|b{|w~}k{}w~|hw~}q{|u~}q{}w~|g{}v~ov~}a{|w~}k{}w~|`d~Uw~}Lw~|M{|w~| Gy|l{|Z{}m~}x{|w"
-      "~`v~p{|v~Kv~Z{|m~|X{}j~}]w~}{|l~`t~|l{}w~|X{|u~}Y{|w~|m{}w~|e{}v~f{}w~}b{|v~}y{|q~}`_~|dv~t{}w~t{|w~}^{|k~}[{|c"
-      "~}f{|`~b{}w~}l{}w~}]{|w~}vv~|T{|v~}S{}w~}Uv~}d{}v~j{|u~t{|v~t{|u~g{}w~}hv~|iv~}r{|v~r{|v~|kv~}e{|v~}dx~}I{|}v{}"
-      "w~v{|}I{}x~|V{}w~U{}x~|m{}x~|\\{|v{}w~vy| {{v~}R{|i~Z{|v~R{|v~}|q~}|v~}\\v~u{}w~Qw~|R{|t~|'{|y~}v{}w~}p{|t{}y~|"
-      "d{}x~|r{|x~}Ry}r{|~ X{|y~}tw~sw~|u{}y~|.{|w~}x|}w~|Q{}w~L{|w~|G{|x~}({|w~|m{}w~|a{}m~}w{|x~} H{}x~|U{|w~p{|x~}]"
-      "{~|r{|}Y{}x~|mw~|_{}x~|m{}x~|[{|w~|r{}x~|Pv~|T{|w~}v{}w~|X{|w~}v{}w~|X{|w~}v{}w~|X{|w~}v{}w~|X{|w~}v{}w~|X{}w~}"
-      "v{}w~}_{}w~}u{|v~Xv~}J{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~fu~g{}w~|y{|v~pv~hv~}e{|v~}jv~}e{|v~}"
-      "jv~}e{|v~}jv~}e{|v~}jv~}e{|v~}f{|u~n{}v~}fv~}l{}x~}y{|v~|h{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}_{}v~vv~}["
-      "{}w~}q{|}u~|`w~}uv~W{}i~}[{}i~}[{}i~}[{}i~}[{}i~}[{}i~}e{}i~}x{}k~}a{}j~|\\{}j~Y{}j~Y{}j~Y{}j~Sv~Lv~Lv~Lv~R{}j~"
-      "}]w~}{|m~}[{|j~|Z{|j~|Z{|j~|Z{|j~|Z{|j~|T{}u~T{|f~`{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|b{|w~}k{}w~|a"
-      "w~}{}m~}_{|w~}k{}w~| Xw~}s{}w~s{}w~fw~}f{}w~fw~}y{|y~|r{|y~}y{}w~fw~}l{|y~}y{}w~fw~}f{}w~X{}x~}Wv~|m{|v~ C{}w~}"
-      "[{|}|o{|y~|&g~|Y{}n~|b{}V~e{|g~}]v~}r{|v~}_w~}kw~}Z{|r~}X{|v~p{|w~}dw~}     pw|v~l| {{v~}R{}x~}vw~}^{}Z~f{|w~|v"
-      "{|y~|`{}x~}s{|x~}u{}x~}Y{}v~|E{}x~}O{|w~}H{}w~|S{|}r~}|P{}w~  c{|w~Yv~|lv~|W{}w~}Ev~|N{|v~|Zw~}v{}w~}\\{|w~}|}v"
-      "~y}|X{}w~}>{|v~|\\{}w~}o{|v~a{}w~}l{}v~W{}v~M{}v~J{|}p~}|2{|}p~}|D{}v~|e{}x~}p{|}w~}|vx|uw~|f{}w~|v{|w~}]{}w~}m"
-      "{}v~c{|v~|N{}w~}fv~}d{}w~}L{}w~}T{|v~|L{}w~}hv~|Y{}w~}M{}w~}W{}w~}y{|u~}T{}w~}V{}w~|y{|w~|r{}x~}xv~|h{}w~|x{}w~"
-      "}qv~i{|v~|dv~}d{}w~}mv~}h{|v~|dv~}f{}w~}n{|v~|`u~D{|v~|Z{|v~h{}w~}d{|v~m{|v~|j{}w~}r{}x~}x{|w~qv~|d{}v~y|v~|Vv~"
-      "}x{}v~Mu~|V{|w~}K{}x~}G{|w~|]{}w~}h{|v~ U{}u~v}s~}\\w~}|v~w}t~}Zr~v}v~|^{}t~w}v~}|w~|^{}t~v}t~Zv}v~s}[{}t~w}v~}"
-      "|w~|`w~}|u~x}t~}Uv~Lv~Tw~}q{}v~|Uv~_w~}|v~x}s~y{|v~x}s~fw~}|u~x}t~}]{|s~x}s~|]w~}|v~w}t~}]{|t~w}v~}|w~|Zw~}|t~}"
-      "x~|]{}t~u}u~[{|x}v~q}]{|w~|m{}w~|av~kv~g{}w~q{}t~qv~e{}v~q{}v~_v~|m{|v~_d~Uw~}Lw~|M{|w~| J{|}v~}r{}v~}|_{}u~w}u"
-      "~|y{}x~}`v~q{|v~}K{}w~|\\{}w~}p~}Z{}s~w}u~}]w~}|u~x}t~}as~m{|v~W{}t~Y{|w~|m{}w~|ev~|f{|v~c{|u~}yn~a_~|dv~t{}w~t"
-      "{|w~}_{|t~w}t~}]{|b~}f{|`~b{}w~|l{}w~}]{}w~|v{|w~}S{|v~}T{}w~}Uv~|d{|v~|k{}v~|t{|v~s{}v~|h{}w~}hv~|i{}w~}r{|v~r"
-      "{|v~|l{|v~|dv~}ev~}C{}w~C{}v~|W{}w~V{}v~n{|v~|W{}w~ sv~}S{|s~}y~x}v~Z{|v~Q{|e~}[{|w~}w{|w~}Qw~|R{}r~|){}y~|w{|w"
-      "~}g{|y~}dw~q{}x~}S{}~}s{}y~ X{}y~|tw~s{}x~}u{|y~}-{}p~}P{}w~M{|w~|F{|x~}({|w~|m{}w~|a{}m~}w{|x~} H{}x~|Tw~p{}x~"
-      "|]y~}s{|y~Z{}x~|n{|x~}^{}x~|n{|w~Y{|x~}s{|x~}Ov~|T{}w~|v{|w~}X{}w~|v{|w~}X{}w~|v{|w~}X{}w~|v{|w~}X{}w~|v{|w~}Xv"
-      "~u{|v~_v~|u{|v~Y{|v~|J{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~f{}v~g{}w~|x{}w~}qv~i{|v~|dv~}k{|v~|d"
-      "v~}k{|v~|dv~}k{|v~|dv~}k{|v~|dv~}e{|u~p{}v~}f{|v~|m{}w~wv~}h{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}^v~}x{}v"
-      "~Z{}w~}o{}v~}`w~}v{|w~|W{}u~v}s~}\\{}u~v}s~}\\{}u~v}s~}\\{}u~v}s~}\\{}u~v}s~}\\{}u~v}s~}f{}u~v}s~}{s~w}t~}cr~v}"
-      "v~|]{}t~v}t~[{}t~v}t~[{}t~v}t~[{}t~v}t~Tv~Lv~Lv~Lv~S{}h~|^w~}|u~x}t~}]{|s~x}s~|\\{|s~x}s~|\\{|s~x}s~|\\{|s~x}s~"
-      "|\\{|s~x}s~|U{}u~U{|s~x}q~|`{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|av~|m{|v~`w~}|v~w}t~}_v~|m{|v~ X{|w~"
-      "r{}w~rw~}h{|w~dw~}h{|w~y{|w~|t{|w~}yw~}h{|w~l{|w~}yw~}h{|w~dw~}Y{}x~}W{}w~}m{}w~} Xg|}v~s|e{|}x~}o{}y~&{}f~Y{|o"
-      "~}a{|V~f{|e~}_{|w~}p{|v~_w~}kw~}Z{}w~}v~Wv~|q{}w~}e{|w~     pc~} {{v~}R{|x}|v{|x}|^{}Z~f{|w~|v{|y~|`{|w~s{}x~}v"
-      "{|w~Wu~|F{|x}|O{}w~|H{|w~}U{|}w~|x~|w~}|R{}w~  c{}x~}Yv~|lv~|W{}w~}F{|v~N{|v~}Z{}w~u{}w~}\\{|k~}Z{}w~}x{|}u~y}|"
-      "L{}v~Zv~|pv~}a{|v~l{}v~|X{}v~M{}v~M{|}p~}|,{|}p~}|H{}v~|e{|w~q{|q~}y{}x~|v{|x~}fv~tv~]{}w~}n{}v~|c{|v~|N{}w~}f{"
-      "}v~d{}w~}L{}w~}T{}v~|L{}w~}hv~|Y{}w~}M{}w~}W{}w~}{|u~}S{}w~}V{}w~|xw~}rw~|xv~|h{}w~|x{|v~|rv~i{|v~|d{}v~d{}w~}n"
-      "{|v~|h{|v~|d{}v~f{}w~}n{}v~|`{}v~}|F{|v~|Z{|v~h{}w~}cv~|n{}v~i{}w~}rw~|ww~|s{|v~b{}q~}U{|v~|{|v~|N{}v~|U{|w~}K{"
-      "|w~G{|w~|^{}w~}f{|v~ V{}y~}|r{|u~|]r~|u{|u~}\\{}u~}s{|}y~|_{|u~|u{|}s~|_{}v~}|t{}v~}Vw~}T{|u~|u{|}s~|`r~|u{|u~|"
-      "Vv~Lv~Tw~}ru~|Tv~_r~|v{|}v~}{w~|u{}v~}gr~|u{|u~|^u~}|v{|}u~]r~|u{|u~|_{|u~|u{|}s~|Zr~}|v{|\\v~}|r{|}y~Wv~S{|w~|"
-      "m{}w~|a{}w~|m{|w~}g{}w~|rs~qw~}dv~}s{|v~|_{}w~}m{}w~|Nu~Uw~}Lw~|M{|w~| K{}r~u{|r~}a{|v~}|v{}v~yw~|`v~r{|u~|K{|w"
-      "~|]{}w~|xy|}t~}[u~}|s{|}~}]r~|u{|u~|ay|v~|n{}w~|X{|s~|Z{|w~|m{}w~|f{|v~dv~|e{|u~}|{|v~y|}v~}bx}u~q}u~x}|dv~t{}w"
-      "~t{|w~}_u~|u{|u~|_{|u~}|v{|}t~v}f{|q}u~p}b{}w~|l{|v~]v~tv~R{}v~}U{}w~}V{|v~|cv~}l{|v~}s{|v~s{|v~}h{}w~}hv~|i{}v"
-      "~r{|v~r{|v~|l{|v~|d{}v~fu~|C{}w~C{|u~|X{}w~W{}v~}m{}v~|X{}w~ sv~}T{|u~}|yy~}x{|}y~Z{|v~P{|g~}Y{}w~|xv~Pw~|T{|v~"
-      "}u~}*x~v{}w~ex~dw~qw~}U{|x~}t{}x~ Xx~sw~s{}x~}tx~,{|r~|O{}w~N{|w~|Dw~({|w~|m{}w~|a{|m~}w{|x~} H{}x~|T{}x~}qw~|]"
-      "x~}t{|x~|\\{}x~|nw~]{}x~|nw~|Xw~sw~|Ov~|Tv~tv~Xv~tv~Xv~tv~Xv~tv~Xv~tv~Y{|w~}tv~|a{|v~t{|v~Y{|v~|J{}w~}M{}w~}M{}"
-      "w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~f{|v~|h{}w~|x{|v~|rv~i{|v~|d{}v~k{|v~|d{}v~k{|v~|d{}v~k{|v~|d{}v~k{|v~|d{"
-      "}v~d{|u~r{}v~}e{|v~|n{}w~v{}v~h{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}^{|v~|{|v~|Z{}w~}nu~`w~}v{}w~V{}y~}|r"
-      "{|u~|]{}y~}|r{|u~|]{}y~}|r{|u~|]{}y~}|r{|u~|]{}y~}|r{|u~|]{}y~}|r{|u~|g{}y~}|r{|o~}|u{|}v~}e{}u~}s{|}y~|^{}v~}|"
-      "t{}v~}]{}v~}|t{}v~}]{}v~}|t{}v~}]{}v~}|t{}v~}Uv~Lv~Lv~Lv~T{}u~}|v{|}v~}^r~|u{|u~|^u~}|v{|}u~\\u~}|v{|}u~\\u~}|v"
-      "{|}u~\\u~}|v{|}u~\\u~}|v{|}u~U{}u~Uu~}|u{}u~|_{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{}w~}m{}w~|`r~|u{"
-      "|u~|`{}w~}m{}w~| Xw~|r{}w~r{|w~hw~|d{|w~hw~|yu~|v{|u~y{|w~hw~|m{|u~y{|w~hw~|d{|w~Y{}x~}Vv~mv~| XZ~}g{}t~oy~}'{}"
-      "e~}Y{}p~_W~|fc~|`v~n{}w~|`w~}kw~}Zv~|}w~|X{}w~}qv~|e{}x~}     q{|c~| {{v~} y{|x~}t{}x~}]{|w~}v{|y~|_w~|u{|w~|vw"
-      "~|Wt~ p{}w~|H{|v~V{}w~}yx~y{}w~}S{}w~  cw~|Z{|v~k{}w~}W{}w~}Fv~}Qy|u~}Z{|w~|u{}w~}\\{|i~|\\v~|y{}p~}|Nv~}Z{|v~|"
-      "s{|v~}`{|v~lu~|X{}v~M{}v~P{|}p~}|b{|Z~}b{|}p~}|L{}v~}d{}x~|r{|n~{}x~|uw~|h{}w~}t{}w~|^{}w~}q{|}u~}b{}v~M{}w~}f{"
-      "}v~d{}w~}L{}w~}T{}v~K{}w~}hv~|Y{}w~}M{}w~}W{}w~}|u~}R{}w~}V{}w~|x{|w~s{}w~wv~|h{}w~|w{}w~}rv~i{}v~c{}v~d{}w~}n{"
-      "}v~|h{}v~c{}v~f{}w~}o{|u~_{|t~}|H{|v~|Z{|v~h{}w~}c{}v~nv~}i{|v~s{|w~|w{}x~}s{}w~}b{|q~S{}v~|v~}N{}v~}T{|w~}K{|w"
-      "~|H{|w~|  s{}|m{}w~}]t~}q{}v~|^{}v~}ny|_u~q{}t~|`{|v~|q{|v~|Ww~}Tu~q{|t~|`t~}r{|v~}Vv~Lv~Tw~}t{|u~Rv~_t~}r{}v~}"
-      "y~}r{}v~gt~}r{|v~}_{}v~|r{|v~}^s~q{}v~_{}v~|r{}t~|Zs~T{|w~}m{|Wv~S{|w~|m{}w~|a{|w~}mv~|g{|w~}s{|s~|s{|w~|d{|v~|"
-      "u{|v~}]v~mv~N{}v~Tw~}Lw~|M{|w~| L{}p~w{|p~}bv~}s{}w~y|w~_v~wx|}t~}J{|w~}^{}w~r{}u~|]{|v~|Ot~}r{|v~}_{|v~nv~W{}s"
-      "~}Z{|w~|m{}w~|f{}w~}d{}w~}eu~}x{|w~|x{}v~|`{|w~}q{|w~}`v~t{}w~t{|w~}`{}v~q{}v~_u~}r{|v~}V{|w~}Wv~|l{|v~^{}w~}t{"
-      "}w~|R{}v~}V{}w~}V{|v~bv~}l{|v~|s{|v~r{}v~h{}w~}hv~|i{}v~r{|v~r{}v~k{}v~c{}v~gu~|B{}w~B{|u~|Y{}w~X{}v~}k{}v~|Y{}"
-      "w~ sv~}Tu~|wy~}u{|Z{|v~O{|u~}|x{|}v~}_{|p~}y{|p~}Ww~|Tw~}y{|t~|,y~}vw~|e{}y~dw~|s{}w~}V{|w~}u{}w~ Xy~}sw~s{}x~}"
-      "t{}y~*y}x~}|[m|}w~l|^{}w~C{|x~}({|w~|m{}w~|`m~}w{|x~} H{}x~|T{|w~|s{}x~}\\w~}u{|w~|]{}x~|o{}x~}]{}x~|o{}x~}Ww~t"
-      "{}x~}Nv~|U{}w~}t{}w~|Z{}w~}t{}w~|Z{}w~}t{}w~|Z{}w~}t{}w~|Z{}w~}t{}w~|Z{}w~|t{|w~}av~}t{|v~Y{}v~I{}w~}M{}w~}M{}w"
-      "~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~f{|v~|h{}w~|w{}w~}rv~i{}v~c{}v~k{}v~c{}v~k{}v~c{}v~k{}v~c{}v~k{}v~c{}v~c{|"
-      "u~t{}v~}d{}v~n{|w~|v{|v~h{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}]{}v~|v~}Y{}w~}n{|v~|aw~}vv~V{}|m{}w~}]{}|m"
-      "{}w~}]{}|m{}w~}]{}|m{}w~}]{}|m{}w~}]{}|m{}w~}g{}|m{}r~|q{|v~|g{}v~}ny|_{|v~|q{|v~|_{|v~|q{|v~|_{|v~|q{|v~|_{|v~"
-      "|q{|v~|Vv~Lv~Lv~Lv~U{|v~}q{|v~|_t~}r{|v~}_{}v~|r{|v~}^{}v~|r{|v~}^{}v~|r{|v~}^{}v~|r{|v~}^{}v~|r{|v~}V{}u~V{}v~"
-      "|r{|v~}_{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|`v~mv~_s~q{}v~_v~mv~ X{|w~q{}w~q{}x~|j{|w~b{}x~|j{|w~wu~"
-      "|x{|u~|x{}x~|j{|w~m{|u~|x{}x~|j{|w~b{}x~|Z{}x~}V{}w~|o{|v~ WZ~}gx~}w~|q{}y~|({|c~}_v|{}r~u|d{}X~f{}b~|b{|w~}mw~"
-      "}`w~}kw~}[{|v~{}w~}X{|w~}r{|v~d{}x~|     q{}c~ yv~} y{}x~}t{}x~}\\v~}w{|y~|_{}w~|vw~}v{|x~}X{|r~ qv~Fv~X{}w~}|x"
-      "x~x{|}w~}U{}w~  d{|w~Y{|v~k{}w~}W{}w~}G{}v~|Xm~}Y{}x~}t{}w~}\\{|h~}]v~y|l~}P{|v~|Y{|u~u|}v~}_{|v~|n{|u~|X{}v~M{"
-      "}v~R{|o~}|`{|Z~}_{|}p~}|P{}v~}cw~r{|l~}x~|u{|x~|hv~|t{|v~^{}e~}a{}v~M{}w~}f{|v~|e{}d~|_{}g~|d{}v~K{}^~|Y{}w~}M{"
-      "}w~}W{}p~|Q{}w~}V{}w~|ww~|tw~}wv~|h{}w~|vv~|sv~i{}v~c{|v~|e{}w~}o{|u~g{}v~c{|v~|g{}w~}p{|u~|^{}q~y}|M{|v~|Z{|v~"
-      "h{}w~}c{|v~|p{|v~gv~|t{|w~v{|x~}sv~|a{|s~|Rq~}N{}v~}S{|w~}Jw~}H{|w~|  bv~|^t~ov~}^v~}P{|v~|p{}u~|`v~|o{|v~Ww~}U"
-      "{|v~o{}u~|`u~}p{|v~Vv~Lv~Tw~}u{|v~}Qv~_u~}pt~}pv~|hu~}p{|v~`{|v~|p{|v~|_t~ov~}a{|v~|p{}u~|Zt~S{}w~Gv~S{|w~|m{}w"
-      "~|`v~|o{|v~ev~s{|x~y}x~}s{}w~|c{}v~uv~}\\{}w~|o{|w~}O{}v~|U{|w~}Lw~|M{|w~} M{|x~}x|}w~}xv~}x|}x~|d{}v~qw~y}x~}_"
-      "v~x{}q~}I{|w~}_{|w~|q{|u~]{}w~|Nu~}p{|v~^{}w~|p{|w~}X{|q~Z{|w~|m{}w~|fv~|d{|v~f{|v~}w{}w~|wu~`{|w~}q{|w~}`v~t{}"
-      "w~t{|w~}a{|v~ov~}a{|v~}p{}v~|W{|w~}Wv~}l|}v~^v~|t{|v~Q{}v~}W{}w~}V{|v~b{}w~}l{}v~r{|v~r{}v~|i{}w~}hv~|i{|v~|s{|"
-      "v~r{}v~k{}v~xi~}y{|v~|iu~|A{}w~A{|u~|Z{}w~Y{}v~}i{}v~|Z{}w~ sv}|U{}v~|vy~}S{|v~O{|w~}s{|v~_{|o~|{o~}Ww~|U{}x~}v"
-      "{}u~}.{|y~|w{|w~d{|y~|e{}w~t{}v~}W{|v~|v{}w~}cY|8{|y~|sw~sw~|t{|y~| `{|Z~}_{}x~}C{|w~}({|w~|m{}w~|`{|n~}w{|x~} "
-      "H{}x~|Sv~|u{}w~|\\{}v~v{|v~|^{}x~|p{|w~\\{}x~|p{|w~W{|x~}u{|w~Mv}|Uv~|t{|v~Zv~|t{|v~Zv~|t{|v~Zv~|t{|v~Zv~|t{|v~"
-      "Zv~rv~b{|v~s{|c~l{}v~I{}d~|`{}d~|`{}d~|`{}d~|W{}w~}M{}w~}M{}w~}M{}w~}Z{|v~ev~}h{}w~|vv~|sv~i{}v~c{|v~|l{}v~c{|v"
-      "~|l{}v~c{|v~|l{}v~c{|v~|l{}v~c{|v~|c{|u~v{}v~}c{}v~o{|w~|u{|v~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}\\q~"
-      "}X{}w~}mv~}aw~}vv~Ev~|Mv~|Mv~|Mv~|Mv~|Mv~|Ws~|o{}w~}gv~}Ov~|o{|v~_v~|o{|v~_v~|o{|v~_v~|o{|v~Vv~Lv~Lv~Lv~Uv~}o{}"
-      "w~}_u~}p{|v~`{|v~|p{|v~|`{|v~|p{|v~|`{|v~|p{|v~|`{|v~|p{|v~|`{|v~|p{|v~|Wt|W{|v~|q{}u~|`{|w~|m{}w~|a{|w~|m{}w~|"
-      "a{|w~|m{}w~|a{|w~|m{}w~|`{}w~|o{|w~}_t~ov~}`{}w~|o{|w~} X{}x~}q{}w~q{|x~}j{}x~}b{|x~}j{}x~}vu~|yu~|w{|x~}j{}x~}"
-      "mu~|w{|x~}j{}x~}b{|x~}Z{}x~}V{|v~o{}w~} WZ~}g{}|yw~}qx~'a~|c{|}t~}k~}|fY~}g{}`~b{|w~|m{}w~`w~}kw~}[{|w~}{|v~Wv~"
-      "r{}w~}dw~|     lv~| kv~| yw~|tw~|\\{}v~}|y{|y~|^v~}y|}v~uw~X{|p~ rv~Fv~Xw~|vx~v{|w~U{}w~  d{}x~}Y{|v~k{}w~}W{}w"
-      "~}H{|v~}Wo~}|Y{|w~|t{}w~}\\{|v~x}|x}s~}^v~|j~}Q{}w~}V{}l~}]v~}n{}u~}X{}v~M{|v}U{|}p~}|]{|Z~}\\{}o~|S{}v~}c{|x~}"
-      "rv~}|w{|}t~|tx~}i{|v~rv~|_{}h~}|_v~}M{}w~}f{|v~|e{}d~|_{}g~|dv~}K{}^~|Y{}w~}M{}w~}W{}q~|P{}w~}V{}w~|w{}w~u{|w~|"
-      "wv~|h{}w~|v{}w~}sv~iv~}c{|v~|e{}w~}p{|u~|gv~}c{|v~|g{}w~}sy|}u~}\\{}m~}|Q{|v~|Z{|v~h{}w~}bv~}p{}w~}g{}w~}t{}x~}"
-      "v{|w~sv~|`{}u~}Q{|r~|O{|u~R{|w~}J{}w~H{|w~|  b{|w~}^u~|o{|v~_{}v~Ov~}nu~|a{}w~}m{}w~|Xw~}Uv~|nu~|`u~nv~|Wv~Lv~T"
-      "w~}v{}v~}Pv~_u~o{}u~|p{}w~}hu~nv~|a{}w~}n{}w~}_u~|o{|v~a{}w~}nu~|Zu~|S{}w~Gv~S{|w~|m{}w~|`{}w~}o{}w~}e{}w~s{}x~"
-      "}|w~sv~a{}v~w{}v~[{|w~}ov~|P{}v~|T{|w~}Lw~|M{|w~}:{|4x~|v{|w~}{}x~}u{}x~dv~}q{}s~|_v~x{}r~}S{|y}~y}|w{|w~}_w~}o"
-      "{|v~}^{}w~Mu~nv~|_{|w~}pv~|X{}w~}v~|[{|w~|m{}w~|g{|v~bv~|g{}v~v{}w~v{|v~|a{|w~}q{|w~}`v~t{}w~t{|w~}a{}w~|o{|v~a"
-      "{}v~nv~}W{|w~}W`~_{|v~rv~|Q{}v~|X{}w~}V{|v~b{}w~}lu~r{|v~r{|v~|i{}w~}hv~|hv~}s{|v~rv~}kv~}xi~}y{|v~|ju~|@{}w~@{"
-      "|u~|[{}w~Z{}v~}g{}v~|[{}w~ Gv~}uy~}S{|v~Ow~}q{|w~|`{|n~}o~}Ww~|Uw~|t{}u~|0{|y~|w{|x~}d{|y~|e{|v~}w|t~}X{|v~|vv~"
-      "}c{|Z~}8{|y~|sw~t{}w~s{|y~| `{|Z~}`{}x~}M{|~}|v{|}v~'{|w~|m{}w~|_{}o~}w{|x~}Vv}| s{}x~|S{|v~}|{y|}w~}Z{}v~|w{|v"
-      "~}_{}x~|pw~|o{}w~m{}x~|p{}x~|vy|}w~y}|g{|w~|u{}x~|o{}w~3{|v~rv~|\\{|v~rv~|\\{|v~rv~|\\{|v~rv~|\\{|v~rv~|\\{}w~}"
-      "r{}w~|c{}w~}s{|c~lv~}I{}d~|`{}d~|`{}d~|`{}d~|W{}w~}M{}w~}M{}w~}M{}w~}_{}i~}nv~}h{}w~|v{}w~}sv~iv~}c{|v~|lv~}c{|"
-      "v~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|b{|u~x{}v~}bv~}p{|w~}t{|v~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}\\{|r~|"
-      "X{}w~}mv~}aw~}v{}w~}F{|w~}M{|w~}M{|w~}M{|w~}M{|w~}M{|w~}W{|u~}m{}w~h{}v~O{}w~}m{}w~|a{}w~}m{}w~|a{}w~}m{}w~|a{}"
-      "w~}m{}w~|Wv~Lv~Lv~Lv~V{}v~n{|v~_u~nv~|a{}w~}n{}w~}`{}w~}n{}w~}`{}w~}n{}w~}`{}w~}n{}w~}`{}w~}n{}w~},{}w~}q{}t~}`"
-      "{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|`{|w~}ov~|_u~|o{|v~`{|w~}ov~| X{}x~|q{}w~q{|w~j{}x~|b{|w~j{}x~|u"
-      "u~|u~|v{|w~j{}x~|nu~|v{|w~j{}x~|b{|w~Zw~}Uv~|q{|v~ VZ~}c{}w~r{|y~}({}`~d{}^~|h{|Z~g{|_~}c{}w~l{|w~`w~}kw~}[{}w~"
-      "|yv~|X{}w~|sv~|dV~}    2v~| k{}w~| {{|w~t{|w~Zs~y}y~|^{|o~|v{}x~}rx|e{|v~y}u~n{|w~},{|v~Fv~|Y{|~}tx~t{}~|U{}w~ "
-      " dw~|Y{|v~k{}w~}W{}w~}Hu~Vp~}|Y{|w~}s{}w~}\\{|~}|q{}t~|`{|q~}|xy|t~|Rv~|U{|}p~|[{}v~|ot~} V{|}p~}|Z{|Z~}Z{|}p~}"
-      "|W{}v~|b{}x~|s{}w~|s{|u~|tw~i{}w~}r{}w~}_{}g~}|`v~}M{}w~}f{|v~|e{}d~|_{}g~|dv~}K{}^~|Y{}w~}M{}w~}W{}q~O{}w~}V{}"
-      "w~|w{|w~|v{}w~vv~|h{}w~|uv~|tv~iv~}c{|v~|e{}w~}sy|s~fv~}c{|v~|g{}f~}Z{}k~}S{|v~|Z{|v~h{}w~}b{|v~pv~|g{}w~}tw~|u"
-      "w~|u{|v~_{}u~O{}t~|O{|u~|R{|w~}J{|w~|I{|w~|  aw~}^v~}m{}w~}`v~|P{|v~m{}v~|av~l{|w~}Xw~}V{|v~m{|v~|`v~}n{}w~|Wv~"
-      "Lv~Tw~}w{}v~}Ov~_v~}o{|v~}o{|w~}hv~}n{}w~|av~|n{|v~|`u~mv~|bv~m{}v~|Zv~}R{}w~Gv~S{|w~|m{}w~|`{|v~ov~d{}w~|tw~|{"
-      "w~|u{|w~}`v~}y{|v~|Z{}w~|q{|v~P{}v~|Sv~|Lw~|Lv~|W{|y}w~}|iy}5{|y~}sw~|x~}s{}y~|f{|v~|ps~^v~x{}q~}|W{|r~|y{|w~}`"
-      "{}w~m{}v~^{}w~Mv~}n{}w~|^{}w~q{|v~Wv~y|w~}[{|w~|m{}w~|g{}v~b{}w~}h{|v~|v{}w~u{}w~}a{|w~}q{|w~}`v~t{}w~t{|w~}av~"
-      "mv~|c{|v~|n{|v~W{|w~}W`~_{}w~}r{}w~}Q{|v~}X{}w~}V{|v~b{}w~}lv~}r{|v~r{|v~|i{}w~}hv~|h{}v~s{|v~s{|v~|kv~}xi~}y{|"
-      "v~|ku~|?{}w~?{|u~|\\{}w~[{}v~}e{}v~|\\{}w~ H{}v~ty~}S{|v~P{|w~o{}w~_s|}r~s|Vw~|V{|w~r{|u~0{|y~v{}x~}d{|y~|d{}o~"
-      "|x~}Y{}v~v{|v~|b{|Z~}8{|y~rw~u}v~|s{|y~| `{|Z~}a{}l~|X{|m~|'{|w~|m{}w~|^o~}w{|x~}W{|v~| xm~}W{|n~}X{|v~|vv~}e{}"
-      "n~}v{}x~}o{|v~m{}x~|q{|w~w{|o~|t{|~}y|w{|}v~u{|x~}o{|v~3{}w~}r{}w~}\\{}w~}r{}w~}\\{}w~}r{}w~}\\{}w~}r{}w~}\\{}w"
-      "~}r{}w~}\\v~|r{|w~}cv~|s{|c~lv~}I{}d~|`{}d~|`{}d~|`{}d~|W{}w~}M{}w~}M{}w~}M{}w~}_{}i~}nv~}h{}w~|uv~|tv~iv~}c{|v"
-      "~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|a{|u~|}v~}av~}pw~}s{|v~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}["
-      "{}t~|W{}w~}mv~}aw~}v{}v~|Fw~}Lw~}Lw~}Lw~}Lw~}Lw~}Vu~l{|w~|iv~|Ov~l{|w~}av~l{|w~}av~l{|w~}av~l{|w~}Wv~Lv~Lv~Lv~V"
-      "v~|mv~|`v~}n{}w~|av~|n{|v~|av~|n{|v~|av~|n{|v~|av~|n{|v~|av~|n{|v~|-v~|r{|x~}v~`{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{"
-      "}w~|a{|w~|m{}w~|_{}w~|q{|v~^u~mv~|`{}w~|q{|v~ Ww~p{}w~pw~jw~yd|yw~jw~t{|p~|tw~jw~nu~|tw~jw~pv~}qw~Zw~|U{}w~}q{}"
-      "w~} F{}w~}W{|w~|s{}y~|){|_~}f{}\\~|h{}\\~|g{}^~c{}w~l{|w~|aw~}kw~}[v~x{}w~}X{|w~}t{|v~cV~}    2v~| k{}w~| {{|x~"
-      "}t{|x~}Z{|o~}y|`{|}r~|v{|w~t{}u~}|hv~}y{}u~o{|w~|,{|v~F{}w~|X{|sx~s{|T{}w~  e{|w~X{|v~k{}w~}W{}w~}Iu~|Vm~|[{}w~"
-      "r{}w~}L{}u~`{|r~|s{|u~S{}v~V{|}m~}|\\u~p{}t~} Y{|}p~}|VY|W{|}p~}|[{|v~|aw~rw~}q{|v~|t{}x~iv~q{|v~_{}e~}av~}M{}w"
-      "~}f{|v~|e{}d~|_{}g~|dv~}m{}n~|h{}^~|Y{}w~}M{}w~}W{}q~}P{}w~}V{}w~|vw~}vw~}vv~|h{}w~|u{}v~tv~iv~}bv~|e{}e~|fv~}b"
-      "v~|g{}g~}X{|}k~}U{|v~|Z{|v~h{}w~}av~|r{|v~f{|v~u{|w~|u{}x~}u{}w~}`{|t~|O{}v~}Nu~|Q{|w~}Iw~}I{|w~|  a{}w~^v~|m{|"
-      "w~}a{|v~O{|w~}lv~|b{|w~}kv~Xw~}V{|w~}lv~|`v~|n{|w~}Wv~Lv~Tw~}x{}v~|Nv~_v~|nv~|nv~hv~|n{|w~}b{|v~lv~|`v~}m{|w~}c"
-      "{|w~}m{|v~|Zv~|R{}w~|Hv~S{|w~|m{}w~|_{}w~|q{|w~}d{|w~}u{|w~y{}x~|u{|w~|`{|v~y|v~}Y{|w~}q{}w~|Q{|v~}S{}v~Kw~|L{}"
-      "w~}Y{|p~}|n{|y~}5{}y~r{|t~qy~}f{}v~ot~}^v~x{}o~}Y{}p~|{|w~|`w~}lv~|_{|w~}Nv~|n{|w~}^{|w~|r{}w~|X{}w~}yv~[{|w~|m"
-      "{}w~|gv~}b{}v~h{|v~u{}w~u{|v~a{|w~}q{|w~}`v~t{}w~t{|w~}b{|w~}m{|w~}c{|v~lv~|X{|w~}W`~_v~|r{|v~Qu~W{}w~}V{|v~b{}"
-      "w~}lv~}r{|v~qv~|i{}w~}hv~|h{|v~|t{|v~s{}v~jv~}xi~}xv~|lu~[|]{}w~\\\\|u~|]{}w~\\{}v~}c|u~|]{}w~ H{}w~}ty~}X{}g~|"
-      "[{}x~}nw~Vs~|Nw~|V{}x~}pv~}1{}y~v{}x~}d{|y~}c{}r~}{|x~}Z{}w~}v{|v~|a{|Z~}8{}y~rn~}q{|y~} `{|Z~}a{}l~|X{|o~}|&{|"
-      "w~|m{}w~|]{}q~}w{|x~}W{|v~| xm~}V{|}q~|V{|v~|v{}w~}fm~}vw~o{|u~rm~}vw~|w{}n~|u{|m~|uw~|p{|u~3v~q{|v~\\v~q{|v~\\"
-      "v~q{|v~\\v~q{|v~\\v~q{|v~]{|v~pv~|e{}w~}r{|c~lv~}I{}d~|`{}d~|`{}d~|`{}d~|W{}w~}M{}w~}M{}w~}M{}w~}_{}i~}nv~}h{}w"
-      "~|u{}v~tv~iv~}bv~|lv~}bv~|lv~}bv~|lv~}bv~|lv~}bv~|`{|p~}`v~}q{}x~}qv~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}"
-      "w~}Z{}v~}V{}w~}mv~}aw~}uu~}G{}w~L{}w~L{}w~L{}w~L{}w~L{}w~V{}w~}kw~}j{|v~O{|w~}kv~b{|w~}kv~b{|w~}kv~b{|w~}kv~Wv~"
-      "Lv~Lv~Lv~W{|v~l{}w~}`v~|n{|w~}b{|v~lv~|b{|v~lv~|b{|v~lv~|b{|v~lv~|b{|v~lv~|.{|v~r{|w~{}w~|a{|w~|m{}w~|a{|w~|m{}"
-      "w~|a{|w~|m{}w~|a{|w~|m{}w~|_{|w~}q{}w~|^v~}m{|w~}`{|w~}q{}w~| Ww~yd~|{w~jw~yd~|{w~jw~s{|r~|sw~jw~ou~|sw~jw~pv~}"
-      "qw~Zw~|U{|v~qv~| G{}w~}Uw~}sx~({}^~g{}Z~g]~}f{|_~|cw~}l{|w~|aw~}kw~}\\{|v~x{|v~Wv~t{}w~}cV~}    2v~| k{}w~| {{}"
-      "x~}t{}x~}Y{|}m~}`{|}w~}|tw~|v{|q~}j{}v~w{}u~p{}w~|,{|w~}F{}w~|Ox~Z{|Z~}  t{}x~}X{|v~k{}w~}W{}w~}J{}v~|Ut|}t~}]{"
-      "|w~|r{}w~}K{}v~|a{|s~p{|v~}Tv~}W{}i~}]{}u~|t{|}s~} Z{|q~}| e{|}q~}\\v~}`x~}s{}w~ov~|t{}x~|k{|w~}p{}w~|`{}w~}p|}"
-      "t~|cv~}M{}w~}f{|v~|e{}w~}i|^{}w~}l|cv~}m{}n~|h{}w~}h|v~|Y{}w~}M{}w~}W{}w~}u~}Q{}w~}V{}w~|v{}w~w{|w~uv~|h{}w~|tv"
-      "~|uv~iv~}c{|v~|e{}f~|ev~}c{|v~|g{}i~}S{|}m~}V{|v~|Z{|v~h{}w~}a{}w~}rv~}ev~|v{|w~t{|w~uv~|`r~O{|v~|O{}v~}P{|w~}I"
-      "{}w~I{|w~|  a{}w~^v~|lv~a{}w~}O{}w~|lv~|b{|w~|k{}w~Xw~}V{}w~|lv~|`v~m{|w~}Wv~Lv~Tw~}yu~|Mv~_v~mv~mv~hv~m{|w~}b{"
-      "}w~}l{}w~}`v~|m{|v~c{}w~|lv~|Zv~Q{}v~|Iv~S{|w~|m{}w~|_{|w~}q{}w~|cv~u{}x~}y{}x~}u{}w~^{}q~}Wv~qv~Q{|v~}Uy|}v~|K"
-      "w~|L{|u~}|^{|k~}|s{|}x~}5y~}q{}v~|q{}y~f{}w~}o{}u~|^v~ty|}s~[{|u~y}v~y|w~|a{|w~}l{}w~}^{}w~|Ov~m{|w~}]w~}rv~Wv~"
-      "|y{}w~}\\{|w~|m{}w~|gv~|b{|v~h{}w~}u{}w~tv~a{|w~}q{|w~}`v~t{}w~t{|w~}b{}w~|m{|v~c{}w~}l{}w~}X{|w~}W`~`{|w~}pv~|"
-      "S{}v~|W{}w~}V{|v~bv~}lv~}r{|v~r{|v~|i{}w~}hv~|gu~t{|v~t{|v~}jv~}xh|y{|v~|mT~]{}w~]T~|^{}w~]{}U~|^{}w~ Hv~|ty~}X"
-      "{}g~|[w~|nw~|W{}u~}Mw~|V{}w~ov~1{|y~v{}x~}d{|y~|ay}x~y}ww|[{}w~}v{|v~|`{|Z~}8{|y~ro~o{|y~| Q{}w~R{}l~|V{|y}v~y}"
-      "|${|w~|m{}w~|\\{|}s~}w{|x~}W{|v~| xm~}T{|y}w~}|S{|v~|v{}w~}gm~}w{}x~}oy~y}x~rm~}w{}x~}v{}~}y|w{|v~u{|o~}t{}x~}o";
-
-      const char *const chunk1 =
-      "t~^v|V{|w~}p{}w~|^{|w~}p{}w~|^{|w~}p{}w~|^{|w~}p{}w~|^{|w~}p{}w~|^{}w~}p{}w~}ev~|r{|v~h|lv~}I{}w~}i|_{}w~}i|_{}"
-      "w~}i|_{}w~}i|V{}w~}M{}w~}M{}w~}M{}w~}_v}u~r}nv~}h{}w~|tv~|uv~iv~}c{|v~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|"
-      "_{|r~}_v~}r{}w~q{|v~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}Z{|v~|V{}w~}mv~}aw~}u{|t~|I{}w~L{}w~L{}w~L{}w~"
-      "L{}w~L{}w~V{}w~|kv~j{}w~}O{|w~|k{}w~b{|w~|k{}w~b{|w~|k{}w~b{|w~|k{}w~Wv~Lv~Lv~Lv~W{}w~}l{|w~}`v~m{|w~}b{}w~}l{}"
-      "w~}b{}w~}l{}w~}b{}w~}l{}w~}b{}w~}l{}w~}b{}w~}l{}w~}eY|f{}w~}rw~y{|w~}a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|"
-      "m{}w~|^v~qv~]v~|m{|v~_v~qv~ Vw~yd~|{}x~|kw~yd~|{}x~|kw~r{|t~|r{}x~|kw~pu~|r{}x~|kw~pv~}q{}x~|[w~|T{}w~|s{|v~ G{"
-      "}v~T{}w~t{|y~}(]~|i{|Y~}h{|_~}d{|a~}bw~}kw~|aw~}kw~}\\{}w~}wv~|Xv~|u{}w~|cV~}    2v~| k{}w~| {{w~|tw~|W{|}m~}T{"
-      "}x~}v{|o~}l{|v~|v{}u~q{}w~+{|w~}F{}w~|Ox~Z{|Z~}+m| ww~|X{|v~k{}w~}W{}w~}K{}v~}K{|}v~}^w~}q{}w~}Ju~a{|t~|o{}v~U{"
-      "|v~|X{}u~}|wy|u~}]t~}y|{y|}q~} Z{|t~}| _{|}t~}\\v~`{|x~}s{}x~}o{|w~|t{}x~|kv~|p{|w~}`{}w~}n{|u~cv~}M{}w~}f{|v~|"
-      "e{}w~}L{}w~}Tv~}m{}n~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}|u~}R{}w~}V{}w~|v{|w~|x{}x~}uv~|h{}w~|t{|v~uv~iv~}c{|v~|e{}h~"
-      "}cv~}c{|v~|g{}h~}Qy|y}p~W{|v~|Z{|v~h{}w~}a{|v~s{|v~|e{}w~}v{}x~}t{|w~uv~|a{}r~}P{|v~|P{}v~}O{|w~}I{|w~|J{|w~|  "
-      "n{|y}l~^v~kv~a{}w~|Ov~|l{}w~|b{}w~|k{}w~|Yw~}Vv~|l{}w~|`v~m{|w~}Wv~Lv~Tw~}|u~Kv~_v~mv~mv~hv~m{|w~}b{}w~|l{|v~`v"
-      "~kv~c{}w~|l{}w~|Zv~Pu~}|Kv~S{|w~|m{}w~|^v~qv~b{}w~u{}x~|y{|w~uv~]{}r~V{}w~|s{|w~}R{|v~}X{|q~}Jw~|K{|q~}c{}g~}w|"
-      "}u~}5y~}pw~}p{}y~fv~|o{}u~]v~p{|t~\\v~}w{|w~}w~|a{}w~|l{|w~}]{}w~}y|Rv~m{|w~}]{}w~s{}w~}X{}w~}x{|v~\\{|w~|m{}w~"
-      "|h{|v~|b{|v~|i{}w~|u{}w~tv~|b{|w~}q{|w~}`v~t{}w~t{|w~}bv~kv~c{}w~|l{|w~}X{|w~}Wv~jv~`v~|p{}w~}T{}v~|V{}w~}V{|v~"
-      "|cv~|lv~}r{|v~r{|v~|i{}w~}hv~|g{}v~}u{|v~tu~|jv~}c{|v~|n{|T~]{}w~]T~}^{}w~]T~}^{}w~ I{|v~sy~}X{}g~|[w~m{}x~|Vu~"
-      "|#{|w~|p{|w~|2{|y~|w{|x~}d{|y~|3v~}v{}v~|Aw~}8{|y~|sw~x{|w~}p{|y~| Q{}w~  p{|w~|m{}w~|Y{|}v~}w{|x~}W{|v~|  jv~}"
-      "v{}v~|W{|w~o{}y~{}x~r{}n~}x{|w~uy|rw~|ty|t}|s{|w~o{}y~|}x~^{}w~|Wv~|p{|w~}^v~|p{|w~}^v~|p{|w~}^v~|p{|w~}^v~|p{|"
-      "w~}^v~|p{|v~f{|v~q{|v~Yv~}I{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~ev~}h{}w~|t{|v~uv~iv~}c{|v~|lv~}"
-      "c{|v~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|^{|t~}^v~}s{}w~p{|v~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}Z{|v~|V{}w"
-      "~}n{|v~|aw~}t{}t~}W{|y}l~Y{|y}l~Y{|y}l~Y{|y}l~Y{|y}l~Y{|y}l~c{|y}l~j{}w~j{}w~|O{}w~|k{}w~|c{}w~|k{}w~|c{}w~|k{}"
-      "w~|c{}w~|k{}w~|Xv~Lv~Lv~Lv~W{}w~|l{|v~`v~m{|w~}b{}w~|l{|v~b{}w~|l{|v~b{}w~|l{|v~b{}w~|l{|v~b{}w~|l{|v~f{|Z~}f{}"
-      "w~|s{}x~|y{|w~}a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|^{}w~|s{|w~}]v~kv~_{}w~|s{|w~} Vw~yd~|{}x~|kw~yd"
-      "~|{}x~|kw~qt~|r{}x~|kw~qu~|q{}x~|kw~pv~}q{}x~|[w~|T{|w~}s{}w~} H{|v~|T{|w~|u{}y~({|]~}i{}X~g{|`~b{}b~aw~}kw~}aw"
-      "~}kw~}\\v~|w{}w~}X{}w~}uv~bw~}Z|    5x|v~}p| v{}w~| {|w~t{|w~S{|}n~|Vw~uv~|y{|}w~}m{}w~}t{}u~rw~}+{|w~}F{}w~|Ox"
-      "~Z{|Z~},{|m~ x{|w~|X{|v~k{}w~}W{}w~}L{}v~}H{}v~}`{}w~p{}w~}J{}v~`t~n{|v~|V{}v~X{}v~}q{}v~}^{|j~|v~| Z{|t~| ]{|}"
-      "u~}]{|w~}`{|x~|sw~|o{|w~|t{}x~|l{|v~nv~`{}w~}lv~}dv~}M{}w~}f{|v~|e{}w~}L{}w~}Tv~}m{}n~|h{}w~}hv~|Y{}w~}M{}w~}W{"
-      "}w~}{|t~S{}w~}V{}w~|u{}x~}y{|w~|uv~|h{}w~|sv~|vv~iv~}c{|v~|e{}k~}|av~}c{|v~|g{}w~}t|y}u~}M{|}s~}X{|v~|Z{|v~h{}w"
-      "~}`v~}t{}v~d{}w~}vw~|sw~|w{|v~a{|v~}v~|Q{|v~|Q{|u~N{|w~}Hw~|J{|w~|  p{}h~|_v~k{}w~|bv~|Ov~k{}w~|bv~j}v~|Yw~}Vv~"
-      "k{}w~|`w~}m{|w~}Wv~Lv~Tq~}Jv~_w~}mv~mv~hw~}m{|w~}bv~|l{|v~`v~kv~|dv~k{}w~|Zv~P{}r~}y|Pv~S{|w~|m{}w~|^{}w~|s{|w~"
-      "}b{|w~|vw~|xw~|w{|w~}\\s~|Uv~sv~|Ru~W{|s~}|Iw~|I{|}t~}d{|u~}w|}g~}5{|y~|p{|x~|p{}y~fv~|o{|v~}]v~n{}v~|^{}w~|ts~"
-      "`v~|l{|v~\\{}p~}Xw~}m{|w~}]{|w~|tv~|Xv~|wv~|]{|w~|m{}w~|h{|v~|q{}x~}q{|v~|iv~|u{}w~t{}w~|b{|w~}q{|w~}`v~t{}w~t{"
-      "|w~}bv~kv~|dv~|l{|v~X{|w~}Wv~|l{|v~a{|v~nv~U{|v~}U{}w~}Uv~}d{|v~|l{}v~r{|v~r{|v~|i{}w~}hv~|fu~|v{|v~u{}v~}iv~}c"
-      "{|v~|n{|T~]{}w~]T~}^{}w~]T~}^{}w~ rw|V{|w~}sy~}X{|w}u~q}Zw~m{}x~|V{}v~\"{|v~ow~|2{|y~|w{|w~d{|y~|4{}w~}v{|v~?w~"
-      "}8{|y~|sw~vw~}q{|y~| Q{}w~  p{|w~|m{}w~|Ux~}w{|x~}W{|v~|  i{}w~|v{|v~Ww~|p{|y~|{}x~`{}x~|j{|x~}bw~|p{|y~}{}x~^{"
-      "}w~|X{|v~nv~_{|v~nv~_{|v~nv~_{|v~nv~_{|v~nv~_{|w~}nv~|g{}w~}q{|v~Yv~}I{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}"
-      "M{}w~}Z{|v~ev~}h{}w~|sv~|vv~iv~}c{|v~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|]{}u~|^v~}t{|w~|p{|v~|i{|v~h{}w~}"
-      "f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}Z{|v~|V{}w~}n{}v~|aw~}s{|s~|[{}h~|\\{}h~|\\{}h~|\\{}h~|\\{}h~|\\{}h~|f{}h~j}v~"
-      "jv~|Ov~j}v~|cv~j}v~|cv~j}v~|cv~j}v~|Xv~Lv~Lv~Lv~Wv~|l{|v~`w~}m{|w~}bv~|l{|v~bv~|l{|v~bv~|l{|v~bv~|l{|v~bv~|l{|v"
-      "~f{|Z~}fv~|t{}x~|wv~a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|]v~sv~|]v~kv~|_v~sv~| Vw~yd~|{w~jw~yd~|{w~j"
-      "w~rr~|sw~jw~ru~|pw~jw~pv~}qw~Zw~|Sv~sv~ H{|v~|Rw~}uy~}({|]~}i{}X~|g{}b~|a{}d~|aw~}kw~}aw~}kw~}]{|v~v{|v~X{|v~v{"
-      "|w~}b{}x~}     pf~ v{|w~ {{|w~t{|x~}P{|y~}r~W{}x~|v{}w~u{}w~mv~r{}u~t{|w~|+{|v~F{}w~|Ox~Z{|Z~},{|m~ x{}w~W{|v~k"
-      "{}w~}W{}w~}M{}v~}F{}v~a{|w~|p{}w~}Iv~|au~}mv~}Vv~|Y{|v~}o{|v~|]{}m~|{v~| Z{|r~}| c{|}r~}]{|w~}`{|x~|sw~|nw~|t{}"
-      "x~k{}w~}n{}w~}a{}w~}l{|v~|e{}v~M{}w~}f{}v~d{}w~}L{}w~}T{}v~mr|v~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}y{|t~T{}w~}V{}w~|u"
-      "{|w~y{}w~tv~|h{}w~|s{|v~vv~i{}v~c{|v~|e{}w~}r|]{}v~c{|v~|g{}w~}q{}v~}K{|t~|Y{|v~|Z{|v~h{}w~}`{}v~tv~|d{|v~w{|w~"
-      "|s{}x~}w{}w~}av~}{}v~Q{|v~|R{|u~M{|w~}H{}x~}J{|w~|  r{|f~|_w~}k{}w~|bv~|Ov~k{}w~|b`~|Yw~}Vv~k{}w~|`w~}m{|w~}Wv~"
-      "Lv~Tq~Iv~_w~}mv~mv~hw~}m{|w~}bv~jv~`v~k{}w~|dv~k{}w~|Zw~}O{}o~}|Sv~S{|w~|m{}w~|^{|w~}s{}w~|b{|w~}w{|w~w{}x~}w{|"
-      "w~|\\{|u~}T{}w~|u{|w~}Ru~V{|s~}|Iw~|J{|}s~}d{|w~|s{|}k~|3y~}p{|x~}p{}y~fv~mv~|]v~m{}v~_{|w~}rt~`v~jv~Z{}r~}Xw~}"
-      "m{|w~}\\w~}u{|w~}X{|w~}v{}w~}]{|w~|m{}w~|h{|v~|q{}x~}pv~|iv~t{}w~t{}w~|b{|w~}q{|w~}`v~t{}w~t{|w~}bv~k{}w~|dv~jv"
-      "~X{|w~}W{}w~|l{|v~a{}w~}n{}w~}W{|u~T{}w~}U{}w~}d{}v~k{}v~|s{|v~r{}v~h{}w~}hv~|f{|u~|w{|v~v{}u~h{}v~c{|v~|n{|T~]"
-      "{}w~]T~|^{}w~]{}U~}^{}w~ s{|w~V{|w~}sy~}S{|v~Pw~|nw~|V{|w~}!{}v~|q{}x~|1y~}vw~|e{}y~ci|]{}w~u{|w~|?w~}7y~}sw~v{"
-      "|w~|r{}y~ P{}w~  p{|w~|m{}w~|Ux~}w{|x~}W{|v~| Fi|U{|w~|u{}w~X{}x~}p{|y~}y{}x~a{|w~i{|x~}c{}x~}p{|y~}y{}x~^{}w~|"
-      "X{}w~}n{}w~}`{}w~}n{}w~}`{}w~}n{}w~}`{}w~}n{}w~}`{}w~}n{}w~}`{}w~|n{}w~}h{|v~p{|v~Y{}v~I{}w~}M{}w~}M{}w~}M{}w~}"
-      "D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~f{|v~|h{}w~|s{|v~vv~i{}v~c{|v~|l{}v~c{|v~|l{}v~c{|v~|l{}v~c{|v~|l{}v~c{|v~|^{}s~|_"
-      "{}v~u{|w~|o{|v~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}Z{|v~|V{}w~}o{|u~`w~}q{}t~|^{|f~|^{|f~|^{|f~|^{|f~|"
-      "^{|f~|^{|f~|h{|P~jv~|O`~|c`~|c`~|c`~|Xv~Lv~Lv~Lv~Wv~jv~`w~}m{|w~}bv~jv~bv~jv~bv~jv~bv~jv~bv~jv~f{|Z~}fv~|u{}x~}"
-      "vv~a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|]{}w~|u{|w~}\\v~k{}w~|_{}w~|u{|w~} Uw~yq}w~r}yw~jw~yd|yw~jw~"
-      "sp~|tw~jw~su~|ow~jw~pv~}qw~Zw~|S{}w~}u{|w~} Hv~|Q{}w~|w{|y~|({|\\~iW~|f{}d~|_e~|`w~}kw~}aw~}kw~|]{}w~}uv~Wv~|w{"
-      "}w~|b{}x~}     q{|g~| v{|w~({}Z~X{|y~|{|}u~}Y{|w~uw~|tw~}o{|w~}q{}u~u{}w~*{|v~F{}w~|*m|}w~l|,{|m~ xw~}W{|v~k{}w"
-      "~}W{}w~}N{}v~}Dv~|bw~}o{}w~}Iv~|au~|m{}w~}W{|v~X{}v~m{}v~\\{|p~}xv~| Y{}p~}| i{|}p~}|]{}w~}`{|x~|sw~mw~|t{}x~kv"
-      "~}n|}v~a{}w~}kv~}e{}v~M{}w~}f{}v~d{}w~}L{}w~}T{}v~dv~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}x{|t~U{}w~}V{}w~|tw~|{w~}tv~|"
-      "h{}w~|rv~}wv~i{}v~c{}v~d{}w~}T{}v~c{}v~f{}w~}p{}v~|Ju~}Y{|v~|Z{|v~h{}w~}_v~|v{|v~bv~|x{|w~r{}w~wv~|b{}v~xv~}R{|"
-      "v~|Ru~|M{|w~}H{|w~J{|w~|  s{|q~t}v~|_w~}k{}w~|bv~Nv~k{}w~|b`~|Yw~}Vv~k{}w~|`w~}m{|w~}Wv~Lv~Tp~Jv~_w~}mv~mv~hw~}"
-      "m{|w~}bv~jv~`w~}k{}w~|dv~k{}w~|Zw~}N{|m~|Uv~S{|w~|m{}w~|]v~t{|v~`v~w{}x~}w{|x~}w{}w~[{|u~|T{|w~}u{}w~|S{}v~|V{|"
-      "x}t~}Jw~|K{|s~y}|d{|y~}n{|}p~}1y~}p{}w~p{}y~fv~mv~\\v~lv~|`{}w~|r{|v~}`v~jv~\\{|p~}Xw~}m{|w~}\\{}w~u{}w~|Xv~|v{"
-      "|v~]{|w~|m{}w~|h{|v~p{}w~pv~}iv~t{}w~t{}w~|b{|w~}q{|w~}`v~t{}w~t{|w~}bw~}k{}w~|dv~jv~X{|w~}W{}w~|l{|w~}av~|n{|v"
-      "~Wu~|T{}w~}U{}v~dv~}k{|v~}s{|v~s{|v~}h{}w~}hv~|e{}u~|x{|v~w{}u~|h{}v~c{}v~l{|u~}\\|]{}w~][|u~|]{}w~\\{}v~}c|u~}"
-      "]{}w~ s{|w~V{|w~}sy~}S{|v~P{}x~}o{|w~`{|a~}+u~|rw~|1y~}v{}w~ex~d{|j~}]{}w~}v{|v~|@w~}7y~}sw~u{}w~rx~ P{}w~  p{|"
-      "w~|m{}w~|Ux~}w{|x~}  w{|j~}V{|v~|v{}w~}Xw~oy~}x{}x~aw~|i{|x~|cw~ox~x{}x~^{}w~|Xv~}n|}v~`v~}n|}v~`v~}n|}v~`v~}n|"
-      "}v~`v~}n|}v~a{|b~h{}v~p|}v~Y{}v~I{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~f{|v~|h{}w~|rv~}wv~i{}v~c{"
-      "}v~k{}v~c{}v~k{}v~c{}v~k{}v~c{}v~k{}v~c{}v~^{}q~|`{}v~v{|w~}n{}v~h{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}Z{"
-      "|v~|V{}w~}p{|u~|`w~}p{|t~}`{|q~t}v~|_{|q~t}v~|_{|q~t}v~|_{|q~t}v~|_{|q~t}v~|_{|q~t}v~|i{|q~t}`~|kv~N`~|c`~|c`~|"
-      "c`~|Xv~Lv~Lv~Lv~Wv~jv~`w~}m{|w~}bv~jv~bv~jv~bv~jv~bv~jv~bv~jv~f{|Z~}fv~u{|x~}uv~a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m"
-      "{}w~|a{|w~|m{}w~|]{|w~}u{}w~|\\w~}k{}w~|_{|w~}u{}w~| U{}x~|q{}w~q{|w~j{}x~|b{|w~j{}x~|uu~|u~|v{|w~j{}x~|uu~|o{|"
-      "w~j{}x~|qv}|r{|w~[{|w~|S{|v~uv~| TZ~}a{|w~}wx~'{|\\~iW~|ee~|^{|g~}_w~}kw~}aw~}kw~|]v~|u{}w~|X{}w~}wv~|b{|w~|   "
-      "  r{}g~ u{|w~({}Z~X{|y~|w{}v~|Zw~|v{|w~s{|w~o{|w~}p{}u~vw~})v~Fv~| w{}w~ x{|m~ y{|w~|Vv~|lv~|W{}w~}O{}v~}C{}w~}"
-      "c{|w~n|}w~}v|N{}w~}au~l{|v~Wv~}Xv~}m{|v~|[{|y}w~y}|x{|v~ V{|}p~}|XY|X{|}q~}|Z{}w~}`{|x~|sw~mw~|tw~l{|b~|b{}w~}k"
-      "{}v~e{|v~|N{}w~}fv~}d{}w~}L{}w~}T{|v~|ev~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}w{|t~V{}w~}V{}w~|t{}w~|w~|tv~|h{}w~|r{|v~"
-      "wv~i{|v~|d{}v~d{}w~}T{|v~|d{}v~f{}w~}o{}v~J{|u~Y{|v~|Z{|v~h{}w~}_{}w~}v{}w~}b{}w~}x{}x~}r{|w~wv~b{|v~|x{|v~|S{|"
-      "v~|S{}v~|L{|w~}Gw~|K{|w~|  t{|u~}|q{}w~|_v~k{}w~|bv~Nv~k{}w~|b`~|Yw~}Vv~k{}w~|`w~}m{|w~}Wv~Lv~Tw~}|u~Kv~_w~}mv~"
-      "mv~hw~}m{|w~}bv~jv~`w~}k{}w~|dv~k{}w~|Zw~}L{|}o~}Vv~S{|w~|m{}w~|]{}w~}u{}w~}`{}w~|xw~|w{|w~wv~\\{|s~Sv~uv~S{}v~"
-      "|O{}v~}Kw~|L{|v~}|_{|~|j{|y}x~y}|/x~q{|v~}qx~fv~m{}x~}\\v~l{}w~|`v~pv~}`v~jv~]n~}Xw~}m{|w~}\\{|w~|vv~X{|v~t{}w~"
-      "|^{|w~|m{}w~|h{|v~p{}w~pv~|iv~t{}w~t{}w~|b{|w~}q{|w~}`v~t{}w~t{|w~}bw~}k{}w~|dv~jv~X{|w~}W{}w~}l{}w~}b{|v~lv~|Y"
-      "{}v~|S{}w~}U{|v~}f{|v~|ju~|t{|v~s{}v~|h{}w~}hv~|dt~}y{|v~y{|t~|g{|v~|d{}v~k{|u~|?{}w~>u~|b{|v{}w~[{}v~|e{}v~}\\"
-      "{}w~ s{|w~V{|w~}sy~}S{|v~P{|w~o{}x~}`{|a~}+{|u~}|u{|w~0{}y~v{|w~}g{|y~}d{|j~}\\{}v~|w{|v~}Aw~}7{}y~sw~tw~}t{|y~"
-      "} P{}w~  p{|w~|m{}w~|Ux~}w{|x~}  w{|j~}W{|v~|vv~}X{}x~|p{}y~|x{}x~b{}x~}hw~c{}x~}p{}y~|x{}x~^v~X{|b~|b{|b~|b{|b"
-      "~|b{|b~|b{|b~|b{}b~}id~Y{|v~|J{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~f{}v~g{}w~|r{|v~wv~i{|v~|d{}v"
-      "~k{|v~|d{}v~k{|v~|d{}v~k{|v~|d{}v~k{|v~|d{}v~_{}v~}u~|a{|v~|ww~}m{}v~h{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w"
-      "~}Z{|v~|V{}w~}sy|s~_w~}n{}u~|b{|u~}|q{}w~|`{|u~}|q{}w~|`{|u~}|q{}w~|`{|u~}|q{}w~|`{|u~}|q{}w~|`{|u~}|q{}w~|j{|u"
-      "~}|q{}a~|kv~N`~|c`~|c`~|c`~|Xv~Lv~Lv~Lv~Wv~jv~`w~}m{|w~}bv~jv~bv~jv~bv~jv~bv~jv~bv~jv~.v~v{|w~tv~a{|w~|m{}w~|a{"
-      "|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|\\v~uv~[w~}k{}w~|^v~uv~ T{}x~}q{}w~q{|x~}j{}x~}b{|x~}j{}x~}vu~|{|u~|w{|x~}j{}"
-      "x~}vu~|n{|x~}j{}x~}b{|x~}[{|w~Qv~|w{|v~ SZ~}`v~x{|y~}'{|]~}iW~|e{|g~}\\{}i~}^w~}kw~}aw~}l{|w~|^{|v~t{|w~}X{|v~x"
-      "{|v~`w~}     m{|v~ jw|({}Z~X{|y~|v{}w~}[{}x~}u{}x~}s{|w~o{}w~}o{}u~x{|w~|)v~Fv~ v{}w~  g{}w~Uv~|lv~|W{}w~}P{}v~"
-      "}B{|v~c{|_~|O{}w~}a{}v~l{|v~X{|v~|Y{|v~|lv~|N{|v~ S{|}p~|[{|Z~}[{|}p~}|X{}w~}`{|x~|sw~|nw~|u{|x~}l{}b~}b{}w~}k{"
-      "|v~e{|v~}N{}w~}g{|v~}d{}w~}L{}w~}T{|v~}ev~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}v{|t~W{}w~}V{}w~|t{|r~sv~|h{}w~|q{}w~}xv"
-      "~i{|v~}dv~}d{}w~}T{|v~}dv~}f{}w~}nv~}J{}v~Y{|v~|Z{|v~|i{}w~}_{|v~vv~|b{}w~}xw~|qw~|y{|v~bv~}v{}v~S{|v~|T{}v~}K{"
-      "|w~}G{}x~}K{|w~|  tv~}n{}w~|_v~kv~|bv~|Ov~k{}w~|bv~Bw~}Vv~k{}w~|`w~}m{|w~}Wv~Lv~Tw~}{|u~|Mv~_w~}mv~mv~hw~}m{|w~"
-      "}bv~|kv~`v~k{}w~|dv~k{}w~|Zw~}Iy|}q~Wv~S{|w~|m{}w~|]{|v~uv~_{|w~|xw~uw~|y{|w~}\\r~}T{|w~|w{}w~}T{}v~|M{|v~Kw~|L"
-      "{}w~} O{}y~|rt~|s{|y~}fv~|nw~}\\v~l{|w~}`w~}p{}w~|`v~|kv~^u~}|Qw~}m{|w~}[w~}w{}w~}X{}w~|t{|w~}^{|w~|m{}w~|h{|v~"
-      "pv~pv~|iv~t{}w~t{}w~|b{|w~}q{|w~}`v~t{}w~t{|w~}bv~k{}w~|dv~|l{|v~X{|w~}W{|w~}l{}w~|b{}w~}l{}w~}Z{|v~}R{}w~}T{}v"
-      "~f{}v~i{|u~t{|v~t{|u~g{}w~}hv~|cr~}v~}s~}f{|v~}dv~}j{|u~|@{}w~?u~|b{}~|w{}w~vy~a{}v~|g{}v~}b{}~|w{}w~vy} {{}w~|"
-      "W{|w~}sy~}S{|v~Ow~}q{|w~|`{|a~}){}u~}vw~}0{|y~}v{}w~}p{|t{}y~|d{|j~}[{|v~|vv~}Bw~}7{|y~}tw~t{|w~|u{}y~| P{}w~  "
-      "p{|w~|m{}w~|Ux~}w{|x~}  w{|j~}X{}v~v{|v~}X{|w~p{|y~|w{}x~bw~h{}x~|d{|w~p{|y~}w{}x~^v~X{}b~}b{}b~}b{}b~}b{}b~}b{"
-      "}b~}b`~j{}d~Y{|v~}J{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~fv~}g{}w~|q{}w~}xv~i{|v~}dv~}k{|v~}dv~}k"
-      "{|v~}dv~}k{|v~}dv~}k{|v~}dv~}`{}v~|{|u~|b{|v~}x{}x~}lv~}h{|v~|i{}w~}f{|v~|i{}w~}f{|v~|i{}w~}f{|v~|i{}w~}Z{|v~|V"
-      "{}e~|_w~}m{|u~bv~}n{}w~|`v~}n{}w~|`v~}n{}w~|`v~}n{}w~|`v~}n{}w~|`v~}n{}w~|jv~}n{}w~Tv~|Ov~Lv~Lv~Lv~Av~Lv~Lv~Lv~"
-      "Wv~|l{|v~`w~}m{|w~}bv~|kv~bv~|kv~bv~|kv~bv~|kv~bv~|kv~.v~vw~|u{|v~a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}"
-      "w~|\\{|w~|w{}w~}[v~k{}w~|^{|w~|w{}w~} T{|w~q{}w~q{}x~|j{|w~b{}x~|j{|w~wu~|x{|u~|x{}x~|j{|w~wu~|m{}x~|j{|w~b{}x~"
-      "|[{|w~Q{|w~}w{}w~} SZ~}`{}w~|y{}y~|'{|n~y}~|n~}i{}k~x}k~c{|i~}Z{}j~]w~}kw~}a{}w~l{|w~|^{}w~}sv~Wv~|y{}w~}`{}w~|"
-      "     mv~|  o{}Z~X{|y~|v{|w~}\\{|w~t{}x~|rw~|p{}w~}n{}u~yw~}(v~|Gv~ v{}w~  gw~}U{}w~}m{|v~V{}w~}Q{}v~}A{|v~c{|_~"
-      "|O{}w~}a{}v~l{|v~X{}v~X{|v~k{}w~}N{}w~} Q{|}p~}|^{|Z~}^{|}p~}|U{}w~}`{|x~}sw~|o{|w~|u{}x~|l`~b{}w~}k{|v~|eu~N{}"
-      "w~}g{}v~|d{}w~}L{}w~}Su~ev~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}u{|t~X{}w~}V{}w~|ss~}sv~|h{}w~|q{|v~|yv~hu~e{|v~|d{}w~}"
-      "Su~e{|v~|f{}w~}n{}v~|K{|v~|Z{|v~|Yv~|i{}w~}^v~|x{}v~a{|v~y{|w~|q{}x~}y{}w~}c{}v~tv~}T{|v~|U{|v~}J{|w~}G{|w~K{|w"
-      "~|  u{|v~m{}w~|_v~kv~a{}w~|O{}w~|l{}w~|bv~|Cw~}V{}w~|l{}w~|`w~}m{|w~}Wv~Lv~Tw~}y{|u~|Nv~_w~}mv~mv~hw~}m{|w~}bv~"
-      "|l{|v~`v~kv~cv~|l{}w~|Zw~}D{|}u~}Xv~S{|w~|m{}w~|\\{}w~|w{|w~}^w~}y{|w~u{}x~}y{}w~|]{}q~|Tv~wv~|U{|v~}K{}w~|Lw~|"
-      "Lv~ N{|x~s{}x~{w~|tx~|fv~|o{|v~\\v~l{|w~}a{|w~|p{}w~_{}w~|l{|v~_{}v~|Ow~}m{|w~}[{}w~|xv~X{|v~rv~|_{|w~|m{}w~|h{"
-      "|v~|qv~pv~|iv~|u{}w~t{}w~|b{|w~}q{|w~}`v~t{}w~t{|w~|bv~kv~c{}w~|l{|v~X{|w~}Vv~l{}w~|bv~|l{|v~[{|v~}Q{}w~}T{|v~}"
-      "h{|v~|hu~}u{|v~u{|u~|g{}w~}hv~|b{}f~|du~e{|v~|i{|u~|A{}w~@u~|b{}x~|x{}w~ww~a{}v~|i{}v~}b{}x~|x{}w~w{}y~} {}w~|W"
-      "{|v~sy~}S{|v~O{|w~}s{}w~}^q|}v~q|'{}t~|{|w~}.x~u{}v~}|wy|}y~tx~/{|v~|v{}w~}Cw~}6x~tw~s{}w~ux~ O{}w~  p{|w~|m{}w"
-      "~|Ux~}w{|x~}  B{}w~}v{|v~|Ww~|q{|y~}v{}x~c{}x~|i{}x~}cw~|q{|y~}v{}x~_{|v~X`~b`~b`~b`~b`~c{|`~|kc~Xu~J{}w~}M{}w~"
-      "}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~g{|v~}g{}w~|q{|v~|yv~hu~e{|v~|ju~e{|v~|ju~e{|v~|ju~e{|v~|ju~e{|v~|a{}"
-      "v~|x{|u~|bu~y{}w~l{|v~|gv~|i{}w~}ev~|i{}w~}ev~|i{}w~}ev~|i{}w~}Z{|v~|V{}f~|^w~}l{|v~|d{|v~m{}w~|a{|v~m{}w~|a{|v"
-      "~m{}w~|a{|v~m{}w~|a{|v~m{}w~|a{|v~m{}w~|k{|v~m{}w~T{}w~|Ov~|Mv~|Mv~|Mv~|Bv~Lv~Lv~Lv~W{}w~|l{|v~`w~}m{|w~}bv~|l{"
-      "|v~bv~|l{|v~bv~|l{|v~bv~|l{|v~bv~|l{|v~.v~|x{}x~|t{|v~a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|[v~wv~|[v"
-      "~kv~\\v~wv~| Sw~|r{}w~r{|w~hw~|d{|w~hw~|yu~|v{|u~y{|w~hw~|yu~|m{|w~hw~|d{|w~Z{|w~Pv~wv~| SZ~}_w~}yx~%n~{|~{|o~|"
-      "i{|l~}|}|l~}b{}j~Xk~|]w~}kw~}a{}w~l{}w~]v~|s{}w~|X{}w~}yv~|_w~}     mv~}  g{}x~}t{}x~}O{|y~|uw~}\\{}x~|t{}x~|rw"
-      "~|p{|w~}m{}u~}w~|({}w~|H{|w~} v{}w~  h{|w~|U{}w~}m{|v~V{}w~}R{}v~}@{|v~c{|_~|Ov~|a{|v~l{}w~}Xv~}X{|v~k{}w~}Nv~|"
-      " N{|}p~}|a{|Z~}a{|}p~}|R{|w}|_x~}s{}x~}o{}w~|v{|w~l{}`~|c{}w~}k{|v~|e{}v~|O{}w~}gu~c{}w~}L{}w~}S{}v~|fv~|h{}w~}"
-      "hv~|Y{}w~}M{}w~}W{}w~}t{|t~Y{}w~}V{}w~|s{}t~rv~|h{}w~|p{}w~}yv~h{}v~|f{}v~c{}w~}S{}v~|f{}v~e{}w~}mv~}K{|v~|Z{|v"
-      "~|Yv~|iv~|^{}w~}xv~}`v~|{|w~p{}w~yv~|d{|v~|t{|v~|U{|v~|V{|u~I{|w~}Fw~|L{|w~|  u{}w~|mv~|_v~|m{|v~a{}w~}O{}w~|lv"
-      "~|b{}w~|Cw~}V{}w~|lv~|`w~}m{|w~}Wv~Lv~Tw~}x{|u~|Ov~_w~}mv~mv~hw~}m{|w~}b{}w~|l{|w~}`v~kv~c{}w~|lv~|Zw~}B{|u~Xv~"
-      "S{|w~|m{}w~|\\{|w~}w{}w~|^v~y{}x~}u{|x~}y{}w~]{|v~|}v~T{}w~|y{|w~}U{|v~}J{|w~}Lw~|M{|w~} Mx~}v{|w~|{|w~|v{}x~e{"
-      "}w~|o{}v~\\v~l{|w~}a{|w~|pw~}_{}w~|l{|w~}_v~Mw~}m{|w~}[{|w~}y{|w~}X{}w~|r{}w~}_{|w~|m{}w~|h{|v~|qv~|r{|v~|i{}w~"
-      "|u{}w~tv~|b{|w~}q{|w~}`v~t{}w~t{}w~|bv~kv~c{}w~|l{|w~}X{|w~}Vv~lv~b{}v~jv~|\\u~P{}w~}S{}v~|iu~g{|t~|w{|v~v{}u~}"
-      "f{}w~}hv~|a{}h~|c{}v~|f{}v~g{|u~|B{}w~Au~|b{}v~|y{}w~xu~a{}v~|k{}v~}b{}v~|y{}w~x{}w~}!{}w~|Vv~sy~}S{|v~O{|u~}y|"
-      "{y|u~}T{|w~}Lw}|P{|}p~}-{|y~}u{}l~u{}y~|.{|v~|v{}w~}Dw~}6{|y~}uw~rw~}w{}y~| O{}w~  p{|w~|m{}w~|Ux~}w{|x~}  C{}w"
-      "~}v{|v~|W{}x~}px~u{}x~d{|w~i{}x~}c{}x~}px~u{}x~_{}w~}Y{}`~|d{}`~|d{}`~|d{}`~|d{}`~|d{}w~}j|}w~}l{|c~X{}v~|K{}w~"
-      "}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~gu~|g{}w~|p{}w~}yv~h{}v~|f{}v~i{}v~|f{}v~i{}v~|f{}v~i{}v~|f{}v~"
-      "i{}v~|f{}v~a{}v~|v{|u~|c{}v~|}w~|l{}v~fv~|iv~|ev~|iv~|ev~|iv~|ev~|iv~|Z{|v~|V{}h~}\\w~}k{}w~|d{}w~|mv~|a{}w~|mv"
-      "~|a{}w~|mv~|a{}w~|mv~|a{}w~|mv~|a{}w~|mv~|k{}w~|mv~|U{}w~}O{}w~|M{}w~|M{}w~|M{}w~|Bv~Lv~Lv~Lv~W{}w~}l{}w~}`w~}m"
-      "{|w~}b{}w~|l{|w~}b{}w~|l{|w~}b{}w~|l{|w~}b{}w~|l{|w~}b{}w~|l{|w~}.{}w~|y{}x~|s{|w~}a{|w~|m{}w~|a{|w~|m{}w~|a{|w"
-      "~|m{}w~|a{|w~|m{}w~|[{}w~|y{|w~}Zv~kv~\\{}w~|y{|w~} R{|w~r{}w~rw~}h{|w~dw~}h{|w~y{|w~|t{|w~}yw~}h{|w~y{|w~|lw~}"
-      "h{|w~dw~}Z{|w~P{}w~|y{|w~} Rs}v~g}|_{}w~{|y~}%{|p~|{|~yp~}g{}m~{}~{}m~|a{}l~|X{|m~}\\w~}kw~}a{|w~|mv~]v~r{}w~}X"
-      "{|v~{|v~^{}w~}     n{}v~  gw~|tw~|O{|y~|uw~}]{|x~}sw~|rw~|p{|v~l{}r~}'{|w~}H{|w~} v{}w~  h{|w~T{|v~m{}w~}V{}w~}"
-      "S{}v~}?{|v~c{|_~|Ov~|`v~|m{}w~}Y{|v~W{|v~k{}w~}O{|v~ J{|}p~}|d{|Z~}d{|}p~}|-w~s{|w~ov~|v{}x~|lv~|j{|v~c{}w~}k{}"
-      "v~cv~}O{}w~}h{}v~|c{}w~}L{}w~}Rv~}fv~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}rt~Z{}w~}V{}w~|ru~}rv~|h{}w~|p{|v~|{v~h{|v~}g"
-      "{|v~}c{}w~}Rv~}g{|v~}e{}w~}m{|v~|L{|v~|Z{|v~|Y{}w~}j{|v~|^{|v~|{|v~_{}w~}{}x~}p{|w~yv~cv~}r{}v~U{|v~|W{|u~|I{|w"
-      "~}F{}x~}L{|w~|  u{}w~|n{|v~|_v~}m{}w~}a{|w~}O{|w~}m{|v~|b{}w~}Cw~}V{|w~}m{|v~|`w~}m{|w~}Wv~Lv~Tw~}vu~|Pv~_w~}mv"
-      "~mv~hw~}m{|w~}b{|w~}l{}w~}`v~|m{|w~}c{|w~}lv~|Zw~}@v~|Yv~S{|w~}mv~|[v~wv~]{}w~|{w~|u{|w~yw~}]v~}y{}v~U{|w~}y{}w"
-      "~|V{|v~}I{|w~}Lw~|M{|w~} M{|w~x}v~}x{}v~x}w~|e{}w~}ou~|]v~l{|w~|a{|w~p{}w~|_{|w~}l{}w~}`{|w~}Mw~}m{|w~}Zv~y{}w~"
-      "|Y{|v~q{|v~_{|w~}m{}w~|gv~|r{|v~|r{|v~h{}w~}u{}w~tv~a{|w~}q{|w~}`v~t{}w~t{}w~|bv~|m{|w~}c{|w~}l{}w~}X{|w~}V{}w~"
-      "|n{|w~}bv~}j{}v~]{}v~|P{}w~}Ru~j{}v~|f{|t~}|y{|v~x{|t~}e{}w~}hv~|`{|}l~}`v~}g{|v~}f{|u~|C{}w~Bu~|`u~|{}w~yu~|`{"
-      "}v~|m{}v~}a{|u~|{}w~y{}v~}!{}w~|Vv~|ty~}S{|v~P{|g~}U{|w~}Lw~|N{|r~}+{}y~|u{|}o~}v{|y~}+v~}v{}v~Ew~}5{}y~|vw~r{|"
-      "w~|y{|y~} N{}w~  p{|w~}m{}w~|Ux~}w{|x~}  Dv~}v{}v~|W{|w~p{}y~|u{}x~dw~|j{}w~c{|w~p{}y~|u{}x~`{}v~|Yv~|j{|v~dv~|"
-      "j{|v~dv~|j{|v~dv~|j{|v~dv~|j{|v~dv~|j{|v~l{}w~}n{|v~Wv~}K{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~h{"
-      "|v~}f{}w~|p{|v~|{v~h{|v~}g{|v~}i{|v~}g{|v~}i{|v~}g{|v~}i{|v~}g{|v~}i{|v~}g{|v~}b{}v~|t{|u~|cq~|l{|v~}f{}w~}j{|v"
-      "~|e{}w~}j{|v~|e{}w~}j{|v~|e{}w~}j{|v~|Z{|v~|V{}k~}|Zw~}k{}w~}d{}w~|n{|v~|a{}w~|n{|v~|a{}w~|n{|v~|a{}w~|n{|v~|a{"
-      "}w~|n{|v~|a{}w~|n{|v~|k{}w~|n{|v~}U{|w~}O{}w~}M{}w~}M{}w~}M{}w~}Bv~Lv~Lv~Lv~W{|v~lv~|`w~}m{|w~}b{|w~}l{}w~}b{|w"
-      "~}l{}w~}b{|w~}l{}w~}b{|w~}l{}w~}b{|w~}l{}w~}Xt|X{}w~}{}x~}r{}w~}a{|w~}mv~|a{|w~}mv~|a{|w~}mv~|a{|w~}mv~|[{|w~}y"
-      "{}w~|Zv~|m{|w~}\\{|w~}y{}w~| Qw~}s{}w~s{}w~fw~}f{}w~fw~}y{|y~|r{|y~}y{}w~fw~}y{|y~|l{}w~fw~}f{}w~Y{|w~P{|v~y{}w"
-      "~| Kv~}J{|w~|}y~|${}r~}y{}~y{|q~f{|n~|{}~yn~}_m~|V{|o~}[w~}kw~}`w~}n{|w~}^{|w~}r{|v~Wv~{}w~}]v~|     o{|v~|  hw"
-      "~t{|w~N{|y~|uw~}]w~|s{}x~|rw~|ov~|l{}s~&{|w~}H{}w~| v{}w~  h{}x~}Sv~|nv~|V{}w~}T{}v~}>{}w~}Q{}w~}J{}v~_{}w~}mv~"
-      "}Y{}w~}Vv~|lv~|Ov~} G{|}p~}|0{|}o~}*{}x~rw~}q{}v~|w{}w~l{|v~hv~|d{}w~}ku~c{}v~}P{}w~}i{}u~b{}w~}L{}w~}R{}v~|gv~"
-      "|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}qt~[{}w~}V{}w~|r{}v~|rv~|h{}w~|o{}w~}{v~g{}v~|hu~|c{}w~}R{}v~|hu~|e{}w~}lv~}L{}v~Y"
-      "{|v~|Y{}v~j{}v~\\{}w~}{}w~}_{|v~{w~|ow~y|v~d{}v~pv~}V{|v~|Wu~|H{|w~}F{|w~L{|w~|  u{}w~m{}v~|_u~mv~|a{|v~Nv~|n{}"
-      "v~|b{|v~Cw~}Uv~|n{}v~|`w~}m{|w~}Wv~Lv~Tw~}uu~|Qv~_w~}mv~mv~hw~}m{|w~}b{|v~lv~|`v~}m{}w~}c{|v~m{|v~|Zw~}@{}w~|Yv"
-      "~S{|w~}mv~|[{}w~|y{|w~}]{|w~}{w~sw~y|w~}^{}w~}wv~}U{}w~yv~Uv~}Gw~}Lw~|M{|w~| L{|q~}v{}q~|d{|w~}p{|u~|]v~l{}w~|a"
-      "{|w~pv~^{|v~lv~|`{|w~|Mw~}m{|w~}Z{}w~y|v~X{}w~}pv~|`{|w~}mv~|gv~}r{|v~}r{}v~h{|v~u{}w~u{|w~}a{|w~}q{|w~}`{}w~|u"
-      "{}w~tv~av~}m{}w~}c{|v~lv~|X{|w~}V{|w~}n{}w~|c{|v~i{|v~|_{}v~}O{}w~}R{|v~}l{}v~|d{|r~y}v~y}s~}d{}w~}hv~|]{|}s~y}"
-      "|^{}v~|hu~|e{|v~}C{}w~C{}v~|^u~|}w~{}v~|^{}v~n{|v~}_{|u~|}w~{}v~} {}w~|V{}w~}ty~}S{|v~Q{}e~}V{|w~}Lw~|L{|t~*{|x"
-      "~|t{|y}u~}|u{|x~|*{}w~|v{|v~Fw~}5{|x~|ww|qw|y{|x~|   >{|w~}mv~|Ux~}w{|x~}  Ev~}v{|v~U{}x~|q{|y~}t{}x~e{}x~}j{}w"
-      "~b{}x~|q{|y~}t{}x~a{}v~}Y{|v~hv~|f{|v~hv~|f{|v~hv~|f{|v~hv~|f{|v~hv~|f{}v~hv~|n{|v~|n{|v~W{}v~}L{}w~}M{}w~}M{}w"
-      "~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~i{|u~|f{}w~|o{}w~}{v~g{}v~|hu~|h{}v~|hu~|h{}v~|hu~|h{}v~|hu~|h{}v~|hu~|c{}"
-      "v~|r{|u~|d{}s~|ku~|f{}v~j{}v~d{}v~j{}v~d{}v~j{}v~d{}v~j{}v~Y{|v~|V{}w~}r|Vw~}k{|w~|d{}w~m{}v~|a{}w~m{}v~|a{}w~m"
-      "{}v~|a{}w~m{}v~|a{}w~m{}v~|a{}w~m{}v~|k{}w~m{}u~U{|v~O{|v~M{|v~M{|v~M{|v~Bv~Lv~Lv~Lv~Vv~|n{|v~_w~}m{|w~}b{|v~lv"
-      "~|b{|v~lv~|b{|v~lv~|b{|v~lv~|b{|v~lv~|X{}u~X{|v~|x~}qv~|a{|w~}mv~|a{|w~}mv~|a{|w~}mv~|a{|w~}mv~|Z{}w~yv~Yv~}m{}"
-      "w~}[{}w~yv~ P{|w~}t{}w~t{|w~}f{|w~}h{|w~}f{|w~}yy|p{|}y{|w~}f{|w~}yy|l{|w~}f{|w~}h{|w~}Y{|w~Ov~y|v~ K{}w~}Hw~}y"
-      "~}\"{}t~}x{}~x{|s~d{|p~}y{}~y{|p~}]o~|T{}p~Zw~}kw~}`{}w~|o{}w~|^{}w~|qv~|X{}w~|v~|]{|v~|     o{}v~j{}  {|x~}t{|"
-      "x~}N{|y~|v{}w~}^{}x~}r{}x~}rw~|o{}v~k{}u~|%v~Hv~ u{}w~  hw~|S{}v~o{}v~U{}w~}U{}v~}>{|v~}Q{}w~}Ju~_{|v~n{|v~|Z{|"
-      "v~|Vv~}m{|v~|P{}v~ C{}o~}4{|o~}|({|x~}s{}w~}s{}u~|x{}w~|l{}w~}h{}w~}d{}w~}l{|v~}bu~|g{|}g{}w~}j{}u~|b{}w~}L{}w~"
-      "}R{|u~|hv~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}pt~\\{}w~}V{}w~|r{|v}qv~|h{}w~|nv~|v~g{|u~|j{}v~}b{}w~}R{|u~i{}v~}d{}w~}"
-      "l{|v~|M{}v~Y{|v~|Y{|v~|kv~}\\{|v~{v~|_{|v~|w~|o{}x~y}w~}e{|v~|p{|v~|W{|v~|X{}v~}G{|w~}F{|w~|M{|w~|  u{}w~|nu~|_"
-      "u~}o{}v~_v~}O{}w~}o{|u~|av~}Dw~}U{}w~}o{|u~|`w~}m{|w~}Wv~Lv~Tw~}t{}v~|Rv~_w~}mv~mv~hw~}m{|w~}av~|n{|v~_u~mv~|bv"
-      "~|n{}v~|Zw~}@{}w~|Yv~Rv~n{}v~|[{|w~}y{}w~|\\w~}|x~}s{}x~y}w~|_{}v~v{|v~|V{|w~y}w~}Vu~Fw~}Lw~|M{|w~| K{|s~}t{}s~"
-      "|bv~p{}u~}]v~|mv~`{|w~q{}w~}]v~}n{}v~_{|w~|Mw~}m{|w~}Yw~y}w~|Xv~o{|w~}`{|v~n{|v~|g{}v~r{}u~rv~}gv~|v{}w~uv~|a{|"
-      "w~}q{|w~}`{|w~}u{}w~u{|v~au~mv~|bv~}n{}v~Vv~Uv~nv~b{}w~}hv~}`{|v~}N{}w~}Q{|v~}n{}v~}b{|c~}c{}w~}hv~|Z{|v~Z{|u~|"
-      "j{}v~}c{|w~B{}w~B{}x~|\\u~}w~}v~|\\{}x~|m{}x~}]{|u~}w~}v~} {{v~|V{|v~|uy~}S{|v~R{}v~y|q~}|u~W{|w~}Lw~|J{}u~*{|x"
-      "~|e{|x~|({}x~}u{|w~F{|x}|4{|x~|e{|x~|   ={|v~n{|v~|Ux~}w{|x~}  Ew~|u{|x~}U{|x~}p{}j~}iw~j{}w~b{|x~}p{}j~}f{}v~}"
-      "X{}w~}h{}w~}f{}w~}h{}w~}f{}w~}h{}w~}f{}w~}h{}w~}f{}w~}h{}w~}fv~}h{}w~}n{}w~}m{|v~Vu~|g{|}c{}w~}M{}w~}M{}w~}M{}w"
-      "~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~j{|u~}e{}w~|nv~|v~g{|u~|j{}v~}g{|u~|j{}v~}g{|u~|j{}v~}g{|u~|j{}v~}g{|u~|j{}v~}c{"
-      "}v~|p{|u~|e{|t~}k{}v~}e{|v~|kv~}d{|v~|kv~}d{|v~|kv~}d{|v~|kv~}Y{|v~|V{}w~}Mw~}k{}w~|d{}w~|nu~|a{}w~|nu~|a{}w~|n"
-      "u~|a{}w~|nu~|a{}w~|nu~|a{}w~|nu~|k{}w~|nt~|Uv~}Ov~}Mv~}Mv~}Mv~}Cv~Lv~Lv~Lv~V{}v~nv~}_w~}m{|w~}av~|n{|v~`v~|n{|v"
-      "~`v~|n{|v~`v~|n{|v~`v~|n{|v~W{}u~Wr~q{|v~_v~n{}v~|`v~n{}v~|`v~n{}v~|`v~n{}v~|Z{|w~y}w~}Yu~mv~|[{|w~y}w~} O{}w~}"
-      "u{}w~u{}w~}d{}w~}j{}w~}d{}w~}j{}w~}d{}w~}j{}w~}d{}w~}j{}w~}X{}w~O{|w~y}w~} L{}w~}G{}u~|!{|}x~}|w{}~v{}w~}b{|r~|"
-      "x{}~w{}s~|\\{|q~}Rq~|Zw~}kw~}`{|v~p{|v~]v~p{}w~}X{|q~[{}v~}     p{|v~}ly}$v}|\"{}x~}t{}x~}Yy}|s{|y~|w{|v~|_{|w~"
-      "q{}x~}s{|w~n{|v~}l{|u~}%{}w~|Iw~} u{}w~L{}w~} tv}|P{|w~R{|v~|pv~}U{}w~}V{}v~}={}v~|Q{}w~}K{}v~|^v~|o{}v~Y{}v~U{"
-      "}v~m{}v~P{|v~}U{|v}M{}w~}F{|}q~}6{|q~}|G{|w}|^w~ru~y|x{|}t~y|}v~|kv~|h{|v~d{}w~}m{|u~|b{|u~|i{|~}g{}w~}l{|}u~}a"
-      "{}w~}L{}w~}Q{}u~|iv~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}ot~]{}w~}V{}w~|bv~|h{}w~|n{}q~f{}u~k{}u~a{}w~}Q{}u~k{|u~c{}w~}"
-      "kv~}c{|}h{|v~}Y{|v~|X{}v~l{}v~|[v~}v~]v~}w~n{}r~|ev~}n{}v~W{|v~|Y{}v~}F{|w~}Ew~}M{|w~|  u{}w~|o{}u~|_t~|q{|v~}_"
-      "{|v~|P{|v~}pt~|a{|v~|Ew~}U{|v~|pt~|`w~}m{|w~}Wv~Lv~Tw~}s{}v~|Sv~_w~}mv~mv~hw~}m{|w~}a{}v~nv~}_u~}o{}v~a{}v~o{|u"
-      "~|Zw~}@{}w~|Y{}w~|Sv~|p{|u~|Zv~{|v~[v~}x~}s{|r~_{|v~|u{}v~Uq~V{}v~|Fw~}Lw~|M{|w~| I{|y}~y}|r{|}x~}|`{}w~}qs~]u~"
-      "n{|v~`{|w~r{|v~\\{|v~nv~}_{|w~}Mw~}m{|w~}Y{}r~X{}w~}nv~`{|v~|o{}v~|g{|v~|st~|t{|v~|g{}v~v{}w~v{|v~`{|w~}q{|w~}_"
-      "v~|v{}w~uv~}au~}o{}v~a{|v~nv~}Vv~U{|w~}p{}w~}bv~|h{|v~`u~M{}w~}P{|u~|q{}v~}_{}g~}|b{}w~}hv~|Z{|v~Y{}u~k{}u~a{|y"
-      "~A{}w~A{}~|Zl~|Z{}~|k{}~}[{|l~} yv~}Uv~}uy~}S{|v~S{}v~|x{|y}x~}|wu~X{|w~}Lw~|I{|v~}*{}x~|g{|x~}&{}y~}t{|x~ T{}x"
-      "~|g{|x~}   <{|v~|o{}v~|Ux~}w{|x~}  Ex~|t{|y~}Tw~|p{}j~}j{}x~|k{}x~}aw~|p{}j~}g{}v~}Wv~|h{|v~fv~|h{|v~fv~|h{|v~f"
-      "v~|h{|v~fv~|h{|v~g{|v~g{|v~|ov~|m{|v~V{|u~|i{|~}c{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~k{}t~d{}w~"
-      "|n{}q~f{}u~k{}u~e{}u~k{}u~e{}u~k{}u~e{}u~k{}u~e{}u~k{}u~c{}v~|n{|u~|e{}u~|l{}u~c{}v~l{}v~|c{}v~l{}v~|c{}v~l{}v~"
-      "|c{}v~l{}v~|Y{|v~|V{}w~}Mw~}kv~c{}w~|o{}u~|a{}w~|o{}u~|a{}w~|o{}u~|a{}w~|o{}u~|a{}w~|o{}u~|a{}w~|o{}u~|k{}w~|o{"
-      "}s~U{|v~|P{|v~|N{|v~|N{|v~|N{|v~|Dv~Lv~Lv~Lv~Uv~}p{}v~^w~}m{|w~}a{}v~nv~}`{}v~nv~}`{}v~nv~}`{}v~nv~}`{}v~nv~}W{"
-      "}u~W{}t~|qv~}_v~|p{|u~|`v~|p{|u~|`v~|p{|u~|`v~|p{|u~|Yq~Xu~}o{}v~Yq~ M{}w~}|w{}x~}v{}v~b{}w~}|m{}v~b{}w~}|m{}v~"
-      "b{}w~}|m{}v~b{}w~}|m{}v~W{}x~}Nq~| M{|v~F{|u~ py~|V{|}y~y}|vy~|w{|y}y~y}Y{|s~}Q{|s~|Yw~}kw~}_{}v~|s{}v~|^{|w~}p"
-      "{|v~X{|r~}Z{}u~}     q{}v~}o{|y~}$v~}\"w~|tw~|Y{}y~}|u{|y~|x{|u~^{}x~|q{|w~s{}x~}mu~}n{|s~}&{|w~|J{|w~| u{}w~L{"
-      "}v~ u{|v~|P{}x~}Q{}v~|r{}v~T{}w~}W{}v~}O{}|k{}v~}P{}w~}]{}|l{}u~]{|v~|q{}v~|Yv~}U{|v~}o{}v~}Q{|v~}T{}v~M{}v~C{|"
-      "}t~}6{|t~}|D{}w~}^{}x~|s{|m~y}q~|k{|v~fv~|e{}w~}n{|u~}`{}u~|l{|}y~}g{}w~}n{|}t~}`{}w~}L{}w~}P{}u~}jv~|h{}w~}hv~"
-      "|Y{}w~}M{}w~}W{}w~}nt~^{}w~}V{}w~|bv~|h{}w~|mq~e{}u~|n{}u~|a{}w~}P{}u~|n{}u~|c{}w~}k{|v~|d{|y~}k{|u~|Y{|v~|X{|u"
-      "~n{|u~Z{}r~}]{}s~}n{|r~e{}v~lv~}X{|v~|Z{|u~E{|w~}E{}w~M{|w~|  u{|v~p{|t~|_s~|s{|u~]u~|P{}v~}s{|s~|`u~|k{|Ww~}T{"
-      "}v~}s{|s~|`w~}m{|w~}Wv~Lv~Tw~}r{}v~}Tv~_w~}mv~mv~hw~}m{|w~}`v~}p{}v~|_t~|q{|v~|`v~}q{|t~|Zw~}Q{|kv~|Y{}w~}S{}v~"
-      "pt~|Z{}w~y}w~}[{}s~|rs~}_v~}s{}w~}V{}s~}W{}v~|Ew~}Lw~|M{|w~|  r{|v~|s{}s~}^u~}ov~|_w~|s{}w~|[v~}pu~]v~|Nw~}m{|w"
-      "~}Y{|s~}Xv~m{}w~|a{|u~p{|u~|fv~}t{}x~}x~}t{}v~ev~}w{}w~w{|v~}`{|w~}q{|w~}_{}v~|w{}w~v{}v~`t~|q{|v~|`v~}p{}v~U{}"
-      "w~|Uv~|r{|v~b{|v~fv~|bu~|M{}w~}O{|u~}t{|u~}\\{|k~}|`{}w~}hv~|Z{|v~X{}u~|n{}u~|`{|@{}w~@{|Xn~|X{|i{|Y{|n~} xv~}U"
-      "{|v~}vy~}S{|v~T{|v~|jv~}Y{|w~}Lw~|H{|v~|*{}x~}i{}x~}${}~}s{|y~ S{}x~}i{}x~}   ;{|u~p{|u~|Ux~}w{|x~}  Ey~|s{|~}T"
-      "{}x~}o{}j~}k{|w~k{}x~}a{}x~}o{}j~}h{}v~}W{|v~fv~|h{|v~fv~|h{|v~fv~|h{|v~fv~|h{|v~fv~|h{}w~}f{}w~}p{|v~l{|v~U{}u"
-      "~|l{|}y~}c{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~n{|}s~c{}w~|mq~e{}u~|n{}u~|d{}u~|n{}u~|d{}u~|n{}u"
-      "~|d{}u~|n{}u~|d{}u~|n{}u~|d{}v~|l{|u~|et~|n{}u~|c{|u~n{|u~b{|u~n{|u~b{|u~n{|u~b{|u~n{|u~X{|v~|V{}w~}Mw~}x{|p{}v"
-      "~c{|v~p{|t~|a{|v~p{|t~|a{|v~p{|t~|a{|v~p{|t~|a{|v~p{|t~|a{|v~p{|t~|k{|v~p{|q~j{|gu~|Pu~|k{|_u~|k{|_u~|k{|_u~|k{"
-      "|Vv~Lv~Lv~Lv~U{|v~}r{}v~}^w~}m{|w~}`v~}p{}v~|_v~}p{}v~|_v~}p{}v~|_v~}p{}v~|_v~}p{}v~|W{}u~Vu~|q{}v~|_{}v~pt~|`{"
-      "}v~pt~|`{}v~pt~|`{}v~pt~|Y{}s~}Xt~|q{|v~|Y{}s~} Lu~}p{}u~|au~}p{}u~|au~}p{}u~|au~}p{}u~|au~}p{}u~|W{}x~}N{}s~} "
-      "M{|v~|Ev~} py~|Jy~|M{}t~O{|u~}Xw~}kw~}_{|t~}w|}u~}]{}w~}ov~|Xr~|Y{}t~}y|     tt~|r{}x~}$v~}\"w~t{|w~X{}v~}y|y{|"
-      "y~y|}t~|_{|x~}ow~}tw~|m{|t~|r{|}q~}&w~}J{}w~ t{}w~L{}v~ u{|v~|Pw~|Pu~|t{}v~|\\s|}w~}r|a{}v~}Nx~}|p{}t~O{}w~}]{}"
-      "y~}|q{}t~|\\{}v~|s{}u~Y{|v~|T{}u~|r{}u~|_{~}|r{|}u~|T{}v~M{}v~@{|}w~}6{|w~}|A{}w~}^{|w~r{|o~}{}s~}iv~}f{}w~}e{}"
-      "w~}q|y}s~|_{}t~|p{|}w~}g{}w~}r|y}q~}_{}w~}g|`{}w~}O{}t~}o{|}u~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}mt~_{}w~}h|i{}w~|bv~"
-      "|h{}w~|m{}r~dt~}|r{|t~|`{}w~}Ot~}q{|t~}b{}w~}jv~}d{|w~}|p{|}u~}X{|v~|W{}u~|q{}u~|Z{|r~|]{|s~|mr~f{|v~|l{|v~|Y{|"
-      "v~|[{|u~}b|^{|w~}E{|w~|N{|w~|  tv~}r{}s~|_w~y}x~}|w{|}u~|]{|u~|p{|}|^t~y|x{|}w~}w~|`{|u~|n{|y~|Xw~}St~y|x{|}w~}"
-      "w~|`w~}m{|w~}Wv~Lv~Tw~}q{}v~}Uv~_w~}mv~mv~hw~}m{|w~}`{}v~}r{}v~}^s~}s{|v~}_{}v~}s{|s~|Zw~}Qy~}|o{}w~}X{|v~}|U{|"
-      "v~}s{|s~|Z{|q~Z{|s~qs~|`{}w~}qv~}Vs~|X{}v~|Dw~}Lw~|M{|w~|  qu~|u{}w~|v~}_s~|s{|u~^{}w~t{}w~}Z{|v~}|t{|}v~|]{}v~"
-      "|ny|^w~}m{|w~}Xs~|Y{}w~}m{|w~}a{|t~|s{}t~}f{}v~}v{|w~{w~|v{}v~}e{}v~}x{}w~x{}u~_{|w~}q{|w~}^u~}|y{}w~x{}u~}`s~}"
-      "s{|v~}_{|v~}|t{|}v~|U{|v~}|W{|v~|t{|v~|bu~f|v~}c{}v~}h|_{}w~}Vs}t~}v{}t~s}`{|y}t~y}|]{}w~}hv~|Z{|v~Wt~}|r{|t~|#"
-      "{}w~ vp~| {|p~} wv~}T{}v~}wy~}v{}~Z{|v~S{}x~|hx~}X{|w~}Lw~|G{}w~}){|w~|m{|w~|\"{|}q{} R{|w~|m{|w~| XY| ${|u~}r{"
-      "|t~}Ux~}w{|x~}  E{}qy|T{|w~c{}x~gw~|lw~}a{|w~c{}x~e{}v~}Vv~}f{}w~}hv~}f{}w~}hv~}f{}w~}hv~}f{}w~}hv~}f{}w~}hv~|f"
-      "{|v~pv~}l{|v~}h|h{}t~|p{|}w~}c{}w~}g|a{}w~}g|a{}w~}g|a{}w~}g|X{}w~}M{}w~}M{}w~}M{}w~}Z{|v~r|x}q~b{}w~|m{}r~dt~}"
-      "|r{|t~|bt~}|r{|t~|bt~}|r{|t~|bt~}|r{|t~|bt~}|r{|t~|d{|v~|j{|v~}f{}s~}|r{|t~|a{}u~|q{}u~|a{}u~|q{}u~|a{}u~|q{}u~"
-      "|a{}u~|q{}u~|X{|v~|V{}w~}Mw~}xy~}y|wy|u~|bv~}r{}s~|`v~}r{}s~|`v~}r{}s~|`v~}r{}s~|`v~}r{}s~|`v~}r{}s~|jv~}r{}w~}"
-      "|u~|o{|}y~g{|u~|p{|}|_{|u~|n{|y~|`{|u~|n{|y~|`{|u~|n{|y~|`{|u~|n{|y~|Wv~Lv~Lv~Lv~T{}u~}|x{|}u~}]w~}m{|w~}`{}v~}"
-      "r{}v~}^{}v~}r{}v~}^{}v~}r{}v~}^{}v~}r{}v~}^{}v~}r{}v~}V{}u~V{|v~}r{}v~}^{|v~}s{|s~|`{|v~}s{|s~|`{|v~}s{|s~|`{|v"
-      "~}s{|s~|Xs~|Xs~}s{|v~}Ws~| K{}u~}x|{x|}t~^{}u~}x|{x|}t~^{}u~}x|{x|}t~^{}u~}x|{x|}t~^{}u~}x|{x|}t~U{}x~}N{|s~| M"
-      "{|w~|D{}w~| q{|y~}K{|y~}L{}v~|N{}v~Ww~}kw~}^{|j~}\\v~|o{}w~}X{}s~W{|^~}    -s~}v|}v~}$v~}#{|w~t{|x~}X{}e~|^w~|o"
-      "{|w~|v{}w~k{|s~}v|}t~y}v~}'{}w~Jw~} t{}w~L{}v~ u{|v~|Q{|w~O{|u~}w|}u~}\\{|e~|ab~`u~w}|x}r~|O{}w~}]{}v~w}|x}s~}Z"
-      "t~}w|}t~X{}w~}S{|t~y}v|}t~}^v~y}y|y}s~|S{}v~M{}v~={|}~}6{|y~}|?{}w~}]w~}q{}r~|y{}u~}h{|v~|f{|v~e{}c~|]{}s~y}v|y"
-      "}t~}g{}b~|^{}c~}`{}w~}N{}r~y}v|y}r~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}lt~`{}d~}i{}w~|bv~|h{}w~|lr~cr~}v|}s~}_{}w~}Ns~"
-      "y}v|}s~}a{}w~}j{|v~|e{|s~}u|}r~W{|v~|Vs~}v|y}t~|Xs~}\\{|s~|m{}t~}fv~}j{}v~Y{|v~|[{}\\~}^{|w~}Dw~}N{|w~|  t{}u~y"
-      "|x{|}w~y}w~|_w~}{k~|[{|t~}|wy|}x~|^{|k~y|w~|_{|t~}|vy|y}w~|Xw~}S{|k~y|w~|`w~}m{|w~}Wv~Lv~Tw~}p{}v~}Vv~_w~}mv~mv"
-      "~hw~}m{|w~}_{}u~}|x{|}u~}]w~y}w~y|yy|}u~|^{}u~}|x{|}w~}w~|Zw~}Qv~}y|v{|}u~|Wm~[{}u~}w|}v~}w~|Y{}s~}Yt~}q{}t~|a{"
-      "}v~p{|v~|W{}t~W{}d~Uw~}Lw~|M{|w~|  q{|u~}|y{|}v~{|s~br~}y|yy|}u~|^{|w~}v{}v~X{}u~}y|{y|}u~}\\{|t~}|vy|y}y~}^w~}"
-      "m{|w~}X{}t~Xv~|lv~|b{|s~}v|}q~x}hu~}|{y|w~}{}w~}|{|}u~c{}u~}|}w~|}t~|_{|w~}q{|v~}_{|s~}v~}s~}_w~y}w~y|yy|}u~|^{"
-      "}u~}y|{y|}u~}S{}r~}Z{}v~}|x{|}v~}b{|Z~c{}c~}_{}w~}Vk~v{}l~|^{|v~Y{}w~}hv~|Z{|v~Vr~}v|}s~|\"{}w~ ur~| y{|r~} vv~"
-      "}St~}y|y~}{y|}x~`{}b~}a{}~|f{~}W{|w~}Lw~|G{|w~}({|v~}|s{|}v~|  E{|v~}|s{|}v~| X{|Z~} ${|s~}y|{y|}q~}|}Xx~}w{|x~"
-      "}   l{}x~|c{}x~h{}x~}m{|w~|`{}x~|c{}x~f{|v~}V{|v~|f{|v~i{|v~|f{|v~i{|v~|f{|v~i{|v~|f{|v~i{|v~|f{|v~i{|v~dv~|r{|"
-      "v~k{|b~g{}s~y}v|y}t~}c{}c~}a{}c~}a{}c~}a{}c~}X{}w~}M{}w~}M{}w~}M{}w~}Z{|b~}a{}w~|lr~cr~}v|}s~}`r~}v|}s~}`r~}v|}"
-      "s~}`r~}v|}s~}`r~}v|}s~}b{|x~|h{|x~}f{}o~}v|}s~}_s~}v|y}t~|_s~}v|y}t~|_s~}v|y}t~|_s~}v|y}t~|W{|v~|V{}w~}Mw~}xk~}"
-      "a{}u~y|x{|}w~y}w~|`{}u~y|x{|}w~y}w~|`{}u~y|x{|}w~y}w~|`{}u~y|x{|}w~y}w~|`{}u~y|x{|}w~y}w~|`{}u~y|x{|}w~y}w~|j{}"
-      "u~y|x{|}u~y{|t~}|vy|}v~f{|t~}|wy|}x~|^{|t~}|vy|y}w~|_{|t~}|vy|y}w~|_{|t~}|vy|y}w~|_{|t~}|vy|y}w~|Wv~Lv~Lv~Lv~S{"
-      "}j~}\\w~}m{|w~}_{}u~}|x{|}u~}\\{}u~}|x{|}u~}\\{}u~}|x{|}u~}\\{}u~}|x{|}u~}\\{}u~}|x{|}u~}U{}u~V{}t~}|x{|}u~}\\{"
-      "}u~}w|}v~}w~|_{}u~}w|}v~}w~|_{}u~}w|}v~}w~|_{}u~}w|}v~}w~|X{}t~Ww~y}w~y|yy|}u~|W{}t~ I{}h~}\\{}h~}\\{}h~}\\{}h~"
-      "}\\{}h~}T{}x~}Ms~ K{|y~}C{|w~ p{}x~K{}x~Kw~|L{}x~|Ww~}kw~}]{|l~}\\{|v~n{|w~}X{|s~U{}`~}    -{|h~|$v~}#{}x~}t{}x"
-      "~}X{|}g~|^{}x~}m{}w~}y|}v~|j{|g~}y{}v~}({|w~|L{|w~| t{}w~L{}v~ u{|v~|Q{}x~}N{}k~}[{|e~|ab~`e~|N{}w~}]{}g~}Y{|i~"
-      "|Xv~|R{|g~}]i~|R{}v~M{}v~;y|5{|<{}w~}]{|w~|p{|v}|w{|x}|e{}v~dv~}f{}e~}|[{}d~|g{}d~}\\{}c~}`{}w~}M{}c~}|g{}w~}hv"
-      "~|Y{}w~}M{}w~}W{}w~}kt~a{}d~}i{}w~|bv~|h{}w~|l{|s~b{}f~|^{}w~}M{}f~|`{}w~}iv~}e{|c~V{|v~|Uf~}W{}t~|[s~l{}t~|g{}"
-      "v~hv~}Z{|v~|[{}\\~}^{|w~}D{}w~N{|w~|  sj~{}w~|_w~}{|m~|Y{}i~|]{|m~|{|w~|^{|f~|Xw~}R{|m~|{}w~|`w~}m{|w~}Wv~Lv~Tw"
-      "~}o{}v~}Wv~_w~}mv~mv~hw~}m{|w~}^h~\\w~}{k~|\\k~y|w~|Zw~}Qg~}V{|n~Zk~{}w~|Y{|s~|Y{}u~}q{|t~a{|v~|o{}v~W{|u~|W{}d"
-      "~Uw~}Lw~|M{|w~|  p{|l~|ys~be~}\\{}v~x}u~V{}j~}Z{|h~}^w~}m{|w~}X{|u~|Y{|w~}k{}w~}b{|w~}m~|s~h{|m~xm~|b{}g~|^{|w~"
-      "}pr~a{|f~}^w~}{k~|\\{}j~}R{|r~}Y{}l~}a{}Z~}d{}c~}_{}w~}Vk~v{}l~|^{|v~Y{}w~}hv~|Z{|v~U{}f~|!{}w~ tt~| w{|t~} uv~"
-      "}R{}i~`{}b~}`{|?{|w~}Lw~|Fw~}&{}t~w}t~}  A{}t~w}t~} V{|Z~} ${|w~}m~|s~Xx~}w{|x~}   m{|x~}b{}x~hw~lk~k{|x~}b{}x~"
-      "fv~}U{}v~dv~}j{}v~dv~}j{}v~dv~}j{}v~dv~}j{}v~dv~}j{}w~}d{}w~}r{}w~}k{|b~f{}d~|c{}c~}a{}c~}a{}c~}a{}c~}X{}w~}M{}"
-      "w~}M{}w~}M{}w~}Z{|d~}|`{}w~|l{|s~b{}f~|^{}f~|^{}f~|^{}f~|^{}f~|`{|~|f{|~}f{|w~|}f~|]f~}]f~}]f~}]f~}V{|v~|V{}w~}"
-      "Mw~}xl~}_j~{}w~|_j~{}w~|_j~{}w~|_j~{}w~|_j~{}w~|_j~{}w~|ii~w{|f~e{}i~|]{|f~|^{|f~|^{|f~|^{|f~|Wv~Lv~Lv~Lv~R{}l~"
-      "}[w~}m{|w~}^h~Zh~Zh~Zh~Zh~){|f~Zk~{}w~|^k~{}w~|^k~{}w~|^k~{}w~|X{|u~|Ww~}{k~|V{|u~| H{|j~|Z{|j~|Z{|j~|Z{|j~|Z{|"
-      "j~|S{}x~}M{}u~} I{}Ax~} pw~|Lw~|L{|y~|Jy~|Vw~}kw~}[{}o~|[{}w~}mv~Wt~}T{|}b~}    +{}l~}\"v~}#w~|tw~|U{|}l~}]{|w~"
-      "ko~|h{|j~}|w{}u~({}w~L{}w~ s{}w~Lv~| u{|v~|Qw~}M{|m~}Z{|e~|ab~`g~}|M{}w~}]{}h~|W{|k~W{}v~P{|i~|\\k~}P{}v~Mv~|  "
-      "i{}w~}\\{}w~Jv~}d{}v~f{}g~}|X{|}h~}e{}g~}|Z{}c~}`{}w~}L{|}g~}|e{}w~}hv~|Y{}w~}M{}w~}W{}w~}jt~b{}d~}i{}w~|bv~|h{"
-      "}w~|ks~a{|i~}\\{}w~}L{|i~}^{}w~}i{|v~|e{}f~}U{|v~|T{}i~|Ut~Z{}u~}l{|t~g{|v~|h{|v~|[{|v~|[{}\\~}^{|w~}D{|w~N{|w~"
-      "|  s{|l~|{}w~|_w~}x{}q~}|W{|j~|[{}p~|y{|w~|]{|g~|Xw~}P{}q~}|y{}w~|`w~}m{|w~}Wv~Lv~Tw~}n{|v~}Xv~_w~}mv~mv~hw~}m{"
-      "|w~}]{}l~}[w~}{|m~|Zm~|{|w~|Zw~}Qh~|T{|o~Z{|m~|{}w~|Xs~X{}u~|pu~}av~}m{}w~}Wu~V{}d~Uw~}Lw~|M{|w~|  o{|n~|w{}u~b"
-      "f~}Z{}p~}T{}l~}X{|i~}^w~}m{|w~}Wu~Xv~|k{|v~b{|w~y|o~|{}t~g{|o~|x{|o~}`{}i~|]{|w~}p{}s~_{}j~}|]w~}{|m~|Z{}l~}P{|"
-      "s~}X{}n~}`X~d{}c~}_{}w~}Vk~v{}l~|^{|v~Y{}w~}hv~|Z{|v~T{|i~} {{}w~ sv~| u{|v~} tv~}Q{}j~`{}b~}#{|w~}Lw~|G{|w~}${"
-      "}m~}  ={}m~} T{|Z~} ${|w~y|o~|{}t~Xx~}w{|x~}   mw~|b{}x~i{}x~|lk~kw~|b{}x~g{|v~Tv~}d{}v~jv~}d{}v~jv~}d{}v~jv~}d"
-      "{}v~jv~}d{}v~k{|v~|d{|v~rv~|k{|b~e{|}h~}a{}c~}a{}c~}a{}c~}a{}c~}X{}w~}M{}w~}M{}w~}M{}w~}Z{|g~}|]{}w~|ks~a{|i~}["
-      "{|i~}[{|i~}[{|i~}[{|i~}/{|w~|y{|i~}Z{}i~|[{}i~|[{}i~|[{}i~|U{|v~|V{}w~}Mw~}xm~|^{|l~|{}w~|_{|l~|{}w~|_{|l~|{}w~"
-      "|_{|l~|{}w~|_{|l~|{}w~|_{|l~|{}w~|i{|l~}u{|g~d{|j~|\\{|g~|]{|g~|]{|g~|]{|g~|Wv~Lv~Lv~Lv~Q{|}p~}|Zw~}m{|w~}]{}l~"
-      "}X{}l~}X{}l~}X{}l~}X{}l~}){|w~}l~}Y{|m~|{}w~|^{|m~|{}w~|^{|m~|{}w~|^{|m~|{}w~|Wu~Vw~}{|m~|Tu~ E{|}p~}|V{|}p~}|V"
-      "{|}p~}|V{|}p~}|V{|}p~}|Qw~}Lu~|  i{}y~| q{|w~}M{|w~}K{|}I{|}Uw~}kw~}Y{|y}w~y}|Yv~|m{}w~|X{}u~|Q{|}e~}    *{|}p~"
-      "}|!v~}#w~t{|w~Py|x}y~x}y|[w~|j{}r~|e{|n~}|t{}u~){|w~|N{|w~| s{}w~Lv~ t{|v~|R{|w~|L{|}p~|Y{|e~|ab~`y|}l~}|K{}w~}"
-      "]{|}k~|S{}o~|Vv~}N{|m~}Z{}n~}|O{}v~Mv~  h{}w~}[v~L{|v~|d{|v~|g{}k~y}y|T{|}m~}|c{}m~x}y|W{}c~}`{}w~}J{|}k~}|c{}w"
-      "~}hv~|Y{}w~}M{}w~}W{}w~}it~c{}d~}i{}w~|bv~|h{}w~|k{|t~_{|m~}|[{}w~}J{|l~|]{}w~}h{}w~}c{|}k~}|T{|v~R{|}m~|S{}v~}"
-      "Z{|u~|kt~gv~}f{}v~[{|v~|[{}\\~}^{|w~}Cw~|O{|w~|  q{}p~}x{}w~|_v}vy}w~y}|S{}m~}Xy}w~y}|w{|w}|[{|l~}|Vw~}N{|}w~y}"
-      "|w{}w~|`v}lw}|Wv~Lv~Tv}m{|u}Yv}_w~}mv~mv~hw~}m{|w~}\\{|n~|Zw~}x{}q~}W{}q~}|y{|w~|Zw~}Q{|}l~}P{|y}s~X{}q~}x{}w~|"
-      "X{}u~}X{|u~o{}v~|b{}w~}kv~}X{}w~}V{}d~Uv~Lw~|M{|w~|  n{|}q~}u{|}w~bv~{}o~}|X{|r~|R{|}p~}|U{}l~}|^w~}m{|w~}W{}w~"
-      "}Xw}|i{|w}b{|w~|{|q~|y{|t~f{|q~|v{|q~|^{|l~}[{|w~}os~]{|}o~}|[w~}x{}q~}W{|}p~}|M{|}v~}W{|p~|`{|X~|e{}c~}_{}w~}V"
-      "k~v{}l~|^{|v~Y{}w~}hv~|Z{|v~R{|m~}| y{}w~ rx~| s{|x~} sv~}P{|}n~}|`{}b~}#{|w~}Lw~|Ty|pv~|\"y|}u~}y|  9y|}u~}y| "
-      "R{|Z~} ${|w~|{|q~|y{|t~Xx~}w{|x~} y}|  q{}x~}aw}j{|w~kk~l{}x~}aw}gv~}U{|v~|d{|v~|l{|v~|d{|v~|l{|v~|d{|v~|l{|v~|"
-      "d{|v~|l{|v~|d{|v~|l{|v}bv}|t{}w~}j{|b~c{|}m~}|_{}c~}a{}c~}a{}c~}a{}c~}X{}w~}M{}w~}M{}w~}M{}w~}Z{|m~x}y|Z{}w~|k{"
-      "|t~_{|m~}|X{|m~}|X{|m~}|X{|m~}|X{|m~}|.w~}v{|}n~}|X{|}m~|X{|}m~|X{|}m~|X{|}m~|S{|v~|V{}w~}Mv|wy|}u~y}|Z{}p~}x{}"
-      "w~|]{}p~}x{}w~|]{}p~}x{}w~|]{}p~}x{}w~|]{}p~}x{}w~|]{}p~}x{}w~|g{}o~|r{|l~}|a{}m~}Y{|l~}|Y{|l~}|Y{|l~}|Y{|l~}|U"
-      "v~Lv~Lv~Lv~O{|y}v~y}|Xw~}m{|w~}\\{|n~|V{|n~|V{|n~|V{|n~|V{|n~|(w~|{|n~|V{}q~}x{}w~|\\{}q~}x{}w~|\\{}q~}x{}w~|\\"
-      "{}q~}x{}w~|W{}w~}Vw~}x{}q~}R{}w~} B{|t}|P{|t}|P{|t}|P{|t}|P{|t}|Nw~}  3{|~}     ;f|    '{|y}w~}y|  8{|y~|X{|x~}"
-      "h{|}w~}|ay|y}w~y}| rw~}N{}w~ ?{|w~| D{}w~I{|y}w~y}|%b|\\{|x}u~y}|!y|y}u~y}y|O{|y}w~y}| {{y|}u~y}|Vy|y}v~}y| u{|"
-      "w~|  B{|v~| 1{|y}u~y}|  o{|x}u~y}y| Fv~|  7y|y}v~y}| {{y|y}q~|#y|y}u~y}y| {{|y}v~y}y|   a{|w~}C{}x~}O{|w~|  oy}"
-      "v~}|vv|!{|}t~y}|!{|y}t~y}|Sv|Av~\"v|Lv~ Rv|mv|mv|hv|lv|Z{|y}u~}|Xw~}v{|}w~y}|T{|}w~y}|w{|w~|Zv|Ny|y}u~y}| {{|y}"
-      "w~}|uw|W{|u}|Wv}|o{|v}av|ju|Xv~| sv~Lw~|M{}w~|  ly|}v~}|Uv~yy|}v~y}|S{|y}~y}|N{|y}v~y}|Qy|y}v~x}|[v|m{|w~}W{|w~"
-      "|#{|w~|x{|}w~}|v{|}y~y}c{|y}x~y}ry}x~y}|Z{|y}s~}y|G{}w~}|Zy|v~}|Ww~}v{|}w~y}|T{|y}v~y}| x{|y}w~}|    Ry|y}v~y}|"
-      "   Zy| rv~}M{|y}u~}|]`| Iw~|T{|y~}|u{|u~       5{|w~|x{|}w~}|v{|}x~}Wx~}w{|x~} {}y~}  r{|y}|Kw~|L{|y}|Hv~|    E"
-      "{|y}u~y}|      qy|y}v~y}|Sy|y}v~y}|Sy|y}v~y}|Sy|y}v~y}|Sy|y}v~y}|+{|y~}r{|y}v~y}|R{|y}v~y}y|S{|y}v~y}y|S{|y}v~y"
-      "}y|S{|y}v~y}y|  oy}v~}|vv|Zy}v~}|vv|Zy}v~}|vv|Zy}v~}|vv|Zy}v~}|vv|Zy}v~}|vv|d{|}v~y}|n{|y}u~y}y|\\{|}t~y}|U{|y}"
-      "t~y}|T{|y}t~y}|T{|y}t~y}|T{|y}t~y}|Rv|Lv|Lv|Lv|!v|lv|Z{|y}u~}|R{|y}u~}|R{|y}u~}|R{|y}u~}|R{|y}u~}|'{}x~|w{|y}u~"
-      "}|S{|y}w~}|uw|Z{|y}w~}|uw|Z{|y}w~}|uw|Z{|y}w~}|uw|Vv~|Vw~}v{|}w~y}|Qv~|    Mw~|                K{|y~|  e{|w~Nw~"
-      "| ?{}w~ Cw~}      .{}w~  @{|v~|d{}|     Kv~|   !u~|     J{|w~}C{|w~O{|w~|     9w~} Iv~   bw~}9{|w~|    X{|v~ rv"
-      "~Lw~|M{}w~|  <v~  S{|w~}W{|w~|#{|w~| j{}w~ s{}w~Uw~}          )v~}Iy~}  gw~|T{|u~y}s~|       5{|w~|Ax~}w{|x~} {"
-      "{x~|   0{|v~    ?{}y~}         R{|}        5x~|         O{|y~}  &{|v~Uw~}D{|v~    Lw~|                K{|y~|  d"
-      "{}x~}P{}w~ >w~| D{|w~|      .w~|  ?{|v~}g{|x~|     M{|v~    {|u~|     K{|w~}Bw~|P{|w~|     :{}w~} Iw~}   bw~}9{"
-      "|w~|    X{}w~| r{}w~|Mw~|Mv~  ;v~  S{|w~}W{|w~|#{|w~| j{}w~ s{}w~Uw~}          )v~}Iy~}  gw~|T{|l~|       4{|w~"
-      "|Ax~}w{|x~} {{}y~}   /v~|    ?x~|                  f{|x~         M{}  %{}w~|Uw~}D{}w~|    Lw~|                K"
-      "{|y~|  d{|w~Pw~| ?{|w~ C{}w~      .{|w~  ={|u~}|l{|u~|     N{}v~    {{|u~|     L{|q~}H{}x~}V{}q~|     :v~| Iw~}"
-      "   bw~}9{|w~|    Xv~ q{}w~}Mw~|N{|v~  ;v~  S{|w~}W{|w~|#{|w~| j{}w~ s{}w~Uw~}          )v~}Iy~}  gw~|T{|}o~}|  "
-      "     3{|w~|Ax~}w{|x~} {{|x~|   0v~}m{}    N{|x~                  e{}y~}            Rv~Tw~}Dv~    S{}x~x{|w~|   "
-      "             K{|y~|  c{}x~}R{}x~} >{|x~| Cw~}      .{|x~|  ;{}t~}|sy|}t~|     N{|v~}    y{|u~|     M{|q~}H{|w~V"
-      "{}q~|     ;{}v~ I{|w~}   bw~}9{|w~|    Y{}w~} q{|v~}|Ow~|P{|}v~}  ;v~  S{|w~}W{|w~|#{|w~| j{}w~ s{}w~Uw~}      "
-      "    )v~}Iy~}  gw~|Q{|y}v~y}|       1{|w~|Ax~}w{|x~} yx~|   0{}v~|p{|~}    N{|x~|                  f{|x~        "
-      "    S{}w~}Tw~}E{}w~}    S{}x~|y{|w~                J{|y~|  bw~|Sw~| >{}y~}        K{}y~}  9{|p~x}q~}|     N{|u~"
-      "|    x{|u~     M{|q~} y{}q~|     K{|}|p{|u~| I{}w~|   bw~}9{|w~|    Z{|v~ o{}q~}Tw~|U{|p~  :v~  S{|w~}W{|w~|#{|"
-      "w~| j{}w~ s{}w~Uw~}          )v~}Iy~}  gw~|        W{|w~|Aw|vx| y{|x~}   0{|u~|s{}x~}    N{|x~|                "
-      "  f{|x~|            U{|v~Sw~}F{|v~    R{|x~}y{}w~                J{|y~|  b{|x}|T{|x}|             w{}g~}|     Q"
-      "x|y}u~}    v{|u~     N{|p} yp}|     K{|x~}y|wy|}u~} J{|}v~   aw~}9{|w~|    \\{|}v~} nq~}Tw~|U{|q~|  :v~  S{|w~}"
-      "W{|w~|#{|w~| j{}w~ s{}w~Uw~}          )v~}Iy~}  gw~|        W{|w~| :{|}w|}w~|   /t~y}x|y}v~}    U{|}|x{|w~|    "
-      "              f{}x~|            W{|}v~}Sw~}H{|}v~}    Qq~|                J{|y}               *{|}l~}|     O{}q"
-      "~    tt|            `{|i~} Lr~|   aw~}9{|w~|    `{}q~ l{}s~}Tw~|U{|s~}|  9v~  S{|w~}W{|w~|#{|w~| j{}w~ s{}w~Uw~"
-      "}          )v~}Iy~}  gw~|        W{|w~| :{|q~   .{|i~}    U{|q~                  ly}w|}w~|            [{}q~Rw~}"
-      "L{}q~    P{}r~                                M{|y}u~y}y|     L{}r~|                R{|j~} Ks~}   `w~}9{|w~|   "
-      " `{}r~| jy|v}|Tw~|U{|u}|  6v~  S{|w~}W{|w~|#{|w~| j{}w~ s{}w~Uw~}          )v~}Iy}|  gw~|        W{|w~| :{|r~| "
-      "  -{|k~}|    U{|r~}                  l{}r~}            Z{}r~|Rw~}L{}r~|    O{}t~                               "
-      "       k{}t~}           -{|`}|    `{|}m~}| Jt~}   _w~}9{|w~|    `{}s~| :w~|   cv~  S{|w~}W{|w~|#{|w~| j{}w~ s{}"
-      "w~Uw~}          )v~}           d{|w~| 9y}w~y}   ){}o~}|    S{|}u~}|                  k{}r~            Y{}s~|Qw~"
-      "}L{}s~|    M{}w~}                                      j{}w~}|           +{}`~}    ]{|x}v~y}| Gw~y}   ]w~}9{|w~"
-      "|    `{}v~}| 8w~|   cv~  S{|w~}W{|w~|#{|w~| j{}w~ s{}w~Uw~}                      g{|w~|     8{|}v~y}|    Ly|   "
-      "               g{|y}w~}|            X{}v~}|Ow~}L{}v~}|    Iy|                                                  "
-      "l{}`~}                Ww~|                                                                                     "
-      "                                            L{}`~}                Ww}|                                         "
-      "                                  r{";
-
-      static char *value = 0;
-      if (!value) {
-        cimg::mutex(0);
-        const size_t s0 = std::strlen(chunk0), s1 = std::strlen(chunk1);
-        if (!value) {
-          value = new char[s0 + s1 + 1];
-          std::memcpy(value,chunk0,s0);
-          std::memcpy(value + s0,chunk1,s1 + 1);
-        }
-        cimg::mutex(0,0);
-      }
-      return value;
-    }
-
-    // Define a 104x128 binary font (huge sans).
-    inline const char* data_font_huge() {
-      const char *const chunk0 =
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                        FY  AY "
-      "'Z      ;W      @Y  @Y 'Z    Y  @Y (Z        :Y  ?Y (Z          0Y  ?Y (Z    >X                                "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                         )X  AX '\\ )XAV 7YDY -]      BY  BY '[ +YEY 2X  AY (\\ -YDY   'XAU 3Y  AY (\\ )XAV 8YD"
-      "Y      LY  AY (\\ ,YEY #Y                                                                                      "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                  (X  CX '^ +[CU 6ZEY .`      C"
-      "X  CY '] -ZEZ 2X  CY (^ .ZEZ   )[CU 2Y  CY (] *[CU 7ZEZ      LY  CY (] -ZEZ %Y                                 "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                        'Y  EY '^ ,^FV 6ZEY /b      CX  DX '_ .ZEZ 2Y  DX '_ /ZEZ   +_FV 1X  CX (_ ,^FV 7ZEZ   "
-      "   KX  CX (_ .ZEZ &Y                                                                                           "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                             %Y  GY '` .aHV 6ZEY 1e      DY  FX"
-      " 'a /ZEZ 1Y  FX '` /ZEZ   +aHV 0X  EX '` .aHV 7ZEZ      JX  EX (a /ZEZ &X                                      "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                   #X  GX 'XNX 0dKW 6ZEY 1f      DY  HX &WMX 0ZEZ 0X  GX 'XMW 0ZEZ   ,dLX /X  GX 'WMX 0dLX 7ZEZ"
-      "      IX  GX 'WMX 0ZEZ 'X                 :T                                                                   "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                    ;X  IX 'XLX 1o 5ZEY 2ZLY   "
-      "   CX  IX &WKW 0ZEZ /X  HX (XLX 1ZEZ   ,o .Y  HX (WKX 1o 6ZEZ      IY  IY (WKW 0ZEZ (X                 <Z      "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                  =X  KX 'XJX 3WKd 5ZEY 3XGX      CX  JX 'WIW 1ZEZ .X  JX (XJX 2ZEZ   -WKd -X  "
-      "IX (WIW 2WKd 6ZEZ      HX  IX (WIW 1ZEZ )X                 =^                                                  "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                     >X  MX &WH"
-      "W 3VHa 4ZEY 3WDW      CX  LX 'WGW 2ZEZ -X  LX 'WHW 2ZEZ   -VHa +X  KX (XHW 3VHa 5ZEZ      GX  KX (WGW 2ZEZ )X  "
-      "               ?b                                                                                              "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                         ?W  MW &WFW 4VF^ 3ZEY 4WBV      BW  MX 'WEW 3ZEZ ,W  M"
-      "X 'WFW 3ZEZ   -VF^ )X  MX 'WFW 4VF^ 4ZEZ      FX  MX 'WFW 3ZEZ *X                 ?d                           "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "             ?W  X 'WDW 5UC[ 2ZEY 4VAV      AW  X &WDW 4ZEZ +W  NW 'WDW 4ZEZ   -UC[ 'W  MW 'WDW 5UC[ 3ZEZ      "
-      "EW  MW 'WDW 4ZEZ +X                 ?f                                                                         "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                              @X \"X 'WBW 6UAW 0ZEY 4V@V      B"
-      "X !W &WBV 4ZEZ +X !W 'WBW 5ZEZ   .VAW $W  W 'WBW 6UAW 1ZEZ      DW  W 'WBV 4ZEZ +W                 >f          "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                              ?X #W 'W@W      U?V      AX #W &W@V    NX #W &V@W        9W \"W 'W@V          .W "
-      "\"W 'W@V   !W                 >XHX                                                                             "
-      "         3Y                                                                                                    "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                           6W $W &V>V      U?V      @W $W &W>V "
-      "   NW $X 'V>V        8W $X (W>V          /X $W 'W>V   #W                 >XFX                                  "
-      "                                                    5Z                                                         "
-      "                                                                                                               "
-      "                ,Z                                                                                             "
-      "                                                                                             GZ                "
-      "                    #U?V                                                           NY  7Z ,X      CVCW      MY "
-      " 7Z ,X   $Z  7Z ,X        >Z  6Y ,X          4Z  7Y +W    7Y                                 @Z                "
-      "                                                                                                               "
-      "                                                         +Z                                                    "
-      "                                                                                                               "
-      "                       HY                                    \"U?V                                             "
-      "              MY  8Y ,Y      CVBV      LY  9Z ,Y   #Z  9Z ,Z        >Z  8Y ,Y          3Y  8Z ,Y    9Y         "
-      "                        ?Z                                                                                     "
-      "                                                                                                   *Y          "
-      "                                                                                                               "
-      "                                                                 IY                                    !U?V    "
-      "                                                       LY  :Y ,[ $R>U   ,V@V      MZ  :Y +Z   #Y  9Y +Z      ?R"
-      ">U 8Y  9Y +Z %S?U        HY  :Z ,[    ;Y                                 ?[                                    "
-      "                                                                                                               "
-      "                                     )Y                                                                        "
-      "                                    8U                                                                         "
-      "    9Y                                     V@U                                                           JY  <Y"
-      " +[ 'XAU   ,V@V      LY  ;Y +\\   #Y  ;Y +\\      CXAU 7Y  ;Z ,\\ )XAV        HY  ;Y +[    <Z                  "
-      "               ?U                                                    ;T        $W /W                           "
-      "                                                                                   8e   !f      LY    Y     LX "
-      "   L]   :Y  <Y  NX 0X  >Y                                 @Y /X 0Y           K`            .X                  "
-      "  ^                                                  =ZEY                          @Y                          "
-      "           NVAV                                          <P              -X +Y  =Y +] )[CU 7YDY 4V@V      KY  ="
-      "Y +] ,YDY 5Y  =Y *] .YDY 5[  M[CU 6Y  <Y ,] *[CV 7YDY      Y  =Y +] ,YEZ !Y =Y  FYDY                 8X        "
-      "   EU                                                    :T        %W .X                                       "
-      "                                                                       9e   !f      KY   !Y     LY   \"a   :Y  "
-      "<Y  NX 0X  >Y                                 E^ /X 0_          %f            1]                   'c          "
-      "                                        @ZEZ                          AY                                     MV"
-      "CW                                          <R              4a .Y  >X *^ +]DU 7ZEZ 5U>U      JY  ?Y *^ -YEZ 4Y "
-      " ?Y *^ .ZEZ 5[  ]DU 5Y  >Y +^ ,]DU 6ZEZ      Y  ?Y +_ .ZEZ \"Y <Y  FYEZ                 :[           FU        "
-      "                                 7Y          -T 7W#W <Y    9X -W  DU             KY    HZ \"\\      4Z    M[ \""
-      "Y             LZ        +\\        8]                 >Z    G[    G\\                 @e   !f      JX   !Y     "
-      "LY   %d   :Y  <Y  NX 0X  >Y                                 Ha /X 0b          *j    L]        D_               "
-      "    +g                 A[                      LY        8Z -ZEZ   \"Y          1o )V    FX  NZ  FY            "
-      "%Y    ,X  NX*Z NW              3WEW    H\\                       #[ !Z \"[ \"[ \"[    G[7T              8g 0Y  "
-      "@Y +_ ,_FV 7ZEZ 5U>U      IY  @Y +` .YEZ 3X  ?X *` /ZEZ 4[:P 8_FV 4X  ?Y +` ._EU 6ZEZ      NX  @Y *_ .ZEZ #Y ;Y"
-      "  FYEZ                 ;]           GU                                         <b          1T :]'X @b    >W ,X "
-      " FV             a   \"d -g      >d   (d +b            %b        4f        Bg                 Ie   \"e   \"h    "
-      "             Ge   !f      IX   \"Y     LY   &e   :Y  <Y  NX 0X  >Y                                 Jc /X 0c    "
-      "      -n   $g        I`                   .j        >a        ;e    HU        .U        +b        Ac 2ZEZ   'b "
-      "         5o -]    Na (c  KY          .Y #_   8Y!W'Y\"X.c$X              3XGX    Mf                       -e +d "
-      ",e ,e ,e   \"e=V              ;k 1Y  BY +XNW .aGV 7ZEZ 5V@V      HX  AY +XNW .YEZ 3Y  AY *WNW /ZEZ 4\\>T 9`GV 3"
-      "X  AY +XNW .`GV 6ZEZ      NY  AX *XNW /ZEZ $Y :Y  FYEZ                 <_           IU   (Q  LZ 4Z2Z 1Q        "
-      "                      &g   %Z +XCX    MT <a)W Ah $X  HX +X  GV           GX 3e )_ /j 4n  L] ?y /i C~S =i 0g    "
-      "        +g    L\\ 8t (m Ks 2~R E} <o HZ(Z :Z \"Z 4Z,] LZ 2_'_(^-Z Ck :q 0k ?q *n J~d'Z(Z*Z LZ=Z.\\.Z7Z(Z([$Z'~^"
-      " @e 3X  Ff )\\    MY   #Y     LY   (g   :Y  <Y  NX 0X  >Y                                 Kd /X 0e          0p "
-      "  (m        Lb                   1m ,\\ 5~S E~R Ah 'Z :~]+[;Z;Z Ik    LW    DX    DW        /i   ?Y(Y   4h 5ZEZ"
-      " ,\\ ,h        7\\ -o .`   $f -h  NY    No     %_ %c   @_\"X-_\"W0h&W   .\\ $\\ \"\\ #\\ #\\ )g 5~a Lm D~S I~S "
-      "H~R H~R 6Z !Z !Z \"Z :r 8^,Y Bk 2k 2k 2k 2k   (kAX+Z(Z#Z(Z$Z(Z$Y'Y&[%[ MZ  Im 1X  CY *WMX /bHV 7ZEZ 5V@V      G"
-      "X  CY *WLW /YEZ 2Y  CY *WLW 0ZEZ 3[AW :bHV 3Y  BX *WLW 0bHV 6ZEZ      MY  CX *XMX 0ZEZ $X 9Y  FYEZ             "
-      "    =a M~i        7U   (Q  N_ 9_8_ 3R                              )k   'Z +XCX +X@X 4T >e,X Cl &X  IX *X  GV  "
-      "         GX 5i 0d 2p ;u !^ ?y 2o F~S @n 4j            /l    N\\ 8x .r Nx 7~R E} >t KZ(Z :Z \"Z 4Z-] KZ 2_'_(^-Z"
-      " Ep =t 5o Au 1u N~d'Z(Z)Z MZ<Z/\\/Z5Z*['[&Z&~^ @e 3X  Ff )]    MY   $Y     LY   )h   :Y  <Y  NX 0X  >Y         "
-      "                        Le /X 0e          1r   +r        c                   3o -\\ 5~S E~R Dn *Z :~]+[;Z;Z Ko "
-      "   Y    EX    EY        2m   @Y)Y   6l 7ZEZ 0e 2k        >e 1o 0c   'j /i  X   !r     (b 'g   Eb\"W0c#X0i(W   -"
-      "\\ $] #\\ $] #\\ (f 6~b r F~S I~S H~R H~R 6Z !Z !Z \"Z :w =^,Y Ep 6p 7p 7o 7p   ,oDY+Z(Z#Z(Z$Z(Z$Y'Y%Z%Z LZ  Kp"
-      " 1X  DX *WKW /WMYJV 6ZEZ 5V@V      GY  EY *WKX 0YEZ 1Y  EY *XKW 1ZEZ 2[EZ :WMZKV 1Y  DX *WKX 1WLYKW 6ZEZ      L"
-      "Y  EY *WKW 0ZEZ %X 8Y  FYEZ                 >c M~h        7T   (S !a <b:b 6S          %|                  $o   "
-      ")Z +XCX +W?W 3T ?g.X Dp (X  IX )X  HV           HY 6l 7i 5t <v #_ ?y 3p F~S Aq 8n            3p (Y $^ 9z 2v!{ :"
-      "~R E} Az NZ(Z :Z \"Z 4Z.] JZ 2`)`(_.Z Gt ?w :s Cx 5x!~d'Z(Z)Z N[<Z/\\/Z5[,[%Z'[&~^ @e 2X  Gf *_    MX   $Y     "
-      "LY   )h   :Y  <Y  NX 0X  >Y                 >X               8f /X 0f          3t   -s        c                "
-      "   4q /^ 6~S E~R Fr ,Z :~]+[;Z;Z Ms   #[    FX    F[        4n   @Y*Y   6m 7ZEZ 3k 5l        Bk 4o 1f   )k 0k #"
-      "X   #u     (b (i   Fb#X0c#W/k+X   .^ %] $^ %] $^ (d 5~b\"v H~S I~S H~R H~R 6Z !Z !Z \"Z :{ A_-Y Gt :t ;t ;s ;t "
-      "  0sGY*Z(Z#Z(Z$Z(Z$Y'Y$Z'[ LZ  Ls 2X  FX *WIW 1WJc 6ZEZ 4VBV      EY  FX *XJW 0YEZ 0X  EX )WJW 1ZEZ 1[I^ <WJc 0"
-      "X  EX )WJW 2WJZNW 5ZEZ      KX  FY *WIW 1ZEZ &X 7Y  FYEZ                 ?d M~h        8U   )T #e ?d=e 8U      "
-      "    *~Q                  &r   *Z +XCX +W?W 3T @i/W Dq (X  JX (X  HV           HX 7o <m 7x >x %_ ?y 5r F~S Ct :p"
-      "            6s /e *^ 9| 6z#~ =~R E} B}!Z(Z :Z \"Z 4Z/\\ HZ 2`)`(_.Z Iw @y >w Ez 9z!~d'Z(Z)[ Z;Z0]/Z4Z,Z$[(Z%~^ "
-      "@e 2X  Gf +a    MX   %Y     LY   *i   :Y  <Y  NX 0X  >Y                 >Y               9f /X 0g          5v  "
-      " 0u        d                   6_K_ 0^ 6~S E~R Gu .Z :~]+[;Z;Z w   &]    GX    G]      6U &o   ?Y+Y 7X )n 7ZEZ "
-      "6p 7m        Eo 6o 2h   *l 1l %X   #v     (b )k   Gb$X/c$X/l,W   -^ &_ %^ &_ %^ 'b 4~b$z J~S I~S H~R H~R 6Z !Z "
-      "!Z \"Z :~ D_-Y Hw =v >w >w >w   4wIX)Z(Z#Z(Z$Z(Z$Y'Y$[)[ KZ  Mt 1X  HX )WHW 2VHb 6ZEZ 4WDW      DX  GX )WHW 1YE"
-      "Z /X  GX )WHW 2ZEZ 0[M` ;VHb /X  GY *WHW 3VHb 5ZEZ      JX  GX )WHW 2ZEZ 'Y 7Y  FYEZ                 ?e M~f    "
-      "    7U   )U %g Bh@g :W          .~T                  't   +Z +XCX ,X@X 3T Ak1X Er (X  JX 'X  IV           HX 8q"
-      " =m 7y ?y '` ?y 6s F~S Dv <r            8u 4m /_ 9~ :~%~Q ?~R E} D~Q\"Z(Z :Z \"Z 4Z0\\ GZ 2`*a(`/Z Jz Bz Az F{ "
-      ";{!~d'Z(Z(Z Z;Z0^0Z3Z.[#[*Z$~^ @X %X  :Y ,c    MX   &Y     LY   +^   .Y  <Y  NX 0X  >Y                 >Y      "
-      "         :] %X &]          5]C\\   1v        Nc                   7\\D\\ 1_ 6~S E~R Iy 0Z :~]+[;Z;Z!y   (_    H"
-      "X    H_      7U 'p   ?Y,Y 6X *o 7ZEZ 8t 9YH]        Ht 9o 3i   *XG[ 1VE[ &Y   %x     (b *[I[   Hb$W.c%X.VE[-X  "
-      " ._ &_ %_ '_ %_ '` 4~c%} L~S I~S H~R H~R 6Z !Z !Z \"Z :~Q F`.Y Jz @z Az Ay Az   7zKX(Z(Z#Z(Z$Z(Z$Y'Y#[*Z JZ  Na"
-      "J_ 2X  IX )WGW 2VG` 5ZEZ 4XFX      CX  IX )WFW 2YEZ .X  IX )WFW 3ZEZ /j 8VG` -X  HX *WFW 4VG` 4ZEZ      IX  IX "
-      ")WGW 2ZEZ 'X 6Y  FYEZ                 ?XKX M~f        7T   )W 'i DiAi ;X          1~V                  (w   -Z "
-      "+XCX ,X@X 3T AZI[2W Es (X  KX &X  IV           HX 9s >m 7z @z )a ?y 7t F~R Dx >t            9v 8s 2` :~P <~Q&~S"
-      " A~R E} E~T$Z(Z :Z \"Z 4Z2] FZ 2a+a(`/Z K| C{ C} H| =|!~d'Z(Z(Z!Z9Z1^1Z2[0[!Z+[$~^ @X $X  ;Y -e    MX   'Y     "
-      "LY   +[   +Y  <Y  NX 0X  >Y                 >Y               :[ #X #Z          6\\?[   2v        F\\           "
-      "        8Z@[ 2` 7~S E~R J{ 1Z :~]+[;Z;Z#}   +`    HX    Ia      8U (q   >Y-Y 6X +p 7ZEZ 9bMb ;U@Y        JbMb :"
-      "n 3ZIZ   +T@Y 2R>Y 'X   %y     (XLV +ZEZ   IXMW%X.YMW%W-R>Y.W   -` '_ &` '_ &` '` 4~c'~R N~S I~S H~R H~R 6Z !Z "
-      "!Z \"Z :~S Ha/Y K| B| C| D} D|   9|MX'Z(Z#Z(Z$Z(Z$Y'Y\"Z+[ JZ  N]B\\ 2X  JX *WEW 3UE_ 5ZEZ 3YJY      AX  JW )WE"
-      "W 2YEZ -X  KX (WFW 3ZEZ .f 5UE_ ,X  JX )WFW 4VF_ 4ZEZ      HX  KX )WEW 3ZEZ (X 5Y  FYEZ                 @YJW M~"
-      "e        7U   *X (j EkCk =Y          3~X                  )x   -Z +XCX ,W?X 3T BYEY3X Ft (X  KX %X  JV         "
-      "  IX 9u ?m 7{ A{ *a ?y 8u F~R Ez @v            :v :w 4` :~Q >~S'~U C~R E} G~V$Z(Z :Z \"Z 4Z3] EZ 2a+a(a0Z M~P D"
-      "| E~P I} ?}!~d'Z(Z'Z\"Z9Z1^1Z1Z0Z [,Z#~^ @X $X  ;Y .g    MW   'Y     LY   +Y   )Y  <Y  NX 0X  >Y               "
-      "  >Y               :Z \"X \"Z          7[=Z   3aE[        E[                   9Z>[ 3` 7~S E~R L~ 2Z :~]+[;Z;Z$"
-      "~P   -b    IX    Jc      9U )r   >Y.Y 5X ,]DX 7ZEZ ;\\>\\ <R;X        M]>\\   0XDX   ,R=Y  MX (X   %hEW     (SG"
-      "V ,YAY   JSHW%W-SGW&X GX/W   ,` (a '` (a '` (a 5~d(~S N~S I~S H~R H~R 6Z !Z !Z \"Z :~T Ia/Y L~P F~P F~P F~P F~P"
-      "   <~X&Z(Z#Z(Z$Z(Z$Y'Y\"[-[ IZ  \\>Z 1X  LX )VCW 4UD] 4ZEZ 2f      ?X  LX )WDW 3YEZ ,W  KX )WDW 4ZEZ -b 2UD] *W"
-      "  KX )WDW 5UD] 3ZEZ      GW  LX (VCW 4ZEZ )X 4Y  FYEZ                 @XIX M~d        7U   *Y *l GmDl ?[       "
-      "   6~Z                  *`C\\   -Z +XCX ,W?W 2T CYCY5X E]CZ (X  LX $X  JV           IX 9]E^ @m 7aGb B^Ec ,b ?y "
-      "9aF[ F~R E_C_ B_E^            ;]E_ ={ 7b ;~R @cBb'~V D~R E} HeBc$Z(Z :Z \"Z 4Z4] DZ 2b-b(a0Z NbCb E} GbCb J~ Aa"
-      "B_!~d'Z(Z'Z#[9Z2_1Z0Z2[ N[.Z\"~^ @X $X  ;Y /i    MW   (Y     LY   ,Y   (Y  <Y  NX 0X  >Y                 >Y    "
-      "           :Y !X !Y          8[;Z 1\\ 0\\:U        D[                   ;Z<Z 4b 8~S E~R M~R 4Z :~]+[;Z;Z%bCb   "
-      "/d    JX    Ke      :U )]BW   =Y/Y 5X ,[?U   3Z8[ &W        NZ7Z   2XBW    EX  LW )X   %iEW      KV -Y?Y   @W&X"
-      "!W&W EW0X   -b )a (b )a 'a )a 5~d)dCb N~S I~S H~R H~R 6Z !Z !Z \"Z :~V Kb0Y MbCb HbCb HbCb HbCb HbCb   >bCh%Z(Z"
-      "#Z(Z$Z(Z$Y'Y![.Z HZ  Z;Z 1X  NX )WBV 5VBZ   $e      >W  MX )WBW   !X  MX )WBW   #` /UBZ (W  MX )WBW 6UBZ       "
-      " 9X  MW (WCW    MX 3Y                    GXHW M~d        8U   *[ +m HnFn A]          9~\\                  +^=Y"
-      "   -Z +XCX -X@X 2U DXAX5W E\\=V (X  LX #X .R@V?Q          ,X :\\A\\ @m 7\\>_ CY<_ -c ?y :^=V F~Q E]>^ D]@]     "
-      "       <Z@^ @~P 9b ;Z=d Aa;^'Z>j E~R E| Ha8^$Z(Z :Z \"Z 4Z5] CZ 2b-b(b1Z `<_ FZ@d I`=` K[@d C_:Z ~b&Z(Z'Z#Z8Z2`"
-      "2Z0[4[ LZ/[\"~^ @X #X  <Y 0\\N]    NX   )Y     LY   ,Y   (Y  ;X  NX 0X  >Y                 >Y               ;Z "
-      "!X !Y          8Z9Y 6d 4[5R        CZ                   ;Y:Z 5b 8~R D~Q MbAb 8` =~]+[;Z;Z&`=`   1f    KX    Lg "
-      "     ;U *\\=T   =Y0Y 4X ,Z;R   5Z3Y &W       !Y3Y   3W@W    EW  LX *W   %jEW      KV -X=X   @W'X W'X EX1W   ,b "
-      "*b (b )b )b )b 7ZH~R)a:] N~R H~R G~R H~R 6Z !Z !Z \"Z :Z>j Lb0Y N_<` J`<_ J`=` J`=` J`=`   @`=e%Z(Z#Z(Z$Z(Z$Y'Y"
-      " Z/[ HZ !Z9Y 0W  X )WAW 6VAW   \"d      <W  X (VAW    X  X (V@V   &a .VAW &X  NW (V@V 6UAW        6X  X )WAW   "
-      " NW 2Y         N\\ #[ \"\\ #\\ #[  MXHW L~b        7U   +\\ ,n IoGp C_          ;~]                  ,]:X   -Z "
-      "+XCX -X@X 8c LX@X7X E[:T (X  MX \"X /TAVAT          .X :\\?\\ Am 7Y9] CT4] .c ?Y  J]8S  Z E\\;\\ E]=[          "
-      "  <W;\\ B~T ;b ;Z7_ C_5['Z7e GZ  MZ '`3[$Z(Z :Z \"Z 4Z6] BZ 2b-b(b1Z!_8^ GZ;` K_9_ LZ:` D]5W 3Y 9Z(Z&Z$Z7Z3`3Z."
-      "Z4Z JZ0Z  \\ ?X #X  <Y 1\\L]    NX   *Y     LY   ,Y   (Y      8X  >Y                 >Y               ;Y  X !Y "
-      "         8Y8Y 6f 6Z2P        BY                   <Z9Z 7c 7\\  Z (`;` >j BZ(Z+[;Z;Z'_9_   3h    LX    Mi      <"
-      "U *[:R   <Y2Z 4X -Z8P   6Y/X 'W       #Y/Y   6W>V    EW  KW +W   %kEW      KV .X;W   @W'W NW(X CW2X   -c *c )b "
-      "*c )c +c 7ZHZ 2_5[ NZ !Z  Z !Z  >Z !Z !Z \"Z :Z7d Mc1Y ^8_ K^8^ L_8^ L_9_ L^8_   B_9b$Z(Z#Z(Z$Z(Z$Y'Y [1[ GZ !Z"
-      "8Y 0W !W (V?W      I`      :X !W (V?W    X \"X (W@W   *d    EX !W (W@W          0X \"X (V?W   !W 1Y        #d ,"
-      "e +d +d ,e #XHW LZ#Z        7U   +] -o KqHp C_          <c                   2]7V   -Z +XCX -W?X <l#X?X7W E[7R "
-      "(X  MX \"Y 0VCVCV          .X :[<[ B\\IZ 7V5] DQ0] 0XNZ ?Y  K\\4Q !Z E\\9\\ F\\;[            =U8[ DdAc =d <Z5^ "
-      "E^1Y'Z3b HZ  MZ (_/Y$Z(Z :Z \"Z 4Z7] AZ 2c/c(c2Z!]4] HZ9^ L^5^ MZ8^ E\\0T 3Y 9Z(Z&Z%Z6Z3`3Z-Z6[ J[2Z  \\ >X #X "
-      " <Y 2\\J]    NW   *Y     LY   ,X   'Y      8X  >Y                 >Y               ;Y  X  X          9Z7X 6g 7Y"
-      "        #Z                   =Y8Z 7d 7[  Z )_7_ Bp EZ(Z+[;Z;Z(^5^   5j    MX    Nk      =U +[7P   <Z3Y 3X -Y   "
-      " MX+W 'V       $X+X   7V=W    FW  KW ,W   $kEW      KV .X;X   AW(X NW(W BW2W   ,d +c *d +c *d +c 7ZHZ 3^0X NZ !"
-      "Z  Z !Z  >Z !Z !Z \"Z :Z3a Nc1Y!^5] L]4] N^5^ N^5^ N^5]   C^5_#Z(Z#Z(Z$Z(Z$Y'Y N[2Z FZ \"Z7Y /W #W (W>V      H^"
-      "      8X #W (W>V    NW \"W (W>W   .h    EW \"X )W>W          0W #X (V=V   \"W 0Y        &j 1i 0j 1j 1i &X <Z#Y "
-      "       7U   +_ /p KrJr Ea          >`                   .\\5U   -Z +XCX -W?W =r'X>W8X EZ  ;X  NY !X 1XDVDX 2X  "
-      "      &X ;[;[ BWDZ 7T2\\ \"\\ 1XMZ ?Y  L\\  2Z E[7[ G\\9[            >S5[ F`7` ?YNY <Z3\\ F]-W'Z0` IZ  MZ )^+W$"
-      "Z(Z :Z \"Z 4Z8] @Z 2YNX/XNY(c2Z\"]2] IZ7] N]2] MZ6] G\\-R 3Y 9Z(Z&[&Z6Z4XNW3Z-[8[ HZ3[ !\\ =X #X  <Y 3\\H]    N"
-      "W   +Y     LY   ,X   'Y      8X  >Y                 >Y               ;Y  X  Y          :Y6Y 7i 9Y        \"Y   "
-      "                >Y6Y 7YNY 6[ !Z *^3] Dt GZ(Z+[;Z;Z)]2]   6l    NX    m      >U +Z   !Y4Z 3X -Y    NW(W (W      "
-      " &X)X   8V<V +X  DW  LW ,W   $lEW      KV .W9W   AW(W MW)X CW2W   +YNY ,YNZ +YNY ,ZNY +YNY +YNY 9ZGZ 4^.W NZ !Z"
-      "  Z !Z  >Z !Z !Z \"Z :Z1` d2Y\"]2] N]2] ]2]!^2]!]2]   E]2]\"Z(Z#Z(Z$Z(Z$Y'Y MZ3[ FZ \"Z6X .V $W 'V<V      GZ   "
-      "   5W $W 'V<V    NW $W 'V<V   2m    EW #W (V<V          /W $W (W=W   #W 0Y        (n 6o 5n 5n 6n (X ;Z%Z       "
-      " 7U   ,a 0q LrJr Fc          A_                   ,\\2S   -Z +XCX .X@X ?u(W=X:X DY  :X  NX  Y 2ZFVFZ 2X        "
-      "'X :Z9[ CR?Z 7R/\\ \"[ 1XMZ ?Y  L[  2[ F[5Z G[7Z            >R4[ G^1^ AZNY <Z2[ G]*U'Z.^ IZ  MZ )](U$Z(Z :Z \"Z"
-      " 4Z9] ?Z 2YNX0YNY(d3Z#]0] JZ6\\ N\\/\\ NZ5\\ G[  <Y 9Z(Z%Z&Z6Z4XNX4Z,Z8Z FZ4Z  [ <X \"X  =Y 4\\F]       #Y     "
-      "LY   -Y   'Y      8X  >Y                 >Y               ;Y  X  Y          :Y6Y 7j :Y        \"Y              "
-      "     >Y6Z 9YMY 5[ \"Z *]1] Hy IZ(Z+[;Z;Z)\\/\\   8n    X   !o      ?U ,[    Y5Y 2X -Y    W&W )W       'W%W   9V"
-      "<V +X  DW  LW     )mEW      KV /X9X   BW)X MW)W BW3X   ,YMY ,YMY ,ZNZ -YMY +YNZ -YMY 9ZGZ 5]*U NZ !Z  Z !Z  >Z "
-      "!Z !Z \"Z :Z/_!d2Y#]0]!]0]\"]0\\!\\/\\\"]0]   F\\0]#Z(Z#Z(Z$Z(Z$Y'Y M[5[ EZ \"Y5X            +P                "
-      "       %_K[                              CY        *r 9q 8r 9r 9q *X ;Z%Z      >Q  JT   ,b 0q MsKs Ge          "
-      "C^                   *[0R   -Z +XCX .X@X @v)X=X:W CY  :X  Y  NX 1[HVH[ 1X        'X ;Z7Z 0Z 7P,[ ![ 3XLZ ?Y  M["
-      "  1Z EZ4[ I[5Z            ?P1Z I^-] BYLY =Z1[ H\\(T'Z-^ JZ  MZ *\\$S$Z(Z :Z \"Z 4Z:] >Z 2YMX1XMY(YNZ4Z$].\\ JZ5"
-      "\\!\\-\\ Z4[ GZ  ;Y 9Z(Z%Z'Z4Z5XNX5Z*Z:[ F[6Z  [ ;X \"X  =Y 5\\C[       #Y     LY   -Y   'Y      8X  >Y        "
-      "         >Y               ;Y  X  Y          :Y6Y 7k ;Y        \"Z                   @Z5Y 9YLY 5[ #Z +\\.] J| KZ"
-      "(Z+[;Z;Z*\\-\\   :p   !X   \"q      @U ,Z    NY6Y 1X -X    W#V *W       (W#W   :U;V +X  DW  LW     )mEW      KV"
-      " /X9X   BW*X LW*X BW3W   +YLY -YMY ,YLY -YMY ,YLY -YMZ ;ZFZ 5\\'S NZ !Z  Z !Z  >Z !Z !Z \"Z :Z-^\"e3Y#\\.]#].\\"
-      "#\\-\\#\\-\\#\\-\\   H\\.]$Z(Z#Z(Z$Z(Z$Y'Y L[6Z DZ \"Y5Y                                    /[G[               "
-      "               DY        +u =u <u ;u =u ,X :Y&Z      >S  LU   ,c 1q MtLt Hf          E]                   )[.Q "
-      "  -Z +XCX .W?X Bx)X=X;X DZ  :X  X  MY 0ZIVIZ /X        'X ;Z7[ 1Z  AZ ![ 4XKZ ?Y  MZ  0Z EZ3Z I[5Z             "
-      "Z J])\\ CYLY =Z1[ I\\%R'Z+] KZ  MZ +\\\"R$Z(Z :Z \"Z 4Z;] =Z 2YMX1XMY(YNZ4Z$\\,\\ KZ4[\"\\+[ Z4\\ I[  ;Y 9Z(Z$Z"
-      "(Z4Z5WLW5Z*[<[ DZ7[ !\\ ;X \"X  =Y 6\\A[       $Y     LY   -Y   'Y      8X  >Y                 >Y              "
-      " ;Y  X  Y          :Y6Y 7l <Y        !Y                   @Y4Z :YLY 4[ $Z ,\\,] M~Q MZ(Z+[;Z;Z+\\+\\   <r   \"X"
-      "   #s      AU ,Z    MY7Y 1X -Y   \"W!V :f       (V!W   ;U;V +X  EX  MW     (mEW      KV /W7W   BW*W KW+X BW3X  "
-      " +YLY .YKY -YLY .YKY -YLY .ZLY ;ZFZ 6\\%R NZ !Z  Z !Z  >Z !Z !Z \"Z :Z,^#YNZ3Y$\\,\\#\\,\\$\\,\\%\\+\\%\\,\\ MP"
-      " NP N\\-]$Z(Z#Z(Z$Z(Z$Y'Y KZ7[ Dq :Z4X                                    /XC[                              EY "
-      "       -x @x >x ?x @x -X :Z'Z      ?U  MU   -e 2q MtLt Ig          E[                   'Z,P   -Z +XCX .W?W By)"
-      "X<W;W CZ  :X  X  MY .ZKVKZ -X        (Y <Z5Z 1Z  A[ !Z 4XKZ ?Y  N[  1Z DZ3Z IZ3Y             NY K\\%[ EYKZ >Z0Z"
-      " J\\#Q'Z*\\ KZ  MZ +[ Q$Z(Z :Z \"Z 4Z<] <Z 2YMY3XLY(YMZ5Z%\\*\\ LZ4[\"[*\\!Z3[ IZ  :Y 9Z(Z$Z)[4Z6XLW5Z)Z<Z BZ8Z"
-      " !\\ :X !X  >Y 7[>[       %Y     LY   -Y   'Y      8X  >Y                 >Y               ;Y  X  Y          ;Y"
-      "5Y 7UH_ <Z        \"Z                   AY3Y ;YKZ 4[ %Z ,[*\\ N~S NZ(Z+[;Z;Z+[*\\   =\\NXM[   #X   $\\MXN\\    "
-      "  BU ,Z  *P DY8Y 0X -Y   #W NV @k       )V NV   <V;V +X  EW  NY     )nEW      KV /W7W   BW+X KW+W CY4X   +YKZ /"
-      "YKY .ZLZ /YKY .ZKY /YKY <ZEZ 7\\#Q NZ !Z  Z !Z  >Z !Z !Z \"Z :Z+]#YMZ4Y%\\*\\%\\*\\&\\*[%[)[%[*\\ R!R [-_%Z(Z#Z"
-      "(Z$Z(Z$Y'Y K[9[ Ct =Y3X                                    /U@[                 \"Q            EY        .z B{ "
-      "B{ Az B{ /X :Z'Y      >V  U   -g 4r NvNu Ji *\\ 5X.X 6\\ 7Z1Z M[                   '[    8Z +XCX /X@X C`MTL_)W;"
-      "W<X CY  9X !Y  LX ,ZMVMZ +X        (X ;Z5Z 1Z  A[ !Z 5XJZ ?Y  NZ  0Z DY2Z J[3Z      )Q   Q   JZ M[!Z FYJY >Z0Z "
-      "J[ 'Z)\\ LZ  MZ ,\\ \"Z(Z :Z \"Z 4Z=] ;Z 2YLX3XLY(YMZ5Z%[([ LZ3[$\\)\\\"Z3[ IZ  :Y 9Z(Z$Z)Z3Z6XLX6Z(Z>[ B[:Z !"
-      "\\ 9X !X  >Y 8[<[       &Y     LY   -Y   'Y      8X  >Y                 >Y               ;Y  X  Y          ;Y5Y "
-      "7RB] =\\        $Z                   BY2Y ;YJY 3[ &Z -[(\\!~U Z(Z+[;Z;Z,\\)\\   ?\\MXL[   $X   %\\LXM\\      CU"
-      " ,Y *Q\"R DY9Y 0X -Y   #V=_?V Cm       *V LV   <U;V +X  FX \"[     (nEW      KV /W7W   BW+W JW,X F[3W   *YJY 0Z"
-      "KZ /YJY /YKZ /YJY /YJY =ZEZ 7[!P NZ !Z  Z !Z  >Z !Z !Z \"Z :Z*]$YMZ4Y%[([%[(['\\)\\'\\)\\'\\)[!T#T\"\\-`&Z(Z#Z("
-      "Z$Z(Z$Y'Y J[:Z Bw @Y6[                                    .Q<[                 #S            GY        /`Da E`C"
-      "` DaD` C`Da E`C` 0X 9Y(Z      ?X !U   .h 4r NvNu Kk .c 9X.X 7^ 7Y1Y M[                   &Z    7Z +XCX /X@X C\\"
-      "ITFY)W;W=X BY  9X !X  KY +YNVNZ *X        (X ;Z4Z 2Z  @Z !Z 6YJZ ?Y  Z  /Z DY2Z JZ1Y      ,T   T   MZ N[ NZ HZJ"
-      "Y >Z0Z K[ &Z(\\ MZ  MZ ,[ !Z(Z :Z \"Z 4Z>] :Z 2YLX3XLY(YLZ6Z&['\\ MZ3[$['[\"Z2Z IZ  :Y 9Z(Z#Z*Z2Z7XLX7Z'[@[ @Z;"
-      "[ ![ 8X !X  >Y 9[:[       'Y     LY   -Y   'Y      8X  >Y                 >Y               ;Y  X  Y          ;Y"
-      "5Y %\\ =]        %Y                   BY2Z =ZJY 3\\ 'Z .\\'[#cLZLb!Z(Z+[;Z;Z,['[   @\\LXK[   %X   &\\KXL\\     "
-      " DU -Z +S$T EY:Y /X -Z   %V?fBU Eo       +VEg=V   =V<V +X  GX *b     &nEW      KV /W7W   BW,X JW,W Nb2X   +ZJY "
-      "0YIY /YJY 0YIY /YJZ 1YIY =ZEZ 8\\  NZ !Z  Z !Z  >Z !Z !Z \"Z :Z)\\$YLZ5Y&\\'['['\\(['['['['['[#V%V#[-a&Z(Z#Z(Z$"
-      "Z(Z$Y'Y IZ;Z Ay BY9^                                     G[                 %U            HY        0]<^ G^=^ F"
-      "^<] E]<^ G^=^ 1X 9Z)Z      @Z \"U   .i 5r NvNu Lm 2h ;X.X 7^ 7Y1Y N[                   &[    7Z +XCX /W?X D[GTC"
-      "V)W;W=W AZ  :X \"Y  KY *j (X        (X <Z3Z 2Z  @Z !Z 6XIZ ?Y  Z  0Z DZ2Z JZ1Z      0W   V   Y NZ KZ IYIZ ?Z0Z "
-      "K[ &Z(\\ MZ  MZ -[  Z(Z :Z \"Z 4Z?\\ 8Z 2YKX5XKY(YLZ6Z&[&[ MZ3[%[&\\#Z2[ JZ  :Y 9Z(Z#Z+Z1Z7WJW7Z&Z@Z >Z<Z ![ 7X"
-      "  X  ?Y :[8[     \"\\ 3YBZ  \\ ,ZAY 4\\ &Y \"Z 0YAZ     \"X  >Y .Y3Y 3Z '\\  MZ )Z  ;Z 2^ +Y               ;Y  "
-      "X  Y        6Y /Y5Y $[ =`  G^ !Z    IZ             M\\     #Y2Z =YIZ 3\\ (Z .[%[%aIZI`\"Z(Z+[;Z;Z-[%[   B\\KXJ["
-      "   &X   '\\JXK\\      H\\ 1Z ,U&V EY;Y /X ,Z   'V@jDV Gp       +UDj?V   >V<V +X  GW )`     $nEW      KV /W7W   "
-      "BW-X IW-X N`0W   *YIZ 1YIY 0YHY 1YIY 0ZIY 1YIZ ?ZDZ 8[  MZ !Z  Z !Z  >Z !Z !Z \"Z :Z(\\%YLZ5Y&[&['[&[)\\&[)[%[)"
-      "[&[$X'X%[-b&Z(Z#Z(Z$Z(Z$Y'Y I[=[ Az CY;` 5\\ $] $\\ \"\\ #\\ $] 8\\/[ 3\\ '\\ #\\ \"[ \"[          \"[ &Z &[ !["
-      " #\\ #[ ![    G[@W            IYBZ        J]8] I\\7\\ H]8] I]8] I\\7\\ 2X 8Y*Z      @Z \"U   .k 5q N~o Mm 4l =X"
-      ".X 7^ 7Z3Z NZ                   %Z    6Z +XCX /W?W D[FT@S)W;W>X AZ  :X \"Y  JX (f &X        )X ;Z3Z 2Z  @Z !Z 7"
-      "XHZ ?Y !Z  /Z CY1Y JZ1Z      2Y   Y  $Z Z HY JYHY ?Z/Y L[ %Z'\\ NZ  MZ -[  Z(Z :Z \"Z 4Z@\\ 7Z 2YKX5XKY(YKZ7Z'["
-      "$[ NZ2Z%[%[#Z2[ JZ  :Y 9Z(Z#[,Z1Z8XJW7Z%ZB[ >[>Z !\\ 7X  X  ?Y ;[6[     (e 7YE` (e 3aEY 8c 2r 5`DX GYEa (X  NX "
-      "0X1Z 8Y FXD`9` YD` -c 9XD` /aEX :XD] 6g 7t BX0Y LY)Y+X6Z6X)Z/Z NX)Y I} 2Y  X  Y        9_>W KY5Y #[ =c  h >XD` "
-      "AT#X 5Y 6X0X LY'Y ?RCW ?~Y!X?X?X ;d 'r!~W KZ1Y =YHY 2\\ )Z /[$[%_GZG_#Z(Z+[;Z;Z-[%[   C\\JXI[   'X   (\\IXJ\\  "
-      " (Y  d 5Z -W(X FY<Y .X ,[   (UAmDV Iq       ,VDl@U   >V=W +X  HX )^   ,Y1Y HnEW      KV 0X7W   BW-W HW.X M^/X )"
-      "Y +YHY 2YHZ 1YHY 2ZHY 1YHY 2ZHY ?ZDZ 9[  LZ !Z  Z !Z  >Z !Z !Z \"Z :Z'[%YKZ6Y'\\%[)[$[*[%[)[%[)[%[%Y)Z&[.d'Z(Z#"
-      "Z(Z$Z(Z$Y'Y H[>Z @{ DY=b ;f -f -f ,e -f -f Ae7c ;e /b )c *c *c 'Y  NX  NX  X  E[ >XD` -c )c *b *c )c '\\ &bDX L"
-      "X0X GX0X GX0X GX0X KY)X KYE` ?Y*Y     8[4\\ K[3[ J\\4[ I[4\\ K[3[ 3X 8Z+Z      AZ !U   /m 6q N~o No 6o ?X.X 8_ "
-      "6Y3Z Z                   $Z    6Z +XCX 0X@X DZET>Q)W;W>W ?Y  :X \"X  IY 'b $X        )X ;Z2Y 2Z  @Z !Z 8YHZ ?Y "
-      "!Z  0[ CY1Y JZ1Z      5\\   \\  'Z!Z FY LZHZ @Z/Y L[ %Z&[ NZ  MZ .[  NZ(Z :Z \"Z 4ZA\\ 6Z 2YKX6YKY(YKZ7Z'[$[ NZ"
-      "2Z&[#Z#Z2[ JZ  :Y 9Z(Z\"Z,Z1Z8XJX8Z%[D[ <Z?[ \"\\ 6X  X  ?Y <[4[     -l :YGd ,k 9eGY :h 5r 8eGY GYGe +Y  NX 0X3"
-      "\\ 8Y FYGd=c!YGe 2h ;YGd 3eGX ;YG` 9m :t BY1Y LZ+Z+Y7[7Y*[1Z MY+Z J~ 2Y  X  Y        <eAW KY5Y \"Z <f 'o CYFd D"
-      "Y(Y 5Y 6Y1Y MY'Z CUE\\ B~Y!Y@X@Y =h 0z\"~W KY0Y >ZHY 1\\ *Z /[#['^EZE^$Z(Z+[;Z;Z.[#Z   C[IXH[   (X   ([HXI[   ("
-      "Z $k 9Z .Y*Z FY=Y .X ,\\   *UAnCU J^CW       -VCmAV   ?W>V *X  IX (a   /Y1Y HnEW      KV 0X7W   BW.X HW.W La3X "
-      "(Y ,ZHY 2YGY 2ZHZ 3YGY 1YHZ 3YGY @ZCZ 9[  LZ !Z  Z !Z  >Z !Z !Z \"Z :Z'\\&YJY6Y'[$[)[$[*[$[+[#[+[$[&[+\\([.e'Z("
-      "Z#Z(Z$Z(Z$Y'Y GZ?Z ?| EY>c >l 4l 3l 2l 3l 4l Gl=h @k 5h /h /h /h )Y  Y  NX  Y  E[ ?XFd 1g .h /h /h /h )\\ )hHX "
-      "LY0X HY0X GX0X GX0Y LZ+Y KYGd AY*Y     9[EXD[ M[1[ L[1[ K[1[ M[1[ 4X 8Z+Y      A[ !T   /n 6q N~o q 8q @X.X 8` 7"
-      "Y3Y Z                   $Z    5Z +XCX 0X@X DYDT EW;W?X ?Y  :X #Y  IY %^ \"X        )X <Z1Z 3Z  @Z !Z 8XGZ ?Y !Z"
-      "  0Z BY2Z JY0Z      8_   _  *Z!Y DX LYFY @Z/Y M[ $Z&[ NZ  MZ .[  NZ(Z :Z \"Z 4ZB\\ 5Z 2YJX7XJY(YJZ8Z([#[ NZ2Z&["
-      "#[$Z2[ JZ  :Y 9Z(Z\"Z-Z/Z9XJX9Z#ZDZ :Z@Z \"\\ 5X  NX  @Y =[1Z     1q <YIh 0o =hHY <l 7r 9hIY GYHg ,Y  NX 0X4\\ "
-      "7Y FYIg@g#YHh 6l =YIh 7hHX ;YHa ;q <t BY1Y KY+Y*Y8\\8Y([3[ MY+Y I~ 2Y  X  Y        =gCX KY6Z !Z <i -q CYHh F[*Y"
-      " 5Z 7Y1Y NZ&Y EWG` D~Y!Y@X@Y >k 5}\"~W KY0Z ?YGZ 1[ *Z /Z\"[(]CZD^%Z(Z+[;Z;Z.[#[   CYHXGY   'X   'YGXHY   'Z &o"
-      " ;Z /[,[ FZ?Y -X +\\   +UBoBU LZ>W       -UBnAU   >W@W *X  JX 'c   1Y1Y HnEW      KV /W7W   BW.W GW/X Lc5W 'Y ,"
-      "YFY 4ZGY 2YFY 3YGZ 3YFY 3YGZ AZCZ 9Z  KZ !Z  Z !Z  >Z !Z !Z \"Z :Z&[&YJZ7Y'[#[*Z\"Z+[#[+[#[+[#[&[-\\'[/YM[(Z(Z#"
-      "Z(Z$Z(Z$Y'Y G[A[ ?} FY?] :p 8q 8q 7q 8q 8p LqAl Do 9l 3l 3l 3l +Y  Y  NX  Y #i @XHh 5k 2l 3l 3k 2l +\\ +lKX KY0"
-      "X HY0X GX0X GX0Y KY,Z KYIh CZ,Z     :ZCXC[ [/[ N[.Z MZ.[ [/[ 5X 7Y,Z      AZ !U   /o 7p M~n s :s AX.X 8` 7Z4Y Y"
-      "                   #Z    5Z +XCX 0W?X EYCT EW;W@X >Z  ;X #Y  HX #Z  X        *X ;Z1Z 3Z  @Z !Z 9XFZ ?Y \"Z  /Z "
-      "BY2Z KZ0[      <b   a  -[\"Y BX MYFY @Z0Z M[ $Z%[ Z  MZ .Z  MZ(Z :Z \"Z 4ZD] 4Z 2YJX7XJY(YJZ8Z([\"[ Z2Z&Z\"[$Z2"
-      "[ JZ  :Y 9Z(Z!Z.Z/Z9WHW9Z\"ZF[ :[BZ \"\\ 4X  NX  @Y >[/Z     4t =YJj 3q >kJY >o 8r ;kJY GYJk .Y  NX 0X5\\ 6Y FY"
-      "JiBi$YJk 8o ?YJj 9kJX ;YJc <r <t BY1Y KZ-Z)X8\\8Y'Z4[ LZ,Y I~ 2Y  X  Y        ?jDX KY6Y  Z ;k 1r CYIj G]-Z 5Z 7"
-      "Y1Y NZ&Z HYHb E~Y!Y@X@Y @n 8~P\"~W KY0Z ?YFY 0[ +Z 0[!Z)]BZB]&Z(Z+[;Z;Z.Z\"[ LQ  GWGXFW  HQ /X /Q*Q @WFXGW   &Z"
-      " (q ;Z .[BVB[ DY@Z -X *]   .UC^EXBU LX<W       .VBWC[AU   ?WAW )X  KX %c   2Y1Y HnEW      KV /W7W   BW/X GW/W J"
-      "c7X 'Y ,YFY 4YFZ 3YFY 4YEY 3YFY 4ZFY AYBZ :[  KZ !Z  Z !Z  >Z !Z !Z \"Z :Z&[&YIZ8Y([\"[+[\"[,[\"Z+Z!Z,[\"[%[/\\"
-      "&Z/YL[(Z(Z#Z(Z$Z(Z$Y'Y F[BZ >Z@d GY@\\ :t ;t <u ;t ;t ;t tDn Gr <o 6o 6o 6o ,Y  Y  NX  Y &l @XIj 8o 5o 6n 6o 5o"
-      " -\\ ,nLW JY0X HY0X GX0X GX0Y KY,Y JYJj CY,Y     :ZBXBZ!Z+Z Z,Z Z,Z!Z+Z 6X 7Z-Z      BZ  U   0q 7o M~n s ;u BX."
-      "X 9a 6Y5Z!Y                   \"Z    5Z +XCX C~d&YCT EW;W@W =[  <X #Y  HY $Z  X        *X ;Z1Z 3Z  @Z !Z :YFZ ?"
-      "Y \"Z  0Z AZ3Z KZ0[ 5Z \"[  ?e   d  0Z\"Y AY YEZ AZ0Z MZ #Z%[ Z  MZ /[  MZ(Z :Z \"Z 4ZE] 3Z 2YJY9XIY(YIZ9Z(Z![ "
-      "Z2Z'[!Z$Z2[ JZ  :Y 9Z(Z!Z/[/Z:XHW9Z\"[H[ 8ZC[ \"[ 3X  NX  @Y ?[-Z     5v ?YKm 6r ?mKY ?q 9r <mKY GYKm /Y  NX 0X"
-      "6[ 4Y FYKkEl%YKm ;r @YKl ;mKX ;YKd >t <t BY1Y JY-Y(Y9]9Y&Z5Z JY-Y H~ 2Y  X  Y        @lFX JY6Y  NY 9k 4s CYJl H"
-      "^.Y 4[ 8Y1Y NY$Y J[Ie G~Y!Y@X@Y Ap ;~R\"~W KY0Z @YEZ 0[ ,Z 0Z [*\\AZA\\&Z(Z+[;Z;Z/[![ NS  GUFXEU  HS 0X 0S,S @U"
-      "EXFU   %Z )r ;Z -[G^G[ CZAY ,X )]   /UC[>TAU NX;W )P9P     =UAWAYAU   >XDX )X  LX  HY   3Y1Y HnEW      KV /W7W "
-      "AP9P 9W0X FW0X ?Y8W &Y -YEZ 5YEY 4ZFZ 5YEY 4ZEY 5YEY BZBZ :[  KZ !Z  Z !Z  >Z !Z !Z \"Z :Z%['YIZ8Y([!Z+Z![,Z![-"
-      "[![-[!Z$[1\\&[/XJZ(Z(Z#Z(Z$Z(Z$Y'Y EZCZ =Z;` HYA[ 8u <u =v <v =u <u!uGr Js =r 9r 9r 9r .Y  Y  NX  Y (o AXJl :q "
-      "7q 9r 9q 7q .\\ -y IY0X HY0X GX0X GX0Y KZ-Y JYKl DY-Z     ;ZAXAZ\"Y)Y!Z*Z\"Z*Z\"Y)Y 6X 7Z-Y      BZ  NT   0s 8o"
-      " L~m!u =w CX.X 9b 7Y5Y Y                   \"Z    5Z +XCX C~d&YCT EX<WAX <Z  <X #X  GY &^ \"X        *X ;Z0Y 3Z"
-      "  @Z !Y 9XEZ ?Y \"Z  0Z AZ3Y JZ/Z 5Z \"[  Ag   g  4[\"X ?X YDY AZ0Z MZ #Z%[ Z  MZ /[  MZ(Z :Z \"Z 4ZF] 2Z 2YIX9"
-      "XIY(YIZ9Z(Z Z Z2Z'[![%Z2[ JZ  :Y 9Z(Z!Z/Z.Z:XHX:Z!ZHZ 6ZDZ \"\\ 3X  NY  AY @Z*Z     6w @YLo 9t @oLY At :r =oLY "
-      "GYLo 0Y  NX 0X7[ 3Y FYLmGn&YLo =t AYLo >oLX ;YLe ?u <t BY1Y JY-Y(Y9]9X%[7Z IZ.Y H~ 2Y  X  Y        AnGX JY7Z  N"
-      "Z 9k 6t CYKn I^/Z 5\\ 8Y1Y Z$Z L\\Jg H~Y!Y@X@Y Br =~S\"~W LZ/Y @YDY /[ -Z 0Z NZ+\\@Z@\\'Z(Z*Z;Z;Z/[![ U  GSEXDS"
-      "  HU 1X 1U.U @SDXES   $Z +t ;Z ,[JbJ[ AYBY +X (^   2UCZ9QAU NW:W *Q:Q     >VAW?XAU   ?ZHY (X  MX  EX   4Y1Y HnE"
-      "W      KV /W7W AQ:Q :W0W EW1X <X:X &Y -YDY 6ZEZ 5YDY 6ZEZ 5YDY 5YEZ CZBZ :Z  JZ !Z  Z !Z  >Z !Z !Z \"Z :Z%['YHZ"
-      "9Y(Z Z+Z Z-[![-[![-Z [$[3\\%[0XI[)Z(Z#Z(Z$Z(Z$Y'Y E[E[ =Z9^ HYBZ 6v =v >w =w >v =v\"vIt Lt >t ;t ;t ;t /Y  Y  N"
-      "X  Y *r BXKn <s :t ;t ;s :t /\\ /{ IY0X HY0X GX0X GX0Y JY.Z JYLo FZ.Y     :Y@X?Y$Y'Y#YIP5PIY\"Y.PIY$Y'Y 7X 6Z/Z"
-      "      CZ  NU   1u 8m K~m\"w ?^C] CX.X 9b 7Z6Y X                   \"Z    4Z +XCX C~d&XBT EX=XAW ;[  =X $Y  GY ("
-      "b $X        +X :Y/Z 4Z  @Z \"Z :XDZ ?Y \"Y  0[ @Y4Z JZ/Z 5Z \"[  Dj   j  8[\"X =X\"ZDY AZ0Z N[ #Z$[!Z  MZ /Z  L"
-      "Z(Z :Z \"Z 4ZG] 1Z 2YIX:YIY(YHZ:Z)[ [!Z2Z'Z [%Z2[ J[  ;Y 9Z(Z Z0Z-Z;XHX;Z NZJ[ 6[FZ \"\\ 2X  MX  AY AZ(Z     7x"
-      " AYMq ;u AqMY Bv ;r >qMY GYMp 0Y  NX 0X8[ 2Y FYMoIp'YMq ?v BYMp ?qMX ;YMf ?u <t BY1Y JZ/Z(Y:^:Y$[9[ HY/Z H~ 2Y "
-      " X  Y        BpHX JY7Z  MY ;o 9u CYLp J_0Y 4\\ 8Y1Y Y#Z M]Jh I~Y!Y@X@Y Ct ?~T\"~W LZ/Y AZDY .[ .Z 1[ NZ+[?Z?['Z"
-      "(Z*Z;Z;Z/Z NZ!W  GQDXCQ  HW 2X 2W0W @QCXDQ   #Z ,u ;Z +[MfM[ ?YCY +X '_   4UDZ'U W:W +R;R     >U@W?XAU   >j (X "
-      " NX  CX   5Y1Y HnEW      KV /W7W AR;R ;W1X EW1W :X<X %Y .ZDY 6YCY 5YDZ 7YCY 5YDZ 7ZDY DZAZ ;[  JZ !Z  Z !Z  >Z "
-      "!Z !Z \"Z :Z$Z'YHZ9Y)[ [-[ [.[ Z-Z NZ-Z [#[5\\$Z0XH[)Z(Z#Z(Z$Z(Z$Y'Y D[FZ <Z7] IYBY 5w >w ?x >x ?w >w#wKv Nu ?v"
-      " =v =v =v 0Y  Y  NX  Y +s BXLp >u <v =v =u <v 0\\ 0{ HY0X HY0X GX0X GX0Y JZ/Y IYMp EY.Y     ;Y?X?Y%Y%Y$YJR7RIY$"
-      "Y.RJY%Y%Y 8X 6Z/Y      CZ  MU   2v 8m K~m#y @[>\\ DX.X :c 7Z7Z!Y                   \"Z    4Z +XCX C~d&XBT DW=XB"
-      "X :[  >X $Y  FY +f &X        +X ;Z/Z 4Z  AZ !Z ;YDZ ?YFP -Z?Q  BZ ?Z5Z JZ/Z 5Z \"[  Gj   Ii  ;[\"X1Q,W\"YCZ BZ1"
-      "Z MZ \"Z$[!Z  MZ /Z  LZ(Z :Z \"Z 4ZH] 0Z 2YHX;XHY(YHZ:Z)Z N[!Z2Z([ NZ%Z2Z I[  ;Y 9Z(Z Z1Z,Z;XGW;Z N[L[ 4[H[ #\\"
-      " 1X  MX  AY BZ&Z     8^Ga AYN[H_ <cI\\ B`I[MY CaH_ <r ?`H[NY GYNr 1Y  NX 0X9[ 1Y FYNqJp'YMq @aJa CYN[H_ A`I[MX "
-      ";YNg @`E[ <t BY1Y IY/Y&X:^:Y#Z:[ GY/Y G~ 2Y  X  Y      JW5V B`M_JX IY8Z  LY =r ;cL_ CYM^Na J`1Y 5^ 9Y1Y!Z\"Z ^K"
-      "j J~Y!Y@X@Y D_I` A~U\"~W LY.Y AYCZ .[ /Z 1Z MZ,\\?Z?\\(Z(Z*Z;Z<[/Z NZ\"Y  ;X  ;Y 3X 3Y2Y 3X    EZ -hM[ ;Z *~Q >"
-      "YDY *X )b   6UDY%U V9W ,S<S     >U@W>W@T   =h 'X  X  AW   5Y1Y HnEW      KV /X9X AS<S <W1W DW2X 9W<W $Y .YCZ 7Y"
-      "CY 6YBY 7YCY 6ZCY 7YCZ EZAZ ;[  JZ !Z  Z !Z  >Z !Z !Z \"Z :Z$Z'YGZ:Y)[ NZ-[ [.Z N[.Z NZ.[ NZ\"[7\\$[1XFZ)Z(Z#Z("
-      "Z$Z(Z$Y'Y CZGZ ;Z6\\ IYCY 4^Ga ?^Ga @_Hb ?^Ga ?^Ga ?^Ga$^GaMaI`!bH\\ @aI` ?aI` ?aI` ?aI` 1Y  Y  NX  Y ,u CXM^Nb"
-      " @aKa >aJa ?aJa ?aKa =`Ja 1\\ 0`Ic GY0X HY0X GX0X GX0Y IY0Z IYN[H_ FZ0Z     <Y>X>Y&X#X%YJT9TIY&Y.TJY&X#X 8X 5Y0"
-      "Z      CZ ;P4U   1w 9l J~m#z B[;[ EX.X :d 7Y7Y X                   )~Q   #Z +XCX C~d&XBT DW=XCX 9\\  ?X $Y  FY "
-      "-j (X        +X ;Z/Z 4Z  AZ \"Z :XCZ ?YM_ 5ZE^  IZ >Y6Z IZ0[ 5Z \"[  Jj   Ci  ?\\\"X6\\2X#YBY BZ1Z MZ \"Z$[!Z  "
-      "MZ 0[  LZ(Z :Z \"Z 4ZI] /Z 2YHX;XHY(YGZ;Z)Z N[!Z3[([ NZ%Z2Z H[  <Y 9Z(Z NZ2Z,Z<XFW;Z MZLZ 2ZHZ #\\ 0X  MX  AY C"
-      "Z$Z     9Y>^ BcB] >_?W C^CYNY C]A] 4Y /]Bc GYNYD^ 2Y  NX 0X;\\ 0Y FYNXC\\KYD](YNYC] A]B^ DcB] C^CYNX ;YNZDQ A\\"
-      ";V 5Y .Y1Y IY/Y&Y;_;Y\"Z;Z FZ0Y $[ 2Y  X  Y      M];\\ F]E[JX IY9[  LY >ZKf =]=V CYNYC] K`2Z 5^ 9Y1Y!Z\"Z!^JZM^"
-      " K~Y!Y@X@Y E]C^ CaHl\"~W LY.Z BYBY .\\ 0Z 1Z M[-[>Z>[(Z(Z*Z;Z<[0[ N[$[  <X  <[ 4X 4[4[ 4X    EZ ._KUHV ;Z )~ <Y"
-      "EY *X *e   8UDY$T!W:X .U=T     ?U?W>W@U   =f &X !X  @W   5Y1Y HnEW      KV /X9X AT=T =W2X DW2W 8W=X $Y .YBY 8ZC"
-      "Z 7YBY 8ZCZ 7YBY 8ZBY FZ@Z ;Z  IZ !Z  Z !Z  >Z !Z !Z \"Z :Z$[(YGZ:Y)[ NZ-Z MZ.Z N[/[ N[/[ NZ![9\\#[2YFZ)Z(Z#Z(Z"
-      "$Z(Z$Y'Y C[I[ ;Z5\\ JYCY 4X=^ @X=] @Y=] ?Y>^ @X=^ @X=^%X=l@\\\"_?W A]@\\ @]@\\ @^A\\ @^A\\ 1Y  Y  NX  Y -w DXNY"
-      "C] A^C^ ?^C^ A^B] @^C^ ?^C^ 2\\ 1^C_ FY0X HY0X GX0X GX0Y IY0Y HcB] FY0Y     ;X=X=Y(Y#Y'YJV;VIX&X.VJY(Y#Y 9W 4Z1"
-      "Z      DZ =S4U   2y 9j I~l#{ BZ9Z EX.X :d 7Z8Y!Y                   *~R   #Z +XCX C~d'YBT DX?XBW 7\\  @X $Y  FY "
-      "/ZNVNZ *X        ,X :Z/Z 4Z  AZ #Z :XBZ ?o 9ZGc  MZ =Z8[ HY0\\ 6Z \"[  Li   >j  C\\\"X8aGVBW$ZBZ CZ2Z LZ \"Z#Z!"
-      "Z  MZ 0[  LZ(Z :Z \"Z 4ZJ] .Z 2YHX<YHY(YFY;Z)Z MZ!Z3[([ N[&Z3[ H]  >Y 9Z(Z NZ2Z,Z<XFX<Z LZN[ 2[JZ \"[ /X  LX  B"
-      "Y DZ\"Z     :U7\\ Ca>\\ @^:T C\\?b D\\=\\ 5Y 0\\>a Ga?\\ 2Y  NX 0X<\\ /Y Fa@\\MX@[(b@\\ B]?\\ Da?] D\\?a ;b 1Z6"
-      "S 5Y .Y1Y IZ1Z&Y;_;X![=Z DY1Y #[ 2Y  X  Y      `>` I\\B[KX IY:\\  LY ?ZDa ?\\7R Cb?\\ F[3Y 5_ 9Y1Y\"Z Y!]IYJ] L"
-      "~Y!Y@X@Y F\\?\\ D^Ai\"~W LY.Z CZBZ .\\ 1Z 1Z LZ.[=Z>[(Z(Z*Z;Z<[0[ N[%\\  <X  <\\ 5X 5\\4\\ 5X    EZ /^IUFT ;Z ("
-      "| ;YFY )X +h   :TDY#U\"W:X /V?V     ?U?W>XAU   <c $X \"X  ?X   6Y1Y HnEW      KV .W9W @U>V ?W3X CW3X 8X>W #Y /Z"
-      "BZ 9YAY 8ZBZ 9YAY 8ZBZ 9YAY FZ@Z ;Z  IZ !Z  Z !Z  >Z !Z !Z \"Z :Z$[(YFZ;Y)Z MZ-Z MZ/[ MZ/[ N[/Z M[![;\\\"[3YE[*"
-      "Z(Z#Z(Z$Z(Z$Y'Y B[JZ :Z4[ JYCX 3U8\\ @U8\\ AV8\\ @U7\\ AU7[ @U8\\%U8h=\\$]9T B\\=\\ B\\=\\ B\\=\\ B\\<[ 2Y  Y  "
-      "NX  Y .x Da?\\ C]?] A]?] B\\?] B]?] A]?] 3\\ 2]?] FY0X HY0X GX0X GX0Y IZ1Y Ha?] GY1Z     <X<X<X(X!X'XJX=XJY(X.X"
-      "JX(X!X 9W 4Z1Y     >~d W5T   2{ 9i H~k$} DZ7Z FX.X :d 7Z9Z!X                   )~R   #Z   0~d&XBT DX?XCX 6\\   "
-      " =Y  EY 0ZMVMZ +X        ,X :Z/Z 4Z  B[ %\\ :XBZ ?q ;YHg  Z <Z:[ GZ1\\ 6Z \"[  i M~c Nj  G\\!W9eIVBX%Y@Y CZ3[ M"
-      "[ \"Z#Z!Z  MZ 0Z  KZ(Z :Z \"Z 4ZK] -Z 2YGX=XGY(YFZ<Z*[ MZ!Z3[(Z M[&Z3[ H^  ?Y 9Z(Z NZ3Z*Z=XFX=Z Kf 0[L[ #\\ /X "
-      " LX  BY        JS4[ C`<\\ A\\5Q D[;` E[9Z 5Y 1\\<` G`<Z 2Y  NX 0X=\\ .Y F_=[MV=[)`<[ D\\<\\ E`<[ E[;_ ;` 0Z3Q 5"
-      "Y .Y1Y HY1Y%Y<`<Y [?[ DZ2Y $[ 1Y  X  Y     !cBc J[?YLX HY<]  JX @Y?_ @[ '`<[ EZ4Z 5` :Y1Y\"Z Z#\\GYI\\ EZ:Z IY@"
-      "X@Y FZ;[ E]>\\ 0Z 6Y.Z CYAZ -\\ 2Z 1Z LZ.[=Z=[)Z(Z*Z;Z<Z/Z LZ&\\  ;X  ;\\ 6X 6\\2\\ 6X    EZ /\\GUCQ ;Z 'z 9YGY"
-      " )X -ZN_   ;TDX\"U\"W;Y 0W@W     ?T>W>X@T   ;a #X #X  =W   6Y1Y GmEW      KV .X;X @W@W @W3W BW4X 6W?X #Y /Y@Y :"
-      "ZAY 8Y@Y 9YAZ 9Y@Y 9YAZ GZ@Z ;Z  IZ !Z  Z !Z  >Z !Z !Z \"Z :Z#Z(YFZ;Y)Z M[/[ MZ/[ MZ/Z LZ/Z M[ [=\\!Z3YD[*Z(Z#Z"
-      "(Z$Z(Z$Y'Y AZKZ 9Z4[ JYDY 3R3[ AR3[ BS3Z @S4[ AS4[ AR3[&R3e:[&]6R C\\:[ D\\:[ D\\:[ D\\:[ 3Y  Y  NX  Y /_B] E_<"
-      "[ C[;[ B\\<\\ C\\<\\ C[;\\ C\\<\\ 3\\ 3\\<\\ FY0X HY0X GX0X GX0Y HY2Z H`<[ FY2Y     ;X<X<X)X NX)YKZ?ZJX(X/ZKX)X"
-      " NX ;X 3Y2Z     >~d#Z6U   3} :h G~k%~P EY5Y FX.X ;ZNY 6Y9Z!X                   *~R   \"Z   0~d&YCT CXAXBW 5]   "
-      " >Y  EY 2ZKVKZ -X        ,X :Z/Z 4Z  BZ &] :XAZ ?s =YJk #[ ;[=[ FZ1\\ 6Z \"[ #j L~d Ki  J\\!X:hKVAW%Y@Y CZ5\\ L"
-      "[ \"Z#Z!Z  MZ 0Z  KZ(Z :Z \"Z 4ZL] ,Z 2YGX=XGY(YEZ=Z*[ M[\"Z4['Z LZ&Z4[ F`  BY 9Z(Z MZ4Z*Z=XEW=Z Jd .ZLZ #\\ .X"
-      "  LX  BY        JQ1[ D_:[ B\\ ([9_ F[7Z 6Y 1[:_ G^9Z 3Y  NX 0X>\\ -Y F^;b;Z)_:Z D[:\\ F_:[ G[9^ ;_ /Y  EY .Y1Y "
-      "HY2Z$Y=a=Y NZ@[ BY3Z %[ 0Y  X  Y     \"eCd L[>YLX HY>^  IY AY=] @Z &_:Z DY4Y 5a :Y1Y\"Z Z$\\GYG\\ EY9Y IY@X@Y G"
-      "Z9[ G\\;[ 0Y 5Y.Z DZ@Y ,\\ 3Z 1Z LZ.Z<Z=[)Z(Z*Z;Z<Z/Z LZ'\\  :X  :\\ 7X 7\\0\\ 7X    EZ 0\\FU -Z &x 8YHY (X -YK"
-      "_   >UDX!T\"X<Y 1XAX     ?T>W>X@U   :] !X $X  <W   6Y1Y GmEW      KV .Y=X ?XAX AW4X BW4W 5W@X \"Y 0Z@Y :Y@Z 9Y@"
-      "Y :Z@Y 9Y@Z ;Z@Y HZ?Z <[  IZ !Z  Z !Z  >Z !Z !Z \"Z :Z#Z(YEZ<Y*[ M[/[ M[0Z LZ/Z LZ/Z M[ N[?\\ Z3XBZ*Z(Z#Z(Z$Z(Z"
-      "$Y'Y @ZM[ 9Z3[ KYDY 3P0Z AP0Z BQ0Z AQ0Z BP0Z AP0Z&P0b7Z'\\2P CZ7Z DZ7Z DZ7Z DZ7Z 3Y  Y  NX  Y 0]<Z E^:Z D[9[ C["
-      ":\\ E\\:[ D[9[ C[:\\ 4\\ 3[9[ GY0X HY0X GX0X GX0Y HZ3Y G_:[ GY2Y     <X;X;X*X NX)XJ[A\\JX*X/[JX*X NX ;X 3Z3Z   "
-      "  >~d&^7U   4~ 9f E~i%~R GY4Y FX.X ;ZNZ 7Y9Y!X                   )~R   \"Z    NW?W BYCT CYBXCX 6_    ?Y  EZ 5ZI"
-      "VIZ /X        ,X :Z.Y 4Z  C[ )_ :YAZ ?t >YKn %Z 9\\A\\ EZ1\\ 6Z \"[ &j I~d Hi  N\\ W:jLVAW&Z@Z DZ8^ KZ !Z#[\"Z "
-      " MZ 0Z  KZ(Z :Z \"Z 4ZM] +Z 2YGY?XFY(YEZ=Z*Z L[\"Z4['Z LZ&Z4[ Fc  EY 9Z(Z MZ5Z)Z>XDW=Z Ic .[NZ #\\ -X  KX  CY  "
-      "      )Z D^8[ D\\ '[8^ FZ5Z 7Y 2[8^ G]8Z 3Y  NX 0X?[ +Y F]9`9Y)^9Z E[8[ F^8Z GZ8^ ;^ .Y  EY .Y1Y GY3Y#Y=WNX=Y M"
-      "ZAZ AY3Y %[ /Y  X  Y     #gEf N[<YMX HYBb  IY BY;] BZ %^8Z DY5Y 5b ;Y1Y#Z NZ$[FYF[ EY9Y IY@X@Y HZ8[ H\\9[ 1Y 5Y"
-      ".Z DZ@Z ,\\ 4Z 2[ LZ.Z<Z<Z)Z(Z*[<Z<Z/Z LZ(\\  9X  9\\ 8X 8\\.\\ 8X    EZ 1\\EU -Z %^E] EhIg 6X .YI_   ?UEX T!W="
-      "Z 2YBY     @U>W>W?U   7W <~d BX  ;W   6Y1Y GmEW      KV -X=X ?YBY BW4W AW5X 5W@W !Y 0Y?Z ;Y?Y :Z@Z ;Y?Y :Z?Y ;Y"
-      "?Y HZ?Z <[  IZ !Z  Z !Z  >Z !Z !Z \"Z :Z#Z(YEZ<Y*[ LZ/[ M[0Z LZ/Z LZ0[ LZ M[A\\ NZ4XAZ*Z(Z#Z(Z$Z(Z$Y'Y @[NZ 8Z3"
-      "[ KYDY  AZ !Y  Y  Z !Z !Z 5`5Z([ %Z5Z FZ5Z FZ5Z FZ5Z 4Y  Y  NX  Y 1\\:[ F]8Z F[7[ E[8[ E[8[ E[8[ E[8[ 4\\ 4[9\\"
-      " GY0X HY0X GX0X GX0Y GY4Z G^8Z GZ4Z     <X;X:W+X LX*WH[C\\IX*X0[HW+X LX <X 2Y4Z     =~d(`7T   4~Q 9e E~i%~R GY3"
-      "Y GX.X ;YMZ 7Z;Z!X                   *~R   !Z    X@X BZDT BXCYDX 6`    ?Y  DY 7[HVH[ 1X        -X 9Z.Y 4Z  D[ 7"
-      "m 9X@Z ?v AZLp &Z 8^H_ DZ1\\ 6Z \"[ (i F~d Ei #\\ NW;lMV@W'Y>Y D~P JZ !Z#[\"~Q Dy Z  K~] :Z \"Z 4ZN] *Z 2YFX?XF"
-      "Y(YDZ>Z*Z L[\"Z5\\([ LZ&Z5\\ Eg  JY 9Z(Z MZ5Z)Z>XDX>Z Ib ,f $\\ ,X  KX  CY        (Y D]6Z D[ '[7^ GZ4Z 7Y 2Z6] "
-      "G]7Z 4Y  NX 0X@[ *Y F]8^8Z*]7Z FZ6[ G]6Z I[7] ;] -X  DY .Y1Y GY3Y#Y=WNX=X L[CZ ?Y4Y &[ .X  NX  Y     $iGh Z:XNX"
-      " GYHg  HY CY8\\ CY $]7Z DY6Y 4b ;Y1Y#Z MZ&[EYE[ FY9Y IY@X@Y HZ7[ I[7[ 2Y 5~V DY>Y +\\ 5Z 2Z KZ/[<Z<[*Z(Z)Z<Z<Z/"
-      "ZIuIZ)\\  8X  8\\ 9X 9\\,\\ 9X    EZ 1[DU -Z $Z@[ EhJh 6X /YF_   ATDX U\"X?[ 3ZCZ     @U>W>W?U     K~d CX  ;X  "
-      " 6Y1Y FlEW      KV -Y?Y ?ZCZ CW5X AW5W 5XAX !Y 0Y>Y <Z?Z ;Y>Y <Z?Z ;Y>Y ;Y?Z JZ>~Q3[  I~Q G~Q F~Q G~Q 5Z !Z !Z "
-      "\"Z :Z#Z(YDZ=Y*[ LZ/Z L[0Z L[0Z LZ0[ LZ L[C\\ N[5X@Z*Z(Z#Z(Z$Z(Z$Y'Y ?e 7Z3[ KYDY  @Y  Y !Z  Y  Y  Y 4_4Y)[ %Z3"
-      "Y GZ3Y FZ4Y FZ4Y 4Y  Y  NX  Y 1[8Z F\\7Z F[7[ EZ6[ G[6[ G[6Z EZ6[   <Z9^ HY0X HY0X GX0X GX0Y GY4Y F]6Z GY4Y    "
-      " ;W:X:X,X LX+XG[E\\GW*W0[GX,X LX <X 2Z5Z     =~d(`8U   4~R 9c D~h%~T HX2Y GX.X <ZLY 6Y;Z!X                   *~"
-      "R   !Z    X@X BZDT BZGZCW 6b    @Y  DY 8ZFVFZ 2X        -X 9Z.Y 4Z  DZ 7l 8X?Z ?w BZMr ([ 7s C[3] 6Z \"[ +i C~d"
-      " Cj '\\ NW;nNV@W(Z>Y D~ IZ !Z#[\"~Q Dy![  K~] :Z \"Z 4h )Z 2YFX@YFY(YDZ>Z*Z KZ\"Z5\\([ LZ&Z6\\ Ck  Y 9Z(Z LZ6Z("
-      "Z?XDX?Z G` *d #[ +X  KX  CY        'Y E]6[ F[ &Z5] GY2Y 7Y 3Z4\\ G\\6Z 4Y  NX 0XA[ )Y F\\7]6Y*\\5Y G[5Z G\\5Z I"
-      "Z5\\ ;] -X  DY .Y1Y GZ5Z#Y>XMW>Y K[E[ ?Y5Y &[ .Y  NX  Y     $XIZHZIY!Z:XNX GYHf  GY DY6[ CY $\\5Y CX6Y 5c ;Y1Y#"
-      "Z MZ&[EYDZ FY9Y IY@X@Y IZ5Z IZ5Z 2Y 5~V EZ>Y *[ 5Z 2Z KZ/[<Z<[*Z(Z)Z<Z=[0[IuIZ*\\  7X  7\\ :X :\\*\\ :X      L["
-      "CU -Z %Z>Z EiKh 6X /XC^   BTDX U\"YA\\ 4ZCZ N~d  &U>W?X>T     K~d EY  :W   5Y1Y EkEW      KV ,YAY =ZCZ DW6X @W6"
-      "X 5W@W   'Z>Y <Y=Y <Z>Z =Y=Y ;Y>Z =Z>Y JZ>~Q3Z  H~Q G~Q F~Q G~Q 5Z !Z !Z \"Z :Z#[)YDZ=Y*[ LZ/Z KZ0Z L[1[ LZ0[ L"
-      "Z K[E\\ M[6Y@Z*Z(Z#Z(Z$Z(Z$Y'Y >d 7Z2Z KYDY  @Y  Y  Y  NY  Y !Y 4^3Z*Z $Z3Z HZ3Z HZ3Z HZ2Y 5Y  Y  NX  Y 2[6Z G"
-      "\\6Y FZ5[ G[5Z GZ5[ GZ5[ G[5Z   =[:_ HY0X HY0X GX0X GX0Y GZ5Y F\\5Z GY5Z     <X:X:X,W JW+XF[G\\FX,X1[FX,W JW <X "
-      "2Z5Y     <~d'UNY9U   5~T H[LaM[!~g&~V JY1X GX.X <ZLZ 7Y;Y X                    Z    3Z    W?X AZET A\\M\\CX 7d "
-      "   BZ  DY 8XDVDX 2X        -X 9Z.Y 4Z  E[ 7j 7Y?Z ?x CZNt )Z 5p @Z3] 6Z \"[ .i @~d @i *\\ MW<^Ib@W(Y=Z E| GZ !Z"
-      "\"Z\"~Q Dy![  K~] :Z \"Z 4f 'Z 2YEXAXEY(YCZ?Z*Z KZ\"Z6\\'[ LZ&Z8] An $Y 9Z(Z LZ7Z'Z?XDX?Z F_ *c #\\ +X  JX  DY "
-      "       'Y E\\4Z FZ %Z4\\ HZ1Y 8Y 3Z4\\ G[4Y 4Y  NX 0XC\\ (Y F[6]6Y*[4Y GZ4[ H\\4Z JY4\\ ;\\ ,X  DY .Y1Y FY5Y!Y?"
-      "XMX?Y JZF[ >Z6Y &[ .Y  NX  Y     %WEYJYEX#Z8a GYHe  FY DX4[ DY $\\5Y CY8Z 5d <Y1Y$Z LZ'[DYD[ GY9Y IY@X@Y IY4Z J"
-      "[5[ 3Y 6~W EY=Z *[ 6Z 2Z KZ/Z;Z<[*Z(Z)Z<Z=Z/[IuI[,\\  6X  6\\ ;X ;\\(\\ ;X      LZBU -Z %Y<Z FjMi 6X 0X@]   CTD"
-      "W NU!ZE^ 5ZCZ M~d  &T=W@X=T     K~d FY  :X   5Y1Y EkEW 3Z    CV +ZEZ ;ZCZ EW6W ?W7XA]\"XAX   'Y=Z =Y=Y <Y<Y =Y="
-      "Y <Z=Y =Y=Z KY=~Q3Z  H~Q G~Q F~Q G~Q 5Z !Z !Z \"Z Ew5[)YCZ>Y*Z KZ/Z KZ0Z L[1[ L[1[ LZ J[G\\ L[7Y?Z*Z(Z#Z(Z$Z(Z$"
-      "Y'Y >c 6Z2Z KYDY  ?Y  X  NX  NY  Y  Y 4\\1Y+[ %Z1Y HY1Y HY1Y HY1Y 5Y  Y  NX  Y 3[5Z G[5Z HZ3Z GZ4[ HZ4Z HZ3Z GZ"
-      "4[   >Z9` IY0X HY0X GX0X GX0Y FY6Z F\\4Z GY6Y     ;W9X9W-X JX,WD[I\\DW,W1[DW-X JX =X 1Y6Z     <~d'RKY:U   5~U J"
-      "~T$~g'~X KY1X GX.X <YKZ 7Z<Y W                    NZ    3Y    NW?W @\\GT @jCW 7f    CZ  DY 7VCVCV 1X        .X "
-      "8Z.Y 4Z  F[ 6h 5X>Z ?y DgF` *Z 2k >Z4^ 6Z \"[ 1j >~d =i -[ LW=\\C_?W)Y<Y Ez EZ !Z\"Z\"~Q Dy![  K~] :Z \"Z 4e &Z"
-      " 2YEXAXEY(YCZ?Z*Z KZ\"Z8^'[ L['Z:_ @p 'Y 9Z(Z KZ8Z'Z@XBW?Z F^ (b $\\ *X  JX  DY        &X E[2Y FZ &Z3\\ HY0Y 8Y"
-      " 3Y2[ G[4Y 4Y  NX 0XD\\ 'Y F[5[5Y*[4Y HZ2Z H[3Z KZ3[ ;[ ,Y  DY .Y1Y FY5Y!Y?WLX?Y J[GZ <Y7Z '[ -Y  NX  Z     'WC"
-      "YKXBV#Z8` FYHc +YCY EY4[ DY $[4Z CX8Y 5e <Y1Y$Z KZ([DYCZ GY9Y IY@X@Y IY3Z KZ3Z 3Y 6~W EY<Y )[ 7Z 2Z KZ/Z;Z;Z*Z("
-      "Z)[=Z=Z/[IuI[-\\  5X  5\\ <X <\\&\\ <X      LZBU -Z &Y:Y FjNj 6X 0X?]   EUEX NU!s 6ZCZ L~d  &T=WAY=T     K~d GX"
-      "  9Y   5Y1Y DjEW 3Z    CV *]M] 9ZCZ FW7X5X3W7WCc%XBX5Y   JY<Y >Z=Z =Y<Y >Z=Z =Y<Y >Z=Z LZ=~Q3Z  H~Q G~Q F~Q G~Q"
-      " 5Z !Z !Z \"Z Ew5[)YCZ>Y*Z KZ/Z KZ0Z KZ1[ L[1Z KZ I[I\\ K[8Y>[+Z(Z#Z(Z$Z(Z$Y'Y =a 5Z2Z KYDY  ?Y  Y  X  MX  Y  Y"
-      " 4\\1Y+Z $Y0Y IZ1Y IZ1Y IZ0X 5Y  Y  NX  Y 3Z3Y GZ3Y HZ3Z HZ2Z IZ2Z IZ3Z GZ3Z   >Z:a IY0X HY0X GX0X GX0Y FZ7Y E["
-      "3Z GY6Y     ;W9X9W-W HW,WC[K\\CW,W2[CW-W HW =X 1Z7Z     <~d NX:U   5~V M~X%~e&~Y LX0Y HX.X =ZJY 6Y=Z W         "
-      "           NZ    3Y    X@X ?]IT ?hCW 7h2X   ;Y  CY 7TAVAT 1X        .X 8Z.Y 4Z  G\\ 6g 5X=Z ?X?a EeB^ +Z /f ;[5"
-      "^     4i ;~d :i 1[ LW<Z?]?W*Z<Z Fx CZ !Z\"Z\"~Q Dy![  K~] :Z \"Z 4e &Z 2YEXBYEY(YBZ@Z*Z KZ\"Z9^&[ L['[Ad >r *Y "
-      "9Z(Z KZ8Z'Z@XBX@Y D\\ &` $\\ )X  JX  DY        &X E[2Z HZ %Z3\\ IZ/X 8Y 4Z2[ GZ3Y 4Y  NX 0XE\\ &Y FZ4[5Y*[4Z IZ"
-      "2Z H[2Y KY2[ ;[ +X  DY .Y1Y FZ7Z!Y?WLX?X H[IZ ;Y7Y '[ ,Y  NX  NY  *Q   NV@WLW?U#Z8` FYHd .^FY EX2[ DX $[3Y CX8Y"
-      " 5YMY <Y1Y$Z KZ(ZCYCZ GY9Y IY@X@Y JY2Z L[3Z 3Y 6~W FZ<Z )[ 8Z 2Z KZ/Z;Z;Z*Z(Z)[=Z>[/[IuI[.\\  4X  4\\ =X =\\$\\"
-      " =X      MZAU -Z &X8Y G~W 6X 0W<\\   FUEX MT iNW 8[D[ K~d  &T=WE\\<T     K~d HX  NQ<Y   4Y1Y CiEW 3Z    CV )k 7"
-      "ZC[ HW7W5Y3W8XFh>Q<YAW5Z   KZ<Z ?Y;Y >Z<Z ?Y;Y >Z<Z ?Z<Y LZ=~Q3Z  H~Q G~Q F~Q G~Q 5Z !Z !Z \"Z Ew5[)YBZ?Y*Z KZ/"
-      "Z KZ0Z KZ1[ L[1Z KZ H[K\\ J[8X=[+Z(Z#Z(Z$Z(Z$Y'Y <` 5Z2Z KYDZ  ?X  Y  Y  NX  NX  NX 4[/Y,Z $Y/Y JY/Y JY/Y JY/Y "
-      "6Y  Y  NX  Y 3Z3Z HZ3Y IZ1Z IZ2Z IZ2Z JZ1Z IZ2Z   ?Z:b IY0X HY0X GX0X GX0Y EY8Z E[2Y GZ8Z     ;W9X9X.W HW-XB[M"
-      "\\BW,W3[BX.W HW =X 0Y8Z     ;~d NY;U   6~X!~[%~c&~Z LX0Y HX.X =ZJZ 7Y=Y N~l                  4Z    3Y    X@X ?`L"
-      "T >eBX<U\"[M\\4Y   ;Y  CZ 7Q?V?Q 0X        .X 8Y-Z 5Z  H\\ 5j 9Y=Z ?T9_ Ec>] ,Z 1j <[7_     7i 8~d 7i 5[ KW=Z="
-      "\\?W*Y:Y F{ FZ !Z\"Z\"~Q Dy![1j&~] :Z \"Z 4e &Z 2YDXCXDY(YBZ@Z*Z KZ\"Z<a&Z K['} <s ,Y 9Z(Z KZ9Z%ZAXBXAZ E] &_ $"
-      "\\ (X  JY  EY        &Y F[2Z HZ %Y1[ IY.Y 9Y 4Z1Z GZ3Z 5Y  NX 0XF\\ %Y FZ4Z3Y+Z2Y IZ1Z I[2Z LY1Z ;[ +X  DY .Y1Y "
-      "EY7Y NX@XKW@Y G[K[ :Y8Y ([ ,Z  NX  NY /[(R   NU?XNW=U%Z7_ EYHg 3bHY FY1Z DX $Z2Y CY:Y 5ZMZ =Y1Y$Z KZ)[CYBY GY9Y"
-      " IY@X@Y JY1Y LZ1Z 4Y 6~W FY;Z *[ 7Z 2Z KZ/Z;Z;Z*Z(Z(Z=Z>[/[IuI[/\\  3X  3\\ >X >\\\"\\ >X      MZAU -Z 'X6X 5c "
-      "%X 1X;\\   GUEX MT NgMW 9[D[ J~d  &T=m;T     K~d In 4TA[   4Y1Y BhEW 3Z    DX )i 5[D[ IX9W5Z3W8WFj?TA[BX5Z   KY"
-      ";Z @Z;Z ?Y:Y @Z;Z ?Z;Y ?Y;Z NZ<~Q3Z  H~Q G~Q F~Q G~Q 5Z !Z !Z \"Z Ew5[)YAY?Y*Z KZ/Z KZ1[ KZ1[ L[1Z KZ G[M\\ IZ8"
-      "X<[+Z(Z#Z(Z$Z(Z$Y'Y <_ 4Z2Z KYD[  @X  NX  Y  NY  X  NX 3Z/Y-Z $Z/Y KZ/Y KZ/Y KZ/Y 6Y  Y  NX  Y 4Z2Z HZ3Y IZ1Z I"
-      "Z1Z JY1Z JZ1Z IZ1Z   @Z;XNZ JY0X HY0X GX0X GX0Y EY8Y D[2Z GY8Y     ;X9X8W.W HW-W@hAW-X4[@W.W:[:W =X 0Z9Z      I"
-      "[ 7Y<U   6~Y\"~^'~c'~\\ MX/X HX.X =YIZ 7Z>Y ~m                  4Z    3Y    W?X >g =cAW?]'[K\\5Y   ;Y  CZ %V  M"
-      "X        /X 7Y-Z 5Z  H[ 4l ;X<Z ?Q4^ Fb<] .[ 3o ?[7_     :i    5j 9[ JW=Y;[?W+Z:Y F~ IZ !Z\"Z\"~Q Dy![2l'~] :Z "
-      "\"Z 4f 'Z 2YDXCXDY(YAZAZ*Z KZ\"~%Z K['| 9s .Y 9Z(Z JZ:Z%ZAXBXAZ E] %] #[ 'X  IX  EY        &Y FZ0Y HY %Z1[ IY.Y"
-      " 9Y 4Y0Z GZ2Y 5Y  NX 0XG[ #Y FZ4Z3Y+Z2Y JZ0Z IZ0Y MZ1Z ;Z *Y  EY .Y1Y EY8Z NYAXKXAY FZL[ 9Y9Y ([ +Y  MX  NZ 4b,"
-      "S   U=`=U%Z6^ EYHi 6dIY FY1Z DY %Z2Y BX:Y 5ZLY =Y1Y%[ KZ)ZBYBZ HY9Y IY@X@Y JY1Z MZ1Z 4Y 6~W GZ:Y +\\ 7Z 2Z KZ/Z"
-      ";Z;Z*Z(Z([>Z>Z.[IuI[0\\  2X  2\\ ?X ?\\ \\ ?X      MY@U 8y ;X6X 4a $X 1X9[   HUEX MT MeLW :[D[ I~d  &T=l:T     "
-      "K~d Io 5m   3Y1Y AgEW 3Z    Nl 2g 3[D[%lDX5Z>mDXFk@mAW5[   LZ:Y @Y:Z ?Y:Y @Z:Y ?Y:Z AZ:Y NZ<~Q3Z  H~Q G~Q F~Q G"
-      "~Q 5Z !Z !Z \"Z Ew5[)YAZ@Y*Z KZ/Z KZ1[ KZ1[ L[1Z K[ Gh HZ9X;[+Z(Z#Z(Z$Z(Z$Y'Y ;] 3Z2Z KYC[  AX  NX  Y  NY  Y  X"
-      " 3Y.Y-Z $Y.Y KY.Y KY.Y KY.Y 6Y  Y  NX  Y 4Z1Y HY2Y IZ1Z IY0Z KZ0Z KZ1Z IY0Z   @Y;XMZ JY0X HY0X GX0X GX0Y DY9Y D"
-      "Z0Y GY9Z     ;W8X8W.W HW-W?f?W.W4[?W.W:[:W =X 0Z9Y      HZ 5X<U   6~Z$~`'~a&~\\ NY/X HX.X =YHY 7Z?Z ~m         "
-      "         4Z    3Y    W?W <i >_@XAa*[I\\6Y   ;Y  CZ %V  MX        /X 7Y-Z 5Z  I[ 3n >X;Z  ] G`9\\ .Z 4s @[9`    "
-      " =i    /i ;Z IV=Y9Z>V+Z:Z G~P JZ !Z\"Z\"~Q Dy!Z1l'~] :Z \"Z 4g (Z 2YDYEXCY(YAZAZ*Z KZ\"}$Z K['z 5r /Y 9Z(Z JZ;Z"
-      "$ZAW@WAZ F_ %\\ $[ &X  IX  EY        &Y FZ0Y IZ %Y/Z IY.Y 9Y 4Y0Z GY1Y 5Y  NX 0XH[ \"Y FY3Z3Y+Z2Y JZ0Z IZ0Y MY0"
-      "Z ;Z *Z  FY .Y1Y DY9Y MYAWJXAY F[MZ 8Z:Y )[ +Z  MX  N[ 7g1U   U<^;U&Z6^ EYHj 9gJY FX/Y CY &Z2Y BY<Z 6ZKZ >Y1Y%Z"
-      " J[*ZBYBZ HY9Y IY@X@Y KY0Z MY/Y 4Y 6~W GZ:Z ,[ 6Z 2Z KZ/Z;Z;Z*Z(Z([>Z?[.ZHuI[1\\  1X  1\\ @X @\\ M\\ @X      NZ"
-      "@U 8y ;W4X 5` #X 1X8Z   HUEX MT LbJW ;ZC[ H~d  &T=j8U     L~d Io 5l   2Y1Y @fEW 3Z    Nl 0c 0[CZ&lDW5[>mEXE\\N^"
-      "AlAX6\\   LZ:Z AY9Y @Z:Z AY9Y @Z:Z AY9Z!Z;~Q3Z  H~Q G~Q F~Q G~Q 5Z !Z !Z \"Z Ew5[)Y@ZAY*Z KZ/Z KZ1[ KZ1[ L[1Z K"
-      "[ Ff GZ:X:[+Z(Z#Z(Z$Z(Z$Y'Y :\\ 3Z2Z KYC\\  BY  X  NX  NY  Y  X 3Y-X-Y #Y-X KY-X KY-X KY-X 6Y  Y  NX  Y 5Z0Y HY"
-      "2Y IY/Y JZ0Z KZ0Z KY/Z KZ/Y   AZ;WKY JY0X HY0X GX0X GX0Y DY:Z DZ0Y FY:Y     :WK~KW.WK}KW-W>d>W.W5[>W.W:[:W =X /"
-      "Y:Z      IZ 4Y=T   6~[%~b'~_%~\\ NY/X HX.X >ZHY 6Y?Y N~m                  4Z    3Y   !X@X ;l @[>WBe,ZG\\7Y   ;Y"
-      "  CZ %V ;~c        LX 7Y-Z 5Z  J\\ 2n @Y;Z  N\\ G`8\\ /Z 5u A\\<b     ?i    *i ?Z IW=X8Z>V+Y8Y G~R LZ !Z\"Z\"~Q"
-      " Dy![2l'~] :Z \"Z 4h )Z 2YCXEXCY(Y@ZBZ*Z KZ\"|#Z K['x 0q 1Y 9Z(Z IZ<Z$ZBX@XBY F` %[ $\\ &X  IX  EY        &Y FZ"
-      "0Z JZ %Y/Z JY,X 9Y 5Z0Z GY1Y 5Y  NX 0XI[ !Y FY3Z3Y+Y1Y JZ/Y IZ0Y MY/Y ;Z *[  GY .Y1Y DY9Y MYBXIWBY Dg 7Y;Z *[ +"
-      "[  MX  M[ :l6W   T:\\:U&Y5] DYHk :hKY GY/Z DZ 'Z2Y BY<Y 5ZKZ >Y1Y%Z IZ*YAYBZ HY9Y IY@X@Y KY/Y MY/Y 4Y 6~W GY9Z "
-      "-[ 5Z 2[ LZ/Z;Z;Z*Z(Z'[?Z?[.[IuI[2~n BX B~n AX A~m AX      NZ@U 8y <X4X 4_ #X 1X7Z   IUEX MT J^HW <ZCZ F~d  &T="
-      "g5T     -X ,o 5k   1Y1Y >dEW 3Z    Nl ._ ,ZCZ'lEX6\\>mEWDVCZBkAX6]   LY8Y BZ9Z AY8Y BZ9Z AY8Y BZ9Z!Z;~Q3Z  H~Q "
-      "G~Q F~Q G~Q 5Z !Z !Z \"Z Ew5[)Y@ZAY*Z KZ/Z KZ1[ KZ1[ L[1Z KZ Ee FZ;Y:[+Z(Z#Z(Z$Z(Z$Y'Y :[ 2Z2Z KYB\\  CY  X  NX"
-      "  NY  Y  Y 4Y-Y.Y #Y-X KY-X KY-Y LY-Y 7Y  Y  NX  Y 5Z0Z IY2Y JZ/Z KZ/Y KY/Z KY/Z KZ/Y#~d$Z<WJY JY0X HY0X GX0X G"
-      "X0Y DZ;Y CZ0Y FY:Y     :WK~KW/WJ}JW.W=b=W.W6[=W/W9[9W >X /Z;Z      JZ 2X>U   6~\\'~c&~^$~Z MY/X HX.X >YGZ 7Z@Y "
-      "N~m                  4Z    3Y   !X@X :n 'WBg.ZE\\8X   :Y  CZ %V <~e        NX 6Y-Y 4Z  K\\ #a AX:Z  M\\ H_6[ 0Z"
-      " 6aI` A]?c     ?f    $f ?Z IW>Y7Y>V,Z8Z HZ8` MZ !Z\"Z\"Z  MZ 1[2l'Z(Z :Z \"Z 4ZN] *Z 2YCXFYCY(Y@ZBZ*Z KZ\"{\"Z "
-      "K['v +o 2Y 9Z(Z IZ<Z#YBX@XCZ Fa %Z %\\ %X  HX  FY        6i FZ0Z JZ %Y/Z JY,X 9Y 5Z/Y GY1Y 5Y  NX 0XK\\  Y FY3Z"
-      "3Y+Y1Y JY.Y IY/Z NY/Y ;Z *\\  HY .Y1Y DZ;Z LXBXIWBY Ce 6Y;Y )[ -\\  LX  L\\ >q:X  !U:[9U&Y5] DY?d =jLX FY/Z C[ ";
-
-      const char *const chunk1 =
-      ")Y1Y AX=Z 6ZIY >Y1Y%Z IZ*YAYAY HY9Y IY@X@Y KY/Y NZ/Z 5Y 5Y-Y HZ8Y .[ 4Z 1Z LZ/Z;Z;Z*Z(Z'[?Z@[-[ L[3~o BX B~o BX"
-      " B~o BX      NZ@U 8y <X4X 4^ \"X 1X6Y   IUEX MT GW *ZCZ E~d  &T=g5T     -X ,o 5i   /Y1Y <bEW 3Z    Nl *W 'ZCZ(l"
-      "EW6]>mFXDS?YBi?W5] CY 4Z8Y BY7Y BZ8Z CY7Y AY8Z CZ8Y!Y:Z <Z  HZ !Z  Z !Z  >Z !Z !Z \"Z Ew5[)Y?ZBY*Z KZ/Z KZ1[ KZ"
-      "1[ L[1Z KZ Dc E[=Y9[+Z(Z#Z(Z$Z(Z$Y'Y 9Z 2Z2Z KYB^ &i 0i 1i /i 0i 0i Ej-Y/Z $Z-Y MZ-Y MZ-Y LY-Y 7Y  Y  NX  Y 5Y/"
-      "Z IY1X JZ/Z KZ/Z LY.Y LZ/Z KZ/Z$~d$Z=WIZ KY0X HY0X GX0X GX0Y CY<Z CY/Z GZ<Z     :WK~KW/WJ}JW.W<`<W.W7[<W/W9[9W "
-      ">X .Y;Y      JZ 1Y?U   6~\\(~e'~]\"~X LX.X HX.X >YFY 7ZAZ N~m                  4Z    3Y   !W?X 9p +XCi0ZC\\9X  "
-      " :Y  CZ %V <~e        NX 6Z.Y 4Z  L\\  M^ CY:Z  L[ H^4Z 0Z 7^A^ C_Ce     ?c     Mc @Z HW>X6Y>V,Y7Z HZ5^ NZ !Z\""
-      "Z\"Z  MZ 1[2l'Z(Z :Z \"Z 4ZM] +Z 2YBXGXBY(Y?ZCZ*Z KZ\"z![ LZ&w 'k 3Y 9Z(Z IZ=Z\"ZCX@XCZ Gc &Z &\\ $X  HX  FY   "
-      "     >q FY.Y JY $Y/Z JY,X 9Y 5Y.Y GY1Y 5Y  NX 0XL\\  NY FY3Z3Y+Y1Y JY.Z JY/Z NY/Y ;Y (^  KY .Y1Y CY;Y KYCXIXCY "
-      "Bc 4Y<Y *[ 2a  KX  La Du?Z  !U9Z8T'Z5] DY9^ >\\IYMX FY/Z B\\ +Y1Y AY>Y 5ZIZ ?Y1Y%Z IZ*YAYAY HY9Y IY@X@Y KY/Y NZ"
-      "/Z 5Y 5Y-Y HZ8Z 0\\ 4Z 1Z LZ/Z;Z;Z*Z(Z&[@Z@[-[ L[4~p BX B~o BX B~p CX      NY?U 8y <W2W 3] \"X 1Y7Y   IUEX MT  "
-      " JZCZ  8X  &T=WIZ6T     -X ,o 3e   -Y1Y :`EW 3Z    Nl   (ZCZ)lFW5UNV>mFWCQ;XAe>X6UNW CY 4Y7Z DZ7Y BZ8Z CY7Z CZ7"
-      "Y CY7Z#Z:Z <Z  HZ !Z  Z !Z  >Z !Z !Z \"Z :Z#[)Y?ZBY*Z KZ/Z KZ0Z KZ1[ L[1Z KZ Ca D[>Y8[+Z(Z#Z(Z$Z(Z$Y'Y 9Z 2Z3[ "
-      "KYA^ /q 9r 9q 7q 8q 9r Mq,Y/Z $Y,Y MY,Y MY,Y MZ-Y 7Y  Y  NX  Y 5Y.Y IY1X JZ/Z KY.Z LY.Y LZ/Z KY.Z$~d$Y=XIZ KY0X"
-      " HY0X GX0X GX0Y CY<Y BY/Z FY<Y     9WK~KW/WJ}JW.W;^;W.W8[;W/W9[9W >X .Y<Z      K[ 1Y@U   6~](~f'~[ ~V KX.Y IX.X"
-      " ?ZFY 6YAZ N~m                  4Z    3Y   !W?W 6p -WCk1ZB\\;Y   :Y  CZ %V <~e        NX 6Z.Y 4Z  M\\  J] EY9Z "
-      " L[ H^4[ 2[ 8\\<\\ BbKi     ?`     Ha @Z HV=X5X>W-Y6Y HZ2\\ Z !Z\"Z\"Z  MZ 1[2l'Z(Z :Z \"Z 4ZL] ,Z 2YBXGXBY(Y?Z"
-      "CZ*Z KZ\"x N[ LZ&x #f 3Y 9Z(Z HZ>Z\"ZCW>WCZ Hd &Z &[ #X  HX  FY        At FY.Y JY $Y/Z JY,Y :Y 5Y.Y GY1Y 5Y  NX"
-      " 0XM\\  MY FY3Y2Y+Y1Y JY.Z JY.Y Z/Y ;Y (b  Y .Y1Y CY;Y KYCWHXCY Bb 3Y=Y *[ 6e  JX  Ke KzF^  !U9Y7T'Z4[ CY7] @[E"
-      "XNX GZ.Y Ai 9Y1Y AY>Y 5YHZ ?Y1Y&[ IZ+ZAYAY HY9Y IY@X@Y KY/Y NZ.Y 5Y 5Y-Y IZ6Y 0[ 3Z 1Z LZ/Z;Z;Z*Z(Z&\\AZA[,[ L["
-      "4~p BX B~o BX C~q CX      NY?U 8y <W2W 3\\   )Y6Y   JUEX NU   KZCZ  7X  &T=WGY7T     -X    J^   *Y1Y 7]EW 3Z   "
-      "     8ZCZ 4X6UMV GX-X=^;W6UMW CY 4Y6Y DZ7Z CY6Y DZ7Z CY6Y DZ7Z#Z:Z <Z  HZ !Z  Z !Z  >Z !Z !Z \"Z :Z#[)Y>ZCY*Z K"
-      "Z/Z KZ0Z L[1[ L[1Z KZ B_ C[>X7[+Z(Z#Z(Z$Z(Z$Y'Y 9Z 2Z3[ KY@_ 5u <u <t :t <u <u!t,Y/Y #Y,Y MY,Y MY,Y MY,Y 7Y  Y "
-      " NX  Y 6Z.Y IX0X JY-Y KY.Z MZ.Y LZ.Y KY.Z$~d$Y>XHZ KY0X HY0X GX0X GX0Y BY=Y BY.Y FY=Z     9WK~KW/WJ}JW.W:\\:W.W"
-      "9[:W/W9[9W >X .Z=Y      JZ /X@U   6~^*~g&~Y N~V KX.Y IX.X ?ZFZ 7ZBY L~l                  4Z    3Y   \"X@X 3n /X"
-      "CZIZ2Z@\\<Y   :Y  BY %V <~e        Y 6Z.Y 4Z  N\\  G\\ FX8Z  K[ I]2Z 2Z 8\\9[ BsNZ     ?]     B^ @Y GV=W4X>W.Z6"
-      "Z IZ1[ Z !Z#[\"Z  MZ 1[2l'Z(Z :Z \"Z 4ZK] -Z 2YBXHYBY(Y>ZDZ*Z KZ\"v L[ LZ&z !c 4Y 9Z(Z HZ>Z\"ZDX>XDY Ge 'Z '[ "
-      "\"X  GX  GY        Dw FY.Y JY %Z/Z J~W :Y 5Y.Y GY1Y 5Y  NX 0XN\\  LY FY3Y2Y+Y1Y JY.Z JY.Y Z/Y ;Y 'e $Y .Y1Y CZ=Z"
-      " KYDXGWDY @a 3Z>Y +[ 5d  IX  Ic L~d  !U8X7T'Z4[ CY5\\ AZCa GY-Y @h 9Y1Y @X?Z 6ZGY ?Y1Y&[9X9Z+ZAYAZ IY9Y IY@X@Y "
-      "KY/Z Y-Y 5Y 5Y.Z IZ6Z 2[ 2Z 1Z M[/Z;Z<[*Z(Z%[AZB\\,[ LZ3~p BX B~o BX C~q CX      NY?U 8y <W2W 2[   (Y7Y   ITDW "
-      "NU   M[CZ  6X  &T=WFY8T     -X        EY1Y 1WEW 3Z        7ZC[ 6W6ULV HX+W JX7ULW CY 5Z6Z EY5Y DZ6Z EY5Y DZ6Z E"
-      "Z6Y$Z9Z <Z  HZ !Z  Z !Z  >Z !Z !Z \"Z :Z#[)Y>ZCY*Z KZ/Z KZ0Z L[1[ L[1[ LZ A] B[?X6Z*Z(Z#Z(Z$Z(Z$Y'Y 9Z 2Z3[ KY?"
-      "_ 8w ?x ?w =w >w >w$~u/Y #~W M~W M~W M~W 7Y  Y  NX  Y 6Z.Y IX0X JY-Y KY.Z MZ.Z MY-Y KY-Y$~d$Y?XFY KY0X HY0X GX0"
-      "X GX0Y BY>Z BY.Y EY>Y     8WK~KW/WJ}JW.W;]:W.W:[9W/W9[9W >X -Y>Z      KZ .YAU   6~^*~g%~W L~T JX.Y IX.X ?YEZ 7Z"
-      "CZ L~k                  :y    KY   \"X@X 0m 1WCYEY3Y>\\=X   9Y  BY %V <~e   =l    X 5Z.Y 4Z  \\  E[ GY8Z  JZ I]"
-      "2Z 2Z 8[7[ BqMZ     ?^     C^ @Y GV=W4X>V-Y5Z IZ0[!Z !Z#[\"Z  MZ 1[2l'Z(Z :Z \"Z 4ZJ] .Z 2YAXIXAY(Y=YDZ*Z L[\"s"
-      " I[ LZ&[Cc  Na 5Y 9Z(Z HZ?Z YDX>XEZ Hg (Z (\\ \"X  GX  GY        Fy FY.Y KZ %Z/Z J~W :Y 5Y.Y GY1Y 5Y  NX 0e  KY"
-      " FY3Y2Y+Y1Y KZ.Z JY.Y Y.Y ;Y &h (Y .Y1Y BY=Y IXDXGWDY ?_ 1Y?Z ,[ 4b  GX  Ga L~c   T6V6T'Z4[ CY4\\ CZ@_ GY-Y >f "
-      "9Y1Y @Y@Y 5YFZ @Y1Y&Z8X9[,ZAYAZ IY9Y IY@X@Y KX.Z Y-Y 5Y 5Y.Z IY5Z 3[ 1Z 1Z M[/[<Z<[*Z(Z%\\BZC\\+[ LZ3~p BX B~o "
-      "BX C~q CX    DX 4Z?U -Z (W2W 2Z   'Z7X   ITDX U   MZCZ  5X  &U>WEY9T     -X        EY1Y 1WEW 3Z        6ZCZ 7X7"
-      "UKV HW*W KX6ULW CY 5Y5Z FZ5Z EY4Y FZ5Z EZ5Y EY5Z%Z9Z <Z  HZ !Z  Z !Z  >Z !Z !Z \"Z :Z#Z(Y=ZDY*[ LZ/Z KZ0Z L[0Z "
-      "LZ0[ LZ A] B[@X5Z*Z(Z#Z(Z$Z(Z$Y'Y 9Z 2Z4[ JY>` <y @y Ay ?y @y @y%~v/Y #~W M~W M~W M~W 7Y  Y  NX  Y 6Z.Y IX0X JY"
-      "-Y KY-Y MZ.Z MY-Y KY-Y$~d$Y?WEY KY0X HY0X GX0X GX0Y BZ?Y AY.Y EY>Y     8WK~KW/WJ}JW.W<_;W.W;[8W/W9[9W >X -Z?Z  "
-      "    LZ -YBU   5~^*~h%~U J~R IX.Y IX.X @ZDY 6YCZ LW                   'y    JY   \"W?X ,j 3WCYCY4Y=\\>X   9Y  CZ"
-      " %V <~e   =l    X 5Z.Y 4Z !\\  C[ IY7Z  JZ I]2Z 3[ 9[5[ BoLZ     ?a     Ia @Y HW>X3W>V.Z4Y IZ/Z!Z !Z#[\"Z  MZ 0"
-      "Z Z'Z(Z :Z \"Z 4ZI] /Z 2YAXIXAY(Y=ZEZ*Z L[\"o DZ LZ&Z<^  M_ 5Y 9Z(Z GZ@Z ZEX>XEZ I[MZ (Z )\\ !X  GX  GY        "
-      "Gz FY.Y KZ %Y-Y J~W :Y 5Y.Y GY1Y 5Y  NX 0c  IY FY3Y2Y+Y1Y KZ.Z JY.Y Y.Y ;Y %j +Y .Y1Y BY=Y IYEXGXEY >] 0Y?Y ,[ "
-      "3`  EX  E_ L\\Cx   NT6V6T'Z4Z BY2Z CY>^ GY-Y ;c 9Y1Y @YAZ 6ZEY @Y1Y&Z8X9[,ZAYAZ IY9Y IY@X@Y KX.Z Y-Y 5Y 5Y.Z JZ"
-      "4Y 4\\ 1Z 1[ NZ.[<Z<Z)Z(Z$\\CZD]*Z LZ3~p BX B~o BX C~q CX    DX 4Z?U -Z (W2W 2Z   'Z7X   ITDX U   MYBY  4X  &U>"
-      "WDX:U     -X        EY1Y 1WEW 3Z        5YBY 7W6UKV IX*W KW6UKW CY 6Z4Y FZ5Z FZ4Z GZ4Y EY4Z GZ4Y%Y8Z <[  IZ !Z "
-      " Z !Z  >Z !Z !Z \"Z :Z#Z(Y=ZDY*[ LZ/Z L[0Z L[0Z LZ0[ LZ B_ BZAY5Z*Z(Z#Z(Z$Z(Z$Y'Y 9Z 2Z5\\ JY=` ?{ B{ Bz @z B{ "
-      "B{'~x/Y #~W M~W M~W M~W 7Y  Y  NX  Y 6Z.Y IX0X JY-Y LZ-Y MZ.Z MY-Y KY-Y$~d$Y@WDY KY0X HY0X GX0X GX0Y AY@Z AY.Y "
-      "DY@Z     8WK~KW/WJ}JW.W=a<W.W<[7W/W9[9W >X ,Y?Y      LZ +XBU   6~_+~i%~U I~P HX.Y IX.X @ZDZ 7YCY KX            "
-      "       (y    JY   \"W?W (h 5XCXAX5Z<\\@Y   9Y  CZ $T ;~e   =l    X 5Z/Z 4Z \"\\  AZ IX6Z  JZ I\\1[ 4Z 8Z3Z AmKZ"
-      "     ?d     d AZ HW>X3W>V.Z4Z JZ.Z\"[ \"Z#[\"Z  MZ 0Z Z'Z(Z :Z \"Z 4ZH] 0Z 2YAYKX@Y(Y<ZFZ*[ M[\"Z /Z LZ&Z:\\  K"
-      "^ 6Y 9Z(Z GZAZ NZEW<WEZ IZL[ )Z *\\  X  FX  HY        H{ FY.Y KZ %Y-Y K~X :Y 5Y.Y GY1Y 5Y  NX 0c  IY FY3Y2Y+Y1Y"
-      " KZ-Y JY.Y Y-X ;Y $l .Y .Y1Y AY?Y HYEWFXEX =\\ .Y@Y -[ 2b  GX  Ga LY=s   LT6W7T'Z4Z BY2Z DY=^ GY-Z =d 9Y1Y ?XAY"
-      " 5YDZ AY1Y&Z8X9[,ZAYAZ IY9Y IY@X@Y KX.Z Y-Y 5Y 5Y.Z JZ4Z 5[ 0Z 0Z NZ-Z<Z<Z)Z(Z#\\DZD\\)Z LZ3~p BX B~o BX B~p CX"
-      "    DX 4Z?U -Z (W2W 2Z   &[9X   IUEX T s AXAY  4X  &U>WCX;U     -X        EY1Y 1WEW 3Z      Is 0YAX 8W6UJV IW)W"
-      " LX7UJW CY 6Z4Z GY3Y FZ4Z GY3Y FZ4Z GY3Z'Z8Z <[  IZ !Z  Z !Z  >Z !Z !Z \"Z :Z#Z(Y<ZEY*[ M[/[ M[0Z LZ/Z LZ/Z LZ "
-      "Ca CZBY4Z*Z(Z#Z(Z$Z(Z$Y'Y 9Z 2Z5\\ JY<` A| C| C{ A{ C| C|(~y/Y #~W M~W M~W M~W 7Y  Y  NX  Y 6Y-Z JX0X JY-Y LZ-Y"
-      " MZ.Z MY-Y KY-Y$~d$YAWCY KY0X HY0X GX0X GX0Y AY@Y @Y.Y DY@Y     7WK~KW/XK}KX.W>c=W.W=[6W/X:[:X >X ,Y@Z      M[ "
-      "+YCT   5~`,~i$~S H~P HX.Y IX.X @YCZ 7ZDY KX                   )y    HX   #X@X (TNc 6WCX@X5Y:\\AX   8Y  CZ   :~e"
-      "   =l   !X 4Z/Z 4Z #\\  @[ KY6Z  IZ I[0Z 4Z 9Z2[ @jJZ     ?f    %g AZ HW>X3W>V.Y2Y JZ.Z\"[ \"Z#Z!Z  MZ 0Z Z'Z(Z"
-      " :Z \"Z 4ZG] 1Z 2Y@XKX@Y(Y<ZFZ*[ MZ!Z /Z LZ&Z8[  K] 6Y 9Z(Z FZBZ NZFX<XFY I[KZ )Z +\\  NX  FX  HY        I| FY."
-      "Y KZ %Y-Y K~X :Y 5Y.Y GY1Y 5Y  NX 0d  JY FY3Y2Y+Y1Y KZ-Y JY.Y Y-X ;Y #m 0Y .Y1Y AY?Y HYFXEWFY =\\ .YAY ,[ 2d  I"
-      "X  Ic LW8n   JU7W7T'Y2Y BY1Z EY<\\ FY-Z @g 9Y1Y ?YBY 6ZDZ AY1Y&Z8X8Z,Y@YAZ IY9Y IY@X@Y LY-Y Y-Y 5Y 5Y.Z JY3Z 6["
-      " /Z 0Z [-[=Z=[)Z(Z#]EZE\\(Z LZ2~o BX B~n AX A~n BX    DX 4Z?U -Z (X4X H~W   <\\:W   HUDX!T s AZCZ  5X  %T>WBX<U"
-      "     -X        EY1Y 1WEW       \"s 1ZCZ 9X7UIV JX)W LW7UIW CY 6Y2Y HZ3Z GY2Y HZ3Z GY2Y HZ3Z'Z8Z <[  IZ !Z  Z !Z"
-      "  >Z !Z !Z \"Z :Z#Z(Y<ZEY)Z M[/[ M[0[ MZ/Z LZ/Z M[ Dc DZCY3Z*Z(Z#Z(Z$Z(Z$Y'Y 9Z 2Z6\\ IY:` D} D} D| B| D} D})~z"
-      "/Y #~W M~W M~W M~W 7Y  Y  NX  Y 6Y-Z JX0X JY-Y LZ-Y MY-Z MY-Y LZ-Y$~d%ZBXCY KY0X HY0X GX0X GX0Y @YAY @Y.Y DYAZ "
-      "    7W8X8W.W HW-W?e>W.W>[5W.W:[:W =W +ZAY      LZ *YDU   5~`,~i#~Q F} GX.Y IX.X AZBY 7ZEZ KX                   "
-      ")y    HX   6~e 9TJ_ 7XCX?X6Y9\\BX   8Y  CZ    KX    Nl   !X 4Z/Z 4Z $\\  >Z LY5Z  IZ I[0Z 5Z 8Z1Z >fHY     =h  "
-      "  +i @Z HW>X3W?W/Z2Z KZ.[#[ \"Z#Z!Z  MZ 0Z Z'Z(Z :Z \"Z 4ZF] 2Z 2Y@XLY@Y(Y;ZGZ*[ MZ!Z /Z M[&Z7[  K\\ 6Y 9Z(Z FZ"
-      "BZ MYFX<XGZ J[IZ *Z +[  MX  FX  HY        Jb>Y FY.Y KZ %Y-Y K~X :Y 5Y.Y GY1Y 5Y  NX 0e  KY FY3Y2Y+Y1Y KZ-Y JY.Y"
-      " Y-X ;Y !m 2Y .Y1Y AZAZ GYGXEXGY >] .ZBY -[ 1e  JX  Ke LU4k   IU8Y8T'Y2X AY0Y EX:[ FY-Z Ah 9Y1Y >XCZ 6YBY AY1Y&"
-      "Z8X8Z,Y@YAZ IY9Y IY@X@Y LY-Y Y-Y 5Y 5Z/Y JZ2Z 8[ .Z 0[!Z,[=Z=[)Z(Z\"]FZG]'Z M[1]  1X  1\\ @X @\\ L\\ AX    DX 4"
-      "Z?U -Z (X4X H~W   ;\\;W   GTDX\"U s A[D[  6X  %T>WBX<T     ,X        EY1Y 1WEW       \"s 2[D[ 9W7UHV KX(W MX7UI"
-      "W CY 7Z2Z IZ3Z HZ2Z IZ3Z HZ2Z IZ3Z(Z7Z ;Z  IZ !Z  Z !Z  >Z !Z !Z \"Z :Z$[(Y;ZFY)Z M[/[ MZ/[ MZ/Z M[/Z M[ Ee EZC"
-      "X3[*Z(Z#Z(Z$Z(Z$Y(Z 9Z 2Z8^ IY9` Fb=Y Eb=Y Eb=X Cb>Y Eb=Y Eb=Y*b=~V/Y #~W M~W M~W M~W 7Y  Y  NX  Y 6Y-Z JX0X JY"
-      "-Y LZ-Y MY-Z MY-Y LZ-Y   CZCXBY KY0X HY0X GX0X GX0Y @YBZ @Y.Y CYBY     6W8X8W.W HW-W@g@X.W?[4W.W:[:W =W *YBZ   "
-      "   MZ (XDU   5~`,~i\"~ D{ FX.Y IX.X AZBZ 7YEY IX                   +y    GX   6~e 9TG] 8WBW>X6Y8\\DY   8Y  CZ  "
-      "  KX    Nl   !X 4Z/Z 4Z %\\  =Z LX4Z  IZ I[0Z 5Z 9Z0Z <bFY     ;i    1i =Z HW>X3W?W/~S KZ-Z\"Z \"Z#Z!Z  MZ 0[!Z"
-      "'Z(Z :Z \"Z 4ZE] 3Z 2Y?XMX?Y(Y;ZGZ)Z MZ!Z /[ N[&Z6[  K\\ 7Y 9Z(Z FZCZ LZGX<XGZ JZH[ +Z ,\\  MX  FY  IY        K"
-      "]8Y FY.Y KZ %Y-Y K~X :Y 5Y.Y GY1Y 5Y  NX 0f  LY FY3Y2Y+Y1Y KZ-Y JY.Y Y-X ;Y  Mk 3Y .Y1Y @YAY FYGWDXGY >^ .YCZ ."
-      "[ )_  KX  L_ ES/e   FU8Z9T'Z3X AY0Y FY:[ FY-Z Cj 9Y1Y >XCY 6ZBZ BY1Y&Z8X9[,Y@YAZ IY9Y IY@X@Y LY-Y Y-Y 5Y 5Z/Y J"
-      "Z2Z 9\\ .Z /Z!Z,\\>Z>[(Z(Z!]GZH^'[ N[0\\  1X  2\\ ?X ?[ M\\ @X    DX 4Z?U -Z 'W4W G~W   :]>X   GTDY#U s @[D[  7"
-      "X  %U?WAX>U     ,X        EY1Y 1WEW       \"s 3ZC[ 9X7UHV KW(W MX7UHW CY 7~S J~S H~S I~S I~S I~S)} ;Z  IZ !Z  Z"
-      " !Z  >Z !Z !Z \"Z :Z$[(Y;ZFY)Z MZ-Z MZ/[ N[/[ N[/Z MZ Eg F[EX2[*Z(Z#Z(Z$Z(Z$Y(Z 9Z 2Z9^ HY7_ G]8Y F^8Y F^8X D]8"
-      "Y E]8Y F^8Y+^8~V/Y #~W M~W M~W M~W 7Y  Y  NX  Y 6Y-Z JX0X JY-Y LZ-Y MY-Z MY-Y LZ-Y   BYDXAY KY0X HY0X GX0X GX0Y"
-      " @ZCY ?Y.Y CYBY     5W9X8W.W HW-WAiAW,WA[3W.W9Y9W >X *ZCZ     6~d IYET   4~`,~i!| By EX.Y IX.X AYAZ 7ZFY IX    "
-      "                Z    3X   6~e 9TF\\ 9WBX=W7Z7\\EX   7Y  CZ    KX    Nl   \"X 3Z/Z 4Z &\\  ;Z M~Z %Z I[0Z 6[ 9Z/"
-      "Y 8ZCZ     8i 6~d 5i ;Z HW>X3W?W0~T KZ-Z\"Z \"Z$[!Z  MZ 0[!Z'Z(Z :Z \"Z 4ZD] 4Z 2Y?XMX?Y(Y:ZHZ)Z N[!Z /[ NZ%Z6["
-      "  J[ 7Y 9Z(Y DZDZ LZGW:WGZ K[GZ +Z -\\  LX  EX  IY        L\\6Y FY.Y KZ %Y-Y K~W 9Y 5Y.Y GY1Y 5Y  NX 0XM\\  MY "
-      "FY3Y2Y+Y1Y KZ.Z JY.Y Y-X ;Y  Ji 4Y .Y1Y @YAY FYGWDXGX >` /YCY .[ $\\  LX  M\\ AR+`   CT9[:U'Z3X AY0Y FY9Z FY-Z "
-      "D` .Y1Y >YEZ 6YAZ BY1Y&Z8X9[,ZAYAZ IY9Y IY@X@Y LY.Z Y-Y 5Y 5Z/Y KZ1Z 9[ -Z /Z\"[+[>Z>[(Z(Z ^IZJ_&[ NZ.\\  2X  3"
-      "\\ >X >[ \\ ?X    DX 4Z?U -Z 'X6X G~W   9^@X   GUDY$T Ns ?[CZ  8X  %U?WAY?U     ,X        EY1Y 1WEW       \"s 4"
-      "ZCZ 7W7UGV LX)X MW7UGW CY 8~T J~T I~S J~T I~T K~T*~ ;Z  IZ !Z  Z !Z  >Z !Z !Z \"Z :Z$[(Y:ZGY)[ NZ-Z N[.Z N[/[ N"
-      "[/[ NZ Fi G[FX1Z)Z(Z#Z(Z$Z(Z$Z)Z 9Z 2Z<a HY5^ I[5Y F[5Y G\\5X E\\6Y F\\6Y F[5Y+[5~V/Y #~V L~V L~W M~W 7Y  Y  NX"
-      "  Y 6Y-Z JX0X JY-Y LZ-Y MZ.Z MY-Y KY-Y   BYDW@Y KY0X HY0X GX0X GX0Y ?YDZ ?Y.Y BYDY     4W9X9X.W HW-XC\\L[BW,WB["
-      "3X.W HW >X )YCY     5~d IYFU   4~`,~i!{ @x EX.Y IX.X AY@Y 7ZGZ IX                    Z    3X   6~e 9TD[ ;XBX=X8"
-      "Z6\\GY   7Y  CY    JX    Nl   \"X 2Y/Z 4Z '\\  :Z M~Z %Z I[0Z 6Z 8Z/Z \"Z     5i 9~d 8i 8Z HW>X3W?W0~U LZ-Z\"[ "
-      "#Z$[!Z  MZ /Z!Z'Z(Z :Z \"Z 4ZC] 5Z 2Y?XNY?Y(Y:ZHZ)[ [!Z .Z NZ%Z5[  K[ 7Y 9Z(Y DZDY KZHX:XHY K[EZ ,Z .\\  KX  EX"
-      "  IY        LZ4Y FY.Y KZ %Z.Y KZ  <Y 5Y.Y GY1Y 5Y  NX 0XL\\  NY FY3Y2Y+Y1Y KZ.Z JY.Y Y.Y ;Y  Ff 5Y .Y1Y @ZCZ FY"
-      "HXCWHY ?b /YDY /[ ![  MX  M[ @Q%W   ?T9\\;U'Z3X AY0Z GX8Z FY-Z E\\ )Y1Y =XEY 6Z@Y BY1Y&Z9Y9[,ZAYAZ IY9Y IY@X@Y "
-      "LY.Z Y-Y 5Y 4Y/Y KZ0Z ;[ ,Z /[#Z*\\?Z?\\(Z(Z N`LZL`$Z NZ-\\  3X  4\\ JPCXCP J[\"\\ >X    DX 4Z?U -Z 'X6X G~W   "
-      "8^BX   FUDY%U Ns =ZCZ  9X  $U@W@X?T     +X        EY1Y 1WEW       \"s 5ZCZ 7W7UFV LW(W MX8UFW CY 8~U K~T J~U K~"
-      "T J~U K~T*~ ;[  JZ !Z  Z !Z  >Z !Z !Z \"Z :Z$Z'Y9YGY)[ [-[ [.Z N[.Z NZ.[ NZ G\\L[ GZGX0Z)Z(Z#Z(Z$Z(Y#Z)Z 9Z 2~ "
-      "GY4] J[4Y G[4Y G[4X EZ4Y FZ4Y G[4Y,[4X 1Y #Y  Y  Y  Y  9Y  Y  NX  Y 6Y-Z JX0X JY-Y LZ-Y MZ.Z MY-Y KY-Y   BYEW?Y"
-      " KY0X HY0X GX0X GX0Y ?YDY >Y.Y BYDY     4W9X9W-X JX,WD\\J[CW,WC[2W-X JX >X )YDZ     5~d HXFU   4~_+~i z @w DX.Y"
-      " IX.X BZ@Y 6YGZ IY                    Y        @~e 9TCZ ;WAX=X8Y4\\HX   6Y  CY    JX    Mj   !X 2Y/Y 3Z (\\  9Z"
-      " M~Z %Z I[0Z 6Z 8Z/Z \"Z     2i <~d ;i 5Z HW>X3W@W/~U LZ-[#[ #Z$Z Z  MZ /Z!Z'Z(Z :Z \"Z 4ZB] 6Z 2Y>a>Y(Y9ZIZ)[ "
-      "Z Z .Z [%Z4Z  JZ 7Y 9Z)Z DZEZ JYHX:XIZ KZD[ -Z /\\  JX  EX  IY        MZ3Y FY.Y JY %Z/Z JY  <Y 5Y.Y GY1Y 5Y  NX"
-      " 0XK\\  Y FY3Y2Y+Y1Y KZ.Z JY.Y Y.Y ;Y  Bc 6Y .Y1Y ?YCY DYIXCXIY @c /YEY /[  NZ  MX  N[     *U;^=U&Z4Y AY/Y HY7X"
-      " EY-Y E[ 'Y1Y =YFY 6Z@Z CY1Y&Z9Y9Z+ZAYAZ IY9Y IY@X@Y LZ/Z Y-Y 5Y 4Y0Z KZ0Z <[ +Z .Z$[)\\@Z@\\'Z(Z M~Q#Z [,\\  4"
-      "X  5\\ JRDXDR J[$\\ KQCXDQ   #Y 4Z?U -Z &X8X F~W   7_EY   EUDY&U Ns <ZCZ  :X  $U@W?XAU     +X        EY1Y 1WEW "
-      "      \"s 6ZCZ 7X8UEV MX)X MW7UFW DZ 8~U L~V K~U L~V K~U K~U+~ :Z  JZ !Z  Z !Z  >Z !Z !Z \"Z :Z%['Y9ZHY(Z [-[ Z"
-      "-[ Z-Z [-Z [ H\\J[ HZHY1[)Z(Z#Z(Z$Z(Y#Z)Z 9Z 2} FY2\\ KZ3Y GZ3Y GY3Y FZ3Y GZ3Y GZ3Y,Z3X 1Y #Y  Y  Y  Y  9Y  Y  "
-      "NX  Y 6Y-Z JX0X JY-Y KY.Z MZ.Z MY-Y KY-Y   BYFX?Y KY0X HY0X GX0X GX0Y >YEY >Y.Y BYEZ     4X:X9W,W JW+WE\\H[EX,X"
-      "E[1W,W JW =X )ZEY     4~d HYHU   2~^+~i Nx >u CX.Y IX.X BY?Z 7ZHY GX                    Z        A~e 9TCZ <XAW<"
-      "X8Z4\\JY   6Z  DY    JX        4X 1Z0Y 3Z )\\  8Z M~Z %Z I[0Z 7Z 7Z/Z \"Y     /i >~d >i 2Z GV>X3W@W0~V LZ-[\"Z "
-      "#Z%[ Z  MZ /[\"Z'Z(Z :Z \"Z 4ZA] 7Z 2Y>a>Y(Y9ZIZ(Z Z Z .[![%Z4[  KZ 7Y 9Z)Z CZFZ JZIX:XIZ L[CZ -Z /[  IX  DX  J"
-      "Y        MY2Y FY.Y JY %Z/Z JY  <Y 5Y.Y GY1Y 5Y  NX 0XJ\\ !Y FY3Y2Y+Y1Y JY.Z JY.Y Z/Y ;Y  ?a 7Y .Y1Y ?YCY DYIWBX"
-      "IY @d /YFY 0[  LY  MX  NZ     )U<VNW=U&Z4Y AY/Y HY8Y EZ.Y F[ &Y1Y =YGZ 7Z>Y CY1Y&Z9Y9Z+ZAYAY HY9Y IY@X@Y LZ/Y N"
-      "Y-Y 5Y 4Y0Z LZ.Y =[ *Z .[%Z(]AZA]'Z(Z L~\"[![+\\  5X  6\\ JTEXET J[&\\ KSDXES   $Y 3Y?U -Z &Y:Y F~W   5_GX   DU"
-      "CZ9QAU   DZCZ  ;X  $VAW?YBU     +X        EY1Y 1WEW          DZCZ 6W7UEV NX)X MX8UEW DY 8~V L~V L~W M~V K~V M~V"
-      ",~P :Z  JZ !Z  Z !Z  >Z !Z !Z \"Z :Z%['Y8ZIY(Z Z+Z Z-[![-[![-[![ I\\H[ I[JY0[(Y(Z#Z(Z$Z)Z#Z)Z 9Z 2| EY1\\ LY2Y "
-      "HZ2Y HZ3Y FY2Y GY2Y GY2Y-Z2X 1Y #Y  Y  Y  Y  9Y  Y  NX  Y 6Z.Y IX0X JY-Y KY.Z MZ.Z MY-Y KY.Z   BYGX?Z KY1Y HY0X"
-      " GX0X GX0Y >YFZ >Y.Y AYFY     2W:X:X,W JW+XG\\F[FW+XF[1X,W JW =X (YEY     4~d GXHU   2kNRMk*tNq Mv <s BX.Y IY/X"
-      " BY>Y 7ZIZ GY                   !Z        A~e 9TBY <W@W;W8Z3\\KX   5Z  DY    JX        4X 1Z1Z 3Z *\\  7Z M~Z %"
-      "Z HZ0Z 7Z 7Y.Z #Z     ,i A~d Aj 0Z GV=W4X@W0~W MZ-[\"[ $Z%[ Z  MZ /[\"Z'Z(Z :Z \"Z 4Z@] 8Z 2Y>`=Y(Y8ZJZ([\"[ Z "
-      ".[!Z$Z3Z  KZ 7Y 9Z)Z CZGZ IZIW8WIZ M[AZ .Z 0\\  IX  DX  JY        MY2Y FY.Y JY $Y/Z JY  <Y 5Z/Y GY1Y 5Y  NX 0XI"
-      "\\ \"Y FY3Y2Y+Y1Y JY.Z JY.Y NY/Y ;Y  ;] 7Y .Y1Y >YEY CYIWBXIX @f 0YGZ 0[  LZ  NX  NY     'U>WMW?V&Z4Y AY/Y HY8Y"
-      " EZ.Y FZ %Y1Y <XGY 6Z>Y CY1Y&[:Z:Z+ZAYAY HY9Y IY@X@Y LZ/Y NZ.Y 5Y 4Y0Y KZ.Z ?\\ *Z -['['\\AZB]&Z(Z K|![!Z)\\  6"
-      "X  7\\ JVFXFV J[(\\ KUEXFU   %Y 3Y?U -Z %Y<Y /Z    M`KY   BUC[=SAU   CZCZ  <X  #UAW>XCU     *X        EY1Y 1WEW"
-      "          F[CZ 6X8UDV NW)X MX8UDW DY 8~W N~W L~W M~V L~W M~W-~P :[  KZ !Z  Z !Z  >Z !Z !Z \"Z :Z%['Y8ZIY([\"[+["
-      "\"[,Z![-[!Z,[!Z I\\F[ J[KY/Z'Z)Z#Z)Z#Z)Z#Z)Z 9Z 2{ DY0[ MY1Y HY1Y HY2Y FY2Y HZ2Y HY1Y-Y2Y 1Z $Y  Y  Y  Z  :Y  Y"
-      "  NX  Y 6Z.Y IX0X JZ.Y KY.Z MZ.Y LZ.Y KY.Z   BYHX>Z KY1Y HY1Y GX0X GX0Y =YGY =Y.Y AYFY     2X;X:W+X LX*WH\\D[HX"
-      "*WG[0W+X LX =X (YFZ     4~d GYIU   2jLQLj*pNRNq Lt :q AX.Y IY0Y CZ>Y 6YIZ FX                   !Z        A~e 9T"
-      "BZ >W?W;W8Z2\\MY   4Y  DY    JX        4X 1Z1Z 3Z +\\  6Z M~Z %Z HZ0Z 8[ 7Y.Z #Z     )i D~d Ci -Z GV=W4XAW/~W M"
-      "Z-[\"[ $Z&[ NZ  MZ .Z\"Z'Z(Z :Z \"Z 4Z?] 9Z 2Y=_=Y(Y8ZJZ([\"[ Z -Z\"[$Z3[  L[ 8Y 9Z)Z BZHZ IZJX8XJY LZ@[ /Z 1\\"
-      "  HX  DX  JY        NY1Y FZ0Z JY $Y/Z JY  <Y 5Z0Z GY1Y 5Y  NX 0XH\\ #Y FY3Y2Y+Y1Y JY.Y IY/Z NY/Y ;Y  9\\ 8Y .Y1"
-      "Y >YEY BXJXAWJY A[N[ 1YGY 0[  JY  NX  NY     'V@WLX@U$Y5[ BY/Y HX7X DZ.Y FY $Y1Y <YIZ 6Y=Z DY1Y&[:Z:Z*YAYAY HY9"
-      "Y IY@X@Y LZ/Y NZ/Z 5Y 3Y1Y KY-Z ?[ )Z -[([%]CZC]%Z(Z Jy M[#[(\\  7X  8\\ JXGXGX J[*\\ KWFXGW   &Y 3Y?U -Z %Z>Z "
-      "/Z    K_MZ   BUC]BVBU   A[D[  >X  #VBW=XDU     *X        EY1Y 1WEW          G[D[ 5W8UCV X*X LW8UCW EZ 8~W N~X M"
-      "~W N~X M~W N~X.~Q :[  KZ !Z  Z !Z  >Z !Z !Z \"Z :Z&[&Y7ZJY([\"[+[\"[,[\"Z+[#[+Z\"[ J\\D[ JZKX/['Z*[#[*Z#Z)Z#Z)Z"
-      " 9Z 2z CY/Z MY1Y HY2Z HY2Y GY1Y HY1Y HY1Y-Y2Z 2Z $Z !Z !Z !Z  :Y  Y  NX  Y 6Z.Y IX0X JZ/Z KY.Z LY.Y LZ/Z KY.Z  "
-      " BYHW=Z KY1Y GX1Y GX1Y GX0Y =YHZ =Y/Z @YHY     1X;X;X*W LW)XJ\\B[IX*XI[0X*W LW <X (ZGY     3~d GYJU   1iKQKi*pN"
-      "RMo Jr 9q AX.Y HX0Y CZ>Z 7ZJY EY                   !Z        1X@X &TAY ?X?W;W8Z1\\NX   3Y  DY    JX        5Y 0"
-      "Y1Z 3Z ,\\  5Z M~Z %Z HZ0Z 8Z 6Y.Z #Z     &i G~d Fi )X FV=X5XAW0~Y NZ-[!Z $Z&[ NZ  MZ .[#Z'Z(Z :Z \"Z 4Z>] :Z 2"
-      "Y=_=Y(Y7ZKZ'Z#[ NZ -[#[$Z2[  M[ 8Y 9Z)Z BZHZ HYJX8XKZ M[?Z /Z 2\\  GX  CX  KY        NY1Y FZ0Z JZ %Y/Z JZ  =Y 4"
-      "Y0Z GY1Y 5Y  NX 0XG\\ $Y FY3Y2Y+Y1Y JZ/Y IZ0Y MY/Y ;Y  8[ 8Y .Y1Y >ZGZ BYKXAXKY B[LZ 0YHY 1[  IY  NX  Z     &VB"
-      "XKXBV$Y5[ BY/Y HX8Y CY/Z GY #Y1Y <YIY 6Z<Y DY1Y%Z:Z:Z*YAYAY HY9Y IY@X@Y LZ/Y NZ/Z 5Y 3Y2Z LZ,Z A[ (Z ,[)[%^DZD^"
-      "%Z(Z Iw L[#['\\  8X  9\\ JZHXHZ J[,\\ KYGXHY   'Y 3Z@U -Z $[B[ .Z  NW $j   @UCpBU   @[D[  ?X  \"UBW=XEU     )X "
-      "       EY1Y 1WEW          H[D[ 5W8UBV W*X LX8UCW F[ 9~Y ~X N~Y ~X N~Y ~X.~Q 9[  LZ !Z  Z !Z  >Z !Z !Z \"Z :Z&[&"
-      "Y7ZJY'[#Z)Z#[+[#[+[#[+[#[ K\\B[ K[MX.['Z*Z!Z*Z#Z)Z#Z)Z 9Z 2x AY.Z NY2Z HY2Z IY1Y GY1Y HY1Y HY2Z-X1Z 2Z $Z !Z !Z"
-      " !Z  :Y  Y  NX  Y 5Y/Z IX0X JZ/Z KZ/Y KY.Y LZ/Z KZ/Y   AYIW<Y IX1Y GX1Y GX1Y GY2Z =YHY <Z0Y ?YHY     0X<X;X*X N"
-      "X)XJ[@[KX(XK[/X*X NX <X 'YHZ     3~d FXJU   0hKQKh(nMRMo Jq 7o @X.Y HX0X BY=Z 7ZKZ DY                   \"Z    "
-      "    1W?X &TAY ?W>W;W8Z0e   3Y  EZ    JX        5X /Z2Y 2Z -\\  4Z M~Z %Z HZ0Z 8Z 6Z/Z $Z     #j J~d Ii   CW>X6Y"
-      "BX0~Y NZ-[![ %Z'\\ NZ  MZ -Z#Z'Z(Z :Z \"Z 4Z=] ;Z 2Y<]<Y(Y7ZKZ'[$[ NZ -[$[#Z1Z  M[ 8Y 8Z*Z BZIZ GZKX8XKZ N[>[ 0"
-      "Z 3\\  FX  CX  KY        NY2Z FZ0Y IZ %Y/Z JZ  =Y 4Y0Z GY1Y 5Y  NX 0XF\\ %Y FY3Y2Y+Y1Y JZ/Y IZ0Y MY/Y ;Y  7Z 8Y"
-      " .Y2Z =YGY AYKW@XKY BZJZ 1YIY 1[  HY  NX  Y     %WEYIYFW#Y5[ BY/Y HX8Y CY/Z GY #Y1Y ;XIY 6Y;Z EY1Y%Z:Z:Z*ZBYBZ "
-      "HY9Y IY@X@Y LZ/Y MY/Z 4Y 4Y2Y KZ,Z B[ 'Z +[+[#_FZF_$Z(Z Gt JZ$[%\\  9X  :\\ J\\IXI[ I\\/\\ K[HXI[   (Y 3Z@U -Z "
-      "%^F^ /Z  X \"f   >VBnCU   >[D[  @X  \"VCW<XGV     )X        EY1Y 1WEW          I[D[ 5X8UBV!W)X LW8UBW FZ 8~Y!~Z"
-      " ~Y!~Z ~Y ~Y0~R 9[  LZ !Z  Z !Z  >Z !Z !Z \"Z :Z'[%Y6ZKY'[$[)[$[*[$[*[%[*[$[ K\\@[ Le.[&Z*Z!Z*Z\"Z*Z#Z*[ 9Z 2v "
-      "?Y.Z NY2Z HX1Z IY1Y GY1Y HY2Z HX1Z.Y1Z 1Y #Y  Y  Y  Y  :Y  Y  NX  Y 5Y/Z IX0X IY/Z KZ/Y KY/Z KY/Z KZ/Y 7\\ 7ZKW"
-      ";Y IX1Y GX1Y GY2Y GY2Z <YIY <Z0Y ?YIZ     0X<X<X)X Y(XJY>YJX(XJY/X)X Y <X 'ZIZ     3~d FYKT   /gJQJg(nMRLm Hp 6"
-      "m ?X.Y HY1X CZ<Y 6YKZ DY                   \"Z        1W?W %TAY @X>W;W7Y/c   2Y  EY    IX        5X /Z3Z 2Z .\\"
-      "  3Z M~Z &Z FY1Z 8[ 6Z/Z $Z      i L~d Li   @W>Y7YBW0Z*Y NZ-[![ %Z'[ MZ  MZ -[$Z'Z(Z :Z \"Z 4Z<] <Z 2Y<]<Y(Y6ZL"
-      "Z'[%[ MZ ,[%[#Z1[  N[ 8Y 8Z+[ AZJZ GZKW6WKZ NZ<[ 1Z 3[  EX  CX  KY        NY2Z FZ0Y IZ %Z1[ IY  =Y 4Z1Z GY1Y 5Y"
-      "  NX 0XE\\ &Y FY3Y2Y+Y1Y JZ0Z IZ0Y MZ1Z ;Y  6Y 8Y .Y2Z =YGY AYKW?WKX B[J[ 1YJY 2[  GY  NX  Y     $ZL[H[JY#Y6\\ "
-      "BY0Y GX8X BZ0Z GY #Y1Y ;YKZ 7Z:Y EY2Z%Z:Z:Z*ZBYBZ HY9Y IY@X@Y L[1Z MY/Y 3Y 4Z3Y LZ+Z C\\ 'Z +[,[!_GZG_#Z(Z Fq H"
-      "[%[$\\  :X  ;\\ H\\JXJ\\ H\\1\\ J\\IXJ\\   (Y 3Z@U -Z &x 0Z  X  c   <UAmDV   =[CZ  AX  !VDW<YHU     (X        E"
-      "Y1Y 1WEW          JZCZ 3W8UAV\"X*X LX9UAW G[ 9Z*Y!Z+Z Y*Y!Z+Z Y*Z\"Z+Z0Z3Z 8[  MZ !Z  Z !Z  >Z !Z !Z \"Z :Z(\\%"
-      "Y6ZKY&[%[)\\&[)[%[)[%[)[%[ L\\>[ Ld.[&Z*Z!Z*Z\"Z+[\"Z+Z 8Z 2s <Y-Y NX1Z IY1Z IY2Z GY2Z HY2Z HX1Z.Y1Z 1Z $Y  Y  "
-      "Z !Z  ;Y  Y  NX  Y 5Y/Z IX0X IY/Y JZ0Z KZ0Z KY/Y IY0Z 7\\ 6YLX<Z IX1Y GY2Y GY2Y GY2Z <YJZ <Z0Y >YJY     .X=X=Y("
-      "X!X'YJW<WJX&XJW/Y(X!X ;X &YIY     #[  LYLU   .fJQJf&lLRLm Gn 4k >X.Y HY2Y CZ<Z 7YKY BY                   #[    "
-      "    3X@X %TAY @W=W;W7Z0b   1Y  EY    IX        5X /Z3Z 2Z /\\  2Z )Z  JZ FZ2Z 8Z 5Z/Z %Z      Ki   :j   >W=X8ZC"
-      "W/Z*Z Z-Z N[ &Z(\\ MZ  MZ -\\%Z'Z(Z :Z \"Z 4Z;] =Z 2Y<]<Y(Y6ZLZ&[&[ MZ ,\\'[\"Z0Z  NZ 7Y 8Z+Z @ZJY FZLX6XLY N[;"
-      "Z 1Z 4\\  EX  BX  LY        NY2Z F[2Z HZ %Y1[ IZ  >Y 4Z2[ GY1Y 5Y  NX 0XD\\ 'Y FY3Y2Y+Y1Y IY0Z IZ1Z MZ1Z ;Y  6Y"
-      " 8Y .Y2Z =ZIZ @XLX?WLY C[H[ 2YKZ 3[  EX  NX  Y     $hFh\"Z7\\ BY0Y GX9Y BZ1Z FX \"Y1Y ;YKY 6Y9Y EY2Z%Z;[:Z*ZBYB"
-      "Y GY9Y IY@XAZ L[1Y LZ1Z 3Y 3Y3Y LZ*Z D[ &Z *[-[ aJZJa\"Z(Z Cl F\\'[\"\\  ;X  <\\ F\\KXK\\ F\\3\\ H\\JXK\\   'Y "
-      "2ZAU -Z 'z 1Z  X  Na   ;V@jDV   :ZCZ  BX   UDW;XIU     'X        EY2Z 1WEW          KZCZ 3X9U@V\"W*X LX9VAW H[ "
-      "8Z*Z\"Y)Y!Z*Z\"Z*Y!Z*Z\"Z*Z1Z3Z 8[  MZ !Z  Z !Z  >Z !Z !Z \"Z :Z(\\%Y5ZLY&[&['[&[([&[)\\'\\)[&[ L\\<[ Mc.[$Z,[!"
-      "[,[\"Z+Z!Z+Z 8Z 2n 7Y-Y NX1Z IY2[ IY2Z GY2Z HY2Z IY2[.Y2\\ 2Z $Z !Z !Z !Z  ;Y  Y  NX  Y 5Z0Y HX0X IZ1Z IY0Z KZ0"
-      "Y JZ1Z IZ1Z 7\\ 6YMX;Z IY3Z GY2Y GY2Y GY2Z ;YKY ;Z1Z >YJY     .Y>X=X'Y#Y&XIU:UJY&YJU.X'Y#Y ;X &YJZ     #Z  JXLU"
-      "   -dIQId%kKRKk El 2j >X.Y HY2Y CY;Z 7ZMZ BZ                   #Z        3X@X %TAX @W<W;W7Z/a   0Y  FY    IX   "
-      "     6X -Z4Z 2Z 0\\  2[ )Z  JZ FZ2Z 8Z 5Z/Z %Z      Hi   @j   :V=Y9ZDX/Z*Z Z-Z N\\ 'Z)\\ LZ  MZ ,[%Z'Z(Z :Z \"Z"
-      " 4Z:] >Z 2Y;[;Y(Y5ZMZ&\\([ LZ +['[\"Z0[  Z 7Y 8[,Z ?YKZ EYLX6XLY [:[ 2Z 5\\  DX  BX  LY        NY3[ F[2Z HZ %Y1"
-      "[ IZ  >Y 3Y2[ GY1Y 5Y  NX 0XC\\ (Y FY3Y2Y+Y1Y IZ2Z H[2Z LY1Z ;Y  6Z 9Y .Y2Z <YIY ?YMX?XMY CZFZ 2YKY 3[  DY  X  "
-      "Y     #gEf!Z7\\ BY0Y GX9Y BZ1Z FX \"Y1Y :XLZ 7Z9Z FY2Z%Z;\\<[)ZCYCZ GY9Y IZAXAZ L[1Y LZ1Z 3Y 3Y4Y KZ*Z E[ %Z )["
-      "/[ MdNZNd!Z(Z Ag B['[!\\  <X  =\\ D\\LXL\\ D[4\\ F\\KXL\\   &Z 3ZAU -Z (| 2Z  X  L^   9V?fBU   8ZCZ  CX   V JV "
-      "             CY2Z 1WEW          LZCZ 2W9V@V#X+X KW8U@W I[ 7Z*Z#Z)Z\"Z)Y#Z)Z\"Z)Y#Z)Z2Z2Z 7[  NZ !Z  Z !Z  >Z !Z"
-      " !Z \"Z :Z)\\$Y5ZLY%[(\\'\\(['\\(['['['[(\\ M\\:[ Ma-[$Z,Z NZ,Z![,Z!Z,[ 8Z 2Z #Y-Y NX2[ IY2[ IY2Z GY3[ HX2[ IY2"
-      "[.Y2\\ 2Z $Z !Z !Z  Y  ;Y  Y  NX  Y 5Z1Z HX0X IZ1Z IZ1Z JZ2Z JZ1Z IZ1Z 7\\ 6c:Z IY3Z GY3Z GY3Z GY3[ ;YKY ;[2Z ="
-      "YLY     ,Y?X>Y&Y%Y%YIS8SJY$YJS.Y&Y%Y :X &ZKY     #Z  IYNU   ,cISIb#jKRJi Cj 1i =X.Y GY4Y BY:Y 7ZMZ AZ          "
-      "         $[,P       )W?X %TBY AX<W;W7[/_   /Y  FY    IX        6X -Z5Z 1Z 1\\  1Z (Z  K[ EY2Z 9Z 4Z0[ &[      F"
-      "j   Ei   7W=Y;[EX/Z(Z!Z.[ M[!P'Z*] LZ  MZ ,\\&Z'Z(Z :Z \"Z 4Z9] ?Z 2Y;[;Y(Y4YMZ%[)\\ LZ +\\)[!Z/Z  Z 7Y 7Z-[ ?Z"
-      "LZ EZMX6XMZ Z8[ 3Z 6\\  CX  BX  LY        NY3[ F[2Y GZ %Z3\\ HZ  ?Y 3Z4\\ GY1Y 5Y  NX 0XB\\ )Y FY3Y2Y+Y1Y IZ2Z "
-      "H[2Y KZ3[ ;Y  6Z 9Y .Z4[ <YIY ?YMW>XMY DZDZ 2YLY 3[  DY  X  Y     \"eCd NY8^ CY0Y GX:Y @Z2Z FX \"Y1Y :YMY 6Y7Y "
-      "FY2Z%[<\\<Z(ZCYCZ GY9Y HYAXAY K\\3Z KZ2Z 3Y 3Z5Y LZ)Z F[ $Z ([1[ K~U Z(Z ;[ <\\)[ N[  <X  <Z B\\MXM\\ BZ3Z D\\L"
-      "XM\\   %Z 3ZAU -Z )~ 3Z  X  J]   9V>a@V   7YBY  CX   NV LV              BZ3Z 1WEW          LYBY 2W8U?V#W+X KX9U"
-      "?W J[ 7Z(Y#Z)Z#Z(Z$Z)Z\"Y(Z$Z(Y2Z2Z 7\\\"P NZ !Z  Z !Z  >Z !Z !Z \"Z :Z*\\#Y4ZMY%\\)[%[)\\&[)\\'\\)\\'\\)[ M\\8"
-      "[ N`-[#Z,Z NZ,Z Z-[![-[ 8Z 2Z #Y-Y NX2[ IY2[ IY3[ GY3[ HY3[ HX2[.Y3^ 2Z $Z !Z !Z !Z  <Y  Y  NX  Y 4Z2Z HX0X HZ2"
-      "Z IZ2Z IZ2Z IZ2Z IZ2Z 6\\ 5a:Z HY3Z GY3Z GY3Z GY3[ ;YLY :[2Y <YLY     ,Y?X?Y$Y'Y#YIQ6QIY$YIQ.Y$Y'Y 9X %YLZ     "
-      "$Z  HYNU   +aHSH`!hJRIg Bi /g <X.Y GY4Y CZ:Y 6YMY @[                   $Z-Q       )W?W $TBY AW;W<X6Z.]   .Y  GY"
-      "    HX        6X -Z5Z 1Z 2\\  0Z (Z  L[ DZ4Z 8Z 4[1Z %Z      Bj   Ki   4W=Z=\\GY.Z(Z!Z.[ M\\#Q'Z+] KZ  MZ +\\'Z"
-      "'Z(Z :Z \"Z 4Z8] @Z 2Y:Y:Y(Y4ZNZ%\\*[ KZ *\\+\\!Z/[ \"[ 7Y 7Z-Z >ZMZ DZMW4WMZ![7Z 3Z 7\\  BX  AX  MY        NY3"
-      "[ F\\4Z FZ &Z3\\ HZ  ?Y 3Z4\\ GY1Y 5Y  NX 0X@[ *Y FY3Y2Y+Y1Y HZ3Z H\\4Z KZ3[ ;Y  5Y 9Y -Y4[ ;YKY >YNX=WNY D[D[ "
-      "3YMY 3[  CY  X  Y     !cAb MZ9^ CZ2Z GX:Y @Z3Z EX \"Y1Y :YMY 7Z7Y FZ4[$Z<\\<Z(ZCYCY FY9Y HYAXBZ K\\3Z KZ3Z 2Y 2"
-      "Y6Z LZ(Z H\\ $Z (\\3[ I~R MZ(Z :Z ;\\+\\ MY  ;X  ;X @\\NXN\\ @X1X B\\MXN\\   $Z 2ZBU -Z *~Q 4Z  X  I]   :W9U;V "
-      "  5XAX  CX   MV NV              AZ3Z 1WEW          LXAX 2X8s+W,Y JW8t#\\ 7Z(Z%Z'Y#Z(Z$Y'Z$Z(Z$Z(Z4Z1Z 6[#Q NZ !"
-      "Z  Z !Z  >Z !Z !Z \"Z :Z+]#Y4ZMY$[*\\%\\*[%\\+\\%\\+\\%\\+\\ N\\6[ N^-\\#[.[ N[.[ [.Z NZ-Z 7Z 2Z #Y-Y NY4\\ IY3"
-      "\\ IY3[ GY3[ HY4\\ HX3\\.Y3^ 2Z $Z !Z !Z !Z  <Y  Y  NX  Y 4Z3Z GX0X HZ3Z GZ3Z IZ3[ IZ3Z GZ3Z 6\\ 5`9Z HY4[ GY4["
-      " GZ5[ GZ5\\ :YMY :\\4Z ;XMZ     +Y@X@Y#Z)Z\"Y(Y\"Y(Y#Z)Z 9X %ZMZ     %Z  F_   )^GSG^ NfIRHe @g -e ;X.Y GZ6Z CY9"
-      "Z 7ZNY ?[                   %[/R       *X@X $TBY BX;X=X6[.]   /Y  GY    HX        7X +Z7Z 0Z 3\\  0[ (Z  L[ DZ4"
-      "Z 9[ 3Z2[ &Z      >i   i   2W<Z?]HZ.Y'Z!Z/\\ L\\&S'Z,] JZ  MZ *\\(Z'Z(Z :Z \"Z 4Z7] AZ 2Y JY(Y3e$\\,\\ KZ )\\-"
-      "\\ Z.Z \"[ 7Y 7[/[ =ZNZ DZNX4XNY![6[ 4Z 7[  AX  AX  MY        NY4\\ F\\4Z F[ &Z5] H[  @Y 2Z6] GY1Y 5Y  NX 0X?[ +"
-      "Y FY3Y2Y+Y1Y HZ4Z G\\4Z JZ5\\ ;Y  6Y 8Y -Y5\\ ;YKY =XNX=WNY E[B[ 3YNY 4[  BY  X  Y      N_=_ LZ:_ CZ2Y FX;Y >Z4"
-      "Z EY #Y1Y 9XNZ 7Y6Z GZ4[$Z=]=['ZDYDZ FY9Y HZBXBZ K]5Z J[5[ 2Y 2Z7Y L[(Z H[ #Z '\\5[ F~ LZ(Z :Z :\\-\\ KW  :X  :"
-      "V >r >V/V @s   #Z 2[CU -Z +[MeL[ 5Z  X  G\\   :W!V   3W@W     7V!W              AZ4[ 1WEW          LW@W 1W7s,X-"
-      "Y JX8t$\\ 7Z'Z%Z'Z$Z'Y%Z'Z$Z'Y%Z'Z4Z1Z 6\\&S NZ !Z  Z !Z  >Z !Z !Z \"Z :Z,]\"Y3ZNY$\\,\\#\\,\\$\\,\\$\\-\\$\\,"
-      "\\ N\\4[ ]-\\![/Z LZ/[ N[/[ N[/[ 7Z 2Z #Y-Y NY4\\ HY5] IY4\\ GY4\\ HY4\\ HY4\\.Z5` 2Z $Z !Z !Z !Z  =Y  Y  NX  Y "
-      "3Z4Z GX0X H[5[ GZ4Z GZ4Z H[5[ GZ4[ 6\\ 5_9[ HZ5[ GZ5[ FY5[ FY5\\ :YNZ :\\4Z ;YNY     )YAXAZ\"Z+Z!Z*Y Y*Z\"Z+Z 8"
-      "X $YMY     %[  F^   '\\FSF\\ LcGRGc >f ,c :X.Y FZ7Y BY8Y 7e >[                   %[1S   -Y   'X@X ;Q:TCZ CX:X=X"
-      "5[.]   /Y  HY    HX  NZ    GZ 'X +[8Z 0Z 4\\  0[ 'Z  M\\ CZ6[ 9Z 2[3[ '[ 0Y  Y  ?f   f  BX DW=\\C_J[.Z&Z\"Z0\\ "
-      "J\\(T'Z._ JZ  MZ *])Z'Z(Z :Z \"Z 4Z6] BZ 2Y JY(Y3e#\\.\\ JZ )]/\\ NZ.[ NQ'[ 6Y 6[0[ =ZNZ CYNX4XNY!Z4[ 5Z 8[  @X"
-      "  AX  MY        NY5] F]6Z DZ &Z5] G[  AY 2[8^ GY1Y 5Y  NX 0X>[ ,Y FY3Y2Y+Y1Y H[6[ G]6Z IZ5\\ ;Y  6Y 8Y -Z6\\ ;Z"
-      "MZ =b=b EZ@Z 3d 5[  AY  X  Y      L[:\\ IZ;` D[4Z FX<Z >Z5[ EY #Y1Y 9c 7Z5Y GZ5\\$[>^>['[EYE[ FY9Y HZBXCZ J]5Z "
-      "IZ5Z 1Y 1Y8Z LZ&Z J[ \"Z &\\8] E| KZ(Z :Z :]/] JU  9X  9T <p <T-T >q   \"Z 1ZCU -Z ,[JaI[ 6Z  X  F\\   :W#V   1"
-      "V?V     7W#W              @[5[ 1WEW          LV?V 1X7s,W-Y JX7t%\\ 6Z&Z&Z'Z%Z&Z&Z'Z%Z&Z&Z&Y4Y0Z 5\\(T NZ !Z  Z "
-      "!Z  >Z !Z !Z \"Z :Z.^!Y3e#\\.\\!\\.\\#].\\#]/]#\\.\\ N\\2[ ]/]![0[ L[0[ M[0[ N\\1[ 6Z 2Z #Y-Y NY5] HY5] IZ6] GY"
-      "5] HY5] HY5]-Y5a 3[ %[ \"[ \"[ \"[  >Y  Y  NX  Y 3Z5[ GX0X GZ5Z F[6[ G[6[ GZ5Z F[5Z 5\\ 4^9Z FY6\\ FY6\\ FY6\\ "
-      "FY6] 9c 9]6Z :d     )[CXBZ Z-Z NZ-[ [-Z Z-Z 7X $YNZ     %Z  D]   $VCSDW G`FSG` ;d +c :X.Y F[9Z CZ8Y 6d =\\     "
-      "              '\\3T   -Z   (W?X ;S<TDZ BW8W=W4\\1`   0Y  HY    HX  NZ    GZ 'X *Z9Z /Z 5\\  0\\ 'Z  N\\ B[8[ 8Z"
-      " 2\\5[ '[ /Z \"[  >d   c  @Z EW<_Ks-Z&Z\"Z1] J^,V'Z/_ IZ  MZ )]*Z'Z(Z :Z \"Z 4Z5] CZ 2Y JY(Y2d#]0\\ IZ (]1] NZ-"
-      "Z NS*\\ 6Y 6[1[ <e Bc4c\"[3Z 5Z 9\\  @X  AX  MY        NZ6] F^8[ D[ &Z7^ G[  AY 1[:_ GY1Y 5Y  NX 0X=[ -Y FY3Y2Y"
-      "+Y1Y G[7Z F]7[ HZ7] ;Y  6Y 7Y .Z7] :YMY <a<a EZ>Z 4c 5[  @Y  X  Y      HS3V FZ<a D\\5Z FX<Y =[7[ DZ $Y1Y 9c 7Y4"
-      "Z H[6\\#Z?WNV>Z%ZEYF[ EY9Y GZCXD[ J^7Z H[7[ 1Y 1Z:Z KZ&Z K[ !Z %];] Bx IZ(Z :Z 9]1] HS  8X  8R :n :R+R <o   !Z "
-      "1[DU -Z -[F\\F[ 7Z  X  E\\   :W&W   /U>U     6W%W              ?[6\\ 1WEW          LU>U 0W6s-X.X HW6t&\\ 5Z&Z'Z"
-      "%Z&Z&Z'Z%Z&Z&Z&Z&Z6Z0Z 4],V NZ !Z  Z !Z  >Z !Z !Z \"Z :Z0`!Y2d\"\\0]!]0\\!]0\\!]1]!]1] \\0[ ]1] N[2\\ L\\2[ L\\"
-      "2[ L[1[ 6Z 2Z #Y.Y MZ7^ HY6^ HY6] GZ6] HZ7^ HZ7^-Y6c 3[ %[ \"[ \"[ \"[  ?Y  Y  NX  Y 3[7[ FX0X G[7[ E[7[ FZ7[ F"
-      "[7[ E[7[ 5\\ 4]9[ FZ8] FZ8] FZ8] FZ7] 9c 9]7[ 9b     '[DXD[ N[/Z LZ/[ M[0[ N[/Z 6X $d     %Z  C\\    ?S 2\\ETD"
-      "\\ 9b )a 9X.Y E[<[ BY7Z 7c ;\\                   '\\5U   -Z   (W?W :U>TE[ CX8X?X3\\3b   1Y  IY    GX  NZ    GZ ("
-      "X )[;[ /Z 5[ %Q-\\ &Z BQ/] AZ9\\ 9Z 0[6\\ (\\ /Z \"[  ;a   `  =Z EX<nNd,Z$Y\"Z2] H^.W'Z2a HZ  MZ (^,Z'Z(Z :Z \""
-      "Z 4Z4] DZ 2Y JY(Y2d\"]3^ IZ ']3] MZ-[ U-] 6Y 5\\4\\ ;d Bb2b#[2[ 6Z :\\  ?X  @X  NY        MZ8^ F^8Z B[ '[9_ F[,"
-      "P 7Y 1\\<` GY1Y 5Y  NX 0X<[ .Y FY3Y2Y+Y1Y G[8[ F^9[ G[9^ ;Y *Q/Z 7Y -Z9^ :YMY <a;` F[>[ 4b 6[  ?Y  X  Y        "
-      "FZ=b E]7Z EX=Z <[9\\ D[ %Y1Y 8a 6Y3Y H\\8]#[@WNW@[%[FYG\\ EY9Y G[DXD[ J_9[ G[9[ /Y 1Z;Z LZ%Z L\\ !Z $]=\\ >t GZ"
-      "(Z :Z 8]3] FQ  7X  7P 8l 8P)P :m    Z 0[EU -Z .[?P?[ 8Z  X  D[   9W(W   -T<S     5X)X              >\\8] 1WEW  "
-      "        LS<T 0W5s-W.X HX6t'\\ 5Z$Y'Z%Z'[%Z(Z%Z&Z%Z(Z%Z6Z0Z 4^.W NZ !Z  Z !Z  >Z !Z !Z \"Z :Z2a Y2d\"^3] N]3^ ]3"
-      "] N]3] N]3] \\.[!^3] M\\4\\ J\\4\\ K\\4\\ L\\4\\ 5Z 2Z #Y.Y MZ8_ HZ8_ HZ8^ FZ8^ HZ8_ HZ8_-Z8e-Q)\\ &\\-Q G\\-Q "
-      "G\\-Q G\\-Q 5Y  Y  NX  Y 2[9\\ FX0X F[9[ D\\9[ E[8[ E[9[ D\\9[ 4\\ 3[9[ EZ9^ FZ9^ FZ9^ F[9^ 9b 8^9[ 8b     &[2["
-      " L\\3\\ K[2[ K[2[ L\\3\\ 6X #c     &Z  B\\    ?S /UATAT 4a '_ 8X.Y E\\>\\ BY6Y 7c :]                   (\\7V   "
-      "-Z   )X@X :W@TF[ BW7X?X3]6e   1X  IY    GX  NZ    GZ (X ([=[ .Z 6[ $S1^ &Z BS3^ @\\<\\ 8Z 0]9] FR6] .Z \"[  8^ "
-      "  ^  ;Z DW;lMc+Z$Z#Z4_ G_2Y'Z5c GZ  MZ '^/\\'Z(Z :Z \"Z 4Z3] EZ 2Y JY(Y1c!^6^ HZ '^6^ LZ,Z X1] 5Y 5]6\\ :c Ab2a"
-      "\"Z0[ 7Z ;\\  >X  @X  NY        MZ:` F_:[ B\\3P D[;` E\\1S 7Y 0\\>a GY1Y 5Y  NX 0X;\\ 0Y FY3Y2Y+Y1Y F[:[ E_;\\ "
-      "F[;_ ;Y *S1Y 6Z .[;_ :e ;`;` G[<[ 5a 6[  >Y  X  Y        F[?YNY F_:[ DX?Z :[;\\ B[ &Y1Y 8a 7Z3Y H]:^#\\BXNWA[#["
-      "GYH\\ DY9Y F\\FXF\\ I`;[ F\\;\\ /Z 2[=Z KZ$Z N\\  Z #^A] :n DZ(Z :Z 7]5]   +X    Mj   (k    NZ 0\\FUBP ;Z /[,[ "
-      "9Z  X  CZ   8X+W   *R;R     4X+X              =]:^ 1WEW          LR;R /X5s.W.X GW5t(\\ 4Z$Z(Z%Z'Z$Z(Z$Y'Z$Z(Z$Z"
-      "8Z/Z 3_2Y NZ !Z  Z !Z  >Z !Z !Z \"Z :Z5c NY1c!^6^ L^6^ M^6^ M]5] M^6^ \\,[#a7^ K\\6] I\\6\\ J]6\\ J\\6] 5Z 2Z #"
-      "Y/Z LZ:` H[:` H[:_ FZ:` GZ:` GZ:`-[:YN\\0S(\\4Q C\\0S F\\0S F\\0S F\\0S 5Y  Y  NX  Y 1[:[ EX0X F\\;\\ C\\;[ C[:"
-      "[ D\\;\\ C\\;\\ 4\\ 3[:\\ DZ;_ EZ;_ EZ;_ EZ;` 8a 8_;\\ 7a     %\\6\\ J\\5\\ I\\6\\ I\\6\\ J\\5\\ 5X #c     'Z  "
-      "@[    @T  JT  _ %] 7X.Y D^D^ BZ6Y 6b 9_                   *];X   -Z   )X@X :ZCTH] CX7YAX1^:h   2Y  JY    GX  NZ"
-      "    GZ (X (\\?\\ .Z 7\\ $W7_ %Z BV8` ?\\>] 9[ /];] ET9] -Z \"[  5[   [  8Z DX;jLb*Z$Z#Z7a E`7\\'Z9f FZ  MZ &`4^"
-      "'Z(Z :Z \"Z 4Z2] FZ 2Y JY(Y1c _:_ GZ &_9^ KZ,[![6^ 4Y 4]9] 8b @a2a#[/Z 7Z ;[  =X  @X  NY        M[<a Fa>\\ @]7R"
-      " D\\=a E]4U 7Y /]Bc GY1Y 5Y  NX 0X:\\ 1Y FY3Y2Y+Y1Y E\\>] E`=\\ E\\=` ;Y *U5[ 6[ /\\>a 9c :_:` GZ:Z 4` 6[  >Y  "
-      "X  Y        E[AYMZ G`<[ CX@Z 9\\=\\ A\\3Q EY1Y 7` 7Y2Z I^<_\"[BWMXC\\#]IYI\\ CY9Y F]GXG] Ia=\\ E\\=\\ .[ 2[?Z J"
-      "Z$Z N[  NZ \"^C^ 7g @Z(Z :Z 7_9_   +X    Lh   &i    MZ /]HUDR ;Z .Y*Y 8Z  X  BZ   8Y/X   (Q:Q     2X/Y         "
-      "     <^<` 2WEW          LQ:Q .W MV(X/X GX NW\"\\ 3Z$Z)Z#Z(Z$Z)Z#Z(Z$Z)Z#Z8Z/Z 2`7\\ NZ !Z  Z !Z  >Z !Z !Z \"Z :"
-      "Z9f MY0b _:_ J_:_ K_:_ L_9_ L_9^ N[*[$c:^ J^:^ H^:^ I^:] H]9] 4Z 2Z #YIP7[ L[<a G[<a G[=a F[<a G[<a G[<a,[=ZL\\"
-      "4V'\\7S B\\4V E]5V E]5V E]5V 5Y  Y  NX  Y 1\\=\\ DX0X E\\=\\ A\\=\\ C]>] C\\=\\ A\\=\\ 3\\ 2\\=\\ C[=` E[=` E[="
-      "` E[=a 8a 8`=\\ 6`     #]:] H]9] G]:] G]:] H]9] 4W !a     'Z  ?Z    ?U  KT  N] $] 7X.Y Cv AZ6Z 7a 7a           "
-      "        -_?Z   -Z   )W?X :^GTK_ CX5XAX0_>k   3Y  JX    FX  NZ    GZ )Y ']C] ?} I~S IZ=b %Z BZ>a =]B^ 8Z ._?^ DX"
-      "@_ ,Z \"[  3Y   X  5Z CW:gJ`)Z\"Z$~T Cb=_'~W E~S FZ %b:a'Z(Z :Z \"Z 4Z1] G~Q)Y JY(Y0b N`>` FZ %a?` JZ+Z!^<a 4Y "
-      "3_>_ 8b @a2a$[.[ 8Z <~` AX  ?X  Y        L\\@c Fb@] ?^<U C]Ac D^9X 7Y /aI[NY GY1Y 5Y  NX 0X9\\ 2Y FY3Y2Y+Y1Y E]"
-      "@] Db@\\ C]Ab ;Y *X9\\ 5] 1\\Ac 9c :_:_ GZ9[ 5` 7[  =Y  X  Y        E]DZM[ Hb@] BXB[ 8]A^ @]8T EY1Y 7_ 7Z1Y I`@"
-      "b#]EXLXE\\!]JYK^ CY9Y E_JXJ_ HcA] C]A] ,] 4[B\\ K~c!~T FZ 3oDo A[ :Z(Z :Z 6a?a   *X    Kf   $g    LZ .^JUGU H~U"
-      " JW(W 7Z  X  AY   7Z3Y   &P9P     1Y3Y     <~d       3`@b 2WEW          LP9P .X MV(W/X GX MW#\\ 3Z\"Z*Z#Z)Z\"Z*"
-      "Z#Z)[#Z*Z#Z9Z.~T+b=_ N~T J~T I~S I~S 7Z !Z !Z \"Z :~V KY0b N`>` H`>` I`>` Ja?a Ja?` LY(Y$f?` H_>_ F_>_ G_>_ H_>"
-      "_ 3Z 2Z #YIS;[ K\\?c G\\?c G\\?b E\\@c F\\@c G\\?c,\\?[L^9Y'^<V B_:Y E_:Y E_:Y D^:Y 5Y  Y  NX  Y 0]@] DX0X D]A]"
-      " @]@] A]@] A]A^ A]@] 2\\ 2]@] B]Ab E]Ab D\\Ab D\\Ac 7_ 7b@\\ 5`     \"_@_ F_?_ E_@_ E_@_ F_?_ 3W !a     'Z  ?Z "
-      "   ?U  KT  M\\ #[ 6X.Y Bu AY5Z 7a 6f                   2aE]   -Z   )W?W 9~ BW4YCY/bFp   3X  KY    FX  NZ    GZ "
-      ")X %^G^ >} I~S I~ $Z B| ;^F_ 7Z -aEa Dv +Z \"[  0V   U  2Z CX9dI^'Z\"Z$~S AfGd'~U C~S FZ $gGg&Z(Z :Z \"Z 4Z0] H"
-      "~Q)Y JY(Y0b McGd EZ $dGc IZ+[\"cEd 3Y 3cGc 7a ?`1a$Z,[ 9Z =~a AX  ?X  Y        L^DZNY FYNZF_ =`CY B^EZNY CaB] 7"
-      "Y .qMY GY1Y 5Y  NX 0X8\\ 3Y FY3Y2Y+Y1Y D_F_ CYNYE_ B^EZNX ;Y *]A^ 4k >^G[NY 8a 9_9^ H[8[ 5^ 6~P 2Y  X  Y       "
-      " D^H[La NfH` AYD[ 6^E_ ?`?X EY1Y 7_ 7Y0Y IcFk(]HZLZI^ `Nk BY9Z E~Q GYNZE^ B_E_ ,e ;]G] J~c!~T FZ 3oDo @Z :Z(Z :"
-      "Z 5dGd   )X    Jd   \"e    KZ -`MUKY H~U IU&U 6Z  X  AY   5Z7Z          LZ7Z     ;~d       3cFk 8WEW           "
-      " BW LV)X0X FW LW$\\ 2Z\"Z+[#Z)Z\"Z*Z\"Z*Z\"Z*Z\"Z:Z.~T*fGd N~T J~T I~S I~S 7Z !Z !Z \"Z :~U JY/a MdGc FcGd GcGd"
-      " HdGd HdGc JW&W$kGc FbFb DbFb FcFb FcGc 3Z 2Z #YIWB] I^DZNY F]D[NY F]D[NX E^DZNY F^DZNY F^E[NY+]D]J`@]&`BY AaA]"
-      " DaA] DaA] DaA] 5Y  Y  NX  Y /_F_ CX0X D_E_ ?_F_ ?_F_ @_E_ ?_F_   7aF_ @^FZMX D^FZMX D_GZMX D_G[NY 7_ 7YNYE_ 4^"
-      "      dLd CdMd BdLd CdLd DeMd 2X !`     %X  =Y    ?U  LV  MZ !Y 5X.Y As AZ4Y 6` 5~]                  )x   -Z   "
-      "*X@X 9} BX3YFZ-{L]   4Y  LY    FX  NZ    GZ )X $t >} I~S I} #Z B{ :v 7[ ,{ Cu *Z \"[  -S   S  0Z BW8aG[%[\"Z$~R"
-      " ?~S'~T B~S FZ #~V%Z(Z :Z \"Z 4Z/] I~Q)Y JY(Y/a L~ DZ #~ HZ*Z\"~R 2Y 2} 5` ?`0_$[+Z 9Z =~a AX  ?X  Y        KsN"
-      "Y FYNr ;u AqMY B{ 7Y -oLY GY1Y 5Y  NX 0X7\\ 4Y FY3Y2Y+Y1Y Cv BYNr ArMX ;Y *y 2j >qMY 8a 8^9^ I[6Z 5^ 6~P 2Y  X "
-      " Y        CpK` N} ?YF[ 5w =x EY1Y 6] 7Z0Z J~Y(nJm M{ AY9\\ F~ FYMq @w *d ;r J~d!~T FZ 3oDo @Z :Z(Z :Z 4~   'X  "
-      "  Ib    c    JZ ,u H~U HS$S 5Z  X  AY   4\\>\\          I]>\\     :~d       3~Y 8WEW            CW KV)W0X FX LW"
-      "$[ 2[\"Z+Z!Z*Z\"Z+Z!Z*Z!Z,Z!Z:Z.~T)~S N~T J~T I~S I~S 7Z !Z !Z \"Z :~T IY/a L~ D~ E~ F~ E~ HU$U$~X D| B| D} D} "
-      "2Z 2Z #YIr HrMY FsMY FsMX DsNY ErMY FsMY+uH|%v @| C| C| C| 5Y  Y  NX  Y .v BX0X Cw =w >v >w =w   8{ ?qMX CqMX C"
-      "qMX CqMY 6] 6YNr 3^      My Ay @y @z Ay 1X  _     $V  <X    ?V  LV  LX  NW 4X.Y @p ?Z4Z 7_ 2~[                 "
-      " (v   ,Z   *X@X 9| AW1[K[+yJ]   5Y  LX    EX  NZ    GZ )X #r =} I~S I| \"Z Bz 8t 6Z *y Bt )Z \"[  *P   P  -Z BX"
-      "6[DX\"Z Z%~Q <~P&~R @~S FZ \"~T$Z(Z :Z \"Z 4Z.] J~Q)Y JY(Y/a K| CZ !{ GZ*[#~Q 1Y 1{ 4_ =_0_%[*[ :Z =~a AX  >X !"
-      "Y        JqMY FYMp 9t ApLY Az 7Y ,mKY GY1Y 5Y  NX 0X6\\ 5Y FY3Y2Y+Y1Y Bt AYMp ?pLX ;Y *x 1j =oLY 8a 8]8^ IZ4Z 6"
-      "] 5~P 2Y  X  Y        CoI_ N} ?[K] 3u ;w EY1Y 6] 7Y.Y JvM_'mJm Ly @Y9b K| EYLp ?u (c :p I~e\"~T FZ 3oDo @Z :Z(Z"
-      " :Z 2{   &X    H`    Ma    IZ +t H~U GQ\"Q 4Z  X  AY   2aLb          FaKa     8~d       3YNlN_ 8WEW            "
-      "DX KV*W0o-W KW%[ 1Z Z,Z!Z+Z Z,Z!Z+Z Z,Z!Z;Z-~T'~P M~T J~T I~S I~S 7Z !Z !Z \"Z :~R GY.` K| B| C{ B{ B{ FS\"S$YM"
-      "{ Bz @z B{ B{ 1Z 2Z #YIq GqLY EqLY EqLX CqMY ErMY EqLY*sF{$u ?{ B{ B{ B{ 5Y  Y  NX  Y -t AX0X Bu ;u <t <u ;u   "
-      "8{ >pLX CpLX CpLX BoLY 6] 6YMp 1]      Lv >w =v =v >w 0X  _     #T  ;X    ?W  MV  LW  LV 4X.Y ?n >Y3Z 7_ 1~Z   "
-      "               't   +Z   *W?X 8y @X1j)vG]   5X  MY    EX  NZ    GZ *X !p <} I~S Iz  Z By 6r 5Z )w As (Z \"[    "
-      "    5Z AX  HZ Z%~ 9|$~P >~S FZ  ~P\"Z(Z :Z \"Z 4Z-] K~Q)Y JY(Y.` Jy AZ  x EZ)Z#~P 0Y /x 3_ =_0_%Z([ ;Z =~a AX  "
-      ">X !Y        JpLY FYLn 7s @nKY @y 7Y +kJY GY1Y 5Y  NX 0X5\\ 6Y FY3Y2Y+Y1Y Ar @YLn =nKX ;Y *w /i <mKY 7_ 7]8] IZ"
-      "3[ 6\\ 5~P 2Y  X  Y        BmH_ N{ <k 0r 9v EY1Y 6] 8Z.Z KYNkM_&kHk Jw ?Y8a Jy CYKn =s &b 9n H~e\"~T FZ 3oDo @Z"
-      " :Z(Z :Z 1y   %X    G^    K_    HZ *s H~U   *Z  X  AY   1t          Bs     6~d       3YNkM_ 8WEW            DW "
-      "JV+X0o.X KW%Z 0Z Z-Z NZ,Z Z-[ Z,Z Z-[ Z<Z-~T&| K~T J~T I~S I~S 7Z !Z !Z \"Z :~P EY.` Iy @y @y @y @y DQ Q$YKy @x"
-      " >x ?x @y 0Z 2Z #YIp EoKY DoKY DoKX BoLY DpLY DoKY)qCy#t =y @y @y @y 5Y  Y  NX  Y ,r @X0X As 9s :r :s 9s   7z <"
-      "nKX BnKX BnKX BnKY 6] 6YLn 0\\      Jt ;s :t ;t ;s .X  N]     !R  9V    >W  NX  LU  KU 3X.Y >l =Y2Y 7_ /~X     "
-      "             %p   )Z   *W?W 4u @X/i(tE]   6Y  NX    DX  NZ    GZ *X  m :} I~S Iy  NZ Bw 2o 5Z 'u @r 'Z \"Z     "
-      "   4Z AY  J[ Z%} 6x\"} <~S FZ  N| Z(Z :Z \"Z 4Z,] L~Q)Y JY(Y.` Hv @Z  Mu DZ)[$~ /Y .u 0^ =^/_&['Z ;Z =~a AX  >X"
-      " !Y        InKY FYKl 5r ?lJY >w 7Y )hIY GY1Y 5Y  NX 0X4\\ 7Y FY3Y2Y+Y1Y @p ?YKl ;lJX ;Y *v -h ;kJY 7_ 7]7\\ J[2"
-      "[ 7\\ 5~P 2Y  X  Y        AkE] Nz :i .p 7u EY1Y 5[ 7Y,Y KYMiL_%iGj Hu >Y8a Hv BYJl :p $a 7k H~f\"~T FZ 3oDo @Z "
-      ":Z(Z :Z /u   #X    F\\    I]    GZ )r H~U   *Z  X  AY   /p          >o     4~d       3YMiK^ 8WEW            EX "
-      "JV+W/o/X JW&Z 0[ Z-Z NZ-[ [.Z NZ,Z NZ.Z NZ=Z,~T$x I~T J~T I~S I~S 7Z !Z !Z \"Z :| BY-_ Hv <v =v =u =v   BXHu =v"
-      " <v =u <u .Z 2Z #YIo CmJY CmJY CmJX BnKY CmJY CmJY(oAx!r <x ?x ?x ?x 5Y  Y  NX  Y +p ?X0X ?p 7p 7p 7p 7p   6WNp"
-      " 9lJX AlJX AlJX AlJY 5[ 5YKl /\\      Hp 8q 7p 7p 8q -X  N]      NP  9V    ?Y  X  KS  IS 2X.Y <h <Z2Y 6^ -~V   "
-      "               $n   (Z   +X@X 1o =W-f$pB]   6X  NX    DX  Z    FZ *X  Nk 9} I~S Iw  LZ Bv 0m 4Z %q >p %Z \"Z   "
-      "     4Z @X  JZ MZ&{ 3u z 9~S FZ  Lx MZ(Z :Z \"Z 4Z+] M~Q)Y JY(Y-_ Fr >Z  Lr BZ(Z!y -Y -s /] <^.]&[&[ <Z =~a AX "
-      " =X \"Y        GjIY FYJj 2p =iIY =u 6Y 'dGY GY1Y 5Y  NX 0X3\\ 8Y FY3Y2Y+Y1Y >m >YJj 8iIX ;Y *u *f :iIY 7_ 6\\7"
-      "\\ K[0Z 6Z 4~P 2Y  X  Y        ?hC\\ NYMm 8f +m 3s EY1Y 5[ 8Z,Y KYLgJ^$gEh Fs =Y8a Fr @YIi 7m !` 6i G~g#~T FZ 3o"
-      "Do @Z :Z(Z :Z .s   \"X    EZ    G[    FZ 'p H~U   *Z  X  AY   ,k          :k     2~d       3YLgJ^ 8WEW         "
-      "   EW IV,X/o/W IW&Z 0Z MZ/[ NZ-Z MZ.Z N[.Z MZ.Z MZ>Z,~T\"t G~T J~T I~S I~S 7Z !Z !Z \"Z :y ?Y-_ Fr 8r 9r :s :r "
-      "  AXEr :r 8r :s :s -Z 2Z #YIn AkIY BkIY BkIX @jIY BkIY BkIY'l=t Mq :t ;t ;t ;t 3Y  Y  NX  Y *m =X0X >m 3m 5n 5m"
-      " 3m   6XLm 7iHX @iHX @jIX @jIY 5[ 5YJj -Z      El 3k 2l 3l 4l *X  N\\        5U    ?Y  Y  KR  HQ 1X.Y 9b 9Y1Z 7"
-      "] )~S                  \"j   &Z   +X@X -h ;X+c!l?\\   6X  Y    DX  Z    FZ +X  Kh 8} I~S Fr  JZ As ,i 3[ $n ;m "
-      "#Z \"Y        3Z ?X  KZ MZ&x -p Mu 4~S FZ  Js JZ(Z :Z \"Z 4Z*] N~Q)Y JY(Y-_ Dn <Z  Jn @Z([ Nt +Y +o ,\\ ;].]&Z$"
-      "[ =Z =~a AX  =X \"Y        FhHY FYHf .m ;gHY ;p 3Y %`EY GY1Y 5Y  NX 0X2\\ 9Y FY3Y2Y+Y1Y =j <YHf 5gHX ;Y (q &d 9"
-      "fGY 6] 5[6\\ KZ.Z 7Z 4~P 2Y  X  Y        >gB[ NYLj 5d (j 0q EY1Y 5Z 7Y+Z LYKdG]\"dBd Bo ;Y7` Dn >YHg 4i  L^ 4e "
-      "E~g#~T FZ 3oDo @Z :Z(Z :Z ,n    NX    DX    EY    EZ %m G~U   *Z  X  BZ   )e          4e     /~d       3YKeH] 8"
-      "WEW            FW HV,W.o0X IW'Z /Z MZ/Z LZ.Z MZ/[ MZ.Z MZ/[ MZ>Y+~T p E~T J~T I~S I~S 7Z !Z !Z \"Z :u ;Y,^ Dn 4"
-      "n 5n 6o 6n   @XBm 5n 4n 6o 6o +Z 2Z #YIl =gGY AhGY AhGX ?hHY @hHY @gGY%i:o Hm 7p 6o 6p 7p 1Y  Y  NX  Y (i ;X0X "
-      "<i 0j 1j 1j 1j   5XIi 3fGX >fGX >fGX >fGY 4Y 4YHf +Z      Bg /g .g -g /g (X  M[        5T    ?Z !Z  JP   'X.Y 5"
-      "[ 6Y0Y 7] &~P                   Ne   $Z   +W?X '] 6W)a Mh<\\   7Y !X    CX  Y    EZ +X  Id 6} I~S Cm  HZ =l 'e "
-      "1Z  i 6h !Z #Z        3Z ?Y  M[ M['s &k Jo .~S FZ  Gm GZ(Z :Z \"Z 4Z)] ~Q)Y JY(Y,^ Bi 9Z  Gl AZ'Z Jm (Y (i )\\ "
-      ";].]'[#Z =Z =~a AX  =X \"Y        DdFY FYFb *h 6cFY 8j 0Y \"YAY GY1Y 5Y  NX 0X1\\ :Y FY3Y2Y+Y1Y ;f :YFb 1cFX ;Y"
-      " $k  ` 7cFY 6] 5[5Z KZ-[ 8Y 3~P 2Y  X  Y        ;b=X NYJe 0` $e +l BY1Y 4Y 7Y*Y LYIaE[ b@a >k 9Y6_ Ah ;YFc 0e  "
-      "FZ 2a D~i$~T FZ 3oDo @Z :Z(Z :Z )i    LX    CV    CW    DZ #h D~U   *Z  X -R9Z   #[          *[     *~d       3"
-      "YIaE\\ 8WEW            GX HV-W-o0W HW'Z 0Z L[0Z LZ/[ LZ0Z LZ/[ LZ0Z LZ?Z+~T Lj B~T J~T I~S I~S 7Z !Z !Z \"Z :o "
-      "5Y,^ Ai /h 0i 0i 0i   >W?i 1j 0j 1j 1i (Z 2Z #YGh 9cEY ?dEY ?dEX =dFY >dFY >cEY#d5j Ch 1j 1j 1j 1j -Y  Y  NX  Y"
-      " &e 9X0X :e ,f -f -e ,f   4XFe 0cEX <bEX <bEX <bEY 4Y 4YFb )Z      ?` (a '` '` (a %X          'T               "
-      "       L{                   K_          0T 4X&[ Ga    AX \"Y      :Y      EX  G_      Ie   #e !_    c /a    EY "
-      "         EY       Hc        ?e      FZ          +b    Ni   )d    Nc            (X  =Y #Y        A^  J^ %a /]  N"
-      "c    ;Y      NX          *` 7YD^ ,]CX   1c    ^        /Y    DY  X  Y        8] 1YF] *\\  N` %c  DY 4Y   *YG\\A"
-      "X J\\;] 9e  A^ =` 7YC] *_    G[                 >a             NU    CZ  N`        9X -T<[                     "
-      "         LYG]BX 5WEW   %U        HW  NX  MX  GZ                 (d                       +b (b )b )a )b   9V;a "
-      ")c *c *c *c      =a 4_ &^ %^ $^ &_ &_ :_/c <b +c *c *c *c          3_    K_ &` '` '_ &`   1WB_ *] $] $^ %^  NZ "
-      "4YD^ 'Y      6Q  HQ  GQ  FQ  HQ  LX          &S                                          DQ          )T 4W Q :Q"
-      "    9Y #X      :Y      EX  ?Q      8R    ?R  @Q    @R  MQ    =Y          DY       @R        -Q      <Z         "
-      " #R    >RM]   !R    <R             X  <X #Y        ;Q  <Q  GR !Q  @Q    2Y      MX          #R 0Y=Q  Q=X   'Q  "
-      "  @Q        *Z    DY  X  Y          ;Y  <P  AQ  CQ  ;Y 4Y   *YAQ8P @Q0Q -Y  8X 7Y 3Y=Q  LQ                     "
-      " JQ                 4Z  IU        3X -W@[                              KYAQ8P 1WEW   $U        IV  MW  LW  FZ  "
-      "                V                        KQ  GR  HQ  GQ  GQ   0T2Q  HR  GR  HR  HQ      ,Q %Q  GP  GQ  FQ  GQ  "
-      "GP *P NQ ,V  MQ  GR  HR  HR          #Q    =Q  FQ  HR  HQ  FQ   *V:Q  LQ  GQ  GQ  GQ  GY 3Y=Q !Y               "
-      "  9X                                                                MT        +X #X      :Y      EX            "
-      "              5X          BZ                      7Y               7]                     8X  <X #Y            "
-      "          HY      MX            0Y  'X                 MY    CY  X  Y          ;Y         8Y 4Y   *Y    1Y    E"
-      "X 3Y                                          CZ  IU        3X -\\I_                              KY  8WEW   $V"
-      "              %Z                  NU                                    0R                                 #V  "
-      "                                  )T           <Z 3Y  =Y                 8X                                    "
-      "                            MT        +X $X      9X      DX                          6Y          AZ NR         "
-      "            =Z               6\\                     8X  <X #Y                      HY      MX            0Y  '"
-      "X                 NZ    CY  X  X          :Y         8Y 4Y   *Y    1Y    EX 3Y                                 "
-      "         CZ  IU        3X -q                              JY  8WEW   #V              &Z                  NV    "
-      "                                                                  0V                                    (R     "
-      "      <Y 2Y  =Y                 8X                                                                MT        *X "
-      "%X      9X      EY                          6X          @[!T                     >Z               5\\          "
-      "           9X  ;X $Y                      HY      NY            0Y  'X                 NY    BY  X !Y          "
-      ":Y         8Y 4Y   *Y    1Y    EX 3Y                                          CZ  IU        3X -p              "
-      "                IY  8WEW   #V              &Z                  MV                                              "
-      "                        0U                                    'P           ;Y 2Y  >Z                 8X        "
-      "                                                        MT        *X &X      9X      DX                        "
-      "  5X          ?\\%W                     ?Z               4\\                     :X  ;X $Y                     "
-      " IZ      NY            0Y  'X                 NY    BZ !X !Y          :Y         8Y 4Y   *Y    1Y    EX 3Y     "
-      "                                     CZ  IU        3X -o                              HY  8WEW   \"V           "
-      "   'Z                  LU                                                                      0V              "
-      "                                  CZ 2Y  >Y                 7X                                                 "
-      "               MT        )X 'X      9X      DX                          5W          <\\(X                     ?"
-      "Z               3\\                     ;Y  <X $Y                      IY      MY            0Y  'X            "
-      "     Z    AY !X !Y          :Y         8Y 4Y   *Y    1Y    EX 3Y                                          CZ  I"
-      "U        3X -n                              GY  8WEW   \"V              '[3Q                 <V                "
-      "                                                      0V                                                DY 1Y  "
-      "?Z                 7X                                                                MT        )X (X      8W   "
-      "   CX                          6X          ;],[                     AZ               1\\                     <e"
-      "  GX 2f                      JZ      MY            0Y  'X                 Y    @Z \"X \"Z          :Y         8"
-      "Y 4Y   *Y    1Y    EX 3Y                                          CZ  IU        3X ,k                          "
-      "    EY  8WEW   !V              'Z4R                 <V                                                         "
-      "             0V                                                EZ 1Y  ?Y                 ARGX                  "
-      "                                              MT        (X )X      8W      DX                          5W      "
-      "    9^1^                     AZ               0\\                     =e  GX 2f                      KZ      LY"
-      "            0Y  'X                !Z    @[ #X #Z          9Y         8Y 4Y   *Y    1Y    EX 3Y                 "
-      "                         CZ  IU        3X )f                              CY  8WEW   !V              '[7T      "
-      "           ;V                                                                      1V                          "
-      "                      EY 0Y  ?Y                 FWGW                                                           "
-      "     LT        'W *X      8W      CX                          5W          8`7`                     A[          "
-      "     /\\                     >e  GX 2f                      KZ      LY            0Y  'X                !Y    >"
-      "\\ %X &]          9Y         8Y 4Y   *Y    1Y    EX 3Y                                          CZ  IU        3"
-      "X $^                              @Y  8WEW   !V              '\\:V                 ;V                          "
-      "                                            1W                                                GZ 0Y  @Z        "
-      "         FWHX                                                                LT        'X +W      7W           "
-      "                      V          5b?c                     A[               -\\                     ?e   !f     "
-      "                <P2\\      MY            /Y  'X                \"Z    >f /X 0g          9Y         8Y 4Y   *Y  "
-      "  1Y    EX 3Y                                          CZ  IU        3X                                5Y      "
-      " NV              &\\=X                 ;V                                                                      "
-      "1W                                                GY /Y  AZ                 EWHX                               "
-      "                                 LT        &W ,X      7V                                 V          3~T        "
-      "             A]               ,\\                     @e   !f                     <R5\\      LY            /Y  "
-      "'X                #Z    =f /X 0f          8Y         8Y 4Y   *Y    1Y    EX 3Y                                 "
-      "         CZ  IU        3X                                5Y       NW              '^B[                 <W      "
-      "                                                                1W                                             "
-      "   HZ /Y  AZ                 DWIX                                                                LT        &X -"
-      "W      6U                                 NV          1~P                     B_               *\\             "
-      "        Ae   !f                     <U:]      LZ            /Y  'X                #Z    <e /X 0e          7Y   "
-      "      8Y 4Y   *Y    1Y    EX 3Y                                          CZ  IU        3X                      "
-      "          5Y       X              &aJ_                 <W                                                      "
-      "                2X                                                IZ .Y  BZ                 CWJY               "
-      "                                                 LT        %X /X                                               "
-      "   7|                     Hf               )\\                     Be   !f                     <X?_      N[    "
-      "        .Y  'X                %[    :d /X 0e          7Y         8Y 4Y   *Y    1Y    EX 3Y                     "
-      "                     CZ  IU        3X                                5Y      -PDX              %v              "
-      "   JQDX                                                                      ?QEY                              "
-      "                  J[ .Y  D\\                 CXLY                                                              "
-      "  KT                                                             7x                     Fe                     "
-      "                                          -_Me     %b            .Y  'X                /e    9c /X 0c          "
-      "5Y         8Y 4Y   *Y    1Y    EX 3Y                                          CZ  IU        3X                 "
-      "               5Y      -d              $u                 Je                                                   "
-      "                   ?d                                               $d -Y  Ne                 Ad               "
-      "                                                 KT                                                            "
-      " 5s                     Cd                                                               ,v     %b            -"
-      "Y  'X                0e    6a /X 0b          4Y         8Y 4Y   *Y    1Y    EX 3Y                              "
-      "            CZ  IU        3X                                5Y      -d              #t                 Jd      "
-      "                                                                >d                                             "
-      "  %e -Y  Nd                 @c                                                                                 "
-      "                                            (m                     @c                                          "
-      "                     +u     $b            -Y  'X                0d    2^ /X 0_          1Y         8Y 4Y   *Y  "
-      "  1Y    EX 3Y                                          CZ  IT        2X                                5Y      "
-      "-c              !q                 Hd                                                                      >c  "
-      "                                             $d ,Y  Nd                 ?b                                      "
-      "                                                                                       %g                     ="
-      "b                                                               *t     #a            ,Y  'X                0d  "
-      "  ,X /X 0Y          +Y         8Y 4Y   *Y    1Y    EX 3Y                                          CZ          '"
-      "X                                5Y      -c               Nm                 Fc                                "
-      "                                      =c                                               $c +Y  Nc               "
-      "  >a                                                                                                           "
-      "                   M\\                     8a                                             \"~Y                1"
-      "r     !`            +Y  'X                0c      1X            1Y         8Y 4Y   *Y    1Y    EX 3Y           "
-      "                               CZ          &W                                5Y      -b               Lj       "
-      "          Db                                                                      <b                           "
-      "                    #b *Y  Nb                 <_                                                               "
-      "                                                                                    (_                         "
-      "                     ~Y                1q      _            *Y  'X                0b      0X            1Y     "
-      "    8Y 4Y   *Y    1Y    EX 3Y                                          CZ                                      "
-      "     3Y      -`               He                 A`                                                            "
-      "          :`                                               !a )Y  Na                 :]                        "
-      "                                                                                                               "
-      "            ']                                              M~Y                .l      M]            (Y  'X    "
-      "            0`      .X            1Y         8Y 4Y   *Y    1Y    EX 3Y                                         "
-      "                                             KY      *Z               B^                 9Z                    "
-      "                                                  5Z                                                M` (Y  N`  "
-      "               8Z                                                                                              "
-      "                                                     %X                                              H~Y       "
-      "         *d      I[            &Y  'X                0^      ,X            1Y         8Y 4Y   *Y    1Y    EX 3Y"
-      "                                                                                      KY                       "
-      "                                                                                                               "
-      "                         H^ &Y  N]                 3V                                                          "
-      "                                                                                                               "
-      "                         B~Y                #X      CU            !X  &X                /Y      (X            1"
-      "Y         7X 4X   )X    0Y    EX 2X                                                                            "
-      "          KY                                                                                                   "
-      "                                                            HZ \"X  MY                                         "
-      "                                                                                                               "
-      "                                                            J~Y                                                "
-      "               9X                                                                                              "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                          3~Y                                  "
-      "                             9X                                                                                "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                                               "
-      "                                                                                        3~Y                    "
-      "                                           9X                                                                  "
-      "                                                                                                               "
-      "                                                                                                               "
-      "  '";
-
-      static char *value = 0;
-      if (!value) {
-        cimg::mutex(0);
-        const size_t s0 = std::strlen(chunk0), s1 = std::strlen(chunk1);
-        if (!value) {
-          value = new char[s0 + s1 + 1];
-          std::memcpy(value,chunk0,s0);
-          std::memcpy(value + s0,chunk1,s1 + 1);
-        }
-        cimg::mutex(0,0);
-      }
-      return value;
-    }
+    // Define predefined font graphics with various sizes.
+    inline const char* data_font_small();
+    inline const char* data_font_normal();
+    inline const char* data_font_large();
+    inline const char* data_font_huge();
 
     // Define a 40x38 'danger' color logo (used by cimg::dialog()).
-    static const unsigned char logo40x38[4576] = {
-      177,200,200,200,3,123,123,0,36,200,200,200,1,123,123,0,2,255,255,0,1,189,189,189,1,0,0,0,34,200,200,200,
-      1,123,123,0,4,255,255,0,1,189,189,189,1,0,0,0,1,123,123,123,32,200,200,200,1,123,123,0,5,255,255,0,1,0,0,
-      0,2,123,123,123,30,200,200,200,1,123,123,0,6,255,255,0,1,189,189,189,1,0,0,0,2,123,123,123,29,200,200,200,
-      1,123,123,0,7,255,255,0,1,0,0,0,2,123,123,123,28,200,200,200,1,123,123,0,8,255,255,0,1,189,189,189,1,0,0,0,
-      2,123,123,123,27,200,200,200,1,123,123,0,9,255,255,0,1,0,0,0,2,123,123,123,26,200,200,200,1,123,123,0,10,255,
-      255,0,1,189,189,189,1,0,0,0,2,123,123,123,25,200,200,200,1,123,123,0,3,255,255,0,1,189,189,189,3,0,0,0,1,189,
-      189,189,3,255,255,0,1,0,0,0,2,123,123,123,24,200,200,200,1,123,123,0,4,255,255,0,5,0,0,0,3,255,255,0,1,189,
-      189,189,1,0,0,0,2,123,123,123,23,200,200,200,1,123,123,0,4,255,255,0,5,0,0,0,4,255,255,0,1,0,0,0,2,123,123,123,
-      22,200,200,200,1,123,123,0,5,255,255,0,5,0,0,0,4,255,255,0,1,189,189,189,1,0,0,0,2,123,123,123,21,200,200,200,
-      1,123,123,0,5,255,255,0,5,0,0,0,5,255,255,0,1,0,0,0,2,123,123,123,20,200,200,200,1,123,123,0,6,255,255,0,5,0,0,
-      0,5,255,255,0,1,189,189,189,1,0,0,0,2,123,123,123,19,200,200,200,1,123,123,0,6,255,255,0,1,123,123,0,3,0,0,0,1,
-      123,123,0,6,255,255,0,1,0,0,0,2,123,123,123,18,200,200,200,1,123,123,0,7,255,255,0,1,189,189,189,3,0,0,0,1,189,
-      189,189,6,255,255,0,1,189,189,189,1,0,0,0,2,123,123,123,17,200,200,200,1,123,123,0,8,255,255,0,3,0,0,0,8,255,255,
-      0,1,0,0,0,2,123,123,123,16,200,200,200,1,123,123,0,9,255,255,0,1,123,123,0,1,0,0,0,1,123,123,0,8,255,255,0,1,189,
-      189,189,1,0,0,0,2,123,123,123,15,200,200,200,1,123,123,0,9,255,255,0,1,189,189,189,1,0,0,0,1,189,189,189,9,255,
-      255,0,1,0,0,0,2,123,123,123,14,200,200,200,1,123,123,0,11,255,255,0,1,0,0,0,10,255,255,0,1,189,189,189,1,0,0,0,2,
-      123,123,123,13,200,200,200,1,123,123,0,23,255,255,0,1,0,0,0,2,123,123,123,12,200,200,200,1,123,123,0,11,255,255,0,
-      1,189,189,189,2,0,0,0,1,189,189,189,9,255,255,0,1,189,189,189,1,0,0,0,2,123,123,123,11,200,200,200,1,123,123,0,11,
-      255,255,0,4,0,0,0,10,255,255,0,1,0,0,0,2,123,123,123,10,200,200,200,1,123,123,0,12,255,255,0,4,0,0,0,10,255,255,0,
-      1,189,189,189,1,0,0,0,2,123,123,123,9,200,200,200,1,123,123,0,12,255,255,0,1,189,189,189,2,0,0,0,1,189,189,189,11,
-      255,255,0,1,0,0,0,2,123,123,123,9,200,200,200,1,123,123,0,27,255,255,0,1,0,0,0,3,123,123,123,8,200,200,200,1,123,
-      123,0,26,255,255,0,1,189,189,189,1,0,0,0,3,123,123,123,9,200,200,200,1,123,123,0,24,255,255,0,1,189,189,189,1,0,0,
-      0,4,123,123,123,10,200,200,200,1,123,123,0,24,0,0,0,5,123,123,123,12,200,200,200,27,123,123,123,14,200,200,200,25,
-      123,123,123,86,200,200,200,91,49,124,118,124,71,32,124,95,49,56,114,52,82,121,0 };
+    inline const unsigned char* logo40x38_data() {
+      static const unsigned char data[] = {
+        177,200,200,200,3,123,123,0,36,200,200,200,1,123,123,0,2,255,255,0,1,189,189,189,1,0,0,0,34,200,200,200,
+        1,123,123,0,4,255,255,0,1,189,189,189,1,0,0,0,1,123,123,123,32,200,200,200,1,123,123,0,5,255,255,0,1,0,0,
+        0,2,123,123,123,30,200,200,200,1,123,123,0,6,255,255,0,1,189,189,189,1,0,0,0,2,123,123,123,29,200,200,200,
+        1,123,123,0,7,255,255,0,1,0,0,0,2,123,123,123,28,200,200,200,1,123,123,0,8,255,255,0,1,189,189,189,1,0,0,0,
+        2,123,123,123,27,200,200,200,1,123,123,0,9,255,255,0,1,0,0,0,2,123,123,123,26,200,200,200,1,123,123,0,10,255,
+        255,0,1,189,189,189,1,0,0,0,2,123,123,123,25,200,200,200,1,123,123,0,3,255,255,0,1,189,189,189,3,0,0,0,1,189,
+        189,189,3,255,255,0,1,0,0,0,2,123,123,123,24,200,200,200,1,123,123,0,4,255,255,0,5,0,0,0,3,255,255,0,1,189,
+        189,189,1,0,0,0,2,123,123,123,23,200,200,200,1,123,123,0,4,255,255,0,5,0,0,0,4,255,255,0,1,0,0,0,2,123,123,123,
+        22,200,200,200,1,123,123,0,5,255,255,0,5,0,0,0,4,255,255,0,1,189,189,189,1,0,0,0,2,123,123,123,21,200,200,200,
+        1,123,123,0,5,255,255,0,5,0,0,0,5,255,255,0,1,0,0,0,2,123,123,123,20,200,200,200,1,123,123,0,6,255,255,0,5,0,0,
+        0,5,255,255,0,1,189,189,189,1,0,0,0,2,123,123,123,19,200,200,200,1,123,123,0,6,255,255,0,1,123,123,0,3,0,0,0,1,
+        123,123,0,6,255,255,0,1,0,0,0,2,123,123,123,18,200,200,200,1,123,123,0,7,255,255,0,1,189,189,189,3,0,0,0,1,189,
+        189,189,6,255,255,0,1,189,189,189,1,0,0,0,2,123,123,123,17,200,200,200,1,123,123,0,8,255,255,0,3,0,0,0,8,255,
+        255,0,1,0,0,0,2,123,123,123,16,200,200,200,1,123,123,0,9,255,255,0,1,123,123,0,1,0,0,0,1,123,123,0,8,255,255,0,
+        1,189,189,189,1,0,0,0,2,123,123,123,15,200,200,200,1,123,123,0,9,255,255,0,1,189,189,189,1,0,0,0,1,189,189,189,
+        9,255,255,0,1,0,0,0,2,123,123,123,14,200,200,200,1,123,123,0,11,255,255,0,1,0,0,0,10,255,255,0,1,189,189,189,1,
+        0,0,0,2,123,123,123,13,200,200,200,1,123,123,0,23,255,255,0,1,0,0,0,2,123,123,123,12,200,200,200,1,123,123,0,11,
+        255,255,0,1,189,189,189,2,0,0,0,1,189,189,189,9,255,255,0,1,189,189,189,1,0,0,0,2,123,123,123,11,200,200,200,1,
+        123,123,0,11,255,255,0,4,0,0,0,10,255,255,0,1,0,0,0,2,123,123,123,10,200,200,200,1,123,123,0,12,255,255,0,4,0,0,
+        0,10,255,255,0,1,189,189,189,1,0,0,0,2,123,123,123,9,200,200,200,1,123,123,0,12,255,255,0,1,189,189,189,2,0,0,0,
+        1,189,189,189,11,255,255,0,1,0,0,0,2,123,123,123,9,200,200,200,1,123,123,0,27,255,255,0,1,0,0,0,3,123,123,123,8,
+        200,200,200,1,123,123,0,26,255,255,0,1,189,189,189,1,0,0,0,3,123,123,123,9,200,200,200,1,123,123,0,24,255,255,0,
+        1,189,189,189,1,0,0,0,4,123,123,123,10,200,200,200,1,123,123,0,24,0,0,0,5,123,123,123,12,200,200,200,27,123,123,
+        123,14,200,200,200,25,123,123,123,86,200,200,200,91,49,124,118,124,71,32,124,95,49,56,114,52,82,121,0 };
+      return data;
+    }
 
     // Define a 256 array, used in _cimg_math_parser to fast-check if operator tests can be skipped.
     // In this array, all values are set to 0 except for characters "=+*-/^<>&|?~!%" (set to 1).
@@ -6052,42 +3959,14 @@ namespace cimg_library {
       }
     }
 
-    //! Display a warning message on the default output stream.
-    /**
-       \param format C-string containing the format of the message, as with <tt>std::printf()</tt>.
-       \note If configuration macro \c cimg_strict_warnings is set, this function throws a
-       \c CImgWarningException instead.
-       \warning As the first argument is a format string, it is highly recommended to write
-       \code
-       cimg::warn("%s",warning_message);
-       \endcode
-       instead of
-       \code
-       cimg::warn(warning_message);
-       \endcode
-       if \c warning_message can be arbitrary, to prevent nasty memory access.
-    **/
-    inline void warn(const char *const format, ...) {
-      if (cimg::exception_mode()>=1) {
-        char *const message = new char[16384];
-        std::va_list ap;
-        va_start(ap,format);
-        cimg_vsnprintf(message,16384,format,ap);
-        va_end(ap);
-#ifdef cimg_strict_warnings
-        throw CImgWarningException("%s",message);
-#else
-        std::fprintf(cimg::output(),"\n%s[CImg] *** Warning ***%s%s\n",cimg::t_red(),cimg::t_normal(),message);
-#endif
-        delete[] message;
-      }
-    }
+    // Display a warning message on the default output stream.
+    inline void warn(const char *const format, ...);
 
     // Execute an external system command.
     /**
        \param command C-string containing the command line to execute.
        \param module_name Module name.
-       \param is_verbose Indicates whether the command must be silent or verbose when outputting messages.
+       \param is_verbose Indicates whether the command output should be silent or verbose.
        \return Status value of the executed command, whose meaning is OS-dependent.
        \note This function is similar to <tt>std::system()</tt>
        but it does not open an extra console windows
@@ -6123,7 +4002,7 @@ namespace cimg_library {
         GetStartupInfoA(&si);
         si.cb = sizeof(si);
         si.wShowWindow = SW_HIDE;
-        si.dwFlags |= SW_HIDE | STARTF_USESHOWWINDOW;
+        si.dwFlags|=STARTF_USESHOWWINDOW;
         const BOOL res = CreateProcessA((LPCSTR)module_name,ncommand,0,0,FALSE,0,0,0,&si,&pi);
         delete[] ncommand;
         if (res) {
@@ -6141,8 +4020,8 @@ namespace cimg_library {
           FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                          0,errorCode,MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),(LPSTR)&lpMsgBuf,0,0);
           cimg::warn("cimg::system() : Command '%s' (module name '%s) failed with error %lu: %s",
-                     module_name==0?"(null)":module_name,
                      command==0?"(null)":command,
+                     module_name==0?"(null)":module_name,
                      errorCode,lpMsgBuf);
 
           if (lpMsgBuf) LocalFree(lpMsgBuf);
@@ -6327,7 +4206,7 @@ namespace cimg_library {
 
     //! Return the value of a system timer, with a millisecond precision.
     /**
-       \note The timer does not necessarily starts from \c 0.
+       Note: The timer does not necessarily start from \c 0.
     **/
     inline cimg_uint64 time() {
 #if cimg_OS==1
@@ -6369,7 +4248,7 @@ namespace cimg_library {
     /**
        \param milliseconds Number of milliseconds to wait for.
        \note This function frees the CPU resources during the sleeping time.
-       It can be used to temporize your program properly, without wasting CPU time.
+       It can be used to pace your program properly, without wasting CPU time.
     **/
     inline void sleep(const unsigned int milliseconds) {
 #if cimg_OS==1
@@ -6421,8 +4300,10 @@ namespace cimg_library {
     }
 
     inline unsigned int _rand(cimg_uint64 *const p_rng) {
-      *p_rng = *p_rng*1103515245 + 12345U;
-      return (unsigned int)*p_rng;
+      cimg_uint64 x = *p_rng;
+      x^=x<<13; x^=x>>7; x^=x<<17;
+      *p_rng = x?x:1;
+      return (unsigned int)((x*(cimg_uint64)0x9E3779B9U)>>32);
     }
 
     inline unsigned int _rand() {
@@ -6629,13 +4510,14 @@ namespace cimg_library {
       return std::abs(a);
     }
     inline cimg_int64 abs(const cimg_uint64 a) {
-      return (cimg_int64)a;
+      const cimg_uint64 max_signed = (cimg_uint64)cimg::type<cimg_int64>::max();
+      return a<max_signed?(cimg_int64)a:cimg::type<cimg_int64>::max();
     }
     inline double abs(const double a) {
       return std::fabs(a);
     }
     inline float abs(const float a) {
-      return (float)std::fabs((double)a);
+      return std::fabs(a);
     }
 
     //! Return fractional part of a value.
@@ -6813,7 +4695,8 @@ namespace cimg_library {
     template<typename T>
     inline cimg_uint64 nearest_pow2(const T& x) {
       cimg_uint64 i = 1;
-      while (x>i) i<<=1;
+      const cimg_uint64 max_pow2 = (cimg_uint64)1<<(sizeof(cimg_uint64)*8 - 1);
+      while (x>i && i<max_pow2) i<<=1;
       return i;
     }
 
@@ -6901,7 +4784,7 @@ namespace cimg_library {
     // - If a>0, 'round_div(a/b) = ceil(a/b)'.
     // - If a<0, 'round_div(a.b) = floor(a/b)'.
     // (so, this is **not** a classical rounding behavior!).
-    // This function is used by drawing methods, to get coherent rounded primitive coordinates.
+    // This function is used by drawing functions, to get coherent rounded primitive coordinates.
     // Beware, 'b' must be strictly positive!
     template<typename T, typename t>
     t inline round_div(const T a, const t b, const t hb) {
@@ -7749,7 +5632,7 @@ namespace cimg_library {
     }
 
     //! Return the basename of a filename.
-    inline const char* basename(const char *const s, const char separator=cimg_file_separator)  {
+    inline const char* basename(const char *const s, const char separator=cimg_directory_separator)  {
       const char *p = 0, *np = s;
       while (np>=s && (p=np)) np = std::strchr(np,separator) + 1;
       return p;
@@ -7769,7 +5652,7 @@ namespace cimg_library {
       return randomid;
     }
 
-    // Convert filename as a Windows-style filename (short path name).
+    // Convert filename to a Windows-style filename (short path name).
     inline void winformat_string(char *const str) {
       if (str && *str) {
 #if cimg_OS==2
@@ -7780,9 +5663,8 @@ namespace cimg_library {
       }
     }
 
-    // Open a file (similar to std:: fopen(), but with wide character support on Windows).
+    // Open a file (similar to std::fopen(), but with wide character support on Windows).
     inline std::FILE *std_fopen(const char *const path, const char *const mode);
-
 
     //! Open a file.
     /**
@@ -7853,6 +5735,7 @@ namespace cimg_library {
     // Get the file or directory attributes with support for UTF-8 paths (Windows only).
 #if cimg_OS==2
     inline DWORD win_getfileattributes(const char *const path);
+    inline BOOL win_getfileattributesEx(const char* const path, WIN32_FILE_ATTRIBUTE_DATA* attr);
 #endif
 
     //! Check if a path is a directory.
@@ -7912,27 +5795,9 @@ namespace cimg_library {
 #endif
     }
 
-    //! Get file size.
-    /**
-       \param file Specified file to get size from.
-       \return File size or '-1' if file does not exist.
-    **/
-    inline cimg_int64 fsize(std::FILE *const file) {
-      if (!file) return (cimg_int64)-1;
-      const long pos = std::ftell(file);
-      std::fseek(file,0,SEEK_END);
-      const cimg_int64 siz = (cimg_int64)std::ftell(file);
-      std::fseek(file,pos,SEEK_SET);
-      return siz;
-    }
-
-    inline cimg_int64 fsize(const char *const filename) {
-      std::FILE *const file = cimg::std_fopen(filename,"rb");
-      const cimg_int64 siz = fsize(file);
-      cimg::fclose(file);
-      return siz;
-    }
-
+    // Get file size.
+    inline cimg_int64 fsize(std::FILE *const file);
+    inline cimg_int64 fsize(const char *const filename);
 
     // Thread-safe version of std::localtime().
     inline struct tm* localtime(const time_t *const time_ptr, struct tm *const result) {
@@ -8156,7 +6021,7 @@ namespace cimg_library {
     template<typename T>
     inline size_t fread(T *const ptr, const size_t nmemb, std::FILE *stream) {
       if (!ptr || !stream)
-        throw CImgArgumentException("cimg::fread(): Invalid reading request of %lu %s%s from file %p to buffer %p.",
+        throw CImgArgumentException("cimg::fread(): Invalid request for reading %lu %s%s from file %p to buffer %p.",
                                     (unsigned long)nmemb,cimg::type<T>::string(),nmemb>1?"s":"",stream,ptr);
       if (!nmemb) return 0;
       const size_t wlimitT = 63*1024*1024, wlimit = wlimitT/sizeof(T);
@@ -8184,7 +6049,7 @@ namespace cimg_library {
     template<typename T>
     inline size_t fwrite(const T *ptr, const size_t nmemb, std::FILE *stream) {
       if (!ptr || !stream)
-        throw CImgArgumentException("cimg::fwrite(): Invalid writing request of %lu %s%s from buffer %p to file %p.",
+        throw CImgArgumentException("cimg::fwrite(): Invalid request for writing %lu %s%s from buffer %p to file %p.",
                                     (unsigned long)nmemb,cimg::type<T>::string(),nmemb>1?"s":"",ptr,stream);
       if (!nmemb) return 0;
       const size_t wlimitT = 63*1024*1024, wlimit = wlimitT/sizeof(T);
@@ -8213,10 +6078,10 @@ namespace cimg_library {
       if (!file) cimg::fclose(nfile);
     }
 
-    // Try to guess format from an image file.
+    // Try to guess the format of an image file.
     inline const char *ftype(std::FILE *const file, const char *const filename);
 
-    // Load file from network as a local temporary file.
+    // Load a file from network as a local temporary file.
     inline char *load_network(const char *const url, char *const filename_local,
                               const unsigned int timeout=0, const bool try_fallback=false,
                               const char *const referer=0, const char *const user_agent=0);
@@ -8230,8 +6095,8 @@ namespace cimg_library {
       if (first) {
         first = false;
         visu = cimg::option("-h",argc,argv,(char*)0,(char*)0,false)!=0;
-        visu |= cimg::option("-help",argc,argv,(char*)0,(char*)0,false)!=0;
-        visu |= cimg::option("--help",argc,argv,(char*)0,(char*)0,false)!=0;
+        visu|=cimg::option("-help",argc,argv,(char*)0,(char*)0,false)!=0;
+        visu|=cimg::option("--help",argc,argv,(char*)0,(char*)0,false)!=0;
       }
       if (!name && visu) {
         if (usage) {
@@ -8341,7 +6206,7 @@ namespace cimg_library {
                    cimg_verbosity,
                    cimg::t_normal());
 
-      std::fprintf(cimg::output(),"  > Stricts warnings:         %s%-13s%s %s('cimg_strict_warnings' %s)%s\n",
+      std::fprintf(cimg::output(),"  > Strict warnings:          %s%-13s%s %s('cimg_strict_warnings' %s)%s\n",
                    cimg::t_bold(),
 #ifdef cimg_strict_warnings
                    "Yes",cimg::t_normal(),cimg::t_green(),"defined",
@@ -8675,11 +6540,11 @@ namespace cimg_library {
    ----------------------------------*/
   //! Allow the creation of windows, display images on them and manage user events (keyboard, mouse and windows events).
   /**
-     CImgDisplay methods rely on a low-level graphic library to perform: it can be either \b X-Window
+     CImgDisplay functions rely on a low-level graphic library to perform: it can be either \b X-Window
      (X11, for Unix-based systems) or \b GDI32 (for Windows-based systems).
      If both libraries are missing, CImgDisplay will not be able to display images on screen, and will enter
      a minimal mode where warning messages will be outputted each time the program is trying to call one of the
-     CImgDisplay method.
+     CImgDisplay function.
 
      The configuration variable \c cimg_display indicates the graphic library used.
      It is set automatically by \CImg when one of these graphic libraries has been detected.
@@ -8696,7 +6561,8 @@ namespace cimg_library {
     float _fps_fps, _min, _max;
     bool _is_fullscreen;
     char *_title;
-    unsigned int _window_width, _window_height, _button, *_keys, *_released_keys;
+    unsigned int _window_width, _window_height, _button, _keys[128], _released_keys[128];
+
     int _window_x, _window_y, _mouse_x, _mouse_y, _wheel;
     bool _is_closed, _is_resized, _is_moved, _is_event,
       _is_keyESC, _is_keyF1, _is_keyF2, _is_keyF3, _is_keyF4, _is_keyF5, _is_keyF6, _is_keyF7,
@@ -8760,8 +6626,6 @@ namespace cimg_library {
     **/
     ~CImgDisplay() {
       assign();
-      delete[] _keys;
-      delete[] _released_keys;
     }
 
     //! Construct an empty display.
@@ -8780,7 +6644,7 @@ namespace cimg_library {
       _min(0),_max(0),
       _is_fullscreen(false),
       _title(0),
-      _window_width(0),_window_height(0),_button(0),_keys(0),_released_keys(0),
+      _window_width(0),_window_height(0),_button(0),
       _window_x(cimg::type<int>::min()),_window_y(cimg::type<int>::min()),
       _mouse_x(-1),_mouse_y(-1),_wheel(0),
       _is_closed(true),_is_resized(false),_is_moved(false),_is_event(false) {
@@ -8804,7 +6668,7 @@ namespace cimg_library {
       _min(0),_max(0),
       _is_fullscreen(false),
       _title(0),
-      _window_width(0),_window_height(0),_button(0),_keys(0),_released_keys(0),
+      _window_width(0),_window_height(0),_button(0),
       _window_x(cimg::type<int>::min()),_window_y(cimg::type<int>::min()),
       _mouse_x(-1),_mouse_y(-1),_wheel(0),
       _is_closed(true),_is_resized(false),_is_moved(false),_is_event(false) {
@@ -8828,7 +6692,7 @@ namespace cimg_library {
       _min(0),_max(0),
       _is_fullscreen(false),
       _title(0),
-      _window_width(0),_window_height(0),_button(0),_keys(0),_released_keys(0),
+      _window_width(0),_window_height(0),_button(0),
       _window_x(cimg::type<int>::min()),_window_y(cimg::type<int>::min()),
       _mouse_x(-1),_mouse_y(-1),_wheel(0),
       _is_closed(true),_is_resized(false),_is_moved(false),_is_event(false) {
@@ -8852,7 +6716,7 @@ namespace cimg_library {
       _min(0),_max(0),
       _is_fullscreen(false),
       _title(0),
-      _window_width(0),_window_height(0),_button(0),_keys(0),_released_keys(0),
+      _window_width(0),_window_height(0),_button(0),
       _window_x(cimg::type<int>::min()),_window_y(cimg::type<int>::min()),
       _mouse_x(-1),_mouse_y(-1),_wheel(0),
       _is_closed(true),_is_resized(false),_is_moved(false),_is_event(false) {
@@ -8869,7 +6733,7 @@ namespace cimg_library {
       _min(0),_max(0),
       _is_fullscreen(false),
       _title(0),
-      _window_width(0),_window_height(0),_button(0),_keys(0),_released_keys(0),
+      _window_width(0),_window_height(0),_button(0),
       _window_x(cimg::type<int>::min()),_window_y(cimg::type<int>::min()),
       _mouse_x(-1),_mouse_y(-1),_wheel(0),
       _is_closed(true),_is_resized(false),_is_moved(false),_is_event(false) {
@@ -8896,8 +6760,6 @@ namespace cimg_library {
        \note Replace the current instance by an empty display.
     **/
     CImgDisplay& assign() {
-      if (!_keys) _keys = new unsigned int[128];
-      if (!_released_keys) _released_keys = new unsigned int[128];
       return flush();
     }
 
@@ -9090,7 +6952,7 @@ namespace cimg_library {
 
     //! Return \c true if any key is being pressed on the associated window, \c false otherwise.
     /**
-       \note The methods below do the same only for specific keys.
+       \note The functions below do the same only for specific keys.
     **/
     bool is_key() const {
       return _is_keyESC || _is_keyF1 || _is_keyF2 || _is_keyF3 ||
@@ -9256,7 +7118,7 @@ namespace cimg_library {
 
     //! Return \c true if the \c ESC key is being pressed on the associated window, \c false otherwise.
     /**
-       \note Similar methods exist for all keys managed by \CImg (see cimg::keyESC).
+       \note Similar functions exist for all keys managed by \CImg (see cimg::keyESC).
     **/
     _cimg_iskey_def(ESC); _cimg_iskey_def(F1); _cimg_iskey_def(F2); _cimg_iskey_def(F3);
     _cimg_iskey_def(F4); _cimg_iskey_def(F5); _cimg_iskey_def(F6); _cimg_iskey_def(F7);
@@ -9313,7 +7175,7 @@ namespace cimg_library {
 
     //! Return display width.
     /**
-       \note The width of the display (i.e. the width of the pixel data buffer associated to the CImgDisplay instance)
+       \note The width of the display (i.e. the width of the pixel data buffer associated with the CImgDisplay instance)
        may be different from the actual width of the associated window.
     **/
     int width() const {
@@ -9322,8 +7184,8 @@ namespace cimg_library {
 
     //! Return display height.
     /**
-       \note The height of the display (i.e. the height of the pixel data buffer associated to the CImgDisplay instance)
-       may be different from the actual height of the associated window.
+       \note The height of the display (i.e. the height of the pixel data buffer associated with the CImgDisplay
+         instance) may be different from the actual height of the associated window.
     **/
     int height() const {
       return (int)_height;
@@ -9332,7 +7194,7 @@ namespace cimg_library {
     //! Return normalization type of the display.
     /**
        The normalization type indicates how the values of an input image are normalized by the CImgDisplay to be
-       correctly displayed. The range of values for pixels displayed on screen is <tt>[0,255]</tt>.
+       correctly displayed. The range of values for pixels displayed on the screen is <tt>[0,255]</tt>.
        If the range of values of the data to display is different, a normalization may be required for displaying
        the data in a correct way. The normalization type can be one of:
        - \c 0: Value normalization is disabled. It is then assumed that all input data to be displayed by the
@@ -9367,7 +7229,7 @@ namespace cimg_library {
 
     //! Return width of the associated window.
     /**
-       \note The width of the display (i.e. the width of the pixel data buffer associated to the CImgDisplay instance)
+       \note The width of the display (i.e. the width of the pixel data buffer associated with the CImgDisplay instance)
        may be different from the actual width of the associated window.
     **/
     int window_width() const {
@@ -9376,8 +7238,8 @@ namespace cimg_library {
 
     //! Return height of the associated window.
     /**
-       \note The height of the display (i.e. the height of the pixel data buffer associated to the CImgDisplay instance)
-       may be different from the actual height of the associated window.
+       \note The height of the display (i.e. the height of the pixel data buffer associated with the CImgDisplay
+         instance) may be different from the actual height of the associated window.
     **/
     int window_height() const {
       return (int)_window_height;
@@ -9491,10 +7353,9 @@ namespace cimg_library {
        - Keycode constants are defined in the cimg namespace and are architecture-dependent. Use them to ensure
        your code stay portable (see cimg::keyESC).
     **/
-    unsigned int& key(const unsigned int pos=0) const {
+    const unsigned int& key(const unsigned int pos=0) const {
       static unsigned int key0;
       return pos<128?_keys[pos]:(key0 = 0);
-
     }
 
     //! Return one entry from the released keys history.
@@ -9510,7 +7371,7 @@ namespace cimg_library {
        - Keycode constants are defined in the cimg namespace and are architecture-dependent. Use them to ensure
        your code stay portable (see cimg::keyESC).
     **/
-    unsigned int& released_key(const unsigned int pos=0) const {
+    const unsigned int& released_key(const unsigned int pos=0) const {
       static unsigned int key0;
       return pos<128?_released_keys[pos]:(key0 = 0);
     }
@@ -9556,7 +7417,7 @@ namespace cimg_library {
 
     //! Return the current refresh rate, in frames per second.
     /**
-       \note Returns a significant value when the current instance is used to display successive frames.
+       \note Returns a meaningful value when the current instance is used to display successive frames.
        It measures the delay between successive calls to frames_per_second().
     **/
     float frames_per_second() {
@@ -9571,7 +7432,7 @@ namespace cimg_library {
       return _fps_fps;
     }
 
-    // Move current display window so that its content stays inside the current screen.
+    // Move the current display window such that its content remains within the current screen.
     CImgDisplay& move_inside_screen() {
       if (is_empty()) return *this;
       const int
@@ -9599,7 +7460,7 @@ namespace cimg_library {
     //! Display image on associated window.
     /**
        \param img Input image to display.
-       \note This method returns immediately.
+       \note This function returns immediately.
     **/
     template<typename T>
     CImgDisplay& display(const CImg<T>& img) {
@@ -9611,10 +7472,10 @@ namespace cimg_library {
     //! Display list of images on associated window.
     /**
        \param list List of images to display.
-       \param axis Axis used to append the images along, for the visualization (can be \c x, \c y, \c z or \c c).
+       \param axis Axis along which to append the images for the visualization (can be \c x, \c y, \c z or \c c).
        \param align Relative position of aligned images when displaying lists with images of different sizes
        (\c 0 for upper-left, \c 0.5 for centering and \c 1 for lower-right).
-       \note This method returns immediately.
+       \note This function returns immediately.
     **/
     template<typename T>
     CImgDisplay& display(const CImgList<T>& list, const char axis='x', const float align=0) {
@@ -9663,7 +7524,7 @@ namespace cimg_library {
     /**
        \param pos_x X-coordinate of the new window location.
        \param pos_y Y-coordinate of the new window location.
-       \note Depending on the window manager behavior, this method may not succeed (no exceptions are thrown
+       \note Depending on the window manager behavior, this function may not succeed (no exceptions are thrown
        nevertheless).
     **/
     CImgDisplay& move(const int pos_x, const int pos_y) {
@@ -9676,7 +7537,7 @@ namespace cimg_library {
     /**
        \param force_redraw Indicates whether the previous window content must be updated and refreshed as well.
        \note
-       - Calling this method ensures that width() and window_width() become equal, as well as height() and
+       - Calling this function ensures that width() and window_width() become equal, as well as height() and
        window_height().
        - The associated window is also resized to specified dimensions.
     **/
@@ -9705,7 +7566,7 @@ namespace cimg_library {
        \param img Input image to take size from.
        \param force_redraw Indicates whether the previous window content must be resized and updated as well.
        \note
-       - Calling this method ensures that width() and <tt>img.width()</tt> become equal, as well as height() and
+       - Calling this function ensures that width() and <tt>img.width()</tt> become equal, as well as height() and
        <tt>img.height()</tt>.
        - The associated window is also resized to specified dimensions.
     **/
@@ -9719,7 +7580,7 @@ namespace cimg_library {
        \param disp Input display to take size from.
        \param force_redraw Indicates whether the previous window content must be resized and updated as well.
        \note
-       - Calling this method ensures that width() and <tt>disp.width()</tt> become equal, as well as height() and
+       - Calling this function ensures that width() and <tt>disp.width()</tt> become equal, as well as height() and
        <tt>disp.height()</tt>.
        - The associated window is also resized to specified dimensions.
     **/
@@ -9727,39 +7588,39 @@ namespace cimg_library {
       return resize(disp.width(),disp.height(),force_redraw);
     }
 
-    // [internal] Render pixel buffer with size (wd,hd) from source buffer of size (ws,hs).
+    // [internal] Render a pixel buffer of size (wd,hd) from a source buffer of size (ws,hs).
     template<typename t, typename T>
     static void _render_resize(const T *ptrs, const unsigned int ws, const unsigned int hs,
                                t *ptrd, const unsigned int wd, const unsigned int hd) {
-      typedef typename cimg::last<T,cimg_ulong>::type ulongT;
-      const ulongT one = (ulongT)1;
-      CImg<ulongT> off_x(wd), off_y(hd + 1);
+      typedef typename cimg::last<T,cimg_uint64>::type uint64T;
+      const uint64T one = (uint64T)1;
+      CImg<uint64T> off_x(wd), off_y(hd + 1);
       if (wd==ws) off_x.fill(1);
       else {
-        ulongT *poff_x = off_x._data, curr = 0;
+        uint64T *poff_x = off_x._data, curr = 0;
         for (unsigned int x = 0; x<wd; ++x) {
-          const ulongT old = curr;
+          const uint64T old = curr;
           curr = (x + one)*ws/wd;
           *(poff_x++) = curr - old;
         }
       }
       if (hd==hs) off_y.fill(ws);
       else {
-        ulongT *poff_y = off_y._data, curr = 0;
+        uint64T *poff_y = off_y._data, curr = 0;
         for (unsigned int y = 0; y<hd; ++y) {
-          const ulongT old = curr;
+          const uint64T old = curr;
           curr = (y + one)*hs/hd;
           *(poff_y++) = ws*(curr - old);
         }
         *poff_y = 0;
       }
-      ulongT *poff_y = off_y._data;
+      uint64T *poff_y = off_y._data;
       for (unsigned int y = 0; y<hd; ) {
         const T *ptr = ptrs;
-        ulongT *poff_x = off_x._data;
+        uint64T *poff_x = off_x._data;
         for (unsigned int x = 0; x<wd; ++x) { *(ptrd++) = *ptr; ptr+=*(poff_x++); }
         ++y;
-        ulongT dy = *(poff_y++);
+        uint64T dy = *(poff_y++);
         for ( ; !dy && y<hd; std::memcpy(ptrd,ptrd - wd,sizeof(t)*wd), ++y, ptrd+=wd, dy = *(poff_y++)) {}
         ptrs+=dy;
       }
@@ -9788,7 +7649,7 @@ namespace cimg_library {
        \code
        disp.set_title(window_title);
        \endcode
-       if \c window_title can be arbitrary, to prevent nasty memory access.
+       if \c window_title can be arbitrary, to prevent memory access violations (or undefined behavior).
     **/
     CImgDisplay& set_title(const char *const format, ...) {
       return assign(0,0,format);
@@ -9798,12 +7659,12 @@ namespace cimg_library {
 
     //! Enable or disable fullscreen mode.
     /**
-       \param is_fullscreen Indicates whether the fullscreen mode must be activated.
+       \param is_fullscreen Indicates whether fullscreen mode must be activated.
        \param force_redraw Indicates whether the previous window content must be displayed as well.
        \note
-       - When the fullscreen mode is enabled, the associated window fills the entire screen but the size of the
+       - When fullscreen mode is enabled, the associated window fills the entire screen but the size of the
        current display is not modified.
-       - The screen resolution may be switched to fit the associated window size and ensure it appears the largest
+       - The screen resolution may be switched to fit the associated window size and ensure it appears as large
        as possible.
        For X-Window (X11) users, the configuration flag \c cimg_use_xrandr has to be set to allow the screen
        resolution change (requires the X11 extensions to be enabled).
@@ -9826,7 +7687,7 @@ namespace cimg_library {
 
     //! Show mouse pointer.
     /**
-       \note Depending on the window manager behavior, this method may not succeed
+       \note Depending on the window manager behavior, this function may not succeed
        (no exceptions are thrown nevertheless).
     **/
     CImgDisplay& show_mouse() {
@@ -9835,7 +7696,7 @@ namespace cimg_library {
 
     //! Hide mouse pointer.
     /**
-       \note Depending on the window manager behavior, this method may not succeed
+       \note Depending on the window manager behavior, this function may not succeed
        (no exceptions are thrown nevertheless).
     **/
     CImgDisplay& hide_mouse() {
@@ -9844,7 +7705,7 @@ namespace cimg_library {
 
     //! Move mouse pointer to a specified location.
     /**
-       \note Depending on the window manager behavior, this method may not succeed
+       \note Depending on the window manager behavior, this function may not succeed
        (no exceptions are thrown nevertheless).
     **/
     CImgDisplay& set_mouse(const int pos_x, const int pos_y) {
@@ -9870,12 +7731,12 @@ namespace cimg_library {
 
     //! Simulate a mouse button press or release event.
     /**
-       \param button Buttons event code, where each button is associated to a single bit.
+       \param button Buttons event code, where each button is associated with a single bit.
        \param is_pressed Indicates whether the mouse button is considered as pressed or released.
     **/
     CImgDisplay& set_button(const unsigned int button, const bool is_pressed=true) {
       const unsigned int buttoncode = button==1U?1U:button==2U?2U:button==3U?4U:0U;
-      if (is_pressed) _button |= buttoncode; else _button &= ~buttoncode;
+      if (is_pressed) _button|=buttoncode; else _button&=~buttoncode;
       _is_event = buttoncode?true:false;
       if (buttoncode) {
 #if cimg_display==1
@@ -10206,8 +8067,6 @@ namespace cimg_library {
                  const unsigned int normalization_type=3,
                  const bool is_fullscreen=false, const bool closed_flag=false) {
       cimg::mutex(14);
-      if (!_keys) _keys = new unsigned int[128];
-      if (!_released_keys) _released_keys = new unsigned int[128];
 
       // Allocate space for window title.
       const char *const np_title = p_title?p_title:"";
@@ -10389,7 +8248,7 @@ namespace cimg_library {
                                                   ExposureMask | StructureNotifyMask | ButtonPressMask |
                                                   KeyPressMask | PointerMotionMask | EnterWindowMask |
                                                   LeaveWindowMask | ButtonReleaseMask | KeyReleaseMask,&event);
-        if (is_event) { // Find CImgDisplay associated to event
+        if (is_event) { // Find CImgDisplay associated with event
           for (unsigned int k = 0; k<X11_attr.nb_cimg_displays; ++k)
             if (event.xany.window==X11_attr.cimg_displays[k]->_window) {
               if (!X11_attr.cimg_displays[k]->_is_closed && X11_attr.events_thread_running)
@@ -10781,8 +8640,6 @@ namespace cimg_library {
     }
 
     CImgDisplay& assign(const bool allow_terminate_events_thread=true) {
-      if (!_keys) _keys = new unsigned int[128];
-      if (!_released_keys) _released_keys = new unsigned int[128];
       if (is_empty()) return flush();
       cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
       Display *const dpy = X11_attr.display;
@@ -11574,8 +9431,6 @@ namespace cimg_library {
     CImgDisplay& _assign(const unsigned int dimw, const unsigned int dimh, const char *const p_title=0,
                          const unsigned int normalization_type=3,
                          const bool is_fullscreen=false, const bool closed_flag=false) {
-      if (!_keys) _keys = new unsigned int[128];
-      if (!_released_keys) _released_keys = new unsigned int[128];
 
       // Allocate space for window title.
       const char *const np_title = p_title?p_title:"";
@@ -11875,8 +9730,6 @@ namespace cimg_library {
     }
 
     CImgDisplay& assign() {
-      if (!_keys) _keys = new unsigned int[128];
-      if (!_released_keys) _released_keys = new unsigned int[128];
       if (is_empty()) return flush();
       DestroyWindow(_window);
       TerminateThread(_thread,0);
@@ -11957,7 +9810,7 @@ namespace cimg_library {
           SetWindowPos(_window,0,0,0,cwidth,cheight,SWP_NOMOVE | SWP_NOZORDER | SWP_NOCOPYBITS);
         }
         if (_width!=dimx || _height!=dimy) {
-          unsigned int *const ndata = new unsigned int[dimx*dimy];
+          unsigned int *const ndata = new unsigned int[(cimg_ulong)dimx*dimy];
           if (force_redraw) _render_resize(_data,_width,_height,ndata,dimx,dimy);
           else std::memset(ndata,0x80,sizeof(unsigned int)*dimx*dimy);
           delete[] _data;
@@ -12211,21 +10064,30 @@ namespace cimg_library {
                   bmi.biClrUsed = bmi.biClrImportant = 0;
                   unsigned char *buf = new unsigned char[4*bw*bh];
                   if (GetDIBits(hdcMem,hBitmap,0,bh,buf,(BITMAPINFO*)&bmi,DIB_RGB_COLORS)) {
-                    img.assign(bw,bh,1,3);
-                    const unsigned char *ptrs = buf;
-                    T *pR = img.data(0,0,0,0), *pG = img.data(0,0,0,1), *pB = img.data(0,0,0,2);
-                    cimg_forXY(img,x,y) {
-                      *(pR++) = (T)ptrs[2];
-                      *(pG++) = (T)ptrs[1];
-                      *(pB++) = (T)ptrs[0];
-                      ptrs+=4;
+                    try {
+                      img.assign(bw,bh,1,3);
+                      const unsigned char *ptrs = buf;
+                      T *pR = img.data(0,0,0,0), *pG = img.data(0,0,0,1), *pB = img.data(0,0,0,2);
+                      cimg_forXY(img,x,y) {
+                        *(pR++) = (T)ptrs[2];
+                        *(pG++) = (T)ptrs[1];
+                        *(pB++) = (T)ptrs[0];
+                        ptrs+=4;
+                      }
+                    } catch (...) {
+                      delete[] buf;
+                      SelectObject(hdcMem,hOld);
+                      DeleteObject(hBitmap);
+                      DeleteDC(hdcMem);
+                      ReleaseDC(GetDesktopWindow(),hScreen);
+                      throw;
                     }
                   }
                   delete[] buf;
                 }
                 SelectObject(hdcMem,hOld);
               }
-              DeleteObject(hBitmap); // Réussit désormais à 100% de manière garantie
+              DeleteObject(hBitmap);
             }
             DeleteDC(hdcMem);
           }
@@ -12275,11 +10137,10 @@ namespace cimg_library {
     void _assign(const unsigned int dimw, const unsigned int dimh, const char *const p_title=0,
                  const unsigned int normalization_type=3,
                  const bool is_fullscreen=false, const bool closed_flag=false) {
-      if (!_keys) _keys = new unsigned int[128];
-      if (!_released_keys) _released_keys = new unsigned int[128];
 
       // Destroy previous display window if existing.
       if (!is_empty()) assign();
+      _data = new unsigned int[_width*_height];
 
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       SDL3_attr.lock();
@@ -12326,7 +10187,6 @@ namespace cimg_library {
       // Create texture.
       _texture = SDL_CreateTexture(_renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_STREAMING,
                                    (int)_width,(int)_height);
-      _data = new unsigned int[_width*_height];
 
       // Add to managed list of CImgDisplays.
       SDL3_attr.cimg_displays[SDL3_attr.nb_cimg_displays++] = this;
@@ -12459,7 +10319,7 @@ namespace cimg_library {
             }
           } else {
             SDL_Window *const window = SDL_GetWindowFromID(event.window.windowID);
-            if (window) // Find CImgDisplay associated to event
+            if (window) // Find CImgDisplay associated with event
               for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k) {
                 CImgDisplay &disp = *SDL3_attr.cimg_displays[k];
                 if (window==disp._window) {
@@ -12476,8 +10336,6 @@ namespace cimg_library {
     }
 
     CImgDisplay& assign() {
-      if (!_keys) _keys = new unsigned int[128];
-      if (!_released_keys) _released_keys = new unsigned int[128];
       if (is_empty()) return flush();
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       SDL3_attr.lock();
@@ -12590,7 +10448,7 @@ namespace cimg_library {
         SDL3_attr.unlock();
         show();
         SDL3_attr.lock();
-        unsigned int *const ndata = new unsigned int[dimx*dimy];
+        unsigned int *const ndata = new unsigned int[(cimg_ulong)dimx*dimy];
         if (force_redraw) _render_resize(_data,_width,_height,ndata,dimx,dimy);
         else std::memset(ndata,0,sizeof(unsigned int)*dimx*dimy);
         delete[] _data;
@@ -12876,17 +10734,17 @@ namespace cimg_library {
    #--------------------------------------
    */
 
-  //! Class representing an image (up to 4 dimensions wide), each pixel being of type \c T.
+  //! Class representing an image (up to 4 dimensions wide), where each pixel is of type \c T.
   /**
-     This is the main class of the %CImg Library. It declares and constructs
+     This is the main class of the \CImg Library. It declares and constructs
      an image, allows access to its pixel values, and is able to perform various image operations.
 
      \par Image representation
 
-     A %CImg image is defined as an instance of the container \c CImg<T>, which contains a regular grid of pixels,
+     A \CImg image is defined as an instance of the container \c CImg<T>, which contains a regular grid of pixels,
      each pixel value being of type \c T. The image grid can have up to 4 dimensions: width, height, depth
      and number of channels.
-     Usually, the three first dimensions are used to describe spatial coordinates <tt>(x,y,z)</tt>,
+     Usually, the first three dimensions are used to describe spatial coordinates <tt>(x,y,z)</tt>,
      while the number of channels is rather used as a vector-valued dimension
      (it may describe the R,G,B color channels for instance).
      If you need a fifth dimension, you can use image lists \c CImgList<T> rather than simple images \c CImg<T>.
@@ -12965,7 +10823,7 @@ namespace cimg_library {
      Some of the most useful are:
 
      - operator()(): Read or write pixel values.
-     - display(): displays the image in a new window.
+     - display(): Displays the image in a new window.
   **/
   template<typename T>
   struct CImg {
@@ -12974,18 +10832,18 @@ namespace cimg_library {
     bool _is_shared;
     T *_data;
 
-    //! Simple iterator type, to loop through each pixel value of an image instance.
+    //! Simple iterator type to loop through each pixel value of an image instance.
     /**
        \note
        - The \c CImg<T>::iterator type is defined to be a <tt>T*</tt>.
-       - You will seldom have to use iterators in %CImg, most classical operations
-         being achieved (often in a faster way) using methods of \c CImg<T>.
+       - You will seldom have to use iterators in \CImg, most classical operations
+         being achieved (often in a faster way) using functions of \c CImg<T>.
        \par Example
        \code
        CImg<float> img("reference.jpg"); // Load image from file
        // Set all pixels to '0', with a CImg iterator.
        for (CImg<float>::iterator it = img.begin(); it<img.end(); ++it) *it = 0;
-       img.fill(0); // Do the same with a built-in method
+       img.fill(0); // Do the same with a built-in function
        \endcode
    **/
     typedef T* iterator;
@@ -12994,15 +10852,15 @@ namespace cimg_library {
     /**
        \note
        - The \c CImg<T>::const_iterator type is defined to be a \c const \c T*.
-       - You will seldom have to use iterators in %CImg, most classical operations
-         being achieved (often in a faster way) using methods of \c CImg<T>.
+       - You will seldom have to use iterators in \CImg, most classical operations
+         being achieved (often in a faster way) using functions of \c CImg<T>.
        \par Example
        \code
        const CImg<float> img("reference.jpg"); // Load image from file
        float sum = 0;
        // Compute sum of all pixel values, with a CImg iterator.
        for (CImg<float>::const_iterator it = img.begin(); it<img.end(); ++it) sum+=*it;
-       const float sum2 = img.sum(); // Do the same with a built-in method
+       const float sum2 = img.sum(); // Do the same with a built-in function
        \endcode
     **/
     typedef const T* const_iterator;
@@ -13012,7 +10870,7 @@ namespace cimg_library {
        Refer to the type of the pixel values of an image instance.
        \note
        - The \c CImg<T>::value_type type of a \c CImg<T> is defined to be a \c T.
-       - \c CImg<T>::value_type is actually not used in %CImg methods. It has been mainly defined for
+       - \c CImg<T>::value_type is actually not used in \CImg functions. It has been mainly defined for
          compatibility with STL naming conventions.
     **/
     typedef T value_type;
@@ -13128,7 +10986,7 @@ namespace cimg_library {
        - An empty image has no pixel data and all of its dimensions width(), height(), depth(), spectrum()
          are set to \c 0, as well as its pixel buffer pointer data().
        - An empty image may be re-assigned afterwards, e.g. with the family of
-         assign(unsigned int,unsigned int,unsigned int,unsigned int) methods,
+         assign(unsigned int,unsigned int,unsigned int,unsigned int) functions,
          or by operator=(const CImg<t>&). In all cases, the type of pixels stays \c T.
        - An empty image is never shared.
        \par Example
@@ -13148,7 +11006,7 @@ namespace cimg_library {
        \param size_z Image depth().
        \param size_c Image spectrum() (number of channels).
        \note
-       - It is able to create only \e non-shared images, and allocates thus a pixel buffer data()
+       - It can only create \e non-shared images, and allocates thus a pixel buffer data()
          for each constructed image instance.
        - Setting one dimension \c size_x,\c size_y,\c size_z or \c size_c to \c 0 leads to the construction of
          an \e empty image.
@@ -13475,7 +11333,7 @@ namespace cimg_library {
       if (is_shared) {
         _width = _height = _depth = _spectrum = 0; _data = 0;
         throw CImgArgumentException(_cimg_instance
-                                    "CImg(): Invalid construction request of a (%u,%u,%u,%u) shared instance "
+                                    "CImg(): Invalid request for constructing a (%u,%u,%u,%u) shared instance "
                                     "from a (%s*) buffer (pixel types are different).",
                                     cimg_instance,
                                     size_x,size_y,size_z,size_c,CImg<t>::pixel_type());
@@ -13579,7 +11437,7 @@ namespace cimg_library {
        \note
        - Similar to CImg(unsigned int,unsigned int,unsigned int,unsigned int), but it reads the image
          dimensions and pixel values from the specified image file.
-       - The recognition of the image file format by %CImg higlhy depends on the tools installed on your system
+       - The recognition of the image file format by \CImg higlhy depends on the tools installed on your system
          and on the external libraries you used to link your code against.
        - Considered pixel type \c T should better fit the file format specification, or data loss may occur during
          file load (e.g. constructing a \c CImg<unsigned char> from a float-valued image file).
@@ -13674,7 +11532,7 @@ namespace cimg_library {
       if (is_shared) {
         _width = _height = _depth = _spectrum = 0; _data = 0;
         throw CImgArgumentException(_cimg_instance
-                                    "CImg(): Invalid construction request of a shared instance from a "
+                                    "CImg(): Invalid request for constructing a shared instance from a "
                                     "CImg<%s> image (%u,%u,%u,%u,%p) (pixel types are different).",
                                     cimg_instance,
                                     CImg<t>::pixel_type(),img._width,img._height,img._depth,img._spectrum,img._data);
@@ -13772,7 +11630,7 @@ namespace cimg_library {
     }
 
     // Constructor and assignment operator for rvalue references (c++11).
-    // This avoids an additional image copy for methods returning new images. Can save RAM for big images!
+    // This avoids an additional image copy for functions returning new images. Can save RAM for big images!
 #if cimg_use_cpp11==1
     CImg(CImg<T>&& img):_width(0),_height(0),_depth(0),_spectrum(0),_is_shared(false),_data(0) {
       swap(img);
@@ -13806,7 +11664,7 @@ namespace cimg_library {
       if (siz!=curr_siz) {
         if (_is_shared)
           throw CImgArgumentException(_cimg_instance
-                                      "assign(): Invalid assignment request of shared instance from specified "
+                                      "assign(): Invalid request for assigning a shared instance from specified "
                                       "image (%u,%u,%u,%u).",
                                       cimg_instance,
                                       size_x,size_y,size_z,size_c);
@@ -13910,20 +11768,20 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Construct image with specified size and initialize pixel values from a memory buffer \overloading.
+    //! Construct image with specified size and initialize pixel values from a memory buffer \overload.
     template<typename t>
     CImg<T>& assign(const t *const values, const unsigned int size_x, const unsigned int size_y,
                     const unsigned int size_z, const unsigned int size_c, const bool is_shared) {
       if (is_shared)
         throw CImgArgumentException(_cimg_instance
-                                    "assign(): Invalid assignment request of shared instance from (%s*) buffer "
+                                    "assign(): Invalid request for assigning a shared instance from (%s*) buffer "
                                     "(pixel types are different).",
                                     cimg_instance,
                                     CImg<t>::pixel_type());
       return assign(values,size_x,size_y,size_z,size_c);
     }
 
-    //! Construct image with specified size and initialize pixel values from a memory buffer \overloading.
+    //! Construct image with specified size and initialize pixel values from a memory buffer \overload.
     CImg<T>& assign(const T *const values, const unsigned int size_x, const unsigned int size_y,
                     const unsigned int size_z, const unsigned int size_c, const bool is_shared) {
       const size_t siz = safe_size(size_x,size_y,size_z,size_c);
@@ -13997,7 +11855,7 @@ namespace cimg_library {
 
     //! Transfer content of an image instance into another one.
     /**
-       Transfer the dimensions and the pixel buffer content of an image instance into another one,
+       Transfers the dimensions and the pixel buffer content of an image instance into another one,
        and replace instance by an empty image. It avoids the copy of the pixel buffer
        when possible.
        \param img Destination image.
@@ -14028,7 +11886,7 @@ namespace cimg_library {
 
     //! Transfer content of an image instance into a new image in an image list.
     /**
-       Transfer the dimensions and the pixel buffer content of an image instance
+       Transfers the dimensions and the pixel buffer content of an image instance
        into a newly inserted image at position \c pos in specified \c CImgList<t> instance.
        \param list Destination list.
        \param pos Position of the newly inserted image in the list.
@@ -14102,7 +11960,7 @@ namespace cimg_library {
     /**
        Return a reference to a located pixel value of the image instance,
        being possibly \e const, whether the image instance is \e const or not.
-       This is the standard method to get/set pixel values in \c CImg<T> images.
+       This is the standard function to get/set pixel values in \c CImg<T> images.
        \param x X-coordinate of the pixel value.
        \param y Y-coordinate of the pixel value.
        \param z Z-coordinate of the pixel value.
@@ -14110,7 +11968,7 @@ namespace cimg_library {
        \note
        - Range of pixel coordinates start from <tt>(0,0,0,0)</tt> to
          <tt>(width() - 1,height() - 1,depth() - 1,spectrum() - 1)</tt>.
-       - Due to the particular arrangement of the pixel buffers defined in %CImg, you can omit one coordinate if the
+       - Due to the particular arrangement of the pixel buffers defined in \CImg, you can omit one coordinate if the
          corresponding dimension is equal to \c 1.
          For instance, pixels of a 2D image (depth() equal to \c 1) can be accessed by <tt>img(x,y,c)</tt> instead of
          <tt>img(x,y,0,c)</tt>.
@@ -14388,7 +12246,7 @@ namespace cimg_library {
        \note
        - The size of the image instance is never modified.
        - It is not mandatory that input image \c img has the same size as the image instance.
-         If less values are available in \c img, then the values are added periodically. For instance, adding one
+         If fewer values are available in \c img, then the values are added periodically. For instance, adding one
          WxH scalar image (spectrum() equal to \c 1) to one WxH color image (spectrum() equal to \c 3)
          means each color channel will be incremented with the same values at the same locations.
        \par Example
@@ -15466,7 +13324,7 @@ namespace cimg_library {
       return CImgList<_cimg_Tt>(list,false).insert(*this,0);
     }
 
-    //! Split image along specified axis.
+    //! Split the image along a specified axis.
     /**
        Return a new list of images (\c CImgList instance) containing the split components
        of the instance image along the specified axis.
@@ -15620,7 +13478,7 @@ namespace cimg_library {
        \param z Z-coordinate of the pixel value.
        \param c C-coordinate of the pixel value.
        \note
-       - Writing \c img.data(x,y,z,c) is equivalent to <tt>&(img(x,y,z,c))</tt>. Thus, this method has the same
+       - Writing \c img.data(x,y,z,c) is equivalent to <tt>&(img(x,y,z,c))</tt>. Thus, this function has the same
          properties as operator()(unsigned int,unsigned int,unsigned int,unsigned int).
      **/
 #if cimg_verbosity>=3
@@ -15656,7 +13514,7 @@ namespace cimg_library {
        \param c C-coordinate of the pixel value.
        \note
        - Writing \c img.data(x,y,z,c) is equivalent to <tt>&(img(x,y,z,c)) - img.data()</tt>.
-         Thus, this method has the same properties as operator()(unsigned int,unsigned int,unsigned int,unsigned int).
+         Thus, this function has the same properties as operator()(unsigned int,unsigned int,unsigned int,unsigned int).
        \par Example
        \code
        const CImg<float> img(100,100,1,3); // Define a 100x100 RGB-color image
@@ -15750,7 +13608,7 @@ namespace cimg_library {
        - Writing \c img.at(offset,out_value) is similar to <tt>img[offset]</tt>, except that if \c offset
          is outside bounds (e.g. \c offset<0 or \c offset>=img.size()), a reference to a value \c out_value
          is safely returned instead.
-       - Due to the additional boundary checking operation, this method is slower than operator()(). Use it when
+       - Due to the additional boundary checking operation, this function is slower than operator()(). Use it when
          you are \e not sure about the validity of the specified pixel offset.
     **/
     T& at(const int offset, const T& out_value) {
@@ -15772,9 +13630,9 @@ namespace cimg_library {
          nearest pixel in the image instance, regarding the specified offset, i.e.
          - If \c offset<0, then \c img[0] is returned.
          - If \c offset>=img.size(), then \c img[img.size() - 1] is returned.
-       - Due to the additional boundary checking operation, this method is slower than operator()(). Use it when
+       - Due to the additional boundary checking operation, this function is slower than operator()(). Use it when
          you are \e not sure about the validity of the specified pixel offset.
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method \c _at(int).
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function \c _at(int).
      **/
     T& at(const int offset) {
       if (is_empty())
@@ -15815,7 +13673,7 @@ namespace cimg_library {
        \note
        - Similar to operator()(), except that an out-of-bounds access along the X-axis returns the specified value
          \c out_value.
-       - Due to the additional boundary checking operation, this method is slower than operator()(). Use it when
+       - Due to the additional boundary checking operation, this function is slower than operator()(). Use it when
          you are \e not sure about the validity of the specified pixel coordinates.
        \warning
        - There is \e no boundary checking performed for the Y,Z and C-coordinates, so they must be inside image bounds.
@@ -15840,9 +13698,9 @@ namespace cimg_library {
        \note
        - Similar to at(int,int,int,int,const T), except that an out-of-bounds access returns the value of the
          nearest pixel in the image instance, regarding the specified X-coordinate.
-       - Due to the additional boundary checking operation, this method is slower than operator()(). Use it when
+       - Due to the additional boundary checking operation, this function is slower than operator()(). Use it when
          you are \e not sure about the validity of the specified pixel coordinates.
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _at(int,int,int,int).
        \warning
        - There is \e no boundary checking performed for the Y,Z and C-coordinates, so they must be inside image bounds.
@@ -15889,7 +13747,7 @@ namespace cimg_library {
     /**
        Similar to atX(int,int,int,int), except that boundary checking is performed both on X and Y-coordinates.
        \note
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _atXY(int,int,int,int).
      **/
     T& atXY(const int x, const int y, const int z=0, const int c=0) {
@@ -15938,7 +13796,7 @@ namespace cimg_library {
     /**
        Similar to atX(int,int,int,int), except that boundary checking is performed both on X,Y and Z-coordinates.
        \note
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _atXYZ(int,int,int,int).
     **/
     T& atXYZ(const int x, const int y, const int z, const int c=0) {
@@ -15990,7 +13848,7 @@ namespace cimg_library {
     /**
        Similar to atX(int,int,int,int), except that boundary checking is performed on all X,Y,Z and C-coordinates.
        \note
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _atXYZC(int,int,int,int).
     **/
     T& atXYZC(const int x, const int y, const int z, const int c) {
@@ -16062,7 +13920,7 @@ namespace cimg_library {
        \note
        - Similar to linear_atX(float,int,int,int,const T) const, except that an out-of-bounds access returns
          the value of the nearest pixel in the image instance, regarding the specified X-coordinate.
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _linear_atX(float,int,int,int).
        \warning
        - There is \e no boundary checking performed for the Y,Z and C-coordinates, so they must be inside image bounds.
@@ -16137,7 +13995,7 @@ namespace cimg_library {
        Similar to linear_atX(float,int,int,int) const, except that the linear interpolation and the boundary checking
        are achieved both for X and Y-coordinates.
        \note
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _linear_atXY(float,float,int,int).
     **/
     Tfloat linear_atXY(const float fx, const float fy, const int z=0, const int c=0) const {
@@ -16231,7 +14089,7 @@ namespace cimg_library {
        Similar to linear_atX(float,int,int,int) const, except that the linear interpolation and the boundary checking
        are achieved both for X,Y and Z-coordinates.
        \note
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _linear_atXYZ(float,float,float,int).
     **/
     Tfloat linear_atXYZ(const float fx, const float fy=0, const float fz=0, const int c=0) const {
@@ -16366,7 +14224,7 @@ namespace cimg_library {
        Similar to linear_atX(float,int,int,int) const, except that the linear interpolation and the boundary checking
        are achieved for all X,Y,Z and C-coordinates.
        \note
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _linear_atXYZC(float,float,float,float).
     **/
     Tfloat linear_atXYZC(const float fx, const float fy=0, const float fz=0, const float fc=0) const {
@@ -16535,7 +14393,7 @@ namespace cimg_library {
        \note
        - Similar to cubic_atX(float,int,int,int,const T) const, except that the returned pixel value is
          approximated by a cubic interpolation along the X-axis.
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _cubic_atX(float,int,int,int).
        \warning
        - There is \e no boundary checking performed for the Y,Z and C-coordinates, so they must be inside image bounds.
@@ -16648,7 +14506,7 @@ namespace cimg_library {
        Similar to cubic_atX(float,int,int,int) const, except that the cubic interpolation and boundary checking
        are achieved for both X and Y-coordinates.
        \note
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
        \c _cubic_atXY(float,float,int,int).
     **/
     Tfloat cubic_atXY(const float fx, const float fy, const int z=0, const int c=0) const {
@@ -16840,7 +14698,7 @@ namespace cimg_library {
        Similar to cubic_atX(float,int,int,int) const, except that the cubic interpolation and boundary checking
        are achieved both for X,Y and Z-coordinates.
        \note
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _cubic_atXYZ(float,float,float,int).
     **/
     Tfloat cubic_atXYZ(const float fx, const float fy, const float fz, const int c=0) const {
@@ -16956,7 +14814,7 @@ namespace cimg_library {
        Similar to cubic_atX(float,int,int,int) const, except that the cubic interpolation and boundary checking
        are achieved both for X,Y and Z-coordinates.
        \note
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _cubic_atXYZ(float,float,float,int).
     **/
     Tfloat cubic_atXYZ_p(const float fx, const float fy, const float fz, const int c=0) const {
@@ -17075,7 +14933,7 @@ namespace cimg_library {
          the current image pixel(s).
        \return A reference to the current image instance.
        \note
-       - Calling this method with out-of-bounds coordinates does nothing.
+       - Calling this function with out-of-bounds coordinates does nothing.
     **/
     CImg<T>& set_linear_atX(const T& value, const float fx, const int y=0, const int z=0, const int c=0,
                             const bool is_added=false) {
@@ -17224,7 +15082,7 @@ namespace cimg_library {
       for (ulongT off = 0, siz = size(); off<siz && (!max_size || string_size<max_size); ++off) {
         const unsigned int printed_size = 1U + cimg_snprintf(s_item,s_item._width,_format,
                                                              cimg::type<T>::format(*(ptrs++)));
-        CImg<charT> item(s_item._data,printed_size);
+        CImg<charT> item(s_item._data,std::min(printed_size,s_item._width));
         item[printed_size - 1] = separator;
         item.move_to(items);
         if (max_size) string_size+=printed_size;
@@ -17247,9 +15105,9 @@ namespace cimg_library {
     /**
        Return \c true if image instance has a shared memory buffer, and \c false otherwise.
        \note
-       - A shared image do not own his pixel buffer data() and will not deallocate it on destruction.
+       - A shared image does not own its pixel buffer data() and will not deallocate it on destruction.
        - Most of the time, a \c CImg<T> image instance will \e not be shared.
-       - A shared image can only be obtained by a limited set of constructors and methods (see list below).
+       - A shared image can only be obtained by a limited set of constructors and functions (see list below).
     **/
     bool is_shared() const {
       return _is_shared;
@@ -17257,7 +15115,7 @@ namespace cimg_library {
 
     //! Test if image instance is empty.
     /**
-       Return \c true, if image instance is empty, i.e. does \e not contain any pixel values, has dimensions
+       Return \c true if image instance is empty, i.e. does \e not contain any pixel values, has dimensions
        \c 0 x \c 0 x \c 0 x \c 0 and a pixel buffer pointer set to \c 0 (null pointer), and \c false otherwise.
     **/
     bool is_empty() const {
@@ -17266,19 +15124,19 @@ namespace cimg_library {
 
     //! Test if image instance contains a 'inf' value.
     /**
-       Return \c true, if image instance contains a 'inf' value, and \c false otherwise.
+       Return \c true if image instance contains a 'inf' value, and \c false otherwise.
     **/
     bool is_inf() const {
-      if (cimg::type<T>::is_float()) cimg_for(*this,p,T) if (cimg::type<T>::is_inf((float)*p)) return true;
+      if (cimg::type<T>::is_float()) cimg_for(*this,p,T) if (cimg::type<T>::is_inf((double)*p)) return true;
       return false;
     }
 
     //! Test if image instance contains a NaN value.
     /**
-       Return \c true, if image instance contains a NaN value, and \c false otherwise.
+       Return \c true if image instance contains a NaN value, and \c false otherwise.
     **/
     bool is_nan() const {
-      if (cimg::type<T>::is_float()) cimg_for(*this,p,T) if (cimg::type<T>::is_nan((float)*p)) return true;
+      if (cimg::type<T>::is_float()) cimg_for(*this,p,T) if (cimg::type<T>::is_nan((double)*p)) return true;
       return false;
     }
 
@@ -17344,7 +15202,7 @@ namespace cimg_library {
       return _width==size_x && _height==size_y;
     }
 
-    //! Test if image width and height are the same as that of another image.
+    //! Test if image width and height are the same as those of another image.
     /**
        Test if is_sameX(const CImg<t>&) const and is_sameY(const CImg<t>&) const are both verified.
     **/
@@ -17369,7 +15227,7 @@ namespace cimg_library {
       return _width==size_x && _depth==size_z;
     }
 
-    //! Test if image width and depth are the same as that of another image.
+    //! Test if image width and depth are the same as those of another image.
     /**
        Test if is_sameX(const CImg<t>&) const and is_sameZ(const CImg<t>&) const are both verified.
     **/
@@ -17386,7 +15244,7 @@ namespace cimg_library {
       return _width==size_x && _spectrum==size_c;
     }
 
-    //! Test if image width and spectrum are the same as that of another image.
+    //! Test if image width and spectrum are the same as those of another image.
     /**
        Test if is_sameX(const CImg<t>&) const and is_sameC(const CImg<t>&) const are both verified.
     **/
@@ -17403,7 +15261,7 @@ namespace cimg_library {
       return _height==size_y && _depth==size_z;
     }
 
-    //! Test if image height and depth are the same as that of another image.
+    //! Test if image height and depth are the same as those of another image.
     /**
        Test if is_sameY(const CImg<t>&) const and is_sameZ(const CImg<t>&) const are both verified.
     **/
@@ -17420,7 +15278,7 @@ namespace cimg_library {
       return _height==size_y && _spectrum==size_c;
     }
 
-    //! Test if image height and spectrum are the same as that of another image.
+    //! Test if image height and spectrum are the same as those of another image.
     /**
        Test if is_sameY(const CImg<t>&) const and is_sameC(const CImg<t>&) const are both verified.
     **/
@@ -17437,7 +15295,7 @@ namespace cimg_library {
       return _depth==size_z && _spectrum==size_c;
     }
 
-    //! Test if image depth and spectrum are the same as that of another image.
+    //! Test if image depth and spectrum are the same as those of another image.
     /**
        Test if is_sameZ(const CImg<t>&) const and is_sameC(const CImg<t>&) const are both verified.
     **/
@@ -17454,7 +15312,7 @@ namespace cimg_library {
       return is_sameXY(size_x,size_y) && _depth==size_z;
     }
 
-    //! Test if image width, height and depth are the same as that of another image.
+    //! Test if image width, height and depth are the same as those of another image.
     /**
        Test if is_sameXY(const CImg<t>&) const and is_sameZ(const CImg<t>&) const are both verified.
     **/
@@ -17471,7 +15329,7 @@ namespace cimg_library {
       return is_sameXY(size_x,size_y) && _spectrum==size_c;
     }
 
-    //! Test if image width, height and spectrum are the same as that of another image.
+    //! Test if image width, height and spectrum are the same as those of another image.
     /**
        Test if is_sameXY(const CImg<t>&) const and is_sameC(const CImg<t>&) const are both verified.
     **/
@@ -17488,7 +15346,7 @@ namespace cimg_library {
       return is_sameXZ(size_x,size_z) && _spectrum==size_c;
     }
 
-    //! Test if image width, depth and spectrum are the same as that of another image.
+    //! Test if image width, depth and spectrum are the same as those of another image.
     /**
        Test if is_sameXZ(const CImg<t>&) const and is_sameC(const CImg<t>&) const are both verified.
     **/
@@ -17505,7 +15363,7 @@ namespace cimg_library {
       return is_sameYZ(size_y,size_z) && _spectrum==size_c;
     }
 
-    //! Test if image height, depth and spectrum are the same as that of another image.
+    //! Test if image height, depth and spectrum are the same as those of another image.
     /**
        Test if is_sameYZ(const CImg<t>&) const and is_sameC(const CImg<t>&) const are both verified.
     **/
@@ -17524,7 +15382,7 @@ namespace cimg_library {
       return is_sameXYZ(size_x,size_y,size_z) && _spectrum==size_c;
     }
 
-    //! Test if image width, height, depth and spectrum are the same as that of another image.
+    //! Test if image width, height, depth and spectrum are the same as those of another image.
     /**
        Test if is_sameXYZ(const CImg<t>&) const and is_sameC(const CImg<t>&) const are both verified.
     **/
@@ -17555,7 +15413,7 @@ namespace cimg_library {
 
     //! Test if pixel value is inside image bounds and get its X,Y,Z and C-coordinates.
     /**
-       Return \c true, if specified reference refers to a pixel value inside bounds of the image instance,
+       Return \c true if specified reference refers to a pixel value inside bounds of the image instance,
        and \c false otherwise.
        \param pixel Reference to pixel value to test.
        \param[out] x X-coordinate of the pixel value, if test succeeds.
@@ -17644,7 +15502,7 @@ namespace cimg_library {
 
     //! Test if pixel buffers of instance and input images overlap.
     /**
-       Return \c true, if pixel buffers attached to image instance and input image \c img overlap,
+       Return \c true if pixel buffers attached to image instance and input image \c img overlap,
        and \c false otherwise.
        \param img Input image to compare with.
        \note
@@ -17669,8 +15527,8 @@ namespace cimg_library {
 
     //! Test if the set {\c *this,\c primitives,\c colors,\c opacities} defines a valid 3D object.
     /**
-       Return \c true is the 3D object represented by the set {\c *this,\c primitives,\c colors,\c opacities} defines a
-       valid 3D object, and \c false otherwise. The vertex coordinates are defined by the instance image.
+       Return \c true if the 3D object represented by the set {\c *this,\c primitives,\c colors,\c opacities} is valid,
+         and \c false otherwise. The vertex coordinates are defined by the instance image.
        \param primitives List of primitives of the 3D object.
        \param colors List of colors of the 3D object.
        \param opacities List (or image) of opacities of the 3D object.
@@ -17690,7 +15548,7 @@ namespace cimg_library {
                      char *const error_message=0) const {
       if (error_message) *error_message = 0;
 
-      // Check consistency for the particular case of an empty 3D object.
+      // Check the consistency for the particular case of an empty 3D object.
       if (is_empty()) {
         if (primitives || colors || opacities) {
           if (error_message) cimg_snprintf(error_message,256,
@@ -17703,7 +15561,7 @@ namespace cimg_library {
         return true;
       }
 
-      // Check consistency of vertices.
+      // Check the consistency of vertices.
       if (_height!=3 || _depth>1 || _spectrum>1) { // Check vertices dimensions
         if (error_message) cimg_snprintf(error_message,256,
                                         "3D object (%u,%u) has invalid vertex dimensions (%u,%u,%u,%u)",
@@ -17724,7 +15582,7 @@ namespace cimg_library {
       }
       if (!full_check) return true;
 
-      // Check consistency of primitives.
+      // Check the consistency of primitives.
       cimglist_for(primitives,l) {
         const CImg<tp>& primitive = primitives[l];
         const unsigned int psiz = (unsigned int)primitive.size();
@@ -17798,7 +15656,7 @@ namespace cimg_library {
         }
       }
 
-      // Check consistency of colors.
+      // Check the consistency of colors.
       cimglist_for(colors,c) {
         const CImg<tc>& color = colors[c];
         if (!color) {
@@ -17809,7 +15667,7 @@ namespace cimg_library {
         }
       }
 
-      // Check consistency of light texture.
+      // Check the consistency of light texture.
       if (colors._width>primitives._width) {
         const CImg<tc> &light = colors.back();
         if (!light || light._depth>1) {
@@ -17862,7 +15720,7 @@ namespace cimg_library {
         nb_points = cimg::float2uint(*(ptrs++)),
         nb_primitives = cimg::float2uint(*(ptrs++));
 
-      // Check consistency of number of vertices / primitives.
+      // Check the consistency of number of vertices / primitives.
       if (!full_check) {
         const ulongT minimal_size = 8UL + 3*nb_points + 6*nb_primitives;
         if (_data + minimal_size>ptre) {
@@ -17874,7 +15732,7 @@ namespace cimg_library {
         }
       }
 
-      // Check consistency of vertex data.
+      // Check the consistency of vertex data.
       if (!nb_points) {
         if (nb_primitives) {
           if (error_message) cimg_snprintf(error_message,256,
@@ -17899,7 +15757,7 @@ namespace cimg_library {
       }
       ptrs+=3*nb_points;
 
-      // Check consistency of primitive data.
+      // Check the consistency of primitive data.
       if (ptrs==ptre) {
         if (error_message) cimg_snprintf(error_message,256,
                                          "CImg3d (%u,%u) defines %u vertices but no primitive",
@@ -17991,7 +15849,7 @@ namespace cimg_library {
         }
       }
 
-      // Check consistency of color data.
+      // Check the consistency of color data.
       if (ptrs==ptre) {
         if (error_message) cimg_snprintf(error_message,256,
                                          "CImg3d (%u,%u) defines no color/texture data",
@@ -18024,7 +15882,7 @@ namespace cimg_library {
         }
       }
 
-      // Check consistency of opacity data.
+      // Check the consistency of opacity data.
       if (ptrs==ptre) {
         if (error_message) cimg_snprintf(error_message,256,
                                          "CImg3d (%u,%u) defines no opacity data",
@@ -18172,9 +16030,12 @@ namespace cimg_library {
         const char *_expression = expression;
         while (*_expression && (cimg::is_blank(*_expression) || *_expression==';')) ++_expression;
         CImg<charT>::string(_expression).move_to(expr);
-        char *ps = &expr.back() - 1;
-        while (ps>expr._data && (cimg::is_blank(*ps) || *ps==';')) --ps;
-        *(++ps) = 0; expr._width = (unsigned int)(ps - expr._data + 1);
+        char *ps;
+        if (expr._width>1) {
+          ps = &expr.back() - 1;
+          while (ps>expr._data && (cimg::is_blank(*ps) || *ps==';')) --ps;
+          *(++ps) = 0; expr._width = (unsigned int)(ps - expr._data + 1);
+        }
 
         // Ease the retrieval of previous non-space characters afterwards.
         pexpr.assign(expr._width);
@@ -18390,7 +16251,7 @@ namespace cimg_library {
         CImg<charT> variable_name;
         CImgList<ulongT> l_opcode;
 
-        // Look for a single value or a pre-defined variable.
+        // Look for a single value or a predefined variable.
         int nb = 0;
         is_sth = *ss=='-';
         s = ss + (*ss=='+' || is_sth?1:0);
@@ -18799,7 +16660,7 @@ namespace cimg_library {
                     _cimg_mp_strerr;
                     cimg::strellipsize(variable_name,64);
                     throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                                "CImg<%s>::%s: %s: Too much specified arguments (>24), in macro "
+                                                "CImg<%s>::%s: %s: Too many specified arguments (>24), in macro "
                                                 "definition '%s()', in expression '%s'.",
                                                 pixel_type(),_cimg_mp_calling_function,s_op,
                                                 variable_name._data,s0);
@@ -18995,7 +16856,7 @@ namespace cimg_library {
               _cimg_mp_return(arg1);
             }
 
-            // Assign lvalue (variable name was not valid for a direct assignment).
+            // Assign lvalue (the variable name was not valid for a direct assignment).
             arg1 = ~0U;
             is_sth = (bool)std::strchr(variable_name,'?'); // Contains_ternary_operator?
             if (is_sth) break; // Do nothing and make ternary operator priority over assignment
@@ -19530,7 +17391,7 @@ namespace cimg_library {
           }
 
         for (s = se3, ns = se2, ps = se4; s>ss; --s, --ns)
-          if (*s=='<' && *ns=='=' && *ps!='$' && level[s - expr._data]==clevel) { // Less or equal than ('<=')
+          if (*s=='<' && *ns=='=' && *ps!='$' && level[s - expr._data]==clevel) { // Less than or equal to ('<=')
             _cimg_mp_op("Operator '<='");
             arg1 = compile(ss,s,depth1,0,block_flags);
             arg2 = compile(s + 2,se,depth1,0,block_flags);
@@ -19543,7 +17404,7 @@ namespace cimg_library {
           }
 
         for (s = se3, ns = se2, ps = se4; s>ss; --s, --ns)
-          if (*s=='>' && *ns=='=' && *ps!='$' && level[s - expr._data]==clevel) { // Greater or equal than ('>=')
+          if (*s=='>' && *ns=='=' && *ps!='$' && level[s - expr._data]==clevel) { // Greater than or equal to ('>=')
             _cimg_mp_op("Operator '>='");
             arg1 = compile(ss,s,depth1,0,block_flags);
             arg2 = compile(s + 2,se,depth1,0,block_flags);
@@ -20867,7 +18728,7 @@ namespace cimg_library {
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: %s arguments provided, in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
-                                            arg1<12?"Not enough":"Too much",s0);
+                                            arg1<12?"Not enough":"Too many",s0);
               }
               _cimg_mp_check_type(opcode[2],1,2,0); // I
               _cimg_mp_check_const_scalar(opcode[3],2,3); // wI
@@ -21101,10 +18962,10 @@ namespace cimg_library {
                   arg1 = 5 + arg2; break;
                 case 9 :
                   arg1 = 5 + arg2; break;
-                default : // Error -> too much arguments
+                default : // Error -> too many arguments
                   _cimg_mp_strerr;
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                              "CImg<%s>::%s: %s: Too much arguments specified, "
+                                              "CImg<%s>::%s: %s: Too many arguments specified, "
                                               "in expression '%s'.",
                                               pixel_type(),_cimg_mp_calling_function,s_op,s0);
                 }
@@ -21196,7 +19057,7 @@ namespace cimg_library {
                   arg1 = 10; break;
                 case 14 :
                   arg1 = 10; break;
-                default : // Error -> too few or too much arguments
+                default : // Error -> too few or too many arguments
                   _cimg_mp_strerr;
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                               "CImg<%s>::%s: %s: Too %s arguments specified, "
@@ -22042,7 +19903,7 @@ namespace cimg_library {
               if (arg1==~0U) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                            "CImg<%s>::%s: %s: Too much arguments specified, in expression '%s'.",
+                                            "CImg<%s>::%s: %s: Too many arguments specified, in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s0);
               }
@@ -23252,7 +21113,7 @@ namespace cimg_library {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Type of first argument ('%s') "
-                                            "do not match with second argument 'nb_colsS=%u', "
+                                            "does not match the second argument 'nb_colsS=%u', "
                                             "in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s_type(arg1)._data,wS,s0);
@@ -23261,7 +21122,7 @@ namespace cimg_library {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Type of third argument ('%s') "
-                                            "do not match with fourth argument 'nb_colsD=%u', "
+                                            "does not match the fourth argument 'nb_colsD=%u', "
                                             "in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s_type(arg3)._data,wD,s0);
@@ -23270,7 +21131,7 @@ namespace cimg_library {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Type of first argument ('%s') "
-                                            "do not match with third argument ('%s'), "
+                                            "does not match the third argument ('%s'), "
                                             "in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s_type(arg1)._data,s_type(arg3)._data,s0);
@@ -23304,12 +21165,11 @@ namespace cimg_library {
               p2 = size(arg2);
               p3 = (unsigned int)mem[arg3];
               arg5 = p2/p3;
-              arg4 = p1/arg5;
-              if (arg4*arg5!=p1 || arg5*p3!=p2) {
+              if (!arg5 || (arg4 = p1/arg5)*arg5!=p1 || arg5*p3!=p2) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Types of first and second arguments ('%s' and '%s') "
-                                            "do not match with third argument 'nb_colsB=%u', "
+                                            "do not match the third argument 'nb_colsB=%u', "
                                             "in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s_type(arg1)._data,s_type(arg2)._data,p3,s0);
@@ -23842,7 +21702,7 @@ namespace cimg_library {
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                               "CImg<%s>::%s: %s: %s arguments, in expression '%s'.",
                                               pixel_type(),_cimg_mp_calling_function,s_op,
-                                              pos<1?"Missing":"Too much",s0);
+                                              pos<1?"Missing":"Too many",s0);
                 }
                 l_opcode[0].move_to(code);
                 _cimg_mp_return_nan();
@@ -24148,7 +22008,7 @@ namespace cimg_library {
               _cimg_mp_return(scalar3(*ss8=='a'?mp_softargmax:mp_softargmin,arg1,p1,arg2));
             }
 
-            if (!std::strncmp(ss,"softmax(",8) || !std::strncmp(ss,"softmin(",8)) { // Softmax & softmin
+            if (!std::strncmp(ss,"softmax(",8) || !std::strncmp(ss,"softmin(",8)) { // Softmax & Softmin
               _cimg_mp_op(*ss5=='a'?"Function 'softmax()'":"Function 'softmin()'");
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss8,s1,depth1,0,block_flags);
@@ -24171,17 +22031,15 @@ namespace cimg_library {
               _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_type(arg2,2,2,0);
               _cimg_mp_check_const_scalar(arg3,3,3);
-
               p1 = size(arg1);
               p2 = size(arg2);
               p3 = (unsigned int)mem[arg3];
               arg5 = p2/p3;
-              arg6 = p1/arg5;
-              if (arg6*arg5!=p1 || arg5*p3!=p2) {
+              if (!arg5 || (arg6 = p1/arg5)*arg5!=p1 || arg5*p3!=p2) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Types of first and second arguments ('%s' and '%s') "
-                                            "do not match with third argument 'nb_colsB=%u', "
+                                            "do not match the third argument 'nb_colsB=%u', "
                                             "in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s_type(arg1)._data,s_type(arg2)._data,p3,s0);
@@ -24351,7 +22209,7 @@ namespace cimg_library {
               _cimg_mp_op("Function 'string()'");
               CImg<ulongT>::vector((ulongT)mp_string,0,0,0).move_to(l_opcode);
 
-              if (*ss7=='#') { // Output vector size specified, with '#'
+              if (*ss7=='#') { // Output vector size specified with '#'
                 s0 = ss8; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 arg1 = compile(ss8,s0++,depth1,0,block_flags);
                 _cimg_mp_check_const_scalar(arg1,1,3);
@@ -26098,13 +23956,13 @@ namespace cimg_library {
         }
       }
 
-      // Check that imglist are not empty.
+      // Check that the image list is not empty.
       void check_list(char *const ss, char *const se, const char saved_char) {
         if (!imglist) {
           char *s0;
           _cimg_mp_strerr;
           throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                      "CImg<%s>::%s: %s%s Image list cannot be empty, for expression '%s'.",
+                                      "CImg<%s>::%s: %s%s The image list cannot be empty, for expression '%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",s0);
         }
       }
@@ -26136,7 +23994,7 @@ namespace cimg_library {
             *constcache_vals = val;
             constcache_size = 1;
             ind = 0;
-          } else { // Dichotomic search
+          } else { // Binary search
             const double val_beg = *constcache_vals, val_end = constcache_vals[constcache_size - 1];
             if (val_beg>=val) ind = 0;
             else if (val_end==val) ind = constcache_size - 1;
@@ -26208,7 +24066,7 @@ namespace cimg_library {
       }
 
       // Return a copy of the specified value.
-      // (this forces a copy to be made. Use 'same()' for cases where you may want to return 'arg').
+      // (This forces a copy to be made. Use 'same()' if you only want to return 'arg' without copying).
       unsigned int copy(const unsigned int arg) {
         const unsigned int siz = size(arg);
         return_comp = true;
@@ -26221,7 +24079,7 @@ namespace cimg_library {
       }
 
       // Return same value as specified.
-      // (this avoids a copy to be made when possible. Use 'copy()' to force the copy of a value).
+      // (This avoids copying when possible. Use 'copy()' to force a copy).
       unsigned int same(const unsigned int arg) {
         if (is_const_scalar(arg)) return arg;
         if (is_comp_scalar(arg)) { return_comp = true; return arg; }
@@ -30605,7 +28463,7 @@ namespace cimg_library {
           sizs = (unsigned int)mp.opcode[4];
         std::memset(ptrd,0,sizd*sizeof(double));
         const int nb_digits = (int)_mp_arg(5);
-        CImg<charT> format(8);
+        CImg<charT> format(32);
         switch (nb_digits) {
         case -1 : std::strcpy(format,"%g"); break;
         case 0 : std::strcpy(format,"%.17g"); break;
@@ -31659,7 +29517,7 @@ namespace cimg_library {
     /**
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its square value \f$I_{(x,y,z,c)}^2\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
        \par Example
        \code
@@ -31674,7 +29532,7 @@ namespace cimg_library {
     /**
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its square root \f$\sqrt{I_{(x,y,z,c)}}\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
        \par Example
        \code
@@ -31689,7 +29547,7 @@ namespace cimg_library {
     /**
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its exponential \f$e^{I_{(x,y,z,c)}}\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(exp,std::exp,4096)
@@ -31698,7 +29556,7 @@ namespace cimg_library {
     /**
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its error function.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
 #if cimg_use_cpp11==1
@@ -31710,7 +29568,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its logarithm
        \f$\mathrm{log}_{e}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(log,std::log,262144)
@@ -31720,7 +29578,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its base-2 logarithm
        \f$\mathrm{log}_{2}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(log2,cimg::log2,4096)
@@ -31730,7 +29588,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its base-10 logarithm
        \f$\mathrm{log}_{10}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(log10,std::log10,4096)
@@ -31739,7 +29597,7 @@ namespace cimg_library {
     /**
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its absolute value \f$|I_{(x,y,z,c)}|\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(abs,cimg::abs,524288)
@@ -31753,7 +29611,7 @@ namespace cimg_library {
          - \c 1 if pixel value is strictly positive.
          - \c -1 if pixel value is strictly negative.
          - \c 0 if pixel value is equal to \c 0.
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(sign,cimg::sign,32768)
@@ -31762,8 +29620,8 @@ namespace cimg_library {
     /**
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its cosine \f$\cos(I_{(x,y,z,c)})\f$.
        \note
-       - Pixel values are regarded as being in \e radian.
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - Pixel values are regarded as being in \e radians.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(cos,std::cos,8192)
@@ -31772,8 +29630,8 @@ namespace cimg_library {
     /**
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its sine \f$\sin(I_{(x,y,z,c)})\f$.
        \note
-       - Pixel values are regarded as being in \e radian.
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - Pixel values are regarded as being in \e radians.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(sin,std::sin,8192)
@@ -31783,8 +29641,8 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its sinc
        \f$\mathrm{sinc}(I_{(x,y,z,c)})\f$.
        \note
-       - Pixel values are regarded as being exin \e radian.
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - Pixel values are regarded as being in \e radians.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(sinc,cimg::sinc,2048)
@@ -31793,8 +29651,8 @@ namespace cimg_library {
     /**
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its tangent \f$\tan(I_{(x,y,z,c)})\f$.
        \note
-       - Pixel values are regarded as being exin \e radian.
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - Pixel values are regarded as being in \e radians.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(tan,std::tan,2048)
@@ -31804,7 +29662,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its hyperbolic cosine
        \f$\mathrm{cosh}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(cosh,std::cosh,2048)
@@ -31814,7 +29672,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its hyperbolic sine
        \f$\mathrm{sinh}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(sinh,std::sinh,2048)
@@ -31824,7 +29682,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its hyperbolic tangent
        \f$\mathrm{tanh}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(tanh,std::tanh,2048)
@@ -31834,7 +29692,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its arccosine
        \f$\mathrm{acos}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(acos,std::acos,8192)
@@ -31844,7 +29702,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its arcsine
        \f$\mathrm{asin}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(asin,std::asin,8192)
@@ -31854,7 +29712,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its arctangent
        \f$\mathrm{atan}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(atan,std::atan,8192)
@@ -31865,7 +29723,7 @@ namespace cimg_library {
        \f$\mathrm{atan2}(I_{(x,y,z,c)})\f$.
        \param img Image whose pixel values specify the second argument of the \c atan2() function.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
        \par Example
        \code
@@ -31901,7 +29759,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its arccosineh
        \f$\mathrm{acosh}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(acosh,cimg::acosh,8192)
@@ -31911,7 +29769,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its hyperbolic arcsine
        \f$\mathrm{asinh}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(asinh,cimg::asinh,8192)
@@ -31921,7 +29779,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its hyperbolic arctangent
        \f$\mathrm{atanh}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(atanh,cimg::atanh,8192)
@@ -31992,7 +29850,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its power \f$I_{(x,y,z,c)}^p\f$.
        \param p Exponent value.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
        \par Example
        \code
@@ -32579,7 +30437,7 @@ namespace cimg_library {
     void _min_max(const T* &ptr_min, const T* &ptr_max) const {
       T val_min = *_data, val_max = val_min;
       ptr_min = ptr_max = _data;
-      if (cimg_use_openmp && size()>(1LU<<24)*cimg_openmp_sizefactor) {
+      if (cimg_use_openmp && size()>(1LU<<24)*cimg_openmp_sizefactor) { // Parallel version
 #if cimg_use_openmp
         cimg_pragma_openmp(parallel) {
           T l_val_min = *_data, l_val_max = l_val_min;
@@ -32601,13 +30459,12 @@ namespace cimg_library {
           }
         }
 #endif
-      }
-
-      // Single-threaded version.
-      cimg_for(*this,ptrs,T) {
-        const T val = *ptrs;
-        if (val<val_min) { val_min = val; ptr_min = ptrs; }
-        if (val>val_max) { val_max = val; ptr_max = ptrs; }
+      } else { // Single-threaded version.
+        cimg_for(*this,ptrs,T) {
+          const T val = *ptrs;
+          if (val<val_min) { val_min = val; ptr_min = ptrs; }
+          if (val>val_max) { val_max = val; ptr_max = ptrs; }
+        }
       }
     }
 
@@ -32696,8 +30553,10 @@ namespace cimg_library {
       case 13 : return cimg::median(_data[0],_data[1],_data[2],_data[3],_data[4],_data[5],_data[6],_data[7],_data[8],
                                     _data[9],_data[10],_data[11],_data[12]);
       }
-      const T res = kth_smallest(s>>1);
-      return (s%2)?res:(T)((res + kth_smallest((s>>1) - 1))/2);
+      const ulongT ind = s>>1;
+      if (s%2) return kth_smallest(ind);
+      const CImg<T> sorted = get_sort();
+      return (T)((sorted[ind] + sorted[ind - 1])/2);
     }
 
     //! Return greatest common diviser of all image values.
@@ -32931,10 +30790,10 @@ namespace cimg_library {
     //! Evaluate math formula.
     /**
        \param expression Math formula, as a C-string.
-       \param x Value of the pre-defined variable \c x.
-       \param y Value of the pre-defined variable \c y.
-       \param z Value of the pre-defined variable \c z.
-       \param c Value of the pre-defined variable \c c.
+       \param x Value of the predefined variable \c x.
+       \param y Value of the predefined variable \c y.
+       \param z Value of the predefined variable \c z.
+       \param c Value of the predefined variable \c c.
        \param list_images A list of images attached to the specified math formula.
     **/
     double eval(const char *const expression,
@@ -33069,10 +30928,10 @@ namespace cimg_library {
        \param[out] output Contains values of output vector returned by the evaluated expression
          (or is empty if the returned type is scalar).
        \param expression Math formula, as a C-string.
-       \param x Value of the pre-defined variable \c x.
-       \param y Value of the pre-defined variable \c y.
-       \param z Value of the pre-defined variable \c z.
-       \param c Value of the pre-defined variable \c c.
+       \param x Value of the predefined variable \c x.
+       \param y Value of the predefined variable \c y.
+       \param z Value of the predefined variable \c z.
+       \param c Value of the predefined variable \c c.
        \param list_images A list of input images attached to the specified math formula.
     **/
     template<typename t>
@@ -33552,10 +31411,10 @@ namespace cimg_library {
       return get_solve((*this)*get_transpose()).transpose();
     }
 
-//! Solve a (possibly over- or under-determined) linear system using QR decomposition.
+    //! Solve a (possibly over- or under-determined) linear system using QR decomposition.
     /**
        \brief Solve the matrix equation \f$ A\,X = B \f$, where the current instance \c *this represents \f$ B \f$,
-       and the argument \c A is the system matrix. This method supports both over-determined and
+       and the argument \c A is the system matrix. This function supports both over-determined and
        under-determined systems by internally performing a QR decomposition with column pivoting,
        which improves numerical stability and correctly handles rank-deficient matrices.
 
@@ -34265,8 +32124,8 @@ namespace cimg_library {
 
     //! Compute the projection of the instance matrix onto the specified dictionary.
     /**
-       Find the best matching projection of selected matrix onto the span of an over-complete dictionary D,
-       using the orthogonal projection or (opt. Orthogonal) Matching Pursuit algorithm.
+       Find the best-matching projection of the selected matrix onto the span of an over-complete dictionary D,
+       using the orthogonal projection or (optionally Orthogonal) Matching Pursuit algorithm.
        The instance image must be a 2D matrix in which each column represents a signal to project.
        \param dictionary A matrix in which each column is an element of the dictionary D.
        \param method Specifies which projection method is applied. It can be:
@@ -34278,7 +32137,7 @@ namespace cimg_library {
        \param max_iter Sets the max number of iterations processed for each signal.
                        If set to '0' (default), 'max_iter' is set to the number of dictionary columns.
                        (only meaningful for matching pursuit and its variants).
-       \param max_residual Gives a stopping criterion on signal reconstruction accuracy.
+       \param max_residual Provides a stopping criterion based on the signal reconstruction accuracy
                            (only meaningful for matching pursuit and its variants).
        \return A matrix W whose columns correspond to the sparse weights associated with each input matrix column.
                Thus, the matrix product D*W is an approximation of the input matrix.
@@ -34378,7 +32237,7 @@ namespace cimg_library {
         if (method>=2 && !is_orthoproj) {
           unsigned int nb_weights = 0;
           cimg_forY(weights,atom) if (weights(signal,atom)) ++nb_weights;
-          if (nb_weights) { // Avoid degenerated case where 0 coefs are used
+          if (nb_weights) { // Avoid degenerateds case where 0 coefficients are used
             CImg<Tfloat> sub_dictionary(nb_weights,dictionary._height);
             CImg<uintT> sub_atoms(nb_weights);
             int ind = 0;
@@ -34402,7 +32261,7 @@ namespace cimg_library {
        \param nb_nodes Number of graph nodes.
        \param starting_node Index of the starting node.
        \param ending_node Index of the ending node (set to ~0U to ignore ending node).
-       \param previous_node Array that gives the previous node index in the path to the starting node
+       \param previous_node Array that stores the index of the previous node in the shortest path to the starting node.
          (optional parameter).
        \return Array of distances of each node to the starting node, typed as Tfloat to prevent overflows.
     **/
@@ -35103,7 +32962,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2) {
       if (is_empty()) return *this;
       T *ptrd, *ptre = end() - 2;
@@ -35121,7 +32980,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1,val2);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3) {
       if (is_empty()) return *this;
       T *ptrd, *ptre = end() - 3;
@@ -35140,7 +32999,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1,val2,val3);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4) {
       if (is_empty()) return *this;
       T *ptrd, *ptre = end() - 4;
@@ -35162,7 +33021,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1,val2,val3,val4);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5) {
       if (is_empty()) return *this;
       T *ptrd, *ptre = end() - 5;
@@ -35185,7 +33044,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1,val2,val3,val4,val5);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6) {
       if (is_empty()) return *this;
@@ -35212,7 +33071,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1,val2,val3,val4,val5,val6);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6, const T& val7) {
       if (is_empty()) return *this;
@@ -35240,7 +33099,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1,val2,val3,val4,val5,val6,val7);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6, const T& val7, const T& val8) {
       if (is_empty()) return *this;
@@ -35270,7 +33129,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1,val2,val3,val4,val5,val6,val7,val8);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6, const T& val7, const T& val8, const T& val9) {
       if (is_empty()) return *this;
@@ -35300,7 +33159,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1,val2,val3,val4,val5,val6,val7,val8,val9);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6, const T& val7, const T& val8, const T& val9, const T& val10) {
       if (is_empty()) return *this;
@@ -35332,7 +33191,7 @@ namespace cimg_library {
       return CImg<T>(_width,_height,_depth,_spectrum).fill(val0,val1,val2,val3,val4,val5,val6,val7,val8,val9,val10);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6, const T& val7, const T& val8, const T& val9, const T& val10, const T& val11) {
       if (is_empty()) return *this;
@@ -35365,7 +33224,7 @@ namespace cimg_library {
                                                            val11);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6, const T& val7, const T& val8, const T& val9, const T& val10, const T& val11,
                   const T& val12) {
@@ -35402,7 +33261,7 @@ namespace cimg_library {
                                                            val11,val12);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6, const T& val7, const T& val8, const T& val9, const T& val10, const T& val11,
                   const T& val12, const T& val13) {
@@ -35440,7 +33299,7 @@ namespace cimg_library {
                                                            val11,val12,val13);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6, const T& val7, const T& val8, const T& val9, const T& val10, const T& val11,
                   const T& val12, const T& val13, const T& val14) {
@@ -35479,7 +33338,7 @@ namespace cimg_library {
                                                            val11,val12,val13,val14);
     }
 
-    //! Fill sequentially all pixel values with specified values \overloading.
+    //! Fill sequentially all pixel values with specified values \overload.
     CImg<T>& fill(const T& val0, const T& val1, const T& val2, const T& val3, const T& val4, const T& val5,
                   const T& val6, const T& val7, const T& val8, const T& val9, const T& val10, const T& val11,
                   const T& val12, const T& val13, const T& val14, const T& val15) {
@@ -35838,7 +33697,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Fill pixel values along the X-axis at a specified pixel position \overloading.
+    //! Fill pixel values along the X-axis at a specified pixel position \overload.
     CImg<T>& fillX(const unsigned int y, const unsigned int z, const unsigned int c, const double a0, ...) {
       if (y<_height && z<_depth && c<_spectrum) _cimg_fill1(0,y,z,c,1,_width,double);
       return *this;
@@ -35856,7 +33715,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Fill pixel values along the Y-axis at a specified pixel position \overloading.
+    //! Fill pixel values along the Y-axis at a specified pixel position \overload.
     CImg<T>& fillY(const unsigned int x, const unsigned int z, const unsigned int c, const double a0, ...) {
       if (x<_width && z<_depth && c<_spectrum) _cimg_fill1(x,0,z,c,_width,_height,double);
       return *this;
@@ -35875,7 +33734,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Fill pixel values along the Z-axis at a specified pixel position \overloading.
+    //! Fill pixel values along the Z-axis at a specified pixel position \overload.
     CImg<T>& fillZ(const unsigned int x, const unsigned int y, const unsigned int c, const double a0, ...) {
       const ulongT wh = (ulongT)_width*_height;
       if (x<_width && y<_height && c<_spectrum) _cimg_fill1(x,y,0,c,wh,_depth,double);
@@ -35895,7 +33754,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Fill pixel values along the C-axis at a specified pixel position \overloading.
+    //! Fill pixel values along the C-axis at a specified pixel position \overload.
     CImg<T>& fillC(const unsigned int x, const unsigned int y, const unsigned int z, const double a0, ...) {
       const ulongT whd = (ulongT)_width*_height*_depth;
       if (x<_width && y<_height && z<_depth) _cimg_fill1(x,y,z,0,whd,_spectrum,double);
@@ -35906,7 +33765,7 @@ namespace cimg_library {
     /**
        \param values Sequence of values to discard.
        \param axis Axis along which the values are discarded. If set to \c 0 (default value)
-         the method does it for all the buffer values and returns a one-column vector.
+         the function does it for all the buffer values and returns a one-column vector.
        \note Discarded values will change the image geometry, so the resulting image
          is returned as a one-column vector.
     **/
@@ -36549,6 +34408,7 @@ namespace cimg_library {
     **/
     T otsu(const unsigned int nb_levels=256) const {
       T m,M = max_min(m);
+      if (nb_levels<2) return (T)(((Tfloat)m + M)/2);
       CImg<ulongT> hist = get_histogram(nb_levels,m,M);
       ulongT sum = 0, sumB = 0, wB = 0;
       double best_variance = 0;
@@ -36635,7 +34495,7 @@ namespace cimg_library {
       return get_histogram(nb_levels,min_value,max_value).move_to(*this);
     }
 
-    //! Compute the histogram of pixel values \overloading.
+    //! Compute the histogram of pixel values \overload.
     CImg<T>& histogram(const unsigned int nb_levels) {
       return get_histogram(nb_levels).move_to(*this);
     }
@@ -36692,7 +34552,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Equalize histogram of pixel values \overloading.
+    //! Equalize histogram of pixel values \overload.
     CImg<T>& equalize(const unsigned int nb_levels) {
       if (!nb_levels || is_empty()) return *this;
       T vmax = 0, vmin = min_max(vmax);
@@ -37203,8 +35063,7 @@ namespace cimg_library {
 
     //! Label connected components.
     /**
-       \param is_high_connectivity Boolean that choose between 4(false)- or 8(true)-connectivity
-       in 2D case, and between 6(false)- or 26(true)-connectivity in 3D case.
+       \param is_high_connectivity Indicates whether the algorithm uses low or high connectivity.
        \param tolerance Tolerance used to determine if two neighboring pixels belong to the same region.
        \param is_L2_norm If true, tolerance is compared against L2 difference, otherwise L1 is used.
        \note The algorithm of connected components computation has been primarily done
@@ -37249,7 +35108,7 @@ namespace cimg_library {
       return _label(nb,dx,dy,dz,tolerance,is_L2_norm);
     }
 
-    //! Label connected components \overloading.
+    //! Label connected components \inplace.
     /**
        \param connectivity_mask Mask of the neighboring pixels.
        \param tolerance Tolerance used to determine if two neighboring pixels belong to the same region.
@@ -37387,15 +35246,20 @@ namespace cimg_library {
 #if cimg_OS==2 // Windows-specific security hardening
       cimg_for(*this,p,T) {
         const char c = (char)*p;
-        if (c == '\"' || c == '|' || c == '<' || c == '>') {
-          throw CImgArgumentException("CImg<%s>::_system_strescape(): Detected illegal or malicious shell "
-                                      "character '%c' in filename.",
-                                      pixel_type(), c);
+        switch (c) {
+          case '\"': case '|': case '<': case '>':
+          case '&':  case '^': case '%': case '!':
+          case '\n': case '\r':
+            throw CImgArgumentException("CImg<%s>::_system_strescape(): Detected illegal or malicious shell "
+                                        "character '%c' in path/filename.",
+                                        pixel_type(), c);
+        default:
+          break;
         }
       }
       return *this;
 #else // Unix-style escaping
-#define cimg_system_strescape(c,s) case c : if (p!=ptrs) CImg<T>(ptrs,(unsigned int)(p - ptrs),1,1,1,false).\
+#define cimg_system_strescape(c,s) case c : if (p!=ptrs) CImg<T>(ptrs,(unsigned int)(p - ptrs),1,1,1,false). \
       move_to(list); \
       CImg<T>(s,(unsigned int)std::strlen(s),1,1,1,false).move_to(list); ptrs = p + 1; break
 
@@ -38264,7 +36128,7 @@ namespace cimg_library {
       return CImg<Tfloat>(*this,false).XYZtoxyY();
     }
 
-    //! Convert pixel values from xyY pixels to XYZ color spaces.
+    //! Convert pixel values from xyY to XYZ color spaces.
     CImg<T>& xyYtoXYZ() {
       if (_spectrum!=3)
         throw CImgInstanceException(_cimg_instance
@@ -38287,7 +36151,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Convert pixel values from xyY pixels to XYZ color spaces \newinstance.
+    //! Convert pixel values from xyY to XYZ color spaces \newinstance.
     CImg<Tfloat> get_xyYtoXYZ() const {
       return CImg<Tfloat>(*this,false).xyYtoXYZ();
     }
@@ -39545,7 +37409,7 @@ namespace cimg_library {
       return (+*this).mirror(axes);
     }
 
-    //! Shift image content.
+    //! Shift the image content.
     /**
        \param delta_x Amount of displacement along the X-axis.
        \param delta_y Amount of displacement along the Y-axis.
@@ -39764,7 +37628,7 @@ namespace cimg_library {
     //! Permute axes order.
     /**
        \param axes_order Axes permutations, as a C-string of 4 characters.
-       This function permutes image content regarding the specified axes permutation.
+       This function permutes the image content according to the specified axes order.
     **/
     CImg<T>& permute_axes(const char *const axes_order) {
       if (is_empty() || !axes_order) return *this;
@@ -40060,7 +37924,7 @@ namespace cimg_library {
       return res;
     }
 
-    //! Unroll pixel values along specified axis.
+    //! Unroll pixel values along the specified axis.
     /**
        \param axis Unroll axis (can be \c 'x', \c 'y', \c 'z' or c 'c').
     **/
@@ -40080,7 +37944,7 @@ namespace cimg_library {
       return (+*this).unroll(axis);
     }
 
-    //! Rotate image with arbitrary angle.
+    //! Rotate the image by an arbitrary angle.
     /**
        \param angle Rotation angle, in degrees.
        \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
@@ -40285,7 +38149,7 @@ namespace cimg_library {
       }
     }
 
-    //! Rotate volumetric image with arbitrary angle and axis.
+    //! Rotate a volumetric image by an arbitrary angle and axis.
     /**
        \param u X-coordinate of the 3D rotation axis.
        \param v Y-coordinate of the 3D rotation axis.
@@ -40384,7 +38248,7 @@ namespace cimg_library {
               Z = cimg::mod((float)(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc),dd);
             cimg_forC(res,c) res(x,y,z,c) = _cubic_atXYZ_c(X<width()?X:ww - X - 1,
                                                            Y<height()?Y:hh - Y - 1,
-                                                           Z<depth()?Z:dd - Z - z,c);
+                                                           Z<depth()?Z:dd - Z - 1,c);
           }
         } break;
         case 1 : { // Linear interpolation
@@ -40530,10 +38394,10 @@ namespace cimg_library {
       }
     }
 
-    //! Warp image content by a warping field.
+    //! Warp the image content using a warping field.
     /**
        \param p_warp Warping field.
-       \param mode Can be { 0=backward-absolute | 1=backward-relative | 2=forward-absolute | 3=foward-relative }
+       \param mode Can be { 0=backward-absolute | 1=backward-relative | 2=forward-absolute | 3=forward-relative }
        \param interpolation Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
        \param boundary_conditions Boundary conditions <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
     **/
@@ -41370,7 +39234,7 @@ namespace cimg_library {
       return res;
     }
 
-    //! Generate a 2D representation of a 3D image, with XY,XZ and YZ views.
+    //! Generate a 2D representation of a 3D image, with XY, XZ and YZ views.
     /**
        \param x0 X-coordinate of the projection point.
        \param y0 Y-coordinate of the projection point.
@@ -41485,7 +39349,7 @@ namespace cimg_library {
       return res;
     }
 
-    //! Crop image region \overloading.
+    //! Crop image region \overload.
     CImg<T>& crop(const int x0, const int y0, const int z0,
                   const int x1, const int y1, const int z1,
                   const unsigned int boundary_conditions=0) {
@@ -41499,7 +39363,7 @@ namespace cimg_library {
       return get_crop(x0,y0,z0,0,x1,y1,z1,_spectrum - 1,boundary_conditions);
     }
 
-    //! Crop image region \overloading.
+    //! Crop image region \overload.
     CImg<T>& crop(const int x0, const int y0,
                   const int x1, const int y1,
                   const unsigned int boundary_conditions=0) {
@@ -41513,7 +39377,7 @@ namespace cimg_library {
       return get_crop(x0,y0,0,0,x1,y1,_depth - 1,_spectrum - 1,boundary_conditions);
     }
 
-    //! Crop image region \overloading.
+    //! Crop image region \overload.
     CImg<T>& crop(const int x0, const int x1, const unsigned int boundary_conditions=0) {
       return crop(x0,0,0,0,x1,_height - 1,_depth - 1,_spectrum - 1,boundary_conditions);
     }
@@ -41808,7 +39672,7 @@ namespace cimg_library {
        \param L Streamline length.
        \param dl Streamline length increment.
        \param interpolation_type Type of interpolation.
-         Can be <tt>{ 0=nearest int | 1=linear | 2=2nd-order RK | 3=4th-order RK. }</tt>.
+         Can be <tt>{ 0=nearest integer | 1=linear | 2=2nd-order RK | 3=4th-order RK }</tt>.
        \param is_backward_tracking Indicates whether the streamline is estimated forward or backward.
        \param is_oriented_only Indicates whether the direction of the vectors must be ignored.
        \param x0 X-coordinate of the first bounding-box vertex.
@@ -41928,7 +39792,7 @@ namespace cimg_library {
       return coordinates;
     }
 
-    //! Return stream line of a 3D vector field \overloading.
+    //! Return stream line of a 3D vector field \overload.
     static CImg<floatT> streamline(const char *const expression,
                                    const float x, const float y, const float z,
                                    const float L=256, const float dl=0.1f,
@@ -42062,7 +39926,8 @@ namespace cimg_library {
         end = (ulongT)offset(x1,y0,z0,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
-                                    "get_shared_points(): Invalid request of a shared-memory subset (%u->%u,%u,%u,%u).",
+                                    "get_shared_points(): Invalid request for "
+                                    "a shared-memory subset (%u->%u,%u,%u,%u).",
                                     cimg_instance,
                                     x0,x1,y0,z0,c0);
       return CImg<T>(_data + beg,x1 - x0 + 1,1,1,1,true);
@@ -42076,7 +39941,8 @@ namespace cimg_library {
         end = (ulongT)offset(x1,y0,z0,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
-                                    "get_shared_points(): Invalid request of a shared-memory subset (%u->%u,%u,%u,%u).",
+                                    "get_shared_points(): Invalid request for "
+                                    "a shared-memory subset (%u->%u,%u,%u,%u).",
                                     cimg_instance,
                                     x0,x1,y0,z0,c0);
       return CImg<T>(_data + beg,x1 - x0 + 1,1,1,1,true);
@@ -42096,8 +39962,8 @@ namespace cimg_library {
         end = (ulongT)offset(0,y1,z0,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
-                                    "get_shared_rows(): Invalid request of a shared-memory subset "
-                                    "(0->%u,%u->%u,%u,%u).",
+                                    "get_shared_rows(): Invalid request for "
+                                    "a shared-memory subset (0->%u,%u->%u,%u,%u).",
                                     cimg_instance,
                                     _width - 1,y0,y1,z0,c0);
       return CImg<T>(_data + beg,_width,y1 - y0 + 1,1,1,true);
@@ -42111,8 +39977,8 @@ namespace cimg_library {
         end = (ulongT)offset(0,y1,z0,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
-                                    "get_shared_rows(): Invalid request of a shared-memory subset "
-                                    "(0->%u,%u->%u,%u,%u).",
+                                    "get_shared_rows(): Invalid request for "
+                                    "a shared-memory subset (0->%u,%u->%u,%u,%u).",
                                     cimg_instance,
                                     _width - 1,y0,y1,z0,c0);
       return CImg<T>(_data + beg,_width,y1 - y0 + 1,1,1,true);
@@ -42145,8 +40011,8 @@ namespace cimg_library {
         end = (ulongT)offset(0,0,z1,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
-                                    "get_shared_slices(): Invalid request of a shared-memory subset "
-                                    "(0->%u,0->%u,%u->%u,%u).",
+                                    "get_shared_slices(): Invalid request for "
+                                    "a shared-memory subset (0->%u,0->%u,%u->%u,%u).",
                                     cimg_instance,
                                     _width - 1,_height - 1,z0,z1,c0);
       return CImg<T>(_data + beg,_width,_height,z1 - z0 + 1,1,true);
@@ -42159,8 +40025,8 @@ namespace cimg_library {
         end = (ulongT)offset(0,0,z1,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
-                                    "get_shared_slices(): Invalid request of a shared-memory subset "
-                                    "(0->%u,0->%u,%u->%u,%u).",
+                                    "get_shared_slices(): Invalid request for "
+                                    "a shared-memory subset (0->%u,0->%u,%u->%u,%u).",
                                     cimg_instance,
                                     _width - 1,_height - 1,z0,z1,c0);
       return CImg<T>(_data + beg,_width,_height,z1 - z0 + 1,1,true);
@@ -42191,8 +40057,8 @@ namespace cimg_library {
         end = (ulongT)offset(0,0,0,c1);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
-                                    "get_shared_channels(): Invalid request of a shared-memory subset "
-                                    "(0->%u,0->%u,0->%u,%u->%u).",
+                                    "get_shared_channels(): Invalid request for "
+                                    "a shared-memory subset (0->%u,0->%u,0->%u,%u->%u).",
                                     cimg_instance,
                                     _width - 1,_height - 1,_depth - 1,c0,c1);
       return CImg<T>(_data + beg,_width,_height,_depth,c1 - c0 + 1,true);
@@ -42205,8 +40071,8 @@ namespace cimg_library {
         end = (ulongT)offset(0,0,0,c1);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
-                                    "get_shared_channels(): Invalid request of a shared-memory subset "
-                                    "(0->%u,0->%u,0->%u,%u->%u).",
+                                    "get_shared_channels(): Invalid request for "
+                                    "a shared-memory subset (0->%u,0->%u,0->%u,%u->%u).",
                                     cimg_instance,
                                     _width - 1,_height - 1,_depth - 1,c0,c1);
       return CImg<T>(_data + beg,_width,_height,_depth,c1 - c0 + 1,true);
@@ -42235,7 +40101,7 @@ namespace cimg_library {
       return CImg<T>(_data,_width,_height,_depth,_spectrum,true);
     }
 
-    //! Split image into a list along specified axis.
+    //! Split the image into a list along specified axis.
     /**
        \param axis Splitting axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
        \param nb Number of split parts.
@@ -42399,7 +40265,8 @@ namespace cimg_library {
       return res;
     }
 
-    //! Split image into a list of sub-images, according to a specified splitting value sequence and optionally axis.
+    //! Split the image into a list of sub-images according to a specified sequence of splitting values
+    //! and optionally an axis.
     /**
        \param values Splitting value sequence.
        \param axis Axis along which the splitting is performed. Can be '0' to ignore axis.
@@ -42559,8 +40426,8 @@ namespace cimg_library {
     //! Append two images along specified axis.
     /**
        \param img Image to append with instance image.
-       \param axis Appending axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-       \param align Append alignment in \c [0,1].
+       \param axis Concatenation axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+       \param align Concatenation alignment in \c [0,1].
     **/
     template<typename t>
     CImg<T>& append(const CImg<t>& img, const char axis='x', const float align=0) {
@@ -42643,7 +40510,7 @@ namespace cimg_library {
     //@{
     //---------------------------------------
 
-    //! Correlate image by a kernel.
+    //! Correlate the image with a kernel.
     /**
        \param kernel = the correlation kernel.
        \param boundary_conditions Boundary condition. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
@@ -42709,7 +40576,7 @@ namespace cimg_library {
                         xoffset,yoffset,zoffset,xsize,ysize,zsize,false);
     }
 
-    //! Correlate image by a kernel \newinstance.
+    //! Correlate the image with a kernel \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> _correlate(const CImg<t>& kernel, const unsigned int boundary_conditions,
                                    const bool is_normalized, const unsigned int channel_mode,
@@ -43115,7 +40982,7 @@ namespace cimg_library {
       return res;
     }
 
-    //! Convolve image by a kernel.
+    //! Convolve the image with a kernel.
     /**
        \param kernel = the correlation kernel.
        \param boundary_conditions Boundary condition. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
@@ -43162,7 +41029,7 @@ namespace cimg_library {
                           xoffset,yoffset,zoffset,xsize,ysize,zsize).move_to(*this);
     }
 
-    //! Convolve image by a kernel \newinstance.
+    //! Convolve the image with a kernel \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> get_convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                                      const bool is_normalized=false, const unsigned int channel_mode=1,
@@ -44027,8 +41894,7 @@ namespace cimg_library {
     //! Compute watershed transform.
     /**
        \param priority Priority map.
-       \param is_high_connectivity Boolean that choose between 4(false)- or 8(true)-connectivity
-       in 2D case, and between 6(false)- or 26(true)-connectivity in 3D case.
+       \param is_high_connectivity Indicates whether the algorithm uses low or high connectivity.
        \note Non-zero values of the instance instance are propagated to zero-valued ones according to
        specified the priority map.
     **/
@@ -45372,7 +43238,7 @@ namespace cimg_library {
        \param radius Spatial radius. If negative, it is expressed as a percentage of the largest image size.
        \param regularization Regularization parameter.
                              If negative, it is expressed as a percentage of the guide value range.
-       \note This method implements the filtering algorithm described in:
+       \note This function implements the filtering algorithm described in:
        He, Kaiming; Sun, Jian; Tang, Xiaoou, "Guided Image Filtering," Pattern Analysis and Machine Intelligence,
        IEEE Transactions on , vol.35, no.6, pp.1397,1409, June 2013
     **/
@@ -45684,13 +43550,13 @@ namespace cimg_library {
       return res.cut(val_min,val_max);
     }
 
-    //! Blur image using patch-based space \simplification.
+    //! Blur image using patch-based space \overload.
     CImg<T>& blur_patch(const float sigma_s, const float sigma_r, const unsigned int patch_size=3,
                         const unsigned int lookup_size=4, const float smoothness=0, const bool is_fast_approx=true) {
       return blur_patch(*this,sigma_s,sigma_r,patch_size,lookup_size,smoothness,is_fast_approx);
     }
 
-    //! Blur image using patch-based space \simplification \newinstance.
+    //! Blur image using patch-based space \overload \newinstance.
     CImg<Tfloat> get_blur_patch(const float sigma_s, const float sigma_r, const unsigned int patch_size=3,
                                 const unsigned int lookup_size=4, const float smoothness=0,
                                 const bool is_fast_approx=true) const {
@@ -46007,7 +43873,7 @@ namespace cimg_library {
       return (+*this).sharpen(amplitude,sharpen_type,edge,alpha,sigma);
     }
 
-    //! Return image gradient.
+    //! Return the image gradient.
     /**
        \param axes Axes considered for the gradient computation, as a C-string (e.g "xy").
        \param scheme = Numerical scheme used for the gradient computation:
@@ -46136,7 +44002,7 @@ namespace cimg_library {
       return res;
     }
 
-    //! Return image hessian.
+    //! Return the image hessian.
     /**
        \param axes Axes considered for the hessian computation, as a C-string (e.g "xy").
     **/
@@ -46438,7 +44304,7 @@ namespace cimg_library {
       return CImg<Tfloat>(*this,false).diffusion_tensors(sharpness,anisotropy,alpha,sigma,is_sqrt);
     }
 
-    //! Estimate displacement field from given reference image to instance image.
+    //! Estimate the displacement field from a given reference image to the current image instance.
     /**
        \param reference Reference image R.
        \param smoothness Smoothness of estimated displacement field.
@@ -46753,7 +44619,7 @@ namespace cimg_library {
                          guide,true,matching_score);
     }
 
-    //! Compute correspondence map between two images, using the patch-match algorithm \overloading.
+    //! Compute correspondence map between two images, using the patch-match algorithm \overload.
     template<typename t>
     CImg<T>& matchpatch(const CImg<T>& patch_image,
                         const unsigned int patch_width,
@@ -46767,7 +44633,7 @@ namespace cimg_library {
                             nb_iterations,nb_randoms,patch_penalization,guide).move_to(*this);
     }
 
-    //! Compute correspondence map between two images, using the patch-match algorithm \overloading.
+    //! Compute correspondence map between two images, using the patch-match algorithm \overload.
     template<typename t>
     CImg<intT> get_matchpatch(const CImg<T>& patch_image,
                               const unsigned int patch_width,
@@ -47649,7 +45515,7 @@ namespace cimg_library {
       return result;
     }
 
-    //! Compute distance map to a specified value, according to a custom metric (use dijkstra algorithm). \overloading.
+    //! Compute distance map to a specified value, according to a custom metric (use dijkstra algorithm) \overload.
     template<typename t>
     CImg<T>& distance_dijkstra(const T& value, const CImg<t>& metric,
                                const bool is_high_connectivity=false) {
@@ -47685,10 +45551,9 @@ namespace cimg_library {
                                     cimg_instance,
                                     metric._width,metric._height,metric._depth,metric._spectrum);
       CImg<Tfloat> result(_width,_height,_depth,_spectrum,cimg::type<Tfloat>::max()), Q;
-      CImg<charT> state(_width,_height,_depth); // -1=far away, 0=narrow, 1=frozen
-
-      cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2) firstprivate(Q,state))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2))
       cimg_forC(*this,c) {
+        CImg<charT> state(_width,_height,_depth); // -1=far away, 0=narrow, 1=frozen
         const CImg<T> img = get_shared_channel(c);
         const CImg<t> met = metric.get_shared_channel(c%metric._spectrum);
         CImg<Tfloat> res = result.get_shared_channel(c);
@@ -48045,7 +45910,7 @@ namespace cimg_library {
       return res;
     }
 
-    //! Compute Haar multiscale wavelet transform \overloading.
+    //! Compute Haar multiscale wavelet transform \overload.
     /**
        \param invert Set inverse of direct transform.
        \param nb_scales Number of scales used for the transform.
@@ -48344,6 +46209,7 @@ namespace cimg_library {
               wr = nwr;
             }
           }
+          if (delta==N) break;
         }
         if (is_inverse) { real/=N; imag/=N; }
       } break;
@@ -48390,6 +46256,7 @@ namespace cimg_library {
               wr = nwr;
             }
           }
+          if (delta==N) break;
         }
         if (is_inverse) { real/=N; imag/=N; }
       } break;
@@ -48436,6 +46303,7 @@ namespace cimg_library {
               wr = nwr;
             }
           }
+          if (delta==N) break;
         }
         if (is_inverse) { real/=N; imag/=N; }
       } break;
@@ -48636,7 +46504,7 @@ namespace cimg_library {
       return CImg<Tfloat>(*this,false).resize_object3d();
     }
 
-    //! Merge two 3D objects together.
+    //! Merge two 3D objects.
     /**
        \param[in,out] primitives Primitives data of the current 3D object.
        \param obj_vertices Vertices data of the additional 3D object.
@@ -48677,7 +46545,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Texturize primitives of a 3D object.
+    //! Texturize the primitives of a 3D object.
     /**
        \param[in,out] primitives Primitives data of the 3D object.
        \param[in,out] colors Colors data of the 3D object.
@@ -48758,7 +46626,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Generate a 3D elevation of the image instance.
+    //! Generate a 3D elevation map from the instance image, as a 3D object.
     /**
        \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
@@ -48787,15 +46655,19 @@ namespace cimg_library {
       if (is_empty()) return *this;
       float m, M = (float)max_min(m);
       if (M==m) ++M;
-      colors.assign();
       const unsigned int size_x1 = _width - 1, size_y1 = _height - 1;
+      colors.assign(size_x1*size_y1,1,3);
+      unsigned int off = 0;
       for (unsigned int y = 0; y<size_y1; ++y)
         for (unsigned int x = 0; x<size_x1; ++x) {
           const unsigned char
-            r = (unsigned char)(((*this)(x,y,0) - m)*255/(M-m)),
-            g = (unsigned char)(_spectrum>1?((*this)(x,y,1) - m)*255/(M-m):r),
-            b = (unsigned char)(_spectrum>2?((*this)(x,y,2) - m)*255/(M-m):_spectrum>1?0:r);
-          CImg<tc>::vector((tc)r,(tc)g,(tc)b).move_to(colors);
+            r = (unsigned char)(((*this)(x,y,0) - m)*255/(M - m)),
+            g = (unsigned char)(_spectrum>1?((*this)(x,y,1) - m)*255/(M - m):r),
+            b = (unsigned char)(_spectrum>2?((*this)(x,y,2) - m)*255/(M - m):_spectrum>1?0:r);
+          CImg<tc>& color = colors[off++];
+          color[0] = (tc)r;
+          color[1] = (tc)g;
+          color[2] = (tc)b;
         }
       const typename CImg<te>::_functor2d_int func(elevation);
       return elevation3d(primitives,func,0,0,_width - 1.f,_height - 1.f,_width,_height);
@@ -48850,7 +46722,7 @@ namespace cimg_library {
       return points;
     }
 
-    //! Generate a isoline of the image instance as a 3D object.
+    //! Generate an isoline from the current image instance, as a 3D object.
     /**
        \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
@@ -48902,7 +46774,7 @@ namespace cimg_library {
        \param y1 Y-coordinate of the ending point.
        \param size_x Resolution of the function along the X-axis.
        \param size_y Resolution of the function along the Y-axis.
-       \note Use the marching squares algorithm for extracting the isolines.
+       \note Uses the marching squares algorithm for extracting the isolines.
      **/
     template<typename tf, typename tfunc>
     static CImg<floatT> isoline3d(CImgList<tf>& primitives, const tfunc& func, const float isovalue,
@@ -48918,8 +46790,8 @@ namespace cimg_library {
 
     //! Compute isolines of a function, as a 3D object.
     /**
-       \param[out] add_vertex : Functor with operator()(x,y,z) defined for adding new vertex.
-       \param[out] add_segment : Functor with operator()(i,j) defined for adding new segment.
+       \param[out] add_vertex : Functor with operator()(x,y,z) defined for adding a new vertex.
+       \param[out] add_segment : Functor with operator()(i,j) defined for adding a new segment.
        \param func Elevation function. Is of type <tt>float (*func)(const float x,const float y)</tt>.
        \param isovalue The scalar value used as the threshold for extraction.
        \param x0 X-coordinate of the starting point.
@@ -48928,7 +46800,7 @@ namespace cimg_library {
        \param y1 Y-coordinate of the ending point.
        \param size_x Resolution of the function along the X-axis.
        \param size_y Resolution of the function along the Y-axis.
-       \note Use the marching squares algorithm for extracting the isolines.
+       \note Uses the marching squares algorithm for extracting the isolines.
      **/
     template<typename tv, typename tf, typename tfunc>
     static void isoline3d(tv& add_vertex, tf& add_segment, const tfunc& func, const float isovalue,
@@ -49014,7 +46886,7 @@ namespace cimg_library {
       }
     }
 
-    //! Compute isolines of a function, as a 3D object \overloading.
+    //! Compute isolines of a function, as a 3D object \overload.
     template<typename tf>
     static CImg<floatT> isoline3d(CImgList<tf>& primitives, const char *const expression, const float isovalue,
                                   const float x0, const float y0, const float x1, const float y1,
@@ -49035,7 +46907,7 @@ namespace cimg_library {
       return 0;
     }
 
-    //! Generate an isosurface of the image instance as a 3D object.
+    //! Generate an isosurface from the instance image, as a 3D object.
     /**
        \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
@@ -49089,7 +46961,7 @@ namespace cimg_library {
        \param size_x Resolution of the elevation function along the X-axis.
        \param size_y Resolution of the elevation function along the Y-axis.
        \param size_z Resolution of the elevation function along the Z-axis.
-       \note Use the marching cubes algorithm for extracting the isosurface.
+       \note Uses the marching cubes algorithm for extracting the isosurface.
      **/
     template<typename tf, typename tfunc>
     static CImg<floatT> isosurface3d(CImgList<tf>& primitives, const tfunc& func, const float isovalue,
@@ -49106,8 +46978,8 @@ namespace cimg_library {
 
     //! Compute isosurface of a function, as a 3D object.
     /**
-       \param[out] add_vertex : Functor with operator()(x,y,z) defined for adding new vertex.
-       \param[out] add_triangle : Functor with operator()(i,j) defined for adding new segment.
+       \param[out] add_vertex : Functor with operator()(x,y,z) defined for adding a new vertex.
+       \param[out] add_triangle : Functor with operator()(i,j) defined for adding a new segment.
        \param func Implicit function. Is of type <tt>float (*func)(const float x, const float y, const float z)</tt>.
        \param isovalue The scalar value used as the threshold for extraction.
        \param x0 X-coordinate of the starting point.
@@ -49119,7 +46991,7 @@ namespace cimg_library {
        \param size_x Resolution of the elevation function along the X-axis.
        \param size_y Resolution of the elevation function along the Y-axis.
        \param size_z Resolution of the elevation function along the Z-axis.
-       \note Use the marching cubes algorithm for extracting the isosurface.
+       \note Uses the marching cubes algorithm for extracting the isosurface.
      **/
     template<typename tv, typename tf, typename tfunc>
     static void isosurface3d(tv& add_vertex, tf& add_triangle, const tfunc& func, const float isovalue,
@@ -49541,7 +47413,7 @@ namespace cimg_library {
       }
     }
 
-    //! Compute isosurface of a function, as a 3D object \overloading.
+    //! Compute isosurface of a function, as a 3D object \overload.
     template<typename tf>
     static CImg<floatT> isosurface3d(CImgList<tf>& primitives, const char *const expression, const float isovalue,
                                      const float x0, const float y0, const float z0,
@@ -49701,7 +47573,7 @@ namespace cimg_library {
       return vertices;
     }
 
-    //! Compute 3D elevation of a function, as a 3D object \overloading.
+    //! Compute 3D elevation of a function, as a 3D object \overload.
     template<typename tf>
     static CImg<floatT> elevation3d(CImgList<tf>& primitives, const char *const expression,
                                     const float x0, const float y0, const float x1, const float y1,
@@ -49729,7 +47601,7 @@ namespace cimg_library {
     template<typename tf>
     static CImg<floatT> box3d(CImgList<tf>& primitives,
                               const float size_x=200, const float size_y=100, const float size_z=100) {
-      primitives.assign(6,1,4,1,1, 0,3,2,1, 4,5,6,7, 0,1,5,4, 3,7,6,2, 0,4,7,3, 1,2,6,5);
+      CImg<tf>(1,6*4,1,1, 0,3,2,1, 4,5,6,7, 0,1,5,4, 3,7,6,2, 0,4,7,3, 1,2,6,5).get_split('y',6).move_to(primitives);
       return CImg<floatT>(8,3,1,1,
                           0.,size_x,size_x,    0.,    0.,size_x,size_x,    0.,
                           0.,    0.,size_y,size_y,    0.,    0.,size_y,size_y,
@@ -49740,9 +47612,9 @@ namespace cimg_library {
     /**
        \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
-       \param radius The radius of the cone basis.
+       \param radius The radius of the cone base.
        \param size_z The cone's height.
-       \param subdivisions The number of basis angular subdivisions.
+       \param subdivisions The number angular subdivisions for the base.
        \return The N vertices (xi,yi,zi) of the 3D object as a Nx3 CImg<float> image (0<=i<=N - 1).
        \par Example
        \code
@@ -49757,9 +47629,9 @@ namespace cimg_library {
                                const float radius=50, const float size_z=100, const unsigned int subdivisions=24) {
       primitives.assign();
       if (!subdivisions) return CImg<floatT>();
-      CImgList<floatT> vertices(2,1,3,1,1,
-                                0.,0.,size_z,
-                                0.,0.,0.);
+      CImgList<floatT> vertices(2);
+      CImg<floatT>::vector(0.f,0.f,size_z).move_to(vertices[0]);
+      CImg<floatT>::vector(0.f,0.f,0.f).move_to(vertices[1]);
       for (float delta = 360.f/subdivisions, angle = 0; angle<360; angle+=delta) {
         const float a = (float)(angle*cimg::PI/180);
         CImg<floatT>::vector((float)(radius*std::cos(a)),(float)(radius*std::sin(a)),0).move_to(vertices);
@@ -49777,9 +47649,9 @@ namespace cimg_library {
     /**
        \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
-       \param radius The radius of the cylinder basis.
+       \param radius The radius of the cylinder base.
        \param size_z The cylinder's height.
-       \param subdivisions The number of basis angular subdivisions.
+       \param subdivisions The number of angular subdivisions for the base.
        \return The N vertices (xi,yi,zi) of the 3D object as a Nx3 CImg<float> image (0<=i<=N - 1).
        \par Example
        \code
@@ -49917,11 +47789,14 @@ namespace cimg_library {
       // Create initial icosahedron.
       primitives.assign();
       const double tmp = (1 + std::sqrt(5.f))/2, a = 1./std::sqrt(1 + tmp*tmp), b = tmp*a;
-      CImgList<floatT> vertices(12,1,3,1,1, b,a,0., -b,a,0., -b,-a,0., b,-a,0., a,0.,b, a,0.,-b,
-                                -a,0.,-b, -a,0.,b, 0.,b,a, 0.,-b,a, 0.,-b,-a, 0.,b,-a);
-      primitives.assign(20,1,3,1,1, 4,8,7, 4,7,9, 5,6,11, 5,10,6, 0,4,3, 0,3,5, 2,7,1, 2,1,6,
-                        8,0,11, 8,11,1, 9,10,3, 9,2,10, 8,4,0, 11,0,5, 4,9,3,
-                        5,3,10, 7,8,1, 6,1,11, 7,2,9, 6,10,2);
+      CImgList<floatT> vertices = CImg<floatT>(1,12*3,1,1,
+                                               b,a,0., -b,a,0., -b,-a,0., b,-a,0., a,0.,b, a,0.,-b,
+                                               -a,0.,-b, -a,0.,b, 0.,b,a, 0.,-b,a, 0.,-b,-a, 0.,b,-a).get_split('y',12);
+      CImg<floatT>(1,20*3,1,1,
+                   4,8,7, 4,7,9, 5,6,11, 5,10,6, 0,4,3, 0,3,5, 2,7,1, 2,1,6, 8,0,11, 8,11,1,
+                   9,10,3, 9,2,10, 8,4,0, 11,0,5, 4,9,3, 5,3,10, 7,8,1, 6,1,11, 7,2,9, 6,10,2).
+        get_split('y',20).move_to(primitives);
+
       // edge - length/2.
       float he = (float)a;
 
@@ -50017,7 +47892,7 @@ namespace cimg_library {
       return get_object3dtoCImg3d(primitives,colors,opacities,full_check).move_to(*this);
     }
 
-    //! Convert 3D object into a CImg3d representation \overloading.
+    //! Convert 3D object into a CImg3d representation \overload.
     template<typename tp, typename tc>
     CImg<T>& object3dtoCImg3d(const CImgList<tp>& primitives,
                               const CImgList<tc>& colors,
@@ -50025,14 +47900,14 @@ namespace cimg_library {
       return get_object3dtoCImg3d(primitives,colors,full_check).move_to(*this);
     }
 
-    //! Convert 3D object into a CImg3d representation \overloading.
+    //! Convert 3D object into a CImg3d representation \overload.
     template<typename tp>
     CImg<T>& object3dtoCImg3d(const CImgList<tp>& primitives,
                               const bool full_check=true) {
       return get_object3dtoCImg3d(primitives,full_check).move_to(*this);
     }
 
-    //! Convert 3D object into a CImg3d representation \overloading.
+    //! Convert 3D object into a CImg3d representation \overload.
     CImg<T>& object3dtoCImg3d(const bool full_check=true) {
       return get_object3dtoCImg3d(full_check).move_to(*this);
     }
@@ -50173,7 +48048,7 @@ namespace cimg_library {
       return siz;
     }
 
-    //! Convert 3D object into a CImg3d representation \overloading.
+    //! Convert 3D object into a CImg3d representation \overload.
     template<typename tp, typename tc>
     CImg<floatT> get_object3dtoCImg3d(const CImgList<tp>& primitives,
                                       const CImgList<tc>& colors,
@@ -50182,7 +48057,7 @@ namespace cimg_library {
       return get_object3dtoCImg3d(primitives,colors,opacities,full_check);
     }
 
-    //! Convert 3D object into a CImg3d representation \overloading.
+    //! Convert 3D object into a CImg3d representation \overload.
     template<typename tp>
     CImg<floatT> get_object3dtoCImg3d(const CImgList<tp>& primitives,
                                       const bool full_check=true) const {
@@ -50190,7 +48065,7 @@ namespace cimg_library {
       return get_object3dtoCImg3d(primitives,colors,opacities,full_check);
     }
 
-    //! Convert 3D object into a CImg3d representation \overloading.
+    //! Convert 3D object into a CImg3d representation \overload.
     CImg<floatT> get_object3dtoCImg3d(const bool full_check=true) const {
       CImgList<T> opacities, colors;
       CImgList<uintT> primitives(width(),1,1,1,1);
@@ -50387,14 +48262,14 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a 2D point \simplification.
+    //! Draw a 2D point \overload.
     template<typename tc>
     CImg<T>& draw_point(const int x0, const int y0,
                         const tc *const color, const float opacity=1) {
       return draw_point(x0,y0,0,color,opacity);
     }
 
-    // Draw a points cloud.
+    // Draw a point cloud.
     /**
        \param points Image of vertices coordinates.
        \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
@@ -50428,12 +48303,12 @@ namespace cimg_library {
        \param y1 Y-coordinate of the ending line point.
        \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the line pattern.
-       \param init_hatch Indicates whether a reinitialization of the hash state must be done.
+       \param pattern An integer whose bits describe the line stipple pattern.
+       \param init_hatch Indicates whether the hatch variable must be reinitialized.
        \param draw_last_pixel Indicates whether last pixel of the line must be drawn (e.g. can be disabled
        when drawing multi-line curves with transparency).
        \note
-       - Set \p init_hatch = false to draw consecutive hatched segments without breaking the line pattern.
+       - Set \p init_hatch = false to draw consecutive hatched segments without breaking the line stipple pattern.
        \par Example:
        \code
        CImg<unsigned char> img(100,100,1,3,0);
@@ -50493,8 +48368,8 @@ namespace cimg_library {
        \param z1 Z-coordinate of the ending point.
        \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the line pattern.
-       \param init_hatch Indicates whether a reinitialization of the hash state must be done.
+       \param pattern An integer whose bits describe the line stipple pattern.
+       \param init_hatch Indicates whether the hatch variable must be reinitialized.
     **/
     template<typename tz, typename tc>
     CImg<T>& draw_line(CImg<tz>& zbuffer,
@@ -50572,8 +48447,8 @@ namespace cimg_library {
        \param tx1 X-coordinate of the ending texture point.
        \param ty1 Y-coordinate of the ending texture point.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the line pattern.
-       \param init_hatch Indicates whether the hash variable must be reinitialized.
+       \param pattern An integer whose bits describe the line stipple pattern.
+       \param init_hatch Indicates whether the hatch variable must be reinitialized.
        \note
        - Line routine uses the well known Bresenham's algorithm.
        \par Example:
@@ -50662,8 +48537,8 @@ namespace cimg_library {
        \param tx1 X-coordinate of the ending texture point.
        \param ty1 Y-coordinate of the ending texture point.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the line pattern.
-       \param init_hatch Indicates whether the hash variable must be reinitialized.
+       \param pattern An integer whose bits describe the line stipple pattern.
+       \param init_hatch Indicates whether the hatch variable must be reinitialized.
     **/
     template<typename tc>
     CImg<T>& draw_line(int x0, int y0, const float z0,
@@ -50752,8 +48627,8 @@ namespace cimg_library {
        \param tx1 X-coordinate of the ending texture point.
        \param ty1 Y-coordinate of the ending texture point.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the line pattern.
-       \param init_hatch Indicates whether the hash variable must be reinitialized.
+       \param pattern An integer whose bits describe the line stipple pattern.
+       \param init_hatch Indicates whether the hatch variable must be reinitialized.
     **/
     template<typename tz, typename tc>
     CImg<T>& draw_line(CImg<tz>& zbuffer,
@@ -50839,13 +48714,13 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a set of consecutive lines.
+    //! Draw a polyline.
     /**
        \param points Coordinates of vertices, stored as a list of vectors.
        \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the line pattern.
-       \param init_hatch If set to true, init hatch motif.
+       \param pattern An integer whose bits describe the line stipple pattern.
+       \param init_hatch Indicates whether the hatch variable must be reinitialized.
        \note
        - This function uses several call to the single CImg::draw_line() procedure,
        depending on the vectors size in \p points.
@@ -50890,7 +48765,7 @@ namespace cimg_library {
        \param angle Aperture angle of the arrow head.
        \param length Length of the arrow head. If negative, describes a percentage of the arrow length.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the line pattern.
+       \param pattern An integer whose bits describe the line stipple pattern.
     **/
     template<typename tc>
     CImg<T>& draw_arrow(const int x0, const int y0,
@@ -50928,8 +48803,8 @@ namespace cimg_library {
        \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
        \param precision Curve drawing precision.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the line pattern.
-       \param init_hatch If \c true, init hatch motif.
+       \param pattern An integer whose bits describe the line stipple pattern.
+       \param init_hatch Indicates whether the hatch variable must be reinitialized.
        \note
        - The curve is a 2D cubic Bezier spline, from the set of specified starting/ending points
        and corresponding velocity vectors.
@@ -50953,7 +48828,7 @@ namespace cimg_library {
     CImg<T>& draw_spline(const int x0, const int y0, const float u0, const float v0,
                          const int x1, const int y1, const float u1, const float v1,
                          const tc *const color, const float opacity=1,
-                         const float precision=0.25, const unsigned int pattern=~0U,
+                         const float precision=0.25f, const unsigned int pattern=~0U,
                          const bool init_hatch=true) {
       if (is_empty()) return *this;
       if (!color)
@@ -50998,8 +48873,8 @@ namespace cimg_library {
        \param ty1 Y-coordinate of the ending texture point.
        \param precision Curve drawing precision.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the line pattern.
-       \param init_hatch if \c true, reinit hatch motif.
+       \param pattern An integer whose bits describe the line stipple pattern.
+       \param init_hatch Indicates whether the hatch variable must be reinitialized.
     **/
     template<typename t>
     CImg<T>& draw_spline(const int x0, const int y0, const float u0, const float v0,
@@ -51016,7 +48891,7 @@ namespace cimg_library {
                                     texture._width,texture._height,texture._depth,texture._spectrum,texture._data);
       if (is_empty()) return *this;
       if (is_overlapped(texture))
-        return draw_spline(x0,y0,u0,v0,x1,y1,u1,v1,+texture,tx0,ty0,tx1,ty1,precision,opacity,pattern,init_hatch);
+        return draw_spline(x0,y0,u0,v0,x1,y1,u1,v1,+texture,tx0,ty0,tx1,ty1,opacity,precision,pattern,init_hatch);
       if (x0==x1 && y0==y1)
         return draw_point(x0,y0,texture.get_vector_at(x0<=0?0:x0>=texture.width()?texture.width() - 1:x0,
                                                       y0<=0?0:y0>=texture.height()?texture.height() - 1:y0).data(),
@@ -51051,8 +48926,8 @@ namespace cimg_library {
        \param opacity Drawing opacity.
        \param is_closed_set Indicates whether the drawn spline set is closed.
        \param precision Precision of the drawing.
-       \param pattern An integer whose bits describe the line pattern.
-       \param init_hatch If \c true, init hatch motif.
+       \param pattern An integer whose bits describe the line stipple pattern.
+       \param init_hatch Indicates whether the hatch variable must be reinitialized.
     **/
     template<typename tp, typename tt, typename tc>
     CImg<T>& draw_spline(const CImg<tp>& points, const CImg<tt>& tangents,
@@ -51076,17 +48951,17 @@ namespace cimg_library {
         for (unsigned int i = 1; i<points._width; ++i) {
           const int x = (int)points(i,0), y = (int)points(i,1);
           const float u = (float)tangents(i,0), v = (float)tangents(i,1);
-          draw_spline(ox,oy,ou,ov,x,y,u,v,color,precision,opacity,pattern,ninit_hatch);
+          draw_spline(ox,oy,ou,ov,x,y,u,v,color,opacity,precision,pattern,ninit_hatch);
           ninit_hatch = false;
           ox = x; oy = y; ou = u; ov = v;
         }
-        if (is_closed_set) draw_spline(ox,oy,ou,ov,x0,y0,u0,v0,color,precision,opacity,pattern,false);
+        if (is_closed_set) draw_spline(ox,oy,ou,ov,x0,y0,u0,v0,color,opacity,precision,pattern,false);
       }
       }
       return *this;
     }
 
-    //! Draw a set of consecutive splines \overloading.
+    //! Draw a set of consecutive splines \overload.
     /**
        Similar to previous function, with the point tangents automatically estimated from the given points set.
     **/
@@ -51239,7 +49114,7 @@ namespace cimg_library {
        \param y2 Y-coordinate of the third vertex.
        \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the outline pattern.
+       \param pattern An integer whose bits describe the outline stipple pattern.
      **/
     template<typename tc>
     CImg<T>& draw_triangle(const int x0, const int y0,
@@ -51421,7 +49296,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a Gouraud-shaded 2D triangle, with z-buffering \overloading.
+    //! Draw a Gouraud-shaded 2D triangle, with z-buffering \overload.
     template<typename tz, typename tc>
     CImg<T>& draw_triangle(CImg<tz>& zbuffer,
                            int x0, int y0, const float z0,
@@ -52147,7 +50022,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a textured Gouraud-shaded 2D triangle, with perspective correction \overloading.
+    //! Draw a textured Gouraud-shaded 2D triangle, with perspective correction \overload.
     template<typename tc>
     CImg<T>& draw_triangle(int x0, int y0, const float z0,
                            int x1, int y1, const float z1,
@@ -52239,7 +50114,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a textured Gouraud-shaded 2D triangle, with perspective correction and z-buffering \overloading.
+    //! Draw a textured Gouraud-shaded 2D triangle, with perspective correction and z-buffering \overload.
     template<typename tz, typename tc>
     CImg<T>& draw_triangle(CImg<tz>& zbuffer,
                            int x0, int y0, const float z0,
@@ -52794,7 +50669,7 @@ namespace cimg_library {
       return draw_rectangle(x0,y0,0,x1,y1,_depth - 1,color,opacity);
     }
 
-    //! Draw a outlined 2D rectangle \overloading.
+    //! Draw a outlined 2D rectangle \overload.
     template<typename tc>
     CImg<T>& draw_rectangle(const int x0, const int y0,
                             const int x1, const int y1,
@@ -52885,7 +50760,7 @@ namespace cimg_library {
         CImg<intT> Xsy = Xs.get_shared_points(0,count[y] - 1,y);
         Xsy.sort();
         int px = width();
-        for (unsigned int k = 0; k<Xsy._width; k+=2) {
+        for (unsigned int k = 0; k + 1<Xsy._width; k+=2) {
           int x0 = Xsy[k];
           const int x1 = Xsy[k + 1];
           x0+=x0==px;
@@ -52896,7 +50771,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a outlined 2D or 3D polygon \overloading.
+    //! Draw a outlined 2D or 3D polygon \overload.
     template<typename tp, typename tc>
     CImg<T>& draw_polygon(const CImg<tp>& points,
                           const tc *const color, const float opacity, const unsigned int pattern,
@@ -52955,7 +50830,7 @@ namespace cimg_library {
       return _draw_ellipse(x0,y0,r1,r2,angle,color,opacity,0U,true);
     }
 
-    //! Draw a filled 2D ellipse \overloading.
+    //! Draw a filled 2D ellipse \overload.
     /**
        \param x0 X-coordinate of the ellipse center.
        \param y0 Y-coordinate of the ellipse center.
@@ -52982,7 +50857,7 @@ namespace cimg_library {
        \param angle Angle of the first radius.
        \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the outline pattern.
+       \param pattern An integer whose bits describe the outline stipple pattern.
     **/
     template<typename tc>
     CImg<T>& draw_ellipse(const int x0, const int y0, const float r1, const float r2, const float angle,
@@ -52991,14 +50866,14 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw an outlined 2D ellipse \overloading.
+    //! Draw an outlined 2D ellipse \overload.
     /**
        \param x0 X-coordinate of the ellipse center.
        \param y0 Y-coordinate of the ellipse center.
        \param tensor Diffusion tensor describing the ellipse.
        \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the outline pattern.
+       \param pattern An integer whose bits describe the outline stipple pattern.
     **/
     template<typename t, typename tc>
     CImg<T>& draw_ellipse(const int x0, const int y0, const CImg<t> &tensor,
@@ -53028,10 +50903,21 @@ namespace cimg_library {
         if (is_filled) return draw_circle(x0,y0,iradius1,color,opacity);
         else if (pattern==~0U) return draw_circle(x0,y0,iradius1,color,opacity,pattern);
       }
-      const float ang = (float)(angle*cimg::PI/180);
+      const float
+        ang = (float)(angle*cimg::PI/180),
+        ca = std::cos(ang), sa = std::sin(ang);
+      if (!iradius1) {
+        const float u = -radius2*sa, v = radius2*ca;
+        return draw_line(cimg::round(x0 - u),cimg::round(y0 - v),cimg::round(x0 + u),cimg::round(y0 + v),
+                         color,opacity,is_filled?~0U:pattern);
+      }
+      if (!iradius2) {
+        const float u = radius1*ca, v = radius1*sa;
+        return draw_line(cimg::round(x0 - u),cimg::round(y0 - v),cimg::round(x0 + u),cimg::round(y0 + v),
+                         color,opacity,is_filled?~0U:pattern);
+      }
 
       if (!is_filled) { // Outlined
-        const float ca = std::cos(ang), sa = std::sin(ang);
         CImg<int> points((unsigned int)cimg::round(6*radiusM),2);
         cimg_forX(points,k) {
           const float
@@ -53045,11 +50931,9 @@ namespace cimg_library {
       } else { // Filled
         cimg_init_scanline(opacity);
         const float
-          ca = std::cos(ang),
-          sa = -std::sin(ang),
           ca2 = ca*ca,
           sa2 = sa*sa,
-          casa = ca*sa,
+          casa = -ca*sa,
           i1 = 1/cimg::sqr(radius1),
           i2 = 1/cimg::sqr(radius2),
           t1 = i1*ca2 + i2*sa2,
@@ -53093,7 +50977,7 @@ namespace cimg_library {
     CImg<T>& draw_circle(const int x0, const int y0, int radius,
                          const tc *const color, const float opacity=1) {
       if (is_empty()) return *this;
-      if (radius<0 || x0 - radius>=width() || y0 + radius<0 || y0 - radius>=height()) return *this;
+      if (radius<0 || x0 + radius<0 || x0 - radius>=width() || y0 + radius<0 || y0 - radius>=height()) return *this;
       if (!color)
         throw CImgArgumentException(_cimg_instance
                                     "draw_circle(): Specified color is (null).",
@@ -53126,7 +51010,7 @@ namespace cimg_library {
        \param radius Circle radius.
        \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the outline pattern.
+       \param pattern An integer whose bits describe the outline stipple pattern.
     **/
     template<typename tc>
     CImg<T>& draw_circle(const int x0, const int y0, int radius,
@@ -53230,28 +51114,28 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw an image \overloading.
+    //! Draw an image \overload.
     template<typename t>
     CImg<T>& draw_image(const int x0, const int y0, const int z0,
                         const CImg<t>& sprite, const float opacity=1) {
       return draw_image(x0,y0,z0,0,sprite,opacity);
     }
 
-    //! Draw an image \overloading.
+    //! Draw an image \overload.
     template<typename t>
     CImg<T>& draw_image(const int x0, const int y0,
                         const CImg<t>& sprite, const float opacity=1) {
       return draw_image(x0,y0,0,sprite,opacity);
     }
 
-    //! Draw an image \overloading.
+    //! Draw an image \overload.
     template<typename t>
     CImg<T>& draw_image(const int x0,
                         const CImg<t>& sprite, const float opacity=1) {
       return draw_image(x0,0,sprite,opacity);
     }
 
-    //! Draw an image \overloading.
+    //! Draw an image \overload.
     template<typename t>
     CImg<T>& draw_image(const CImg<t>& sprite, const float opacity=1) {
       return draw_image(0,sprite,opacity);
@@ -53314,7 +51198,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a masked image \overloading.
+    //! Draw a masked image \overload.
     template<typename ti, typename tm>
     CImg<T>& draw_image(const int x0, const int y0, const int z0,
                         const CImg<ti>& sprite, const CImg<tm>& mask, const float opacity=1,
@@ -53322,7 +51206,7 @@ namespace cimg_library {
       return draw_image(x0,y0,z0,0,sprite,mask,opacity,mask_max_value);
     }
 
-    //! Draw a image \overloading.
+    //! Draw a image \overload.
     template<typename ti, typename tm>
     CImg<T>& draw_image(const int x0, const int y0,
                         const CImg<ti>& sprite, const CImg<tm>& mask, const float opacity=1,
@@ -53330,7 +51214,7 @@ namespace cimg_library {
       return draw_image(x0,y0,0,sprite,mask,opacity,mask_max_value);
     }
 
-    //! Draw a image \overloading.
+    //! Draw a image \overload.
     template<typename ti, typename tm>
     CImg<T>& draw_image(const int x0,
                         const CImg<ti>& sprite, const CImg<tm>& mask, const float opacity=1,
@@ -53366,7 +51250,7 @@ namespace cimg_library {
       return _draw_text(x0,y0,tmp,foreground_color,background_color,opacity,*font,false);
     }
 
-    //! Draw a text string \overloading.
+    //! Draw a text string \overload.
     /**
        \note A transparent background is used for the text.
     **/
@@ -53381,7 +51265,7 @@ namespace cimg_library {
       return _draw_text(x0,y0,tmp,foreground_color,(tc*)0,opacity,*font,false);
     }
 
-    //! Draw a text string \overloading.
+    //! Draw a text string \overload.
     /**
        \note A transparent foreground is used for the text.
     **/
@@ -53396,7 +51280,7 @@ namespace cimg_library {
       return _draw_text(x0,y0,tmp,(tc*)0,background_color,opacity,*font,false);
     }
 
-    //! Draw a text string \overloading.
+    //! Draw a text string \overload.
     /**
        \param x0 X-coordinate of the text in the image instance.
        \param y0 Y-coordinate of the text in the image instance.
@@ -53407,7 +51291,7 @@ namespace cimg_library {
          defining the background color (0 means 'transparent').
        \param opacity Drawing opacity.
        \param font_height Height of the text font (exact match for 13,32,64,128, interpolated otherwise).
-       \note To ensure thread-safety, this function uses mutex lock. For real multi-threading drawing of text,
+       \note To ensure thread-safety, this function uses a mutex lock. For real multi-threaded drawing of text,
        use another version of \c CImg<T>::draw_text() with argument `font`, that must be a copy of what is returned
        by \c CImgList<T>::font().
     **/
@@ -53426,7 +51310,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a text string \overloading.
+    //! Draw a text string \overload.
     template<typename tc>
     CImg<T>& draw_text(const int x0, const int y0,
                        const char *const text,
@@ -53439,7 +51323,7 @@ namespace cimg_library {
       return draw_text(x0,y0,"%s",foreground_color,(const tc*)0,opacity,font_height,tmp._data);
     }
 
-    //! Draw a text string \overloading.
+    //! Draw a text string \overload.
     template<typename tc>
     CImg<T>& draw_text(const int x0, const int y0,
                        const char *const text,
@@ -53524,7 +51408,7 @@ namespace cimg_library {
           }
         }
         if (x!=0 || ch=='\n') { if (x>w) w = x; y+=font[0]._height; }
-        if (is_empty()) assign(x0 + w,y0 + y,1,is_native_font?1:font[0]._spectrum,(T)0);
+        if (is_empty()) assign(std::max(0,x0 + w),std::max(0,y0 + y),1,is_native_font?1:font[0]._spectrum,(T)0);
       }
 
       // Draw font characters on image.
@@ -53618,7 +51502,7 @@ namespace cimg_library {
       return draw_quiver(flow,CImg<t2>(color,_spectrum,1,1,1,true),opacity,sampling,factor,is_arrow,pattern);
     }
 
-    //! Draw a 2D vector field, using a field of colors.
+    //! Draw a 2D vector field using a field of colors.
     /**
        \param flow Image of 2D vectors used as input data.
        \param color Image of spectrum()-D vectors corresponding to the color of each arrow.
@@ -53802,7 +51686,7 @@ namespace cimg_library {
                        const float round_x=0, const float round_y=0) {
       if (is_empty()) return *this;
       const CImg<tx> nvalues_x(values_x._data,values_x.size(),1,1,1,true);
-      const int sizx = (int)values_x.size() - 1, wm1 = width() - 1;
+      const int sizx = (int)values_x.size() - 1, wm1 = std::max(1,width() - 1);
       if (sizx>=0) {
         float ox = (float)*nvalues_x;
         for (unsigned int x = sizx?1U:0U; x<_width; ++x) {
@@ -53830,7 +51714,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw labeled horizontal and vertical axes \overloading.
+    //! Draw labeled horizontal and vertical axes \overload.
     template<typename tc>
     CImg<T>& draw_axes(const float x0, const float x1, const float y0, const float y1,
                        const tc *const color, const float opacity=1,
@@ -53857,7 +51741,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw 2D grid.
+    //! Draw a 2D grid.
     /**
        \param values_x X-coordinates of the vertical lines.
        \param values_y Y-coordinates of the horizontal lines.
@@ -53882,7 +51766,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw 2D grid \simplification.
+    //! Draw a 2D grid \overload.
     template<typename tc>
     CImg<T>& draw_grid(const float delta_x,  const float delta_y,
                        const float offsetx, const float offsety,
@@ -53893,14 +51777,14 @@ namespace cimg_library {
       CImg<uintT> seqx, seqy;
       if (delta_x!=0) {
         const float dx = delta_x>0?delta_x:_width*-delta_x/100;
-        const unsigned int nx = (unsigned int)(_width/dx);
+        const unsigned int nx = (unsigned int)(_width/std::max(1.0f,dx));
         seqx = CImg<uintT>::sequence(1 + nx,0,(unsigned int)(dx*nx));
         if (offsetx) cimg_foroff(seqx,x) seqx(x) = (unsigned int)cimg::mod(seqx(x) + offsetx,(float)_width);
         if (invertx) cimg_foroff(seqx,x) seqx(x) = _width - 1 - seqx(x);
       }
       if (delta_y!=0) {
         const float dy = delta_y>0?delta_y:_height*-delta_y/100;
-        const unsigned int ny = (unsigned int)(_height/dy);
+        const unsigned int ny = (unsigned int)(_height/std::max(1.0f,dy));
         seqy = CImg<uintT>::sequence(1 + ny,0,(unsigned int)(dy*ny));
         if (offsety) cimg_foroff(seqy,y) seqy(y) = (unsigned int)cimg::mod(seqy(y) + offsety,(float)_height);
         if (inverty) cimg_foroff(seqy,y) seqy(y) = _height - 1 - seqy(y);
@@ -53908,13 +51792,13 @@ namespace cimg_library {
       return draw_grid(seqx,seqy,color,opacity,pattern_x,pattern_y);
     }
 
-    //! Draw 1D graph.
+    //! Draw a 1D graph.
     /**
        \param data Image containing the graph values I = f(x).
        \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
        \param opacity Drawing opacity.
 
-       \param plot_type Define the type of the plot:
+       \param plot_type Define the plot type:
                       - 0 = No plot.
                       - 1 = Plot using segments.
                       - 2 = Plot using cubic splines.
@@ -53939,7 +51823,7 @@ namespace cimg_library {
                         const tc *const color, const float opacity=1,
                         const unsigned int plot_type=1, const int vertex_type=1,
                         const double ymin=0, const double ymax=0, const unsigned int pattern=~0U) {
-      if (is_empty() || _height<=1) return *this;
+      if (is_empty() || _height<=1 || !data || !opacity) return *this;
       if (!color)
         throw CImgArgumentException(_cimg_instance
                                     "draw_graph(): Specified color is (null).",
@@ -54094,16 +51978,16 @@ namespace cimg_library {
       return diff<=tolerance2;
     }
 
-    //! Draw filled 3D region with the flood fill algorithm.
+    //! Fill a 3D region using the flood-fill algorithm.
     /**
        \param x0 X-coordinate of the starting point of the region to fill.
        \param y0 Y-coordinate of the starting point of the region to fill.
        \param z0 Z-coordinate of the starting point of the region to fill.
        \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
-       \param[out] region Image that will contain the mask of the filled region mask, as an output.
+       \param[out] region Image that will contain the mask of the filled region [output].
        \param tolerance Tolerance concerning neighborhood values.
        \param opacity Opacity of the drawing.
-       \param is_high_connectivity Indicates whether 8-connexity must be used.
+       \param is_high_connectivity Indicates whether the algorithm uses low or high connectivity.
        \return \c region is initialized with the binary mask of the filled region.
     **/
     template<typename tc, typename t>
@@ -54236,22 +52120,22 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw filled 3D region with the flood fill algorithm \simplification.
+    //! Draw a filled 3D region with the flood fill algorithm \overload.
     template<typename tc>
     CImg<T>& draw_fill(const int x0, const int y0, const int z0,
                        const tc *const color, const float opacity=1,
-                       const float tolerance=0, const bool is_high_connexity=false) {
+                       const float tolerance=0, const bool is_high_connectivity=false) {
       CImg<ucharT> tmp;
-      return draw_fill(x0,y0,z0,color,opacity,tmp,tolerance,is_high_connexity);
+      return draw_fill(x0,y0,z0,color,opacity,tmp,tolerance,is_high_connectivity);
     }
 
-    //! Draw filled 2D region with the flood fill algorithm \simplification.
+    //! Draw a filled 2D region with the flood fill algorithm \overload.
     template<typename tc>
     CImg<T>& draw_fill(const int x0, const int y0,
                        const tc *const color, const float opacity=1,
-                       const float tolerance=0, const bool is_high_connexity=false) {
+                       const float tolerance=0, const bool is_high_connectivity=false) {
       CImg<ucharT> tmp;
-      return draw_fill(x0,y0,0,color,opacity,tmp,tolerance,is_high_connexity);
+      return draw_fill(x0,y0,0,color,opacity,tmp,tolerance,is_high_connectivity);
     }
 
     //! Draw a random plasma texture.
@@ -54405,7 +52289,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a quadratic Mandelbrot or Julia 2D fractal \overloading.
+    //! Draw a quadratic Mandelbrot or Julia 2D fractal \overload.
     template<typename tc>
     CImg<T>& draw_mandelbrot(const CImg<tc>& colormap, const float opacity=1,
                              const double z0r=-2, const double z0i=-2, const double z1r=2, const double z1i=2,
@@ -54488,7 +52372,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a 2D gaussian function \overloading.
+    //! Draw a 2D gaussian function \overload.
     template<typename tc>
     CImg<T>& draw_gaussian(const int xc, const int yc, const float r1, const float r2, const float ru, const float rv,
                            const tc *const color, const float opacity=1) {
@@ -54500,14 +52384,14 @@ namespace cimg_library {
       return draw_gaussian(xc,yc,tensor,color,opacity);
     }
 
-    //! Draw a 2D gaussian function \overloading.
+    //! Draw a 2D gaussian function \overload.
     template<typename tc>
     CImg<T>& draw_gaussian(const float xc, const float yc, const float sigma,
                            const tc *const color, const float opacity=1) {
       return draw_gaussian(xc,yc,CImg<floatT>::diagonal(sigma,sigma),color,opacity);
     }
 
-    //! Draw a 3D gaussian function \overloading.
+    //! Draw a 3D gaussian function \overload.
     template<typename t, typename tc>
     CImg<T>& draw_gaussian(const float xc, const float yc, const float zc, const CImg<t>& tensor,
                            const tc *const color, const float opacity=1) {
@@ -54536,7 +52420,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a 3D gaussian function \overloading.
+    //! Draw a 3D gaussian function \overload.
     template<typename tc>
     CImg<T>& draw_gaussian(const float xc, const float yc, const float zc, const float sigma,
                            const tc *const color, const float opacity=1) {
@@ -54554,7 +52438,7 @@ namespace cimg_library {
        \param opacities Image or list of P opacities
        \param render_type Render type (0=Points, 1=Lines, 2=Faces (no light), 3=Faces (flat), 4=Faces(Gouraud)
        \param is_double_sided Indicates whether object faces have two sides or are oriented.
-       \param focale length of the focale (0 for parallel projection)
+       \param focal Focal length (0 for parallel projection).
        \param lightx X-coordinate of the light
        \param lighty Y-coordinate of the light
        \param lightz Z-coordinate of the light
@@ -54568,95 +52452,95 @@ namespace cimg_library {
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
                            const CImgList<tc>& colors, const CImg<to>& opacities,
                            const unsigned int render_type=4,
-                           const bool is_double_sided=false, const float focale=700,
+                           const bool is_double_sided=false, const float focal=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
                            const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                            const float g_opacity=1, const bool is_multithreaded_rendering=false) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,opacities,render_type,
-                           is_double_sided,focale,lightx,lighty,lightz,
+                           is_double_sided,focal,lightx,lighty,lightz,
                            specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty(),
                            is_multithreaded_rendering);
     }
 
-    //! Draw a 3D object \simplification.
+    //! Draw a 3D object \overload.
     template<typename tp, typename tf, typename tc, typename to, typename tz>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
                            const CImgList<tc>& colors, const CImg<to>& opacities,
                            const unsigned int render_type,
-                           const bool is_double_sided, const float focale,
+                           const bool is_double_sided, const float focal,
                            const float lightx, const float lighty, const float lightz,
                            const float specular_lightness, const float specular_shininess,
                            const float g_opacity, CImg<tz>& zbuffer,
                            const bool is_multithreaded_rendering=false) {
       return _draw_object3d(zbuffer,x0,y0,z0,vertices,primitives,colors,opacities,
-                            render_type,is_double_sided,focale,lightx,lighty,lightz,
+                            render_type,is_double_sided,focal,lightx,lighty,lightz,
                             specular_lightness,specular_shininess,g_opacity,1,
                             is_multithreaded_rendering);
     }
 
-    //! Draw a 3D object \simplification.
+    //! Draw a 3D object \overload.
     template<typename tp, typename tf, typename tc, typename to>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
                            const CImgList<tc>& colors, const CImgList<to>& opacities,
                            const unsigned int render_type=4,
-                           const bool is_double_sided=false, const float focale=700,
+                           const bool is_double_sided=false, const float focal=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
                            const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                            const float g_opacity=1, const bool is_multithreaded_rendering=false) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,opacities,render_type,
-                           is_double_sided,focale,lightx,lighty,lightz,
+                           is_double_sided,focal,lightx,lighty,lightz,
                            specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty(),
                            is_multithreaded_rendering);
     }
 
-    //! Draw a 3D object \simplification.
+    //! Draw a 3D object \overload.
     template<typename tp, typename tf, typename tc, typename to, typename tz>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
                            const CImgList<tc>& colors, const CImgList<to>& opacities,
                            const unsigned int render_type,
-                           const bool is_double_sided, const float focale,
+                           const bool is_double_sided, const float focal,
                            const float lightx, const float lighty, const float lightz,
                            const float specular_lightness, const float specular_shininess,
                            const float g_opacity, CImg<tz>& zbuffer,
                            const bool is_multithreaded_rendering=false) {
       return _draw_object3d(zbuffer,x0,y0,z0,vertices,primitives,colors,opacities,
-                            render_type,is_double_sided,focale,lightx,lighty,lightz,
+                            render_type,is_double_sided,focal,lightx,lighty,lightz,
                             specular_lightness,specular_shininess,g_opacity,1,
                             is_multithreaded_rendering);
     }
 
-    //! Draw a 3D object \simplification.
+    //! Draw a 3D object \overload.
     template<typename tp, typename tf, typename tc>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
                            const CImgList<tc>& colors,
                            const unsigned int render_type=4,
-                           const bool is_double_sided=false, const float focale=700,
+                           const bool is_double_sided=false, const float focal=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
                            const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                            const float g_opacity=1, const bool is_multithreaded_rendering=false) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::const_empty(),
-                           render_type,is_double_sided,focale,lightx,lighty,lightz,
+                           render_type,is_double_sided,focal,lightx,lighty,lightz,
                            specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty(),
                            is_multithreaded_rendering);
     }
 
-    //! Draw a 3D object \simplification.
+    //! Draw a 3D object \overload.
     template<typename tp, typename tf, typename tc, typename tz>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
                            const CImgList<tc>& colors,
                            const unsigned int render_type,
-                           const bool is_double_sided, const float focale,
+                           const bool is_double_sided, const float focal,
                            const float lightx, const float lighty, const float lightz,
                            const float specular_lightness, const float specular_shininess,
                            const float g_opacity, CImg<tz>& zbuffer,
                            const bool is_multithreaded_rendering=false) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::const_empty(),
-                           render_type,is_double_sided,focale,lightx,lighty,lightz,
+                           render_type,is_double_sided,focal,lightx,lighty,lightz,
                            specular_lightness,specular_shininess,g_opacity,zbuffer,
                            is_multithreaded_rendering);
     }
@@ -54692,21 +52576,21 @@ namespace cimg_library {
                                                  int n0, int n1,
                                                  const CImg<tp>& vertices, const CImg<floatT>& projections,
                                                  const tc *const color, const float opacity,
-                                                 float focale) {
-      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale;
+                                                 float focal) {
+      float z0 = vertices(n0,2) + Z + focal, z1 = vertices(n1,2) + Z + focal;
       if (z0>z1) cimg::swap(n0,n1,z0,z1);
       int
         x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1));
       const float zc = 1; // Clipping plane
-      if (focale && z0<zc) {
+      if (focal && z0<zc) {
         if (z1<zc) return *this; // Two vertices behind camera
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
           fx1 = vertices(n1,0), fy1 = vertices(n1,1),
           fact = (zc - z0)/(z1 - z0), nfx0 = fx0 + fact*(fx1 - fx0), nfy0 = fy0 + fact*(fy1 - fy0);
         z0 = zc;
-        x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
+        x0 = cimg::uiround(X + focal*nfx0/z0); y0 = cimg::uiround(Y + focal*nfy0/z0);
       }
       if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,color,opacity);
       else draw_line(x0,y0,x1,y1,color,opacity);
@@ -54723,9 +52607,9 @@ namespace cimg_library {
                                                   int tx0, int ty0,
                                                   int tx1, int ty1,
                                                   const float opacity,
-                                                  float focale) {
-      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale;
-      if (focale && z0>z1) cimg::swap(n0,n1,z0,z1,tx0,tx1,ty0,ty1);
+                                                  float focal) {
+      float z0 = vertices(n0,2) + Z + focal, z1 = vertices(n1,2) + Z + focal;
+      if (focal && z0>z1) cimg::swap(n0,n1,z0,z1,tx0,tx1,ty0,ty1);
       int
         x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1));
@@ -54736,9 +52620,9 @@ namespace cimg_library {
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
           fx1 = vertices(n1,0), fy1 = vertices(n1,1),
           fact = (zc - z0)/(z1 - z0), nfx0 = fx0 + fact*(fx1 - fx0), nfy0 = fy0 + fact*(fy1 - fy0);
-        if (!focale) focale = zc;
+        if (!focal) focal = zc;
         z0 = zc;
-        x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
+        x0 = cimg::uiround(X + focal*nfx0/z0); y0 = cimg::uiround(Y + focal*nfy0/z0);
         tx0 = cimg::uiround(tx0 + fact*(tx1 - tx0)); ty0 = cimg::uiround(ty0 + fact*(ty1 - ty0));
       }
       if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,texture,tx0,ty0,tx1,ty1,opacity);
@@ -54753,8 +52637,8 @@ namespace cimg_library {
                                                   int n0, int n1, int n2,
                                                   const CImg<tp>& vertices, const CImg<floatT>& projections,
                                                   const tc *const color, const float opacity,
-                                                  const float brightness, float focale) {
-      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale, z2 = vertices(n2,2) + Z + focale;
+                                                  const float brightness, float focal) {
+      float z0 = vertices(n0,2) + Z + focal, z1 = vertices(n1,2) + Z + focal, z2 = vertices(n2,2) + Z + focal;
       if (z0>z2) cimg::swap(n0,n2,z0,z2);
       if (z0>z1) cimg::swap(n0,n1,z0,z1);
       if (z1>z2) cimg::swap(n1,n2,z1,z2);
@@ -54763,7 +52647,7 @@ namespace cimg_library {
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
         x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
-      if (focale && z0<zc) {
+      if (focal && z0<zc) {
         if (z2<zc) return *this;
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -54774,16 +52658,16 @@ namespace cimg_library {
             fact0 = (zc - z0)/(z2 - z0), nfx0 = fx0 + fact0*(fx2 - fx0), nfy0 = fy0 + fact0*(fy2 - fy0),
             fact1 = (zc - z1)/(z2 - z1), nfx1 = fx1 + fact1*(fx2 - fx1), nfy1 = fy1 + fact1*(fy2 - fy1);
           z0 = z1 = zc;
-          x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
-          x1 = cimg::uiround(X + focale*nfx1/z1); y1 = cimg::uiround(Y + focale*nfy1/z1);
+          x0 = cimg::uiround(X + focal*nfx0/z0); y0 = cimg::uiround(Y + focal*nfy0/z0);
+          x1 = cimg::uiround(X + focal*nfx1/z1); y1 = cimg::uiround(Y + focal*nfy1/z1);
         } else { // One vertex behind camera
           const float
             fact0 = (zc - z0)/(z1 - z0), nfx0 = fx0 + fact0*(fx1 - fx0), nfy0 = fy0 + fact0*(fy1 - fy0),
             fact1 = (zc - z0)/(z2 - z0), nfx1 = fx0 + fact1*(fx2 - fx0), nfy1 = fy0 + fact1*(fy2 - fy0),
             nz0 = zc, nz1 = zc;
           const int
-            nx0 = cimg::uiround(X + focale*nfx0/nz0), ny0 = cimg::uiround(Y + focale*nfy0/nz0),
-            nx1 = cimg::uiround(X + focale*nfx1/nz1), ny1 = cimg::uiround(Y + focale*nfy1/nz1);
+            nx0 = cimg::uiround(X + focal*nfx0/nz0), ny0 = cimg::uiround(Y + focal*nfy0/nz0),
+            nx1 = cimg::uiround(X + focal*nfx1/nz1), ny1 = cimg::uiround(Y + focal*nfy1/nz1);
           if (brightness==1) {
             if (zbuffer) draw_triangle(zbuffer,nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,color,opacity).
                            draw_triangle(zbuffer,nx0,ny0,nz0,nx1,ny1,nz1,x2,y2,z2,color,opacity);
@@ -54819,8 +52703,8 @@ namespace cimg_library {
                                                    int tx1, int ty1,
                                                    int tx2, int ty2,
                                                    const float opacity,
-                                                   const float brightness, float focale) {
-      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale, z2 = vertices(n2,2) + Z + focale;
+                                                   const float brightness, float focal) {
+      float z0 = vertices(n0,2) + Z + focal, z1 = vertices(n1,2) + Z + focal, z2 = vertices(n2,2) + Z + focal;
       if (z0>z2) cimg::swap(n0,n2,z0,z2,tx0,tx2,ty0,ty2);
       if (z0>z1) cimg::swap(n0,n1,z0,z1,tx0,tx1,ty0,ty1);
       if (z1>z2) cimg::swap(n1,n2,z1,z2,tx1,tx2,ty1,ty2);
@@ -54829,7 +52713,7 @@ namespace cimg_library {
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
         x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
-      if (focale && z0<zc) {
+      if (focal && z0<zc) {
         if (z2<zc) return *this;
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -54840,8 +52724,8 @@ namespace cimg_library {
             fact0 = (zc - z0)/(z2 - z0), nfx0 = fx0 + fact0*(fx2 - fx0), nfy0 = fy0 + fact0*(fy2 - fy0),
             fact1 = (zc - z1)/(z2 - z1), nfx1 = fx1 + fact1*(fx2 - fx1), nfy1 = fy1 + fact1*(fy2 - fy1);
           z0 = z1 = zc;
-          x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
-          x1 = cimg::uiround(X + focale*nfx1/z1); y1 = cimg::uiround(Y + focale*nfy1/z1);
+          x0 = cimg::uiround(X + focal*nfx0/z0); y0 = cimg::uiround(Y + focal*nfy0/z0);
+          x1 = cimg::uiround(X + focal*nfx1/z1); y1 = cimg::uiround(Y + focal*nfy1/z1);
           tx0 = cimg::uiround(tx0 + fact0*(tx2 - tx0)); ty0 = cimg::uiround(ty0 + fact0*(ty2 - ty0));
           tx1 = cimg::uiround(tx1 + fact1*(tx2 - tx1)); ty1 = cimg::uiround(ty1 + fact1*(ty2 - ty1));
         } else { // One vertex behind camera
@@ -54850,8 +52734,8 @@ namespace cimg_library {
             fact1 = (zc - z0)/(z2 - z0), nfx1 = fx0 + fact1*(fx2 - fx0), nfy1 = fy0 + fact1*(fy2 - fy0),
             nz0 = zc, nz1 = zc;
           const int
-            nx0 = cimg::uiround(X + focale*nfx0/nz0), ny0 = cimg::uiround(Y + focale*nfy0/nz0),
-            nx1 = cimg::uiround(X + focale*nfx1/nz1), ny1 = cimg::uiround(Y + focale*nfy1/nz1),
+            nx0 = cimg::uiround(X + focal*nfx0/nz0), ny0 = cimg::uiround(Y + focal*nfy0/nz0),
+            nx1 = cimg::uiround(X + focal*nfx1/nz1), ny1 = cimg::uiround(Y + focal*nfy1/nz1),
             ntx0 = cimg::uiround(tx0 + fact0*(tx1 - tx0)), nty0 = cimg::uiround(ty0 + fact0*(ty1 - ty0)),
             ntx1 = cimg::uiround(tx0 + fact1*(tx2 - tx0)), nty1 = cimg::uiround(ty0 + fact1*(ty2 - ty0));
           if (zbuffer) draw_triangle(zbuffer,nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,
@@ -54880,8 +52764,8 @@ namespace cimg_library {
                                                      const CImg<tp>& vertices, const CImg<floatT>& projections,
                                                      const tc *const color,
                                                      float bs0, float bs1, float bs2,
-                                                     const float opacity, float focale) {
-      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale, z2 = vertices(n2,2) + Z + focale;
+                                                     const float opacity, float focal) {
+      float z0 = vertices(n0,2) + Z + focal, z1 = vertices(n1,2) + Z + focal, z2 = vertices(n2,2) + Z + focal;
       if (z0>z2) cimg::swap(n0,n2,z0,z2,bs0,bs2);
       if (z0>z1) cimg::swap(n0,n1,z0,z1,bs0,bs1);
       if (z1>z2) cimg::swap(n1,n2,z1,z2,bs1,bs2);
@@ -54890,7 +52774,7 @@ namespace cimg_library {
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
         x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
-      if (focale && z0<zc) {
+      if (focal && z0<zc) {
         if (z2<zc) return *this;
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -54901,8 +52785,8 @@ namespace cimg_library {
             fact0 = (zc - z0)/(z2 - z0), nfx0 = fx0 + fact0*(fx2 - fx0), nfy0 = fy0 + fact0*(fy2 - fy0),
             fact1 = (zc - z1)/(z2 - z1), nfx1 = fx1 + fact1*(fx2 - fx1), nfy1 = fy1 + fact1*(fy2 - fy1);
           z0 = z1 = zc;
-          x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
-          x1 = cimg::uiround(X + focale*nfx1/z1); y1 = cimg::uiround(Y + focale*nfy1/z1);
+          x0 = cimg::uiround(X + focal*nfx0/z0); y0 = cimg::uiround(Y + focal*nfy0/z0);
+          x1 = cimg::uiround(X + focal*nfx1/z1); y1 = cimg::uiround(Y + focal*nfy1/z1);
           bs0 = bs0 + fact0*(bs2 - bs0);
           bs1 = bs1 + fact1*(bs2 - bs1);
         } else { // One vertex behind camera
@@ -54913,8 +52797,8 @@ namespace cimg_library {
             nbs1 = bs0 + fact1*(bs2 - bs0),
             nz0 = zc, nz1 = zc;
           const int
-            nx0 = cimg::uiround(X + focale*nfx0/nz0), ny0 = cimg::uiround(Y + focale*nfy0/nz0),
-            nx1 = cimg::uiround(X + focale*nfx1/nz1), ny1 = cimg::uiround(Y + focale*nfy1/nz1);
+            nx0 = cimg::uiround(X + focal*nfx0/nz0), ny0 = cimg::uiround(Y + focal*nfy0/nz0),
+            nx1 = cimg::uiround(X + focal*nfx1/nz1), ny1 = cimg::uiround(Y + focal*nfy1/nz1);
           if (zbuffer) draw_triangle(zbuffer,nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,color,nbs0,bs1,bs2,opacity).
                          draw_triangle(zbuffer,nx0,ny0,nz0,nx1,ny1,nz1,x2,y2,z2,color,nbs0,nbs1,bs2,opacity);
           else draw_triangle(nx0,ny0,x1,y1,x2,y2,color,nbs0,bs1,bs2,opacity).
@@ -54940,8 +52824,8 @@ namespace cimg_library {
                                                       int tx1, int ty1,
                                                       int tx2, int ty2,
                                                       float bs0, float bs1, float bs2,
-                                                      const float opacity, float focale) {
-      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale, z2 = vertices(n2,2) + Z + focale;
+                                                      const float opacity, float focal) {
+      float z0 = vertices(n0,2) + Z + focal, z1 = vertices(n1,2) + Z + focal, z2 = vertices(n2,2) + Z + focal;
       if (z0>z2) cimg::swap(n0,n2,z0,z2,tx0,tx2,ty0,ty2,bs0,bs2);
       if (z0>z1) cimg::swap(n0,n1,z0,z1,tx0,tx1,ty0,ty1,bs0,bs1);
       if (z1>z2) cimg::swap(n1,n2,z1,z2,tx1,tx2,ty1,ty2,bs1,bs2);
@@ -54950,7 +52834,7 @@ namespace cimg_library {
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
         x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
-      if (focale && z0<zc) {
+      if (focal && z0<zc) {
         if (z2<zc) return *this;
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -54961,8 +52845,8 @@ namespace cimg_library {
             fact0 = (zc - z0)/(z2 - z0), nfx0 = fx0 + fact0*(fx2 - fx0), nfy0 = fy0 + fact0*(fy2 - fy0),
             fact1 = (zc - z1)/(z2 - z1), nfx1 = fx1 + fact1*(fx2 - fx1), nfy1 = fy1 + fact1*(fy2 - fy1);
           z0 = z1 = zc;
-          x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
-          x1 = cimg::uiround(X + focale*nfx1/z1); y1 = cimg::uiround(Y + focale*nfy1/z1);
+          x0 = cimg::uiround(X + focal*nfx0/z0); y0 = cimg::uiround(Y + focal*nfy0/z0);
+          x1 = cimg::uiround(X + focal*nfx1/z1); y1 = cimg::uiround(Y + focal*nfy1/z1);
           tx0 = cimg::uiround(tx0 + fact0*(tx2 - tx0)); ty0 = cimg::uiround(ty0 + fact0*(ty2 - ty0));
           tx1 = cimg::uiround(tx1 + fact1*(tx2 - tx1)); ty1 = cimg::uiround(ty1 + fact1*(ty2 - ty1));
           bs0 = bs0 + fact0*(bs2 - bs0);
@@ -54975,8 +52859,8 @@ namespace cimg_library {
             nbs1 = bs0 + fact1*(bs2 - bs0),
             nz0 = zc, nz1 = zc;
           const int
-            nx0 = cimg::uiround(X + focale*nfx0/nz0), ny0 = cimg::uiround(Y + focale*nfy0/nz0),
-            nx1 = cimg::uiround(X + focale*nfx1/nz1), ny1 = cimg::uiround(Y + focale*nfy1/nz1),
+            nx0 = cimg::uiround(X + focal*nfx0/nz0), ny0 = cimg::uiround(Y + focal*nfy0/nz0),
+            nx1 = cimg::uiround(X + focal*nfx1/nz1), ny1 = cimg::uiround(Y + focal*nfy1/nz1),
             ntx0 = cimg::uiround(tx0 + fact0*(tx1 - tx0)), nty0 = cimg::uiround(ty0 + fact0*(ty1 - ty0)),
             ntx1 = cimg::uiround(tx0 + fact1*(tx2 - tx0)), nty1 = cimg::uiround(ty0 + fact1*(ty2 - ty0));
           if (zbuffer) draw_triangle(zbuffer,nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,
@@ -55007,8 +52891,8 @@ namespace cimg_library {
                                                    int lx0, int ly0,
                                                    int lx1, int ly1,
                                                    int lx2, int ly2,
-                                                   const float opacity, float focale) {
-      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale, z2 = vertices(n2,2) + Z + focale;
+                                                   const float opacity, float focal) {
+      float z0 = vertices(n0,2) + Z + focal, z1 = vertices(n1,2) + Z + focal, z2 = vertices(n2,2) + Z + focal;
       if (z0>z2) cimg::swap(n0,n2,z0,z2,lx0,lx2,ly0,ly2);
       if (z0>z1) cimg::swap(n0,n1,z0,z1,lx0,lx1,ly0,ly1);
       if (z1>z2) cimg::swap(n1,n2,z1,z2,lx1,lx2,ly1,ly2);
@@ -55017,7 +52901,7 @@ namespace cimg_library {
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
         x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
-      if (focale && z0<zc) {
+      if (focal && z0<zc) {
         if (z2<zc) return *this;
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -55028,8 +52912,8 @@ namespace cimg_library {
             fact0 = (zc - z0)/(z2 - z0), nfx0 = fx0 + fact0*(fx2 - fx0), nfy0 = fy0 + fact0*(fy2 - fy0),
             fact1 = (zc - z1)/(z2 - z1), nfx1 = fx1 + fact1*(fx2 - fx1), nfy1 = fy1 + fact1*(fy2 - fy1);
           z0 = z1 = zc;
-          x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
-          x1 = cimg::uiround(X + focale*nfx1/z1); y1 = cimg::uiround(Y + focale*nfy1/z1);
+          x0 = cimg::uiround(X + focal*nfx0/z0); y0 = cimg::uiround(Y + focal*nfy0/z0);
+          x1 = cimg::uiround(X + focal*nfx1/z1); y1 = cimg::uiround(Y + focal*nfy1/z1);
           lx0 = cimg::uiround(lx0 + fact0*(lx2 - lx0)); ly0 = cimg::uiround(ly0 + fact0*(ly2 - ly0));
           lx1 = cimg::uiround(lx1 + fact1*(lx2 - lx1)); ly1 = cimg::uiround(ly1 + fact1*(ly2 - ly1));
         } else { // One vertex behind camera
@@ -55038,8 +52922,8 @@ namespace cimg_library {
             fact1 = (zc - z0)/(z2 - z0), nfx1 = fx0 + fact1*(fx2 - fx0), nfy1 = fy0 + fact1*(fy2 - fy0),
             nz0 = zc, nz1 = zc;
           const int
-            nx0 = cimg::uiround(X + focale*nfx0/nz0), ny0 = cimg::uiround(Y + focale*nfy0/nz0),
-            nx1 = cimg::uiround(X + focale*nfx1/nz1), ny1 = cimg::uiround(Y + focale*nfy1/nz1),
+            nx0 = cimg::uiround(X + focal*nfx0/nz0), ny0 = cimg::uiround(Y + focal*nfy0/nz0),
+            nx1 = cimg::uiround(X + focal*nfx1/nz1), ny1 = cimg::uiround(Y + focal*nfy1/nz1),
             nlx0 = cimg::uiround(lx0 + fact0*(lx1 - lx0)), nly0 = cimg::uiround(ly0 + fact0*(ly1 - ly0)),
             nlx1 = cimg::uiround(lx0 + fact1*(lx2 - lx0)), nly1 = cimg::uiround(ly0 + fact1*(ly2 - ly0));
           if (zbuffer) draw_triangle(zbuffer,nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,color,
@@ -55070,8 +52954,8 @@ namespace cimg_library {
                                                     int tx0, int ty0, int tx1, int ty1, int tx2, int ty2,
                                                     const CImg<floatT>& light_texture,
                                                     int lx0, int ly0, int lx1, int ly1, int lx2, int ly2,
-                                                    const float opacity, float focale) {
-      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale, z2 = vertices(n2,2) + Z + focale;
+                                                    const float opacity, float focal) {
+      float z0 = vertices(n0,2) + Z + focal, z1 = vertices(n1,2) + Z + focal, z2 = vertices(n2,2) + Z + focal;
       if (z0>z2) cimg::swap(n0,n2,z0,z2,tx0,tx2,ty0,ty2,lx0,lx2,ly0,ly2);
       if (z0>z1) cimg::swap(n0,n1,z0,z1,tx0,tx1,ty0,ty1,lx0,lx1,ly0,ly1);
       if (z1>z2) cimg::swap(n1,n2,z1,z2,tx1,tx2,ty1,ty2,lx1,lx2,ly1,ly2);
@@ -55080,7 +52964,7 @@ namespace cimg_library {
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
         x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
-      if (focale && z0<zc) {
+      if (focal && z0<zc) {
         if (z2<zc) return *this;
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -55091,8 +52975,8 @@ namespace cimg_library {
             fact0 = (zc - z0)/(z2 - z0), nfx0 = fx0 + fact0*(fx2 - fx0), nfy0 = fy0 + fact0*(fy2 - fy0),
             fact1 = (zc - z1)/(z2 - z1), nfx1 = fx1 + fact1*(fx2 - fx1), nfy1 = fy1 + fact1*(fy2 - fy1);
           z0 = z1 = zc;
-          x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
-          x1 = cimg::uiround(X + focale*nfx1/z1); y1 = cimg::uiround(Y + focale*nfy1/z1);
+          x0 = cimg::uiround(X + focal*nfx0/z0); y0 = cimg::uiround(Y + focal*nfy0/z0);
+          x1 = cimg::uiround(X + focal*nfx1/z1); y1 = cimg::uiround(Y + focal*nfy1/z1);
           tx0 = cimg::uiround(tx0 + fact0*(tx2 - tx0)); ty0 = cimg::uiround(ty0 + fact0*(ty2 - ty0));
           tx1 = cimg::uiround(tx1 + fact1*(tx2 - tx1)); ty1 = cimg::uiround(ty1 + fact1*(ty2 - ty1));
           lx0 = cimg::uiround(lx0 + fact0*(lx2 - lx0)); ly0 = cimg::uiround(ly0 + fact0*(ly2 - ly0));
@@ -55103,8 +52987,8 @@ namespace cimg_library {
             fact1 = (zc - z0)/(z2 - z0), nfx1 = fx0 + fact1*(fx2 - fx0), nfy1 = fy0 + fact1*(fy2 - fy0),
             nz0 = zc, nz1 = zc;
           const int
-            nx0 = cimg::uiround(X + focale*nfx0/nz0), ny0 = cimg::uiround(Y + focale*nfy0/nz0),
-            nx1 = cimg::uiround(X + focale*nfx1/nz1), ny1 = cimg::uiround(Y + focale*nfy1/nz1),
+            nx0 = cimg::uiround(X + focal*nfx0/nz0), ny0 = cimg::uiround(Y + focal*nfy0/nz0),
+            nx1 = cimg::uiround(X + focal*nfx1/nz1), ny1 = cimg::uiround(Y + focal*nfy1/nz1),
             ntx0 = cimg::uiround(tx0 + fact0*(tx1 - tx0)), nty0 = cimg::uiround(ty0 + fact0*(ty1 - ty0)),
             ntx1 = cimg::uiround(tx0 + fact1*(tx2 - tx0)), nty1 = cimg::uiround(ty0 + fact1*(ty2 - ty0)),
             nlx0 = cimg::uiround(lx0 + fact0*(lx1 - lx0)), nly0 = cimg::uiround(ly0 + fact0*(ly1 - ly0)),
@@ -55141,7 +53025,7 @@ namespace cimg_library {
                             const CImgList<tc>& colors,
                             const to& opacities,
                             const unsigned int render_type,
-                            const bool is_double_sided, const float focale,
+                            const bool is_double_sided, const float focal,
                             const float lightx, const float lighty, const float lightz,
                             const float specular_lightness, const float specular_shininess,
                             const float g_opacity, const float sprite_scale,
@@ -55157,7 +53041,7 @@ namespace cimg_library {
       if (render_type==5) cimg::mutex(10); // Static variable used in this case, breaks thread-safety
 
       const float
-        _focale = focale?cimg::abs(focale):1e8f, // Parallel projection -> very large focale
+        _focal = focal?cimg::abs(focal):1e8f, // Parallel projection -> very large focal length
         nspec = 1 - cimg::cut(specular_shininess,0.0f,1.0f),
         nspec2 = 1 + std::max(specular_lightness,0.0f),
         nsl1 = (nspec2 - 1)/cimg::sqr(nspec - 1),
@@ -55346,15 +53230,15 @@ namespace cimg_library {
 
       // Compute 3D to 2D projection.
       CImg<floatT> projections(vertices._width,2);
-      if (focale) {
+      if (focal) {
         cimg_pragma_openmp(parallel for cimg_openmp_if(is_multithreaded_rendering &&
                                                        projections.size()>=cimg_openmp_sizefactor*4096))
         cimg_forX(projections,l) { // Perspective projection
           const float
             x = (float)vertices(l,0), y = (float)vertices(l,1), z = (float)vertices(l,2),
-            z_denom = z + Z + _focale;
-          projections(l,1) = Y + _focale*y/z_denom;
-          projections(l,0) = X + _focale*x/z_denom;
+            z_denom = z + Z + _focal;
+          projections(l,1) = Y + _focal*y/z_denom;
+          projections(l,0) = X + _focal*x/z_denom;
         }
       } else {
         cimg_pragma_openmp(parallel for cimg_openmp_if(is_multithreaded_rendering &&
@@ -55372,7 +53256,7 @@ namespace cimg_library {
       // Compute visible primitives.
       CImg<uintT> visibles(primitives._width,1,1,1,~0U);
       CImg<floatT> zrange(primitives._width);
-      const float zmin = focale?1 - _focale:cimg::type<float>::min();
+      const float zmin = focal?1 - _focal:cimg::type<float>::min();
       bool is_forward = zbuffer?true:false;
       cimg_pragma_openmp(parallel for cimg_openmp_if(is_multithreaded_rendering &&
                                                      primitives.size()>=cimg_openmp_sizefactor*4096))
@@ -55399,12 +53283,12 @@ namespace cimg_library {
             Yc = 0.5f*((float)vertices(i0,1) + (float)vertices(i1,1)),
             Zc = 0.5f*((float)vertices(i0,2) + (float)vertices(i1,2)),
             _zc = Z + Zc,
-            zc = _zc + _focale,
-            xc = X + Xc*(focale?_focale/zc:1),
-            yc = Y + Yc*(focale?_focale/zc:1),
+            zc = _zc + _focal,
+            xc = X + Xc*(focal?_focal/zc:1),
+            yc = Y + Yc*(focal?_focal/zc:1),
             radius = 0.5f*cimg::hypot(vertices(i1,0) - vertices(i0,0),
                                       vertices(i1,1) - vertices(i0,1),
-                                      vertices(i1,2) - vertices(i0,2))*(focale?_focale/zc:1),
+                                      vertices(i1,2) - vertices(i0,2))*(focal?_focal/zc:1),
             xm = xc - radius,
             ym = yc - radius,
             xM = xc + radius,
@@ -55442,11 +53326,11 @@ namespace cimg_library {
             x2 = projections(i2,0), y2 = projections(i2,1), z2 = Z + (float)vertices(i2,2);
           float dot = -1;
           if (p_normals) {
-            if (focale) {
+            if (focal) {
               const float
                 cam2obj_x = p_centers(l,0) - X,
                 cam2obj_y = p_centers(l,1) - Y,
-                cam2obj_z = p_centers(l,2) + _focale;
+                cam2obj_z = p_centers(l,2) + _focal;
               dot = cam2obj_x*p_normals(l,0) + cam2obj_y*p_normals(l,1) + cam2obj_z*p_normals(l,2);
             } else dot = p_normals(l,2);
           }
@@ -55479,11 +53363,11 @@ namespace cimg_library {
             x3 = projections(i3,0), y3 = projections(i3,1), z3 = Z + (float)vertices(i3,2);
           float dot = -1;
           if (p_normals) {
-            if (focale) {
+            if (focal) {
               const float
                 cam2obj_x = p_centers(l,0) - X,
                 cam2obj_y = p_centers(l,1) - Y,
-                cam2obj_z = p_centers(l,2) + _focale;
+                cam2obj_z = p_centers(l,2) + _focal;
               dot = cam2obj_x*p_normals(l,0) + cam2obj_y*p_normals(l,1) + cam2obj_z*p_normals(l,2);
             } else dot = p_normals(l,2);
           }
@@ -55626,7 +53510,7 @@ namespace cimg_library {
             else { // Sprite
               const float
                 z = Z + (float)vertices(n0,2),
-                factor = focale<0?1:sprite_scale*(focale?_focale/(z + _focale):1);
+                factor = focal<0?1:sprite_scale*(focal?_focal/(z + _focal):1);
               const unsigned int
                 _sw = (unsigned int)(color._width*factor),
                 _sh = (unsigned int)(color._height*factor),
@@ -55644,7 +53528,7 @@ namespace cimg_library {
           } else { // Opacity mask
             const float
               z = Z + (float)vertices(n0,2),
-              factor = focale<0?1:sprite_scale*(focale?_focale/(z + _focale):1);
+              factor = focal<0?1:sprite_scale*(focal?_focal/(z + _focal):1);
             const unsigned int
               _sw = (unsigned int)(std::max(color._width,_opacity._width)*factor),
               _sh = (unsigned int)(std::max(color._height,_opacity._height)*factor),
@@ -55669,7 +53553,7 @@ namespace cimg_library {
             n0 = (unsigned int)primitive[0],
             n1 = (unsigned int)primitive[1];
           if (render_type)
-            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,pcolor,opacity,_focale);
+            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,pcolor,opacity,_focal);
           else {
             const int
               x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
@@ -55700,8 +53584,8 @@ namespace cimg_library {
                                       vertices(n1,2) - vertices(n0,2));
           }
           const float
-            zc = Z + Zc + _focale,
-            af = focale?_focale/zc:1,
+            zc = Z + Zc + _focal,
+            af = focal?_focal/zc:1,
             xc = X + Xc*af,
             yc = Y + Yc*af;
           radius*=af;
@@ -55734,7 +53618,7 @@ namespace cimg_library {
             tx1 = (int)primitive[4], ty1 = (int)primitive[5];
           if (render_type)
             _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,
-                                                 color,tx0,ty0,tx1,ty1,opacity,_focale);
+                                                 color,tx0,ty0,tx1,ty1,opacity,_focal);
           else {
             const int
               x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
@@ -55759,21 +53643,21 @@ namespace cimg_library {
             draw_point(x0,y0,pcolor,opacity).draw_point(x1,y1,pcolor,opacity).draw_point(x2,y2,pcolor,opacity);
           } break;
           case 1 :
-            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,pcolor,opacity,_focale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,pcolor,opacity,_focale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n2,n0,vertices,projections,pcolor,opacity,_focale);
+            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,pcolor,opacity,_focal).
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,pcolor,opacity,_focal).
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n2,n0,vertices,projections,pcolor,opacity,_focal);
             break;
           case 2 :
-            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,pcolor,opacity,1,_focale);
+            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,pcolor,opacity,1,_focal);
             break;
           case 3 :
             _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,pcolor,opacity,
-                                                 lightprops(l),_focale);
+                                                 lightprops(l),_focal);
             break;
           case 4 :
             _draw_object3d_gouraud_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                     pcolor,lightprops(n0),lightprops(n1),lightprops(n2),opacity,
-                                                    _focale);
+                                                    _focal);
             break;
           case 5 : {
             const int
@@ -55781,7 +53665,7 @@ namespace cimg_library {
               lx1 = cimg::uiround(lightprops(n1,0)), ly1 = cimg::uiround(lightprops(n1,1)),
               lx2 = cimg::uiround(lightprops(n2,0)), ly2 = cimg::uiround(lightprops(n2,1));
             _draw_object3d_phong_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                  pcolor,light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focale);
+                                                  pcolor,light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focal);
           } break;
           }
         } break;
@@ -55802,29 +53686,29 @@ namespace cimg_library {
               draw_point(x2,y2,pcolor,opacity).draw_point(x3,y3,pcolor,opacity);
           } break;
           case 1 :
-            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,pcolor,opacity,_focale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,pcolor,opacity,_focale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n2,n3,vertices,projections,pcolor,opacity,_focale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n3,n0,vertices,projections,pcolor,opacity,_focale);
+            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,pcolor,opacity,_focal).
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,pcolor,opacity,_focal).
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n2,n3,vertices,projections,pcolor,opacity,_focal).
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n3,n0,vertices,projections,pcolor,opacity,_focal);
             break;
           case 2 :
-            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,pcolor,opacity,1,_focale).
+            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,pcolor,opacity,1,_focal).
               _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,pcolor,opacity,1,
-                                                   _focale);
+                                                   _focal);
             break;
           case 3 :
             _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,pcolor,opacity,
-                                                 lightprops(l),_focale).
+                                                 lightprops(l),_focal).
               _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,pcolor,opacity,
-                                                   lightprops(l),_focale);
+                                                   lightprops(l),_focal);
             break;
           case 4 :
             _draw_object3d_gouraud_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                     pcolor,lightprops(n0),lightprops(n1),lightprops(n2),opacity,
-                                                    _focale).
+                                                    _focal).
               _draw_object3d_gouraud_colored_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
                                                       pcolor,lightprops(n0),lightprops(n2),lightprops(n3),opacity,
-                                                      _focale);
+                                                      _focal);
             break;
           case 5 : {
             const int
@@ -55833,9 +53717,9 @@ namespace cimg_library {
               lx2 = cimg::uiround(lightprops(n2,0)), ly2 = cimg::uiround(lightprops(n2,1)),
               lx3 = cimg::uiround(lightprops(n3,0)), ly3 = cimg::uiround(lightprops(n3,1));
             _draw_object3d_phong_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                  pcolor,light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focale).
+                                                  pcolor,light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focal).
               _draw_object3d_phong_colored_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
-                                                    pcolor,light_texture,lx0,ly0,lx2,ly2,lx3,ly3,opacity,_focale);
+                                                    pcolor,light_texture,lx0,ly0,lx2,ly2,lx3,ly3,opacity,_focal);
           } break;
           }
         } break;
@@ -55869,24 +53753,24 @@ namespace cimg_library {
           } break;
           case 1 :
             _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,
-                                                 color,tx0,ty0,tx1,ty1,opacity,_focale).
+                                                 color,tx0,ty0,tx1,ty1,opacity,_focal).
               _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,
-                                                   color,tx1,ty1,tx2,ty2,opacity,_focale).
+                                                   color,tx1,ty1,tx2,ty2,opacity,_focal).
               _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n2,n0,vertices,projections,
-                                                   color,tx2,ty2,tx0,ty0,opacity,_focale);
+                                                   color,tx2,ty2,tx0,ty0,opacity,_focal);
             break;
           case 2 :
             _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,1,_focale);
+                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,1,_focal);
             break;
           case 3 :
             _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l),_focale);
+                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l),_focal);
             break;
           case 4 :
             _draw_object3d_gouraud_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                      color,tx0,ty0,tx1,ty1,tx2,ty2,
-                                                     lightprops(n0),lightprops(n1),lightprops(n2),opacity,_focale);
+                                                     lightprops(n0),lightprops(n1),lightprops(n2),opacity,_focal);
             break;
           case 5 :
             const int
@@ -55895,7 +53779,7 @@ namespace cimg_library {
               lx2 = cimg::uiround(lightprops(n2,0)), ly2 = cimg::uiround(lightprops(n2,1));
             _draw_object3d_phong_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                    color,tx0,ty0,tx1,ty1,tx2,ty2,
-                                                   light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focale);
+                                                   light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focal);
             break;
           }
         } break;
@@ -55934,33 +53818,33 @@ namespace cimg_library {
           } break;
           case 1 :
             _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,
-                                                 color,tx0,ty0,tx1,ty1,opacity,_focale).
+                                                 color,tx0,ty0,tx1,ty1,opacity,_focal).
               _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,
-                                                   color,tx1,ty1,tx2,ty2,opacity,_focale).
+                                                   color,tx1,ty1,tx2,ty2,opacity,_focal).
               _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n2,n3,vertices,projections,
-                                                   color,tx2,ty2,tx3,ty3,opacity,_focale).
+                                                   color,tx2,ty2,tx3,ty3,opacity,_focal).
               _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n3,n0,vertices,projections,
-                                                   color,tx3,ty3,tx0,ty0,opacity,_focale);
+                                                   color,tx3,ty3,tx0,ty0,opacity,_focal);
             break;
           case 2 :
             _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,1,_focale).
+                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,1,_focal).
               _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
-                                                    color,tx0,ty0,tx2,ty2,tx3,ty3,opacity,1,_focale);
+                                                    color,tx0,ty0,tx2,ty2,tx3,ty3,opacity,1,_focal);
             break;
           case 3 :
             _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l),_focale).
+                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l),_focal).
               _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
-                                                    color,tx0,ty0,tx2,ty2,tx3,ty3,opacity,lightprops(l),_focale);
+                                                    color,tx0,ty0,tx2,ty2,tx3,ty3,opacity,lightprops(l),_focal);
             break;
           case 4 :
             _draw_object3d_gouraud_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                      color,tx0,ty0,tx1,ty1,tx2,ty2,
-                                                     lightprops(n0),lightprops(n1),lightprops(n2),opacity,_focale).
+                                                     lightprops(n0),lightprops(n1),lightprops(n2),opacity,_focal).
               _draw_object3d_gouraud_textured_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
                                                        color,tx0,ty0,tx2,ty2,tx3,ty3,
-                                                       lightprops(n0),lightprops(n2),lightprops(n3),opacity,_focale);
+                                                       lightprops(n0),lightprops(n2),lightprops(n3),opacity,_focal);
             break;
           case 5 : {
             const int
@@ -55970,10 +53854,10 @@ namespace cimg_library {
               lx3 = cimg::uiround(lightprops(n3,0)), ly3 = cimg::uiround(lightprops(n3,1));
             _draw_object3d_phong_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                    color,tx0,ty0,tx1,ty1,tx2,ty2,
-                                                   light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focale).
+                                                   light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focal).
               _draw_object3d_phong_textured_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
                                                      color,tx0,ty0,tx2,ty2,tx3,ty3,
-                                                     light_texture,lx0,ly0,lx2,ly2,lx3,ly3,opacity,_focale);
+                                                     light_texture,lx0,ly0,lx2,ly2,lx3,ly3,opacity,_focal);
           } break;
           }
         } break;
@@ -55990,7 +53874,7 @@ namespace cimg_library {
     //@{
     //---------------------------
 
-    //! Launch simple interface to select a shape from an image.
+    //! Launches a simple interface to select a shape from an image.
     /**
        \param disp Display window to use.
        \param feature_type Type of feature to select. Can be <tt>{ 0=point | 1=line | 2=rectangle | 3=ellipse }</tt>.
@@ -56005,7 +53889,7 @@ namespace cimg_library {
       return get_select(disp,feature_type,XYZ,exit_on_anykey,is_deep_selection_default).move_to(*this);
     }
 
-    //! Simple interface to select a shape from an image \overloading.
+    //! Simple interface to select a shape from an image \overload.
     CImg<T>& select(const char *const title,
                     const unsigned int feature_type=2, unsigned int *const XYZ=0,
                     const bool exit_on_anykey=false,
@@ -56651,7 +54535,7 @@ namespace cimg_library {
       return res;
     }
 
-    // Return a visualizable 'uchar8' image for display routines.
+    // Return a visualizable 8-bit unsigned char image for display routines.
     CImg<ucharT> _get_select(const CImgDisplay& disp, const int normalization,
                              const int x, const int y, const int z) const {
       if (is_empty()) return CImg<ucharT>(1,1,1,1,0);
@@ -56713,7 +54597,7 @@ namespace cimg_library {
       return img2d;
     }
 
-    //! Select sub-graph in a graph.
+    //! Select a sub-graph within a graph.
     CImg<intT> get_select_graph(CImgDisplay &disp,
                                 const unsigned int plot_type=1, const unsigned int vertex_type=1,
                                 const char *const labelx=0, const double xmin=0, const double xmax=0,
@@ -57121,7 +55005,7 @@ namespace cimg_library {
         else is_loaded = false;
       } catch (CImgIOException&) { is_loaded = false; }
 
-      // If nothing loaded, try to guess file format from magic number in file.
+      // If nothing was loaded, try to guess the file format from the magic number in the file.
       if (!is_loaded) {
         std::FILE *file = cimg::std_fopen(filename,"rb");
         if (!file) {
@@ -57153,7 +55037,7 @@ namespace cimg_library {
         } catch (CImgIOException&) { is_loaded = false; }
       }
 
-      // If nothing loaded, try to load file with other means.
+      // If nothing was loaded, try to load the file by other means.
       if (!is_loaded) {
         try {
           load_other(filename);
@@ -57174,7 +55058,7 @@ namespace cimg_library {
       return CImg<T>().load(filename);
     }
 
-    //! Load image from an ascii file.
+    //! Load image from an ASCII file.
     /**
        \param filename Filename, as a C -string.
     **/
@@ -57182,17 +55066,17 @@ namespace cimg_library {
       return _load_ascii(0,filename);
     }
 
-    //! Load image from an ascii file \inplace.
+    //! Load image from an ASCII file \newinstance.
     static CImg<T> get_load_ascii(const char *const filename) {
       return CImg<T>().load_ascii(filename);
     }
 
-    //! Load image from an ascii file \overloading.
+    //! Load image from an ASCII file \inplace.
     CImg<T>& load_ascii(std::FILE *const file) {
       return _load_ascii(file,0);
     }
 
-    //! Loadimage from an ascii file \newinstance.
+    //! Load image from an ASCII file \newinstance.
     static CImg<T> get_load_ascii(std::FILE *const file) {
       return CImg<T>().load_ascii(file);
     }
@@ -57212,7 +55096,7 @@ namespace cimg_library {
       if (!dx || !dy || !dz || !dc) {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimg_instance
-                              "load_ascii(): Invalid ascii header in file '%s', image dimensions are set "
+                              "load_ascii(): Invalid ASCII header in file '%s', image dimensions are set "
                               "to (%u,%u,%u,%u).",
                               cimg_instance,
                               filename?filename:"(FILE*)",dx,dy,dz,dc);
@@ -57249,7 +55133,7 @@ namespace cimg_library {
       return CImg<T>().load_dlm(filename);
     }
 
-    //! Load image from a DLM file \overloading.
+    //! Load image from a DLM file \inplace.
     CImg<T>& load_dlm(std::FILE *const file) {
       return _load_dlm(file,0);
     }
@@ -57307,7 +55191,7 @@ namespace cimg_library {
       return CImg<T>().load_bmp(filename);
     }
 
-    //! Load image from a BMP file \overloading.
+    //! Load image from a BMP file \inplace.
     CImg<T>& load_bmp(std::FILE *const file) {
       return _load_bmp(file,0);
     }
@@ -57376,7 +55260,7 @@ namespace cimg_library {
         align_bytes = (4 - dx_bytes%4)%4;
       const ulongT
         cimg_iobuffer = (ulongT)24*1024*1024,
-        buf_size = (ulongT)cimg::abs(dy)*(dx_bytes + align_bytes);
+        buf_size = (ulongT)cimg::abs((longT)dy)*(dx_bytes + align_bytes);
 
       if (buf_size>=fsiz)
         throw CImgIOException(_cimg_instance
@@ -57538,7 +55422,7 @@ namespace cimg_library {
       return CImg<T>().load_jpeg(filename);
     }
 
-    //! Load image from a JPEG file \overloading.
+    //! Load image from a JPEG file \inplace.
     CImg<T>& load_jpeg(std::FILE *const file) {
       return _load_jpeg(file,0);
     }
@@ -57669,7 +55553,7 @@ namespace cimg_library {
       return CImg<T>().load_jxl(filename);
     }
 
-    //! Load image from a JPEG XL file \overloading.
+    //! Load image from a JPEG XL file \inplace.
     CImg<T>& load_jxl(std::FILE *const file) {
       return _load_jxl(file,0);
     }
@@ -57816,8 +55700,7 @@ namespace cimg_library {
     /**
        \param filename Filename, as a C-string.
     **/
-    // Added April/may 2006 by Christoph Hormann <chris_hormann@gmx.de>.
-    // This is experimental code, not much tested, use with care.
+    // Added April/May 2006 by Christoph Hormann <chris_hormann@gmx.de>.
     CImg<T>& load_magick(const char *const filename) {
       if (!filename)
         throw CImgArgumentException(_cimg_instance
@@ -57888,9 +55771,9 @@ namespace cimg_library {
       return CImg<T>().load_magick(filename);
     }
 
-    //! Loads an image from a PNG file.
+    //! Load an image from a PNG file.
     /**
-       This method reads a PNG file and loads its content into the current CImg<T> instance.
+       This function reads a PNG file and loads its content into the current CImg<T> instance.
 
        \param filename Path to the PNG file to load, as a C-string.
        \param[out] bits_per_value Number of bits used to store a scalar value in the image file.
@@ -57915,7 +55798,7 @@ namespace cimg_library {
       return CImg<T>().load_png(filename,bits_per_value);
     }
 
-    //! Load image from a PNG file \overloading.
+    //! Load image from a PNG file \inplace.
     CImg<T>& load_png(std::FILE *const file, unsigned int *const bits_per_value=0) {
       return _load_png(file,0,bits_per_value);
     }
@@ -58022,11 +55905,11 @@ namespace cimg_library {
       }
       if (png_get_valid(png_ptr,info_ptr,PNG_INFO_tRNS)) {
         png_set_tRNS_to_alpha(png_ptr);
-        color_type |= PNG_COLOR_MASK_ALPHA;
+        color_type|=PNG_COLOR_MASK_ALPHA;
       }
       if (color_type==PNG_COLOR_TYPE_GRAY || color_type==PNG_COLOR_TYPE_GRAY_ALPHA) {
         png_set_gray_to_rgb(png_ptr);
-        color_type |= PNG_COLOR_MASK_COLOR;
+        color_type|=PNG_COLOR_MASK_COLOR;
         is_gray = true;
       }
       if (color_type==PNG_COLOR_TYPE_RGB)
@@ -58060,7 +55943,7 @@ namespace cimg_library {
       }
       const bool is_alpha = (color_type==PNG_COLOR_TYPE_RGBA);
       try { assign(W,H,1,(is_gray?1:3) + (is_alpha?1:0)); }
-      catch (...) { if (!file) cimg::fclose(nfile); throw; }
+      catch (...) { delete[] imgData; if (!file) cimg::fclose(nfile); throw; }
       T
         *ptr_r = data(0,0,0,0),
         *ptr_g = is_gray?0:data(0,0,0,1),
@@ -58114,7 +55997,7 @@ namespace cimg_library {
       return CImg<T>().load_pnm(filename);
     }
 
-    //! Load image from a PNM file \overloading.
+    //! Load image from a PNM file \inplace.
     CImg<T>& load_pnm(std::FILE *const file) {
       return _load_pnm(file,0);
     }
@@ -58163,7 +56046,7 @@ namespace cimg_library {
       }
       std::fgetc(nfile);
 
-      if (filename) { // Check that dimensions specified in file does not exceed the buffer dimension
+      if (filename) { // Check that the dimensions specified in file do not exceed the buffer dimensions
         const cimg_int64 siz = cimg::fsize(filename);
         if ((cimg_int64)W*H*D>siz)
           throw CImgIOException(_cimg_instance
@@ -58173,17 +56056,17 @@ namespace cimg_library {
       }
 
       switch (ppm_type) {
-      case 1 : { // 2D B&W ascii
+      case 1 : { // 2D B&W ASCII
         assign(W,H,1,1);
         T* ptrd = _data;
         cimg_foroff(*this,off) { if (std::fscanf(nfile,"%d",&rval)>0) *(ptrd++) = (T)(rval?0:255); else break; }
       } break;
-      case 2 : { // 2D grey ascii
+      case 2 : { // 2D grey ASCII
         assign(W,H,1,1);
         T* ptrd = _data;
         cimg_foroff(*this,off) { if (std::fscanf(nfile,"%d",&rval)>0) *(ptrd++) = (T)rval; else break; }
       } break;
-      case 3 : { // 2D color ascii
+      case 3 : { // 2D color ASCII
         assign(W,H,1,3);
         T *ptrd = data(0,0,0,0), *ptr_g = data(0,0,0,1), *ptr_b = data(0,0,0,2);
         cimg_forXY(*this,x,y) {
@@ -58325,7 +56208,7 @@ namespace cimg_library {
       return CImg<T>().load_pfm(filename);
     }
 
-    //! Load image from a PFM file \overloading.
+    //! Load image from a PFM file \inplace.
     CImg<T>& load_pfm(std::FILE *const file) {
       return _load_pfm(file,0);
     }
@@ -58422,7 +56305,7 @@ namespace cimg_library {
       return CImg<T>().load_rgb(filename,dimw,dimh);
     }
 
-    //! Load image from a RGB file \overloading.
+    //! Load image from a RGB file \inplace.
     CImg<T>& load_rgb(std::FILE *const file, const unsigned int dimw, const unsigned int dimh=1) {
       return _load_rgb(file,0,dimw,dimh);
     }
@@ -58478,7 +56361,7 @@ namespace cimg_library {
       return CImg<T>().load_rgba(filename,dimw,dimh);
     }
 
-    //! Load image from a RGBA file \overloading.
+    //! Load image from a RGBA file \inplace.
     CImg<T>& load_rgba(std::FILE *const file, const unsigned int dimw, const unsigned int dimh=1) {
       return _load_rgba(file,0,dimw,dimh);
     }
@@ -58728,20 +56611,24 @@ namespace cimg_library {
       if (voxel_size) {
         const char *s_description = 0;
         float vx = 0, vy = 0, vz = 0;
+        bool parsed_from_description = false;
         if (TIFFGetField(tif,TIFFTAG_IMAGEDESCRIPTION,&s_description) && s_description) {
           const char *s_desc = std::strstr(s_description,"VX=");
           if (s_desc && cimg_sscanf(s_desc,"VX=%f VY=%f VZ=%f",&vx,&vy,&vz)==3) { // CImg format
             voxel_size[0] = vx; voxel_size[1] = vy; voxel_size[2] = vz;
+            parsed_from_description = true;
           }
           s_desc = std::strstr(s_description,"spacing=");
           if (s_desc && cimg_sscanf(s_desc,"spacing=%f",&vz)==1) { // Fiji format
             voxel_size[2] = vz;
           }
         }
-        TIFFGetField(tif,TIFFTAG_XRESOLUTION,voxel_size);
-        TIFFGetField(tif,TIFFTAG_YRESOLUTION,voxel_size + 1);
-        voxel_size[0] = 1.f/voxel_size[0];
-        voxel_size[1] = 1.f/voxel_size[1];
+        if (!parsed_from_description) {
+          TIFFGetField(tif,TIFFTAG_XRESOLUTION,voxel_size);
+          TIFFGetField(tif,TIFFTAG_YRESOLUTION,voxel_size + 1);
+          voxel_size[0] = 1.f/voxel_size[0];
+          voxel_size[1] = 1.f/voxel_size[1];
+        }
       }
       if (description) {
         const char *s_description = 0;
@@ -58943,7 +56830,7 @@ namespace cimg_library {
       return CImg<T>().load_analyze(filename,voxel_size);
     }
 
-    //! Load image from an ANALYZE7.5/NIFTI file \overloading.
+    //! Load image from an ANALYZE7.5/NIFTI file \inplace.
     CImg<T>& load_analyze(std::FILE *const file, float *const voxel_size=0) {
       return _load_analyze(file,0,voxel_size);
     }
@@ -59091,8 +56978,8 @@ namespace cimg_library {
     //! Load image from a .cimg[z] file.
     /**
       \param filename Filename, as a C-string.
-      \param axis Appending axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-      \param align Appending alignment.
+      \param axis Concatenation axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+      \param align Concatenation alignment.
     **/
     CImg<T>& load_cimg(const char *const filename, const char axis='z', const float align=0) {
       CImgList<T> list;
@@ -59106,7 +56993,7 @@ namespace cimg_library {
       return CImg<T>().load_cimg(filename,axis,align);
     }
 
-    //! Load image from a .cimg[z] file \overloading.
+    //! Load image from a .cimg[z] file \inplace.
     CImg<T>& load_cimg(std::FILE *const file, const char axis='z', const float align=0) {
       CImgList<T> list;
       list.load_cimg(file);
@@ -59132,8 +57019,8 @@ namespace cimg_library {
       \param y1 Y-coordinate of the ending sub-image vertex (~0U for max).
       \param z1 Z-coordinate of the ending sub-image vertex (~0U for max).
       \param c1 C-coordinate of the ending sub-image vertex (~0U for max).
-      \param axis Appending axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-      \param align Appending alignment.
+      \param axis Concatenation axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+      \param align Concatenation alignment.
     **/
     CImg<T>& load_cimg(const char *const filename,
                        const unsigned int n0, const unsigned int n1,
@@ -59159,7 +57046,7 @@ namespace cimg_library {
       return CImg<T>().load_cimg(filename,n0,n1,x0,y0,z0,c0,x1,y1,z1,c1,axis,align);
     }
 
-    //! Load sub-images of a .cimg file \overloading.
+    //! Load sub-images of a .cimg file \inplace.
     CImg<T>& load_cimg(std::FILE *const file,
                        const unsigned int n0, const unsigned int n1,
                        const unsigned int x0, const unsigned int y0,
@@ -59198,7 +57085,7 @@ namespace cimg_library {
       return CImg<T>().load_inr(filename,voxel_size);
     }
 
-    //! Load image from an INRIMAGE-4 file \overloading.
+    //! Load image from an INRIMAGE-4 file \inplace.
     CImg<T>& load_inr(std::FILE *const file, float *const voxel_size=0) {
       return _load_inr(file,0,voxel_size);
     }
@@ -59228,8 +57115,8 @@ namespace cimg_library {
           cimg_sscanf(item._data," VY%*[^0-9.+-]%f",voxel_size + 1);
           cimg_sscanf(item._data," VZ%*[^0-9.+-]%f",voxel_size + 2);
         }
-        if (cimg_sscanf(item._data," CPU%*[ =]%s",tmp1._data)) out[7] = cimg::strncasecmp(tmp1,"sun",3)?0:1;
-        switch (cimg_sscanf(item._data," TYPE%*[ =]%s %s",tmp1._data,tmp2._data)) {
+        if (cimg_sscanf(item._data," CPU%*[ =]%63s",tmp1._data)) out[7] = cimg::strncasecmp(tmp1,"sun",3)?0:1;
+        switch (cimg_sscanf(item._data," TYPE%*[ =]%63s %63s",tmp1._data,tmp2._data)) {
         case 0 : break;
         case 2 :
           out[5] = cimg::strncasecmp(tmp1,"unsigned",8)?1:0;
@@ -59367,7 +57254,7 @@ namespace cimg_library {
       return CImg<T>().load_pandore(filename);
     }
 
-    //! Load image from a PANDORE-5 file \overloading.
+    //! Load image from a PANDORE-5 file \inplace.
     CImg<T>& load_pandore(std::FILE *const file) {
       return _load_pandore(file,0);
     }
@@ -59577,8 +57464,8 @@ namespace cimg_library {
     //! Load image from a PAR-REC (Philips) file.
     /**
       \param filename Filename, as a C-string.
-      \param axis Appending axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-      \param align Appending alignment.
+      \param axis Concatenation axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+      \param align Concatenation alignment.
     **/
     CImg<T>& load_parrec(const char *const filename, const char axis='c', const float align=0) {
       CImgList<T> list;
@@ -59620,7 +57507,7 @@ namespace cimg_library {
       return CImg<T>().load_raw(filename,size_x,size_y,size_z,size_c,is_multiplexed,invert_endianness,offset);
     }
 
-    //! Load image from a raw binary file \overloading.
+    //! Load image from a raw binary file \inplace.
     CImg<T>& load_raw(std::FILE *const file,
                       const unsigned int size_x=0, const unsigned int size_y=1,
                       const unsigned int size_z=1, const unsigned int size_c=1,
@@ -59706,7 +57593,7 @@ namespace cimg_library {
       \param last_frame Index of the last frame to read.
       \param step_frame Step value for frame reading.
       \param yuv2rgb Indicates whether the YUV to RGB transform must be applied.
-      \param axis Appending axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+      \param axis Concatenation axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
     **/
     CImg<T>& load_yuv(const char *const filename,
                       const unsigned int size_x, const unsigned int size_y=1,
@@ -59727,7 +57614,7 @@ namespace cimg_library {
                                     first_frame,last_frame,step_frame,yuv2rgb).get_append(axis);
     }
 
-    //! Load image sequence from a YUV file \overloading.
+    //! Load image sequence from a YUV file \inplace.
     CImg<T>& load_yuv(std::FILE *const file,
                       const unsigned int size_x, const unsigned int size_y=1,
                       const unsigned int chroma_subsampling=444,
@@ -59764,7 +57651,7 @@ namespace cimg_library {
       return CImg<T>().load_off(primitives,colors,filename);
     }
 
-    //! Load 3D object from a .OFF file \overloading.
+    //! Load 3D object from a .OFF file \inplace.
     template<typename tf, typename tc>
     CImg<T>& load_off(CImgList<tf>& primitives, CImgList<tc>& colors, std::FILE *const file) {
       return _load_off(primitives,colors,file,0);
@@ -59982,7 +57869,7 @@ namespace cimg_library {
       \param last_frame Index of the last frame to read.
       \param step_frame Step value for frame reading.
       \param axis Alignment axis.
-      \param align Appending alignment.
+      \param align Concatenation alignment.
     **/
     CImg<T>& load_video(const char *const filename,
                         const unsigned int first_frame=0, const unsigned int last_frame=~0U,
@@ -60002,8 +57889,8 @@ namespace cimg_library {
     //! Load image sequence using FFMPEG's external tool 'ffmpeg'.
     /**
       \param filename Filename, as a C-string.
-      \param axis Appending axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-      \param align Appending alignment.
+      \param axis Concatenation axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+      \param align Concatenation alignment.
     **/
     CImg<T>& load_ffmpeg_external(const char *const filename, const char axis='z', const float align=0) {
       return get_load_ffmpeg_external(filename,axis,align).move_to(*this);
@@ -60017,8 +57904,8 @@ namespace cimg_library {
     //! Load gif file, using Imagemagick or GraphicsMagicks's external tools.
     /**
       \param filename Filename, as a C-string.
-      \param axis Appending axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-      \param align Appending alignment.
+      \param axis Concatenation axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+      \param align Concatenation alignment.
     **/
     CImg<T>& load_gif_external(const char *const filename,
                                const char axis='z', const float align=0) {
@@ -60224,7 +58111,7 @@ namespace cimg_library {
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
                       cimg::temporary_path(),
-                      cimg_file_separator,
+                      cimg_directory_separator,
                       cimg::filenamerand(),
 #ifdef cimg_use_png
                       "png"
@@ -60281,14 +58168,14 @@ namespace cimg_library {
       do {
         if (!cimg::strcasecmp(ext,"gz")) {
           if (*ext2) cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
-                                   cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext2);
+                                   cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),ext2);
           else cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
-                             cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                             cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         } else {
           if (*ext) cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
-                                  cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext);
+                                  cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),ext);
           else cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
-                             cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                             cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         }
       } while (cimg::path_exists(filename_tmp));
       cimg_snprintf(command,command._width,"\"%s\" -c \"%s\" > \"%s\"",
@@ -60369,7 +58256,7 @@ namespace cimg_library {
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
                       cimg::temporary_path(),
-                      cimg_file_separator,
+                      cimg_directory_separator,
                       cimg::filenamerand(),
 #ifdef cimg_use_png
                       "png"
@@ -60488,7 +58375,7 @@ namespace cimg_library {
 #endif
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.ppm",
-                      cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                      cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
       } while (cimg::path_exists(filename_tmp));
       cimg_snprintf(command,command._width,"gs -q -dNOPAUSE -sDEVICE=ppmraw -o \"%s\" -r%u \"%s\"",
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),resolution,s_filename.data());
@@ -60542,7 +58429,7 @@ namespace cimg_library {
 #endif
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.ppm",
-                      cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                      cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
       } while (cimg::path_exists(filename_tmp));
       cimg_snprintf(command,command._width,"\"%s\" -w -4 -c \"%s\" > \"%s\"",
                     cimg::dcraw_path(),s_filename.data(),CImg<charT>::string(filename_tmp)._system_strescape().data());
@@ -60622,14 +58509,14 @@ namespace cimg_library {
 
     //! Captures an image from a connected camera device (requires OpenCV).
     /**
-       This method allows you to directly acquire an image from a camera device (e.g., webcam)
+       This function allows you to directly acquire an image from a camera device (e.g., webcam)
        connected to the system. The captured image is stored in the current CImg<T> instance.
 
        \param camera_index Index of the camera to capture images from (from 0 to 63).
        \param capture_width Width of the desired image ('0' stands for default value).
        \param capture_height Height of the desired image ('0' stands for default value).
        \param skip_frames Number of frames to skip before the capture.
-       \param release_camera Indicates whether the camera resource must be released at the end of the method.
+       \param release_camera Indicates whether the camera resource must be released at the end of the function.
        \return Reference to the current image instance, now containing the captured camera frame.
 
        \code
@@ -61100,25 +58987,25 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Display object 3D in an interactive window.
+    //! Display a 3D object in an interactive window.
     /**
        \param disp Display window.
        \param vertices Vertices data of the 3D object.
        \param primitives Primitives data of the 3D object.
        \param colors Colors data of the 3D object.
        \param opacities Opacities data of the 3D object.
-       \param centering Indicates whether the 3D object must be centered for the display.
+       \param centering Indicates whether the 3D object should be centered for display.
        \param render_static Rendering mode.
-       \param render_motion Rendering mode, when the 3D object is moved.
+       \param render_motion Rendering mode when the 3D object is in motion.
        \param is_double_sided Indicates whether the object primitives are double-sided.
-       \param focale Focale
+       \param focal Focal length (0 for parallel projection).
        \param light_x X-coordinate of the light source.
        \param light_y Y-coordinate of the light source.
        \param light_z Z-coordinate of the light source.
        \param specular_lightness Amount of specular light.
        \param specular_shininess Shininess of the object material.
        \param display_axes Indicates whether the 3D axes are displayed.
-       \param pose_matrix Pointer to 12 values, defining a 3D pose (as a 4x3 matrix).
+       \param pose_matrix Pointer to 12 values defining a 3D pose (as a 4x3 matrix).
        \param exit_on_anykey Exit function when any key is pressed.
     **/
     template<typename tp, typename tf, typename tc, typename to>
@@ -61129,18 +59016,18 @@ namespace cimg_library {
                                     const to& opacities,
                                     const bool centering=true,
                                     const int render_static=4, const int render_motion=1,
-                                    const bool is_double_sided=false, const float focale=700,
+                                    const bool is_double_sided=false, const float focal=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return _display_object3d(disp,0,vertices,primitives,colors,opacities,centering,render_static,
-                               render_motion,is_double_sided,focale,
+                               render_motion,is_double_sided,focal,
                                light_x,light_y,light_z,specular_lightness,specular_shininess,
                                display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display object 3D in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \overload.
     template<typename tp, typename tf, typename tc, typename to>
     const CImg<T>& display_object3d(const char *const title,
                                     const CImg<tp>& vertices,
@@ -61149,19 +59036,19 @@ namespace cimg_library {
                                     const to& opacities,
                                     const bool centering=true,
                                     const int render_static=4, const int render_motion=1,
-                                    const bool is_double_sided=false, const float focale=700,
+                                    const bool is_double_sided=false, const float focal=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       CImgDisplay disp;
       return _display_object3d(disp,title,vertices,primitives,colors,opacities,centering,render_static,
-                               render_motion,is_double_sided,focale,
+                               render_motion,is_double_sided,focal,
                                light_x,light_y,light_z,specular_lightness,specular_shininess,
                                display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display object 3D in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \overload.
     template<typename tp, typename tf, typename tc>
     const CImg<T>& display_object3d(CImgDisplay &disp,
                                     const CImg<tp>& vertices,
@@ -61169,18 +59056,18 @@ namespace cimg_library {
                                     const CImgList<tc>& colors,
                                     const bool centering=true,
                                     const int render_static=4, const int render_motion=1,
-                                    const bool is_double_sided=false, const float focale=700,
+                                    const bool is_double_sided=false, const float focal=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return display_object3d(disp,vertices,primitives,colors,CImgList<floatT>(),centering,
-                              render_static,render_motion,is_double_sided,focale,
+                              render_static,render_motion,is_double_sided,focal,
                               light_x,light_y,light_z,specular_lightness,specular_shininess,
                               display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display object 3D in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \overload.
     template<typename tp, typename tf, typename tc>
     const CImg<T>& display_object3d(const char *const title,
                                     const CImg<tp>& vertices,
@@ -61188,84 +59075,84 @@ namespace cimg_library {
                                     const CImgList<tc>& colors,
                                     const bool centering=true,
                                     const int render_static=4, const int render_motion=1,
-                                    const bool is_double_sided=false, const float focale=700,
+                                    const bool is_double_sided=false, const float focal=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return display_object3d(title,vertices,primitives,colors,CImgList<floatT>(),centering,
-                              render_static,render_motion,is_double_sided,focale,
+                              render_static,render_motion,is_double_sided,focal,
                               light_x,light_y,light_z,specular_lightness,specular_shininess,
                               display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display object 3D in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \overload.
     template<typename tp, typename tf>
     const CImg<T>& display_object3d(CImgDisplay &disp,
                                     const CImg<tp>& vertices,
                                     const CImgList<tf>& primitives,
                                     const bool centering=true,
                                     const int render_static=4, const int render_motion=1,
-                                    const bool is_double_sided=false, const float focale=700,
+                                    const bool is_double_sided=false, const float focal=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return display_object3d(disp,vertices,primitives,CImgList<T>(),centering,
-                              render_static,render_motion,is_double_sided,focale,
+                              render_static,render_motion,is_double_sided,focal,
                               light_x,light_y,light_z,specular_lightness,specular_shininess,
                               display_axes,pose_matrix,exit_on_anykey);
     }
 
 
-    //! Display object 3D in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \overload.
     template<typename tp, typename tf>
     const CImg<T>& display_object3d(const char *const title,
                                     const CImg<tp>& vertices,
                                     const CImgList<tf>& primitives,
                                     const bool centering=true,
                                     const int render_static=4, const int render_motion=1,
-                                    const bool is_double_sided=false, const float focale=700,
+                                    const bool is_double_sided=false, const float focal=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return display_object3d(title,vertices,primitives,CImgList<T>(),centering,
-                              render_static,render_motion,is_double_sided,focale,
+                              render_static,render_motion,is_double_sided,focal,
                               light_x,light_y,light_z,specular_lightness,specular_shininess,
                               display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display object 3D in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \overload.
     template<typename tp>
     const CImg<T>& display_object3d(CImgDisplay &disp,
                                     const CImg<tp>& vertices,
                                     const bool centering=true,
                                     const int render_static=4, const int render_motion=1,
-                                    const bool is_double_sided=false, const float focale=700,
+                                    const bool is_double_sided=false, const float focal=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return display_object3d(disp,vertices,CImgList<uintT>(),centering,
-                              render_static,render_motion,is_double_sided,focale,
+                              render_static,render_motion,is_double_sided,focal,
                               light_x,light_y,light_z,specular_lightness,specular_shininess,
                               display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display object 3D in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \overload.
     template<typename tp>
     const CImg<T>& display_object3d(const char *const title,
                                     const CImg<tp>& vertices,
                                     const bool centering=true,
                                     const int render_static=4, const int render_motion=1,
-                                    const bool is_double_sided=false, const float focale=700,
+                                    const bool is_double_sided=false, const float focal=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return display_object3d(title,vertices,CImgList<uintT>(),centering,
-                              render_static,render_motion,is_double_sided,focale,
+                              render_static,render_motion,is_double_sided,focal,
                               light_x,light_y,light_z,specular_lightness,specular_shininess,
                               display_axes,pose_matrix,exit_on_anykey);
     }
@@ -61278,7 +59165,7 @@ namespace cimg_library {
                                      const to& opacities,
                                      const bool centering,
                                      const int render_static, const int render_motion,
-                                     const bool is_double_sided, const float focale,
+                                     const bool is_double_sided, const float focal,
                                      const float light_x, const float light_y, const float light_z,
                                      const float specular_lightness, const float specular_shininess,
                                      const bool display_axes, float *const pose_matrix,
@@ -61291,10 +59178,11 @@ namespace cimg_library {
         if (disp) background.resize(disp.width(),disp.height(),1,-100,3);
         else background.resize(cimg_fitscreen(CImgDisplay::screen_width()/2,
                                               CImgDisplay::screen_height()/2,1),1,-100,3);
-        return background._display_object3d(disp,title,vertices,primitives,colors,opacities,centering,
-                                            render_static,render_motion,is_double_sided,focale,
-                                            light_x,light_y,light_z,specular_lightness,specular_shininess,
-                                            display_axes,pose_matrix,exit_on_anykey);
+        background._display_object3d(disp,title,vertices,primitives,colors,opacities,centering,
+                                     render_static,render_motion,is_double_sided,focal,
+                                     light_x,light_y,light_z,specular_lightness,specular_shininess,
+                                     display_axes,pose_matrix,exit_on_anykey);
+        return *this;
       } else { if (disp) disp.resize(*this,false); }
       CImg<charT> error_message(1024);
       if (!vertices.is_object3d(primitives,colors,opacities,true,error_message))
@@ -61305,7 +59193,7 @@ namespace cimg_library {
         CImgList<tf> nprimitives(vertices._width,1,1,1,1);
         cimglist_for(nprimitives,l) nprimitives(l,0) = (tf)l;
         return _display_object3d(disp,title,vertices,nprimitives,colors,opacities,centering,
-                                 render_static,render_motion,is_double_sided,focale,
+                                 render_static,render_motion,is_double_sided,focal,
                                  light_x,light_y,light_z,specular_lightness,specular_shininess,
                                  display_axes,pose_matrix,exit_on_anykey);
       }
@@ -61342,7 +59230,8 @@ namespace cimg_library {
                                                    xm,xM,xM,xm,xm,xM,xM,xm,
                                                    ym,ym,yM,yM,ym,ym,yM,yM,
                                                    zm,zm,zm,zm,zM,zM,zM,zM);
-      bbox_primitives.assign(6,1,4,1,1, 0,3,2,1, 4,5,6,7, 1,2,6,5, 0,4,7,3, 0,1,5,4, 2,3,7,6);
+      CImg<uintT>(1,6*4,1,1, 0,3,2,1, 4,5,6,7, 1,2,6,5, 0,4,7,3, 0,1,5,4, 2,3,7,6).
+        get_split('y',6).move_to(bbox_primitives);
       bbox_colors.assign(6,_spectrum,1,1,1,background_color[0]);
       bbox_colors2.assign(6,_spectrum,1,1,1,foreground_color[0]);
       bbox_opacities.assign(bbox_colors._width,1,1,1,0.3f);
@@ -61353,7 +59242,7 @@ namespace cimg_library {
                                                    0,0,0,20,0,0,22);
       axes_opacities.assign(3,1,1,1,1);
       axes_colors.assign(3,_spectrum,1,1,1,foreground_color[0]);
-      axes_primitives.assign(3,1,2,1,1, 0,1, 0,2, 0,3);
+      CImg<uintT>(1,3*2,1,1, 0,1, 0,2, 0,3).get_split('y',3).move_to(axes_primitives);
 
       // Begin user interaction loop.
       CImg<T> visu0(*this,false), visu;
@@ -61419,15 +59308,15 @@ namespace cimg_library {
           visu = visu0;
           if ((clicked && nrender_motion<0) || (!clicked && nrender_static<0))
             visu.draw_object3d(Xoff + visu._width/2.f,Yoff + visu._height/2.f,Zoff,
-                               rotated_bbox_vertices,bbox_primitives,bbox_colors,bbox_opacities,2,false,focale).
+                               rotated_bbox_vertices,bbox_primitives,bbox_colors,bbox_opacities,2,false,focal).
               draw_object3d(Xoff + visu._width/2.f,Yoff + visu._height/2.f,Zoff,
-                            rotated_bbox_vertices,bbox_primitives,bbox_colors2,1,false,focale);
+                            rotated_bbox_vertices,bbox_primitives,bbox_colors2,1,false,focal);
           else visu._draw_object3d(render_with_zbuffer?zbuffer.fill(0):CImg<floatT>::empty(),
                                    Xoff + visu._width/2.f,Yoff + visu._height/2.f,Zoff,
                                    rotated_vertices,reverse_primitives?reverse_primitives:primitives,
                                    colors,opacities,
                                    clicked?nrender_motion:nrender_static,
-                                   _is_double_sided==1,focale,
+                                   _is_double_sided==1,focal,
                                    width()/2.f + light_x,height()/2.f + light_y,light_z + Zoff,
                                    specular_lightness,specular_shininess,1,sprite_scale,
                                    clicked);
@@ -61452,7 +59341,7 @@ namespace cimg_library {
             axes_opacities(1,0) = (rotated_axes_vertices(2,2)>0)?0.5f:1.f;
             axes_opacities(2,0) = (rotated_axes_vertices(3,2)>0)?0.5f:1.f;
             visu.draw_object3d(Xaxes,Yaxes,0,rotated_axes_vertices,axes_primitives,
-                               axes_colors,axes_opacities,1,false,focale).
+                               axes_colors,axes_opacities,1,false,focal).
               draw_text((int)(Xaxes + rotated_axes_vertices(4,0)),
                         (int)(Yaxes + rotated_axes_vertices(4,1)),
                         "X",axes_colors[0]._data,0,axes_opacities(0,0),13).
@@ -61499,12 +59388,12 @@ namespace cimg_library {
             x0 = x1; y0 = y1;
           }
           if (disp.button()&2 && !is_keyCTRL) {
-            if (focale>0) Zoff-=(y0 - y1)*focale/400;
+            if (focal>0) Zoff-=(y0 - y1)*focal/400;
             else { const float s = std::exp((y0 - y1)/400.f); pose*=s; sprite_scale*=s; }
             x0 = x1; y0 = y1;
           }
           if (disp.wheel()) {
-            if (focale>0) Zoff-=disp.wheel()*focale/20;
+            if (focal>0) Zoff-=disp.wheel()*focal/20;
             else { const float s = std::exp(disp.wheel()/20.f); pose*=s; sprite_scale*=s; }
             disp.set_wheel();
           }
@@ -61664,8 +59553,8 @@ namespace cimg_library {
        \param xmin Minimum value along the X-axis.
        \param xmax Maximum value along the X-axis.
        \param labely Title for the vertical axis, as a C-string.
-       \param ymin Minimum value along the X-axis.
-       \param ymax Maximum value along the X-axis.
+       \param ymin Minimum value along the Y-axis.
+       \param ymax Maximum value along the Y-axis.
        \param exit_on_anykey Exit function when any key is pressed.
     **/
     const CImg<T>& display_graph(CImgDisplay &disp,
@@ -61676,7 +59565,7 @@ namespace cimg_library {
       return _display_graph(disp,0,plot_type,vertex_type,labelx,xmin,xmax,labely,ymin,ymax,exit_on_anykey);
     }
 
-    //! Display 1D graph in an interactive window \overloading.
+    //! Display 1D graph in an interactive window \overload.
     const CImg<T>& display_graph(const char *const title=0,
                                  const unsigned int plot_type=1, const unsigned int vertex_type=1,
                                  const char *const labelx=0, const double xmin=0, const double xmax=0,
@@ -61810,7 +59699,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a file.
+    //! Save the image as a file.
     /**
        \param filename Filename, as a C-string.
        \param number When positive, represents an index added to the filename. Otherwise, no number is added.
@@ -61939,7 +59828,7 @@ namespace cimg_library {
       return save_other(fn);
     }
 
-    //! Save image as an ascii file.
+    //! Save the image as an ASCII file.
     /**
       \param filename Filename, as a C-string.
     **/
@@ -61947,7 +59836,7 @@ namespace cimg_library {
       return _save_ascii(0,filename);
     }
 
-    //! Save image as an Ascii file \overloading.
+    //! Save the image as an ASCII file \overload.
     const CImg<T>& save_ascii(std::FILE *const file) const {
       return _save_ascii(file,0);
     }
@@ -61968,7 +59857,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a .cpp source file.
+    //! Save the image as a .cpp source file.
     /**
       \param filename Filename, as a C-string.
     **/
@@ -61976,7 +59865,7 @@ namespace cimg_library {
       return _save_cpp(0,filename);
     }
 
-    //! Save image as a .cpp source file \overloading.
+    //! Save the image as a .cpp source file \overload.
     const CImg<T>& save_cpp(std::FILE *const file) const {
       return _save_cpp(file,0);
     }
@@ -62005,7 +59894,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a DLM file.
+    //! Save the image as a DLM file.
     /**
        \param filename Filename, as a C-string.
     **/
@@ -62013,7 +59902,7 @@ namespace cimg_library {
       return _save_dlm(0,filename);
     }
 
-    //! Save image as a DLM file \overloading.
+    //! Save the image as a DLM file \overload.
     const CImg<T>& save_dlm(std::FILE *const file) const {
       return _save_dlm(file,0);
     }
@@ -62045,7 +59934,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a BMP file.
+    //! Save the image as a BMP file.
     /**
       \param filename Filename, as a C-string.
     **/
@@ -62053,7 +59942,7 @@ namespace cimg_library {
       return _save_bmp(0,filename);
     }
 
-    //! Save image as a BMP file \overloading.
+    //! Save the image as a BMP file \overload.
     const CImg<T>& save_bmp(std::FILE *const file) const {
       return _save_bmp(file,0);
     }
@@ -62152,7 +60041,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a WebP file.
+    //! Save the image as a WebP file.
     /**
       \param filename Filename, as a C-string.
       \param quality Image quality (in %)
@@ -62208,7 +60097,7 @@ namespace cimg_library {
 #endif
     }
 
-    //! Save image as a JPEG file.
+    //! Save the image as a JPEG file.
     /**
       \param filename Filename, as a C-string.
       \param quality Image quality (in %)
@@ -62217,7 +60106,7 @@ namespace cimg_library {
       return _save_jpeg(0,filename,quality);
     }
 
-    //! Save image as a JPEG file \overloading.
+    //! Save the image as a JPEG file \overload.
     const CImg<T>& save_jpeg(std::FILE *const file, const unsigned int quality=100) const {
       return _save_jpeg(file,0,quality);
     }
@@ -62320,7 +60209,7 @@ namespace cimg_library {
 #endif
     }
 
-    //! Save image as a JPEG XL file.
+    //! Save the image as a JPEG XL file.
     /**
       \param filename Filename, as a C-string.
       \param distance Sets the level for lossy compression: lower = higher quality.
@@ -62538,7 +60427,7 @@ namespace cimg_library {
 #endif
     }
 
-    //! Save image, using built-in ImageMagick++ library.
+    //! Save the image, using built-in ImageMagick++ library.
     /**
       \param filename Filename, as a C-string.
       \param bytes_per_pixel Force the number of bytes per pixel for the saving, when possible.
@@ -62613,7 +60502,7 @@ namespace cimg_library {
 #endif
     }
 
-    //! Save image as a PNG file.
+    //! Save the image as a PNG file.
     /**
        \param filename Filename, as a C-string.
        \param bytes_per_pixel Force the number of bytes per pixels for the saving, when possible.
@@ -62622,7 +60511,7 @@ namespace cimg_library {
       return _save_png(0,filename,bytes_per_pixel);
     }
 
-    //! Save image as a PNG file \overloading.
+    //! Save the image as a PNG file \overload.
     const CImg<T>& save_png(std::FILE *const file, const unsigned int bytes_per_pixel=0) const {
       return _save_png(file,0,bytes_per_pixel);
     }
@@ -62827,7 +60716,7 @@ namespace cimg_library {
 #endif
     }
 
-    //! Save image as a PNM file.
+    //! Save the image as a PNM file.
     /**
       \param filename Filename, as a C-string.
       \param bytes_per_pixel Force the number of bytes per pixels for the saving.
@@ -62836,7 +60725,7 @@ namespace cimg_library {
       return _save_pnm(0,filename,bytes_per_pixel);
     }
 
-    //! Save image as a PNM file \overloading.
+    //! Save the image as a PNM file \overload.
     const CImg<T>& save_pnm(std::FILE *const file, const unsigned int bytes_per_pixel=0) const {
       return _save_pnm(file,0,bytes_per_pixel);
     }
@@ -62964,7 +60853,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a PNK file.
+    //! Save the image as a PNK file.
     /**
       \param filename Filename, as a C-string.
     **/
@@ -62972,7 +60861,7 @@ namespace cimg_library {
       return _save_pnk(0,filename);
     }
 
-    //! Save image as a PNK file \overloading.
+    //! Save the image as a PNK file \overload.
     const CImg<T>& save_pnk(std::FILE *const file) const {
       return _save_pnk(file,0);
     }
@@ -63033,7 +60922,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a PFM file.
+    //! Save the image as a PFM file.
     /**
       \param filename Filename, as a C-string.
     **/
@@ -63042,7 +60931,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a PFM file \overloading.
+    //! Save the image as a PFM file \overload.
     const CImg<T>& save_pfm(std::FILE *const file) const {
       get_mirror('y')._save_pfm(file,0);
       return *this;
@@ -63123,7 +61012,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a RGB file.
+    //! Save the image as a RGB file.
     /**
       \param filename Filename, as a C-string.
     **/
@@ -63131,7 +61020,7 @@ namespace cimg_library {
       return _save_rgb(0,filename);
     }
 
-    //! Save image as a RGB file \overloading.
+    //! Save the image as a RGB file \overload.
     const CImg<T>& save_rgb(std::FILE *const file) const {
       return _save_rgb(file,0);
     }
@@ -63185,7 +61074,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a RGBA file.
+    //! Save the image as a RGBA file.
     /**
        \param filename Filename, as a C-string.
     **/
@@ -63193,7 +61082,7 @@ namespace cimg_library {
       return _save_rgba(0,filename);
     }
 
-    //! Save image as a RGBA file \overloading.
+    //! Save the image as a RGBA file \overload.
     const CImg<T>& save_rgba(std::FILE *const file) const {
       return _save_rgba(file,0);
     }
@@ -63259,7 +61148,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a TIFF file.
+    //! Save the image as a TIFF file.
     /**
        \param filename Filename, as a C-string.
        \param compression_type Type of data compression. Can be
@@ -63268,14 +61157,13 @@ namespace cimg_library {
           15=JP2000 | 16=JPEG | 17=JXL | 18=LERC | 19=LZMA | 20=LZW | 21=NEXT | 22=OJPEG | 23=PACKBITS |
           24=PIXARFILM | 25=PIXARLOG | 26=SGILOG | 27=SGILOG24 | 28=T43 | 29=T85 | 30=THUNDERSCAN |
           31=WEBP | 32=ZSTD }</tt>
-       \param[out] voxel_size Voxel size, to be stored in the filename.
-       \param[out] description Description, to be stored in the filename.
-       \param use_bigtiff Indicates whether the file is saved as big tiff (>4Gb) or not.
+       \param[out] voxel_size Voxel size, to be stored in the file metadata.
+       \param[out] description Description, to be stored in the file metadata.
+       \param use_bigtiff Indicates whether the file is saved as BigTIFF (>4 GB) or not.
        \note
        - libtiff support is enabled by defining the precompilation
         directive \c cimg_use_tiff.
-       - When libtiff is enabled, 2D and 3D (multipage) several
-        channel per pixel are supported for
+       - When libtiff is enabled, 2D and 3D (multipage) several channels per pixel are supported for
         <tt>char,uchar,short,ushort,float</tt> and \c double pixel types.
        - If \c cimg_use_tiff is not defined at compile time the
         function uses CImg<T>&save_other(const char*).
@@ -63385,11 +61273,13 @@ namespace cimg_library {
             for (unsigned int cc = 0; cc<_width; ++cc)
               for (unsigned int vv = 0; vv<spp; ++vv)
                 buf[i++] = (t)(*this)(cc,row + rr,z,vv);
-          if (TIFFWriteEncodedStrip(tif,strip,buf,i*sizeof(t))<0)
+          if (TIFFWriteEncodedStrip(tif,strip,buf,i*sizeof(t))<0) {
+            _TIFFfree(buf);
             throw CImgIOException(_cimg_instance
                                   "save_tiff(): Invalid strip writing when saving file '%s'.",
                                   cimg_instance,
                                   filename?filename:"(FILE*)");
+          }
         }
         _TIFFfree(buf);
       }
@@ -63420,7 +61310,7 @@ namespace cimg_library {
     }
 #endif
 
-    //! Save image as a MINC2 file.
+    //! Save the image as a MINC2 file.
     /**
        \param filename Filename, as a C-string.
        \param imitate_file If non-zero, reference filename, as a C-string, to borrow header from.
@@ -63461,7 +61351,7 @@ namespace cimg_library {
 #endif
     }
 
-    //! Save image as an ANALYZE7.5 or NIFTI file.
+    //! Save the image as an ANALYZE7.5 or NIFTI file.
     /**
       \param filename Filename, as a C-string.
       \param voxel_size Pointer to 3 consecutive values that tell about the voxel sizes along the X,Y and Z dimensions.
@@ -63542,7 +61432,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a .cimg file.
+    //! Save the image as a .cimg file.
     /**
       \param filename Filename, as a C-string.
       \param is_compressed Indicates whether the file contains compressed image data.
@@ -63552,13 +61442,13 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a .cimg file \overloading.
+    //! Save the image as a .cimg file \overload.
     const CImg<T>& save_cimg(std::FILE *const file, const bool is_compressed=false) const {
       CImgList<T>(*this,true).save_cimg(file,is_compressed);
       return *this;
     }
 
-    //! Save image as a sub-image into an existing .cimg file.
+    //! Save the image as a sub-image into an existing .cimg file.
     /**
       \param filename Filename, as a C-string.
       \param n0 Index of the image inside the file.
@@ -63575,7 +61465,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a sub-image into an existing .cimg file \overloading.
+    //! Save the image as a sub-image into an existing .cimg file \overload.
     const CImg<T>& save_cimg(std::FILE *const file,
                              const unsigned int n0,
                              const unsigned int x0, const unsigned int y0,
@@ -63584,7 +61474,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save blank image as a .cimg file.
+    //! Save a blank image as a .cimg file.
     /**
         \param filename Filename, as a C-string.
         \param dx Width of the image.
@@ -63593,7 +61483,7 @@ namespace cimg_library {
         \param dc Number of channels of the image.
         \note
         - All pixel values of the saved image are set to \c 0.
-        - Use this method to save large images without having to instantiate and allocate them.
+        - Use this function to save large images without having to instantiate and allocate them.
     **/
     static void save_empty_cimg(const char *const filename,
                                 const unsigned int dx, const unsigned int dy=1,
@@ -63601,7 +61491,7 @@ namespace cimg_library {
       return CImgList<T>::save_empty_cimg(filename,1,dx,dy,dz,dc);
     }
 
-    //! Save blank image as a .cimg file \overloading.
+    //! Save a blank image as a .cimg file \overload.
     /**
        Same as save_empty_cimg(const char *,unsigned int,unsigned int,unsigned int,unsigned int)
        with a file stream argument instead of a filename string.
@@ -63612,7 +61502,7 @@ namespace cimg_library {
       return CImgList<T>::save_empty_cimg(file,1,dx,dy,dz,dc);
     }
 
-    //! Save image as an INRIMAGE-4 file.
+    //! Save the image as an INRIMAGE-4 file.
     /**
       \param filename Filename, as a C-string.
       \param voxel_size Pointer to 3 values specifying the voxel sizes along the X,Y and Z dimensions.
@@ -63621,7 +61511,7 @@ namespace cimg_library {
       return _save_inr(0,filename,voxel_size);
     }
 
-    //! Save image as an INRIMAGE-4 file \overloading.
+    //! Save the image as an INRIMAGE-4 file \overload.
     const CImg<T>& save_inr(std::FILE *const file, const float *const voxel_size=0) const {
       return _save_inr(file,0,voxel_size);
     }
@@ -63682,7 +61572,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as an OpenEXR file.
+    //! Save the image as an OpenEXR file.
     /**
        \param filename Filename, as a C-string.
        \note The OpenEXR file format is <a href="http://en.wikipedia.org/wiki/OpenEXR">described here</a>.
@@ -63754,7 +61644,7 @@ namespace cimg_library {
 #endif
     }
 
-    //! Save image as a Pandore-5 file.
+    //! Save the image as a Pandore-5 file.
     /**
        \param filename Filename, as a C-string.
        \param colorspace Colorspace data field in output file
@@ -63765,7 +61655,7 @@ namespace cimg_library {
       return _save_pandore(0,filename,colorspace);
     }
 
-    //! Save image as a Pandore-5 file \overloading.
+    //! Save the image as a Pandore-5 file \overload.
     /**
         Same as save_pandore(const char *,unsigned int) const
         with a file stream argument instead of a filename string.
@@ -63956,7 +61846,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a raw data file.
+    //! Save the image as a raw data file.
     /**
        \param filename Filename, as a C-string.
        \param is_multiplexed Indicates whether the image channels are stored in a multiplexed way (\c true)
@@ -63968,7 +61858,7 @@ namespace cimg_library {
       return _save_raw(0,filename,is_multiplexed);
     }
 
-    //! Save image as a raw data file \overloading.
+    //! Save the image as a raw data file \overload.
     /**
        Same as save_raw(const char *,bool) const
        with a file stream argument instead of a filename string.
@@ -64005,7 +61895,7 @@ namespace cimg_library {
     }
 
     // Return unsigned char buffer that encodes data of a CImg<bool> instance bitwise.
-    // (buffer needs to be deallocated afterwards, with delete[]).
+    // (the returned buffer must be deallocated afterwards using delete[]).
     const unsigned char *_bool2uchar(ulongT &siz, const bool is_multiplexed) const {
       const ulongT _siz = size();
       siz = _siz/8 + (_siz%8?1:0);
@@ -64017,7 +61907,7 @@ namespace cimg_library {
         cimg_forXYZ(*this,x,y,z) cimg_forC(*this,c) {
           (val<<=1)|=((*this)(x,y,z,c)?1:0); if (++bit==8) { *(ptrd++) = val; val = bit = 0; }
         }
-      if (bit) *ptrd = val;
+      if (bit) *ptrd = (unsigned char)(val<<(8-bit));
       return buf;
     }
 
@@ -64044,7 +61934,7 @@ namespace cimg_library {
       }
     }
 
-    //! Save image as a .yuv video file.
+    //! Save the image as a .yuv video file.
     /**
        \param filename Filename, as a C-string.
        \param chroma_subsampling Type of chroma subsampling. Can be <tt>{ 420 | 422 | 444 }</tt>.
@@ -64059,7 +61949,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a .yuv video file \overloading.
+    //! Save the image as a .yuv video file \overload.
     /**
        Same as save_yuv(const char*,const unsigned int,const bool) const
        with a file stream argument instead of a filename string.
@@ -64088,7 +61978,7 @@ namespace cimg_library {
       return _save_off(primitives,colors,0,filename);
     }
 
-    //! Save 3D object as an Object File Format (.off) file \overloading.
+    //! Save 3D object as an Object File Format (.off) file \overload.
     /**
        Same as save_off(const CImgList<tf>&,const CImgList<tc>&,const char*) const
        with a file stream argument instead of a filename string.
@@ -64142,8 +62032,7 @@ namespace cimg_library {
         case 4 : std::fprintf(nfile,"4 %u %u %u %u %f %f %f\n",
                               (unsigned int)primitives(l,0),(unsigned int)primitives(l,3),
                               (unsigned int)primitives(l,2),(unsigned int)primitives(l,1),r,g,b); break;
-        case 5 : std::fprintf(nfile,"2 %u %u %f %f %f\n",
-                              (unsigned int)primitives(l,0),(unsigned int)primitives(l,1),r,g,b); break;
+        case 5 : break;
         case 6 : {
           const unsigned int xt = (unsigned int)primitives(l,2), yt = (unsigned int)primitives(l,3);
           const float
@@ -64184,7 +62073,7 @@ namespace cimg_library {
       \param filename Filename to write data to.
       \param fps Number of frames per second.
       \param codec Type of compression (See http://www.fourcc.org/codecs.php to see available codecs).
-      \param keep_open Indicates whether the video writer associated to the specified filename
+      \param keep_open Indicates whether the video writer associated with the specified filename
         must be kept open (to allow frames to be added in the same file afterwards).
     **/
     const CImg<T>& save_video(const char *const filename, const unsigned int fps=25,
@@ -64204,9 +62093,9 @@ namespace cimg_library {
        \param bitrate Video bitrate.
        \note
        - Each slice of the instance image is considered to be a single frame of the output video file.
-       - This method uses \c ffmpeg, an external executable binary provided by
+       - This function uses \c ffmpeg, an external executable binary provided by
          <a href="http://www.ffmpeg.org">FFmpeg</a>.
-       It must be installed for the method to succeed.
+       It must be installed for the function to succeed.
     **/
     const CImg<T>& save_ffmpeg_external(const char *const filename, const unsigned int fps=25,
                                         const char *const codec=0, const unsigned int bitrate=2048) const {
@@ -64222,12 +62111,12 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image using gzip external binary.
+    //! Save the image using gzip external binary.
     /**
        \param filename Filename, as a C-string.
-       \note This method uses \c gzip, an external executable binary provided by
+       \note This function uses \c gzip, an external executable binary provided by
          <a href="//http://www.gzip.org">gzip</a>.
-       It must be installed for the method to succeed.
+       It must be installed for the function to succeed.
     **/
     const CImg<T>& save_gzip_external(const char *const filename) const {
       if (!filename)
@@ -64243,14 +62132,14 @@ namespace cimg_library {
       do {
         if (!cimg::strcasecmp(ext,"gz")) {
           if (*ext2) cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
-                                   cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext2);
+                                   cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),ext2);
           else cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.cimg",
-                             cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                             cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         } else {
           if (*ext) cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
-                                  cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext);
+                                  cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),ext);
           else cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.cimg",
-                             cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                             cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         }
       } while (cimg::path_exists(filename_tmp));
       save(filename_tmp);
@@ -64273,13 +62162,13 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image using GraphicsMagick's external binary.
+    //! Save the image using GraphicsMagick's external binary.
     /**
        \param filename Filename, as a C-string.
        \param quality Image quality (expressed in percent), when the file format supports it.
-       \note This method uses \c gm, an external executable binary provided by
+       \note This function uses \c gm, an external executable binary provided by
          <a href="http://www.graphicsmagick.org">GraphicsMagick</a>.
-       It must be installed for the method to succeed.
+       It must be installed for the function to succeed.
     **/
     const CImg<T>& save_graphicsmagick_external(const char *const filename, const unsigned int quality=100) const {
       if (!filename)
@@ -64303,7 +62192,7 @@ namespace cimg_library {
       CImg<charT> command(1024), filename_tmp(256);
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
-                      cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),
+                      cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),
                       _spectrum==1?_cimg_sge_extension1:_cimg_sge_extension2);
       } while (cimg::path_exists(filename_tmp));
 
@@ -64331,13 +62220,13 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image using ImageMagick's external binary.
+    //! Save the image using ImageMagick's external binary.
     /**
        \param filename Filename, as a C-string.
        \param quality Image quality (expressed in percent), when the file format supports it.
-       \note This method uses \c convert, an external executable binary provided by
+       \note This function uses \c convert, an external executable binary provided by
        <a href="http://www.imagemagick.org">ImageMagick</a>.
-       It must be installed for the method to succeed.
+       It must be installed for the function to succeed.
     **/
     const CImg<T>& save_imagemagick_external(const char *const filename, const unsigned int quality=100) const {
       if (!filename)
@@ -64360,7 +62249,8 @@ namespace cimg_library {
       CImg<charT> command(1024), filename_tmp(256);
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",cimg::temporary_path(),
-                      cimg_file_separator,cimg::filenamerand(),_spectrum==1?_cimg_sie_extension1:_cimg_sie_extension2);
+                      cimg_directory_separator,cimg::filenamerand(),
+                      _spectrum==1?_cimg_sie_extension1:_cimg_sie_extension2);
       } while (cimg::path_exists(filename_tmp));
 #ifdef cimg_use_png
       save_png(filename_tmp);
@@ -64389,12 +62279,12 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image as a Dicom file.
+    //! Save the image as a Dicom file.
     /**
        \param filename Filename, as a C-string.
-       \note This method uses \c medcon, an external executable binary provided by
+       \note This function uses \c medcon, an external executable binary provided by
          <a href="http://xmedcon.sourceforge.net">(X)Medcon</a>.
-       It must be installed for the method to succeed.
+       It must be installed for the function to succeed.
     **/
     const CImg<T>& save_medcon_external(const char *const filename) const {
       if (!filename)
@@ -64436,17 +62326,17 @@ namespace cimg_library {
       return *this;
     }
 
-    // Save image for non natively supported formats.
+    // Save the image for non natively supported formats.
     /**
        \param filename Filename, as a C-string.
        \param quality Image quality (expressed in percent), when the file format supports it.
        \note
        - The filename extension indicates the desired file format.
-       - This method tries to save the instance image as a file, using external tools from
+       - This function tries to save the instance image as a file, using external tools from
        <a href="http://www.imagemagick.org">ImageMagick</a> or
        <a href="http://www.graphicsmagick.org">GraphicsMagick</a>.
-         At least one of these tool must be installed for the method to succeed.
-       - It is recommended to use the generic method save(const char*, int) const instead,
+         At least one of these tool must be installed for the function to succeed.
+       - It is recommended to use the generic function save(const char*, int) const instead,
          as it can handle some file formats natively.
     **/
     const CImg<T>& save_other(const char *const filename, const unsigned int quality=100) const {
@@ -64495,9 +62385,9 @@ namespace cimg_library {
     }
 
     // [internal] Return a 40x38 color logo of a 'danger' item.
-    static CImg<T> _logo40x38() {
+    static CImg<T> logo40x38() {
       CImg<T> res(40,38,1,3);
-      const unsigned char *ptrs = cimg::logo40x38;
+      const unsigned char *ptrs = cimg::logo40x38_data();
       T *ptr1 = res.data(0,0,0,0), *ptr2 = res.data(0,0,0,1), *ptr3 = res.data(0,0,0,2);
       for (ulongT off = 0; off<(ulongT)res._width*res._height;) {
         const unsigned char n = *(ptrs++), r = *(ptrs++), g = *(ptrs++), b = *(ptrs++);
@@ -64519,14 +62409,14 @@ namespace cimg_library {
    #
    #
    #------------------------------------------
-   */
-  //! Represent a list of images CImg<T>.
+  */
+  //! Represents a list of images CImg<T>.
   template<typename T>
   struct CImgList {
     unsigned int _width, _allocated_width;
     CImg<T> *_data;
 
-    //! Simple iterator type, to loop through each image of a list.
+    //! Simple iterator type to loop through each image of a list.
     /**
        \note
        - The \c CImgList<T>::iterator type is defined as a <tt>CImg<T>*</tt>.
@@ -64556,7 +62446,7 @@ namespace cimg_library {
        \note
        - The \c CImgList<T>::value_type type of a \c CImgList<T> is defined to be a \c T.
          It is then similar to CImg<T>::value_type.
-       - \c CImgList<T>::value_type is actually not used in %CImg methods. It has been mainly defined for
+       - \c CImgList<T>::value_type is actually not used in \CImg functions. It has been mainly defined for
          compatibility with STL naming conventions.
     **/
     typedef T value_type;
@@ -64645,7 +62535,7 @@ namespace cimg_library {
        \note
        - An empty list has no pixel data and its dimension width() is set to \c 0, as well as its
          image buffer pointer data().
-       - An empty list may be reassigned afterwards, with the family of the assign() methods.
+       - An empty list may be reassigned afterwards, with the family of the assign() functions.
          In all cases, the type of pixels stays \c T.
      **/
     CImgList():
@@ -64654,7 +62544,7 @@ namespace cimg_library {
     //! Construct list containing empty images.
     /**
        \param n Number of empty images.
-       \note Useful when you know by advance the number of images you want to manage, as
+       \note Useful when you know in advance the number of images you want to manage, as
        it will allocate the right amount of memory for the list, without needs for reallocation
        (that may occur when starting from an empty list and inserting several images in it).
     **/
@@ -64693,54 +62583,6 @@ namespace cimg_library {
       _width(0),_allocated_width(0),_data(0) {
       assign(n);
       cimglist_apply(*this,assign)(width,height,depth,spectrum,val);
-    }
-
-    //! Construct list containing images of specified size, and initialize pixel values from a sequence of integers.
-    /**
-       \param n Number of images.
-       \param width Width of images.
-       \param height Height of images.
-       \param depth Depth of images.
-       \param spectrum Number of channels of images.
-       \param val0 First value of the initializing integers sequence.
-       \param val1 Second value of the initializing integers sequence.
-       \warning You must specify at least <tt>width*height*depth*spectrum</tt> values in your argument list,
-         or you will probably segfault.
-    **/
-    CImgList(const unsigned int n, const unsigned int width, const unsigned int height,
-             const unsigned int depth, const unsigned int spectrum, const int val0, const int val1, ...):
-      _width(0),_allocated_width(0),_data(0) {
-#define _CImgList_stdarg(t) { \
-        assign(n,width,height,depth,spectrum); \
-        const ulongT siz = (ulongT)width*height*depth*spectrum, nsiz = siz*n; \
-        T *ptrd = _data->_data; \
-        va_list ap; \
-        va_start(ap,val1); \
-        for (ulongT l = 0, s = 0, i = 0; i<nsiz; ++i) { \
-          *(ptrd++) = (T)(i==0?val0:(i==1?val1:va_arg(ap,t))); \
-          if ((++s)==siz) { ptrd = _data[++l]._data; s = 0; } \
-        } \
-        va_end(ap); \
-      }
-      _CImgList_stdarg(int);
-    }
-
-    //! Construct list containing images of specified size, and initialize pixel values from a sequence of doubles.
-    /**
-       \param n Number of images.
-       \param width Width of images.
-       \param height Height of images.
-       \param depth Depth of images.
-       \param spectrum Number of channels of images.
-       \param val0 First value of the initializing doubles sequence.
-       \param val1 Second value of the initializing doubles sequence.
-       \warning You must specify at least <tt>width*height*depth*spectrum</tt> values in your argument list,
-         or you will probably segfault.
-    **/
-    CImgList(const unsigned int n, const unsigned int width, const unsigned int height,
-             const unsigned int depth, const unsigned int spectrum, const double val0, const double val1, ...):
-      _width(0),_allocated_width(0),_data(0) {
-      _CImgList_stdarg(double);
     }
 
     //! Construct list containing copies of an input image.
@@ -65011,27 +62853,6 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Construct list with images of specified size, and initialize pixel values from a sequence of integers \inplace.
-    /**
-       \see CImgList(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, const int, const int, ...).
-    **/
-    CImgList<T>& assign(const unsigned int n, const unsigned int width, const unsigned int height,
-                        const unsigned int depth, const unsigned int spectrum, const int val0, const int val1, ...) {
-      _CImgList_stdarg(int);
-      return *this;
-    }
-
-    //! Construct list with images of specified size, and initialize pixel values from a sequence of doubles \inplace.
-    /**
-       \see CImgList(unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,const double,const double,...).
-    **/
-    CImgList<T>& assign(const unsigned int n, const unsigned int width, const unsigned int height,
-                        const unsigned int depth, const unsigned int spectrum,
-                        const double val0, const double val1, ...) {
-      _CImgList_stdarg(double);
-      return *this;
-    }
-
     //! Construct list containing copies of an input image \inplace.
     /**
        \see CImgList(unsigned int, const CImg<t>&, bool).
@@ -65182,7 +63003,7 @@ namespace cimg_library {
       return assign(CImg<T>(disp));
     }
 
-    //! Transfer the content of the list instance to another list.
+    //! Transfers the content of the list instance to another list.
     /**
        \param list Destination list.
        \note When returning, the current list instance is empty and the initial content of \c list is destroyed.
@@ -65196,7 +63017,7 @@ namespace cimg_library {
       return list;
     }
 
-    //! Transfer the content of the list instance at a specified position in another list.
+    //! Transfers the content of the list instance at a specified position in another list.
     /**
        \param list Destination list.
        \param pos Index of the insertion in the list.
@@ -65392,16 +63213,16 @@ namespace cimg_library {
       return (+*this).insert(list);
     }
 
-    //! Return image corresponding to the appending of all images of the instance list along specified axis.
+    //! Return the image corresponding to the concatenation of all images of the instance list along specified axis.
     /**
-      \param axis Appending axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+      \param axis Concatenation axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
       \note <tt>list>'x'</tt> is equivalent to <tt>list.get_append('x')</tt>.
     **/
     CImg<T> operator>(const char axis) const {
       return get_append(axis,0);
     }
 
-    //! Return list corresponding to the splitting of all images of the instance list along specified axis.
+    //! Return the list corresponding to the splitting of all images of the instance list along specified axis.
     /**
       \param axis Axis used for image splitting.
       \note <tt>list<'x'</tt> is equivalent to <tt>list.get_split('x')</tt>.
@@ -65431,7 +63252,7 @@ namespace cimg_library {
 
     //! Return the size of the list, i.e. the number of images contained in it.
     /**
-      \note Similar to size() but returns result as a (signed) integer.
+      \note Similar to size() but returns the result as a (signed) integer.
     **/
     int width() const {
       return (int)_width;
@@ -65439,7 +63260,7 @@ namespace cimg_library {
 
     //! Return the size of the list, i.e. the number of images contained in it.
     /**
-      \note Similar to width() but returns result as an unsigned integer.
+      \note Similar to width() but returns the result as an unsigned integer.
     **/
     unsigned int size() const {
       return _width;
@@ -65997,7 +63818,7 @@ namespace cimg_library {
       return false;
     }
 
-    //! Test if one of the image list contains the specified referenced value.
+    //! Test if one image of the list contains the specified referenced value.
     /**
        \param pixel Reference to pixel value to test.
        \param[out] n Index of image containing the pixel value, if test succeeds.
@@ -66012,7 +63833,7 @@ namespace cimg_library {
       return contains(pixel,n,x,y,z,c);
     }
 
-    //! Test if one of the image list contains the specified referenced value.
+    //! Test if one image of the list contains the specified referenced value.
     /**
        \param pixel Reference to pixel value to test.
        \param[out] n Index of image containing the pixel value, if test succeeds.
@@ -66026,7 +63847,7 @@ namespace cimg_library {
       return contains(pixel,n,x,y,z,c);
     }
 
-    //! Test if one of the image list contains the specified referenced value.
+    //! Test if one image of the list contains the specified referenced value.
     /**
        \param pixel Reference to pixel value to test.
        \param[out] n Index of image containing the pixel value, if test succeeds.
@@ -66039,7 +63860,7 @@ namespace cimg_library {
       return contains(pixel,n,x,y,z,c);
     }
 
-    //! Test if one of the image list contains the specified referenced value.
+    //! Test if one image of the list contains the specified referenced value.
     /**
        \param pixel Reference to pixel value to test.
        \param[out] n Index of image containing the pixel value, if test succeeds.
@@ -66051,7 +63872,7 @@ namespace cimg_library {
       return contains(pixel,n,x,y,z,c);
     }
 
-    //! Test if one of the image list contains the specified referenced value.
+    //! Test if one image of the list contains the specified referenced value.
     /**
        \param pixel Reference to pixel value to test.
     **/
@@ -66321,19 +64142,20 @@ namespace cimg_library {
       const unsigned int npos = pos==~0U?_width:pos;
       if (npos>_width)
         throw CImgArgumentException(_cimglist_instance
-                                    "insert(): Invalid insertion request of specified image (%u,%u,%u,%u,%p) "
+                                    "insert(): Invalid request for inserting an image (%u,%u,%u,%u,%p) "
                                     "at position %u.",
                                     cimglist_instance,
                                     img._width,img._height,img._depth,img._spectrum,img._data,npos);
       if (is_shared)
         throw CImgArgumentException(_cimglist_instance
-                                    "insert(): Invalid insertion request of specified shared image "
+                                    "insert(): Invalid request for inserting a shared image "
                                     "CImg<%s>(%u,%u,%u,%u,%p) at position %u (pixel types are different).",
                                     cimglist_instance,
                                     img.pixel_type(),img._width,img._height,img._depth,img._spectrum,img._data,npos);
 
-      CImg<T> *const new_data = (++_width>_allocated_width)?new CImg<T>[_allocated_width?(_allocated_width<<=1):
-                                                                        (_allocated_width=16)]:0;
+      const unsigned int n_allocated_width = _allocated_width?(2*_allocated_width):16;
+      CImg<T> *const new_data = (++_width>_allocated_width)?new CImg<T>[n_allocated_width]:0;
+      if (new_data) _allocated_width = n_allocated_width;
       if (!_data) { // Insert new element into empty list
         _data = new_data;
         *_data = img;
@@ -66359,12 +64181,13 @@ namespace cimg_library {
       const unsigned int npos = pos==~0U?_width:pos;
       if (npos>_width)
         throw CImgArgumentException(_cimglist_instance
-                                    "insert(): Invalid insertion request of specified image (%u,%u,%u,%u,%p) "
+                                    "insert(): Invalid request for inserting an image (%u,%u,%u,%u,%p) "
                                     "at position %u.",
                                     cimglist_instance,
                                     img._width,img._height,img._depth,img._spectrum,img._data,npos);
-      CImg<T> *const new_data = (++_width>_allocated_width)?new CImg<T>[_allocated_width?(_allocated_width<<=1):
-                                                                        (_allocated_width=16)]:0;
+      const unsigned int n_allocated_width = _allocated_width?(2*_allocated_width):16;
+      CImg<T> *const new_data = (++_width>_allocated_width)?new CImg<T>[n_allocated_width]:0;
+      if (new_data) _allocated_width = n_allocated_width;
       if (!_data) { // Insert new element into empty list
         _data = new_data;
         if (is_shared && img) {
@@ -66643,10 +64466,10 @@ namespace cimg_library {
       return res;
     }
 
-    //! Return a single image which is the appending of all images of the current CImgList instance.
+    //! Return a single image which is the concatenation of all images of the current CImgList instance.
     /**
-       \param axis Appending axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-       \param align Appending alignment.
+       \param axis Concatenation axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+       \param align Concatenation alignment.
     **/
     CImg<T> get_append(const char axis, const float align=0) const {
       if (is_empty()) return CImg<T>();
@@ -67442,7 +65265,7 @@ namespace cimg_library {
       return CImgList<T>().load_cimg(filename,n0,n1,x0,y0,z0,c0,x1,y1,z1,c1);
     }
 
-    //! Load a sub-image list from a (non compressed) .cimg file \overloading.
+    //! Load a sub-image list from a (non compressed) .cimg file \overload.
     CImgList<T>& load_cimg(std::FILE *const file,
                            const unsigned int n0, const unsigned int n1,
                            const unsigned int x0, const unsigned int y0,
@@ -67473,7 +65296,7 @@ namespace cimg_library {
                       (Ts2 && !cimg::strcasecmp(Ts2,str_pixeltype)) || \
                       (Ts3 && !cimg::strcasecmp(Ts3,str_pixeltype)))) { \
         for (unsigned int l = 0; l<=nn1; ++l) { \
-          j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0) tmp[j++] = (char)i; tmp[j] = 0; \
+          j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0 && j<255) tmp[j++] = (char)i; tmp[j] = 0; \
           W = H = D = C = 0; \
           if (cimg_sscanf(tmp._data,"%d %d %d %d",&W,&H,&D,&C)!=4) \
             throw CImgIOException(_cimglist_instance \
@@ -67748,7 +65571,7 @@ namespace cimg_library {
                                     first_frame,last_frame,step_frame,yuv2rgb);
     }
 
-    //! Load a list from an image sequence YUV file \overloading.
+    //! Load a list from an image sequence YUV file \inplace.
     CImgList<T>& load_yuv(std::FILE *const file,
                           const unsigned int size_x, const unsigned int size_y,
                           const unsigned int chroma_subsampling=444,
@@ -68045,7 +65868,7 @@ namespace cimg_library {
       CImg<charT> command(1024), filename_tmp(256), filename_tmp2(256);
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
-                      cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                      cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_000001.ppm",filename_tmp._data);
       } while (cimg::path_exists(filename_tmp2));
       cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_%%6d.ppm",filename_tmp._data);
@@ -68106,7 +65929,7 @@ namespace cimg_library {
       CImg<charT> command(1024), filename_tmp(256), filename_tmp2(256);
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
-                      cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                      cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         if (use_graphicsmagick) cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s.png.0",filename_tmp._data);
         else cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s-0.png",filename_tmp._data);
       } while (cimg::path_exists(filename_tmp2));
@@ -68123,13 +65946,13 @@ namespace cimg_library {
       cimg::exception_mode(0);
       assign();
 
-      // Try to read a single frame gif.
+      // Try to read a single-frame GIF.
       cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s.png",filename_tmp._data);
       CImg<T> img;
       try { img.load_png(filename_tmp2); }
       catch (CImgException&) { }
       if (img) { img.move_to(*this); std::remove(filename_tmp2); }
-      else { // Try to read animated gif
+      else { // Try to read an animated GIF
         unsigned int i = 0;
         for (bool stop_flag = false; !stop_flag; ++i) {
           if (use_graphicsmagick) cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s.png.%u",filename_tmp._data,i);
@@ -68164,14 +65987,14 @@ namespace cimg_library {
       do {
         if (!cimg::strcasecmp(ext,"gz")) {
           if (*ext2) cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
-                                   cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext2);
+                                   cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),ext2);
           else cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
-                             cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                             cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         } else {
           if (*ext) cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
-                                  cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext);
+                                  cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),ext);
           else cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
-                             cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                             cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         }
       } while (cimg::path_exists(filename_tmp));
       cimg_snprintf(command,command._width,"\"%s\" -c \"%s\" > \"%s\"",
@@ -68310,8 +66133,8 @@ namespace cimg_library {
     //! Display the current CImgList instance in an existing CImgDisplay window (by reference).
     /**
        \param disp Reference to an existing CImgDisplay instance, where the current image list will be displayed.
-       \param axis Appending axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-       \param align Appending alignment.
+       \param axis Concatenation axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+       \param align Concatenation alignment.
        \note This function displays the list images of the current CImgList instance into an existing
          CImgDisplay window.
        Images of the list are appended in a single temporary image for visualization purposes.
@@ -68327,7 +66150,7 @@ namespace cimg_library {
         \param disp Display window.
         \param display_info Indicates whether image information is displayed on the standard output.
         \param axis Alignment axis for images viewing.
-        \param align Appending alignment.
+        \param align Concatenation alignment.
         \param[in,out] XYZ Contains the XYZ coordinates at start / exit of the function.
         \param exit_on_anykey Exit function when any key is pressed.
         \note This function opens a new window with a specific title and displays the list images of the
@@ -68346,8 +66169,8 @@ namespace cimg_library {
     /**
       \param title Title of the opening display window.
       \param display_info Indicates whether list information must be written on standard output.
-      \param axis Appending axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-      \param align Appending alignment.
+      \param axis Concatenation axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+      \param align Concatenation alignment.
       \param[in,out] XYZ Contains the XYZ coordinates at start / exit of the function.
       \param exit_on_anykey Exit function when any key is pressed.
     **/
@@ -68467,7 +66290,7 @@ namespace cimg_library {
       return res;
     }
 
-    //! Save list into a file.
+    //! Save the list into a file.
     /**
       \param filename Filename to write data to.
       \param number When positive, represents an index added to the filename. Otherwise, no number is added.
@@ -68591,7 +66414,7 @@ namespace cimg_library {
       return false;
     }
 
-    //! Save image sequence as a GIF animated file.
+    //! Save the image sequence as a GIF animated file.
     /**
        \param filename Filename to write data to.
        \param fps Number of desired frames per second.
@@ -68609,7 +66432,7 @@ namespace cimg_library {
 #endif
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
-                      cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                      cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_000001." _cimg_save_gif_extension,filename_tmp._data);
       } while (cimg::path_exists(filename_tmp2));
       cimglist_for(*this,l) {
@@ -68649,7 +66472,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save list as a YUV image sequence file.
+    //! Save the list as a YUV image sequence file.
     /**
       \param filename Filename to write data to.
       \param chroma_subsampling Type of chroma subsampling. Can be <tt>{ 420 | 422 | 444 }</tt>.
@@ -68661,7 +66484,7 @@ namespace cimg_library {
       return _save_yuv(0,filename,chroma_subsampling,is_rgb);
     }
 
-    //! Save image sequence into a YUV file.
+    //! Save the image sequence into a YUV file.
     /**
       \param file File to write data to.
       \param chroma_subsampling Type of chroma subsampling. Can be <tt>{ 420 | 422 | 444 }</tt>.
@@ -68719,7 +66542,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save list into a .cimg file.
+    //! Save the list as a .cimg file.
     /**
        \param filename Filename to write data to.
        \param is_compressed Indicates whether data compression must be enabled.
@@ -68803,7 +66626,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save list into a .cimg file.
+    //! Save the list as a .cimg file.
     /**
        \param file File to write data to.
        \param is_compressed Indicates whether data compression must be enabled.
@@ -68821,7 +66644,7 @@ namespace cimg_library {
                      (Ts2 && !cimg::strcasecmp(Ts2,str_pixeltype)) || \
                      (Ts3 && !cimg::strcasecmp(Ts3,str_pixeltype)))) { \
         for (unsigned int l = 0; l<lmax; ++l) { \
-          j = 0; while ((i=std::fgetc(nfile))!='\n') tmp[j++]=(char)i; tmp[j] = 0; \
+          j = 0; while ((i=std::fgetc(nfile))!='\n' && i!=EOF && j<255) tmp[j++]=(char)i; tmp[j] = 0; \
           W = H = D = C = 0; \
           if (cimg_sscanf(tmp._data,"%u %u %u %u",&W,&H,&D,&C)!=4) \
             throw CImgIOException(_cimglist_instance \
@@ -68927,7 +66750,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Insert the image instance into into an existing .cimg file, at specified coordinates.
+    //! Insert the image list instance into an existing .cimg file, at specified coordinates.
     /**
       \param filename Filename to write data to.
       \param n0 Starting index of images to write.
@@ -68943,7 +66766,7 @@ namespace cimg_library {
       return _save_cimg(0,filename,n0,x0,y0,z0,c0);
     }
 
-    //! Insert the image instance into into an existing .cimg file, at specified coordinates.
+    //! Insert the image list instance into an existing .cimg file, at specified coordinates.
     /**
       \param file File to write data to.
       \param n0 Starting index of images to write.
@@ -68973,7 +66796,7 @@ namespace cimg_library {
       if (!file) cimg::fclose(nfile);
     }
 
-    //! Save empty (non-compressed) .cimg file with specified dimensions.
+    //! Save an empty (non-compressed) .cimg file with specified dimensions.
     /**
         \param filename Filename to write data to.
         \param nb Number of images to write.
@@ -68989,7 +66812,7 @@ namespace cimg_library {
       return _save_empty_cimg(0,filename,nb,dx,dy,dz,dc);
     }
 
-    //! Save empty .cimg file with specified dimensions.
+    //! Save an empty .cimg file with specified dimensions.
     /**
         \param file File to write data to.
         \param nb Number of images to write.
@@ -69005,13 +66828,13 @@ namespace cimg_library {
       return _save_empty_cimg(file,0,nb,dx,dy,dz,dc);
     }
 
-    //! Save list as a TIFF file.
+    //! Save the list as a TIFF file.
     /**
       \param filename Filename to write data to.
       \param compression_type Compression mode used to write data.
-      \param voxel_size Voxel size, to be stored in the filename.
-      \param description Description, to be stored in the filename.
-      \param use_bigtiff Indicates whether the file is saved as big tiff (>4Gb) or not.
+      \param voxel_size Voxel size, to be stored in the file metadata.
+      \param description Description, to be stored in the file metadata.
+      \param use_bigtiff Indicates whether the file is saved as BigTIFF (>4 GB) or not.
     **/
     const CImgList<T>& save_tiff(const char *const filename, const unsigned int compression_type=0,
                                  const float *const voxel_size=0, const char *const description=0,
@@ -69055,7 +66878,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save list as a gzipped file, using external tool 'gzip'.
+    //! Save the list as a gzipped file using the external tool 'gzip'.
     /**
       \param filename Filename to write data to.
     **/
@@ -69071,14 +66894,14 @@ namespace cimg_library {
       do {
         if (!cimg::strcasecmp(ext,"gz")) {
           if (*ext2) cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
-                                   cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext2);
+                                   cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),ext2);
           else cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.cimg",
-                             cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                             cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         } else {
           if (*ext) cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
-                                  cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext);
+                                  cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),ext);
           else cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.cimg",
-                             cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                             cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         }
       } while (cimg::path_exists(filename_tmp));
 
@@ -69110,12 +66933,12 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save image sequence (using the OpenCV library when available).
+    //! Save the image sequence (using the OpenCV library when available).
     /**
        \param filename Filename to write data to.
        \param fps Number of frames per second.
        \param codec Type of compression (See http://www.fourcc.org/codecs.php to see available codecs).
-       \param keep_open Indicates whether the video writer associated to the specified filename
+       \param keep_open Indicates whether the video writer associated with the specified filename
        must be kept open (to allow frames to be added in the same file afterwards).
     **/
     const CImgList<T>& save_video(const char *const filename, const unsigned int fps=25,
@@ -69238,7 +67061,7 @@ namespace cimg_library {
 #endif
     }
 
-    //! Save image sequence, using the external tool 'ffmpeg'.
+    //! Save the image sequence, using the external tool 'ffmpeg'.
     /**
       \param filename Filename to write data to.
       \param fps Number of frames per second.
@@ -69268,7 +67091,7 @@ namespace cimg_library {
                                     filename);
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
-                      cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+                      cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
         cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_000001.ppm",filename_tmp._data);
       } while (cimg::path_exists(filename_tmp2));
       unsigned int frame = 1;
@@ -69480,10 +67303,10 @@ namespace cimg_library {
     //@{
     //----------------------------------
 
-    //! Return a CImg pre-defined font with requested height.
+    //! Return a predefined CImg font with the requested height.
     /**
        \param requested_height Height of the desired font (exact match for 13,23,53,103).
-       \param is_variable_width Decide if the font has a variable (\c true) or fixed (\c false) width.
+       \param is_variable_width Decides if the font has a variable (\c true) or fixed (\c false) width.
        \note Beware, the returned reference is valid only until the next call to this function!
     **/
     static const CImgList<ucharT>& font(const unsigned int requested_height, const bool is_variable_width=true) {
@@ -69561,11 +67384,11 @@ namespace cimg_library {
         if (!fonts[i] || (is_variable_widths[i]==is_variable_width && requested_height==fonts[i][0]._height)) {
           ind = (unsigned int)i; break; // Found empty slot or cached font
         }
-      if (ind==~0U) { // No empty slots nor existing font in cache
+      if (ind==~0U) { // No empty slots or existing fonts in the cache
         fonts->assign();
         std::memmove((void*)fonts,(void*)(fonts + 1),31*sizeof(CImgList<ucharT>));
         std::memmove(is_variable_widths,is_variable_widths + 1,31*sizeof(bool));
-        std::memset((void*)(fonts + (ind=31)),0,sizeof(CImgList<ucharT>)); // Free a slot in cache for new font
+        std::memset((void*)(fonts + (ind=31)),0,sizeof(CImgList<ucharT>)); // Free a cache slot for the new font
       }
       CImgList<ucharT> &font = fonts[ind];
 
@@ -69644,7 +67467,7 @@ namespace cimg_library {
       return CImgList<Tfloat>(*this,false).FFT(invert);
     }
 
-    //! Reverse primitives orientations of a 3D object.
+    //! Reverse the orientations of a 3D object's primitives.
     /**
     **/
     CImgList<T>& reverse_object3d() {
@@ -69661,7 +67484,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Reverse primitives orientations of a 3D object \newinstance.
+    //! Reverse the orientations of a 3D object's primitives \newinstance.
     CImgList<T> get_reverse_object3d() const {
       return (+*this).reverse_object3d();
     }
@@ -69717,7 +67540,7 @@ namespace cimg_library {
 #endif
     }
 
-    // Open a file (similar to std:: fopen(), but with wide character support on Windows).
+    // Open a file (similar to std::fopen(), but with wide character support on Windows).
     inline std::FILE *std_fopen(const char *const path, const char *const mode) {
       std::FILE *const res = std::fopen(path,mode);
       if (res) return res;
@@ -69740,6 +67563,93 @@ namespace cimg_library {
       return 0;
     }
 
+    //! Get file size.
+    /**
+       \param file Specified file to get size from.
+       \return File size or '-1' if file does not exist.
+    **/
+    inline cimg_int64 fsize(std::FILE *const file) {
+      cimg_int64 siz = -1;
+      if (!file) return siz;
+
+#if cimg_OS==1 // Optimized for POSIX Environments (Linux, macOS, BSD, etc.)
+      const int fd = fileno(file);
+      struct stat st;
+      if (!fstat(fd,&st)) siz = (cimg_int64)st.st_size;
+#elif cimg_OS==2 // Optimized for Windows Environements (MSVC, MinGW)
+      const int fd = _fileno(file);
+      siz = (cimg_int64)_filelengthi64(fd);
+#endif
+      // Fallback, used for non-POSIX systems or if fstat failed (pipes or sockets).
+      if (siz<0) {
+        const cimg_long pos = cimg::ftell(file);
+        cimg::fseek(file, 0, SEEK_END);
+        siz = (cimg_int64)cimg::ftell(file);
+        cimg::fseek(file, pos, SEEK_SET);
+      }
+      return siz;
+    }
+
+    //! Get file size from filename.
+    /**
+       \param filename Specified filename to get size from.
+       \return File size or '-1' if file does not exist.
+    **/
+    inline cimg_int64 fsize(const char *const filename) {
+      if (!filename || !*filename) return (cimg_int64)-1;
+
+#if cimg_OS==1 // Optimized for POSIX Environments (Linux, macOS, BSD, etc.)
+      struct stat st;
+      if (!stat(filename,&st)) return (cimg_int64)st.st_size;
+#elif cimg_OS==2
+      WIN32_FILE_ATTRIBUTE_DATA attr;
+      if (win_getfileattributesEx(filename, &attr)) {
+        if (!(attr.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+          LARGE_INTEGER size;
+          size.HighPart = attr.nFileSizeHigh;
+          size.LowPart = attr.nFileSizeLow;
+          return (cimg_int64)size.QuadPart;
+        }
+      }
+#endif
+      // Fallback for other systems.
+      std::FILE *const file = cimg::std_fopen(filename, "rb");
+      if (!file) return (cimg_int64)-1;
+      const cimg_int64 siz = cimg::fsize(file);
+      cimg::fclose(file);
+      return siz;
+    }
+
+    //! Display a warning message on the default output stream.
+    /**
+       \param format C-string containing the format of the message, as with <tt>std::printf()</tt>.
+       \note If configuration macro \c cimg_strict_warnings is set, this function throws a
+       \c CImgWarningException instead.
+       \warning As the first argument is a format string, it is highly recommended to write
+       \code
+       cimg::warn("%s",warning_message);
+       \endcode
+       instead of
+       \code
+       cimg::warn(warning_message);
+       \endcode
+       if \c warning_message can be arbitrary, to prevent invalid memory access.
+    **/
+    inline void warn(const char *const format, ...) {
+      if (cimg::exception_mode()>=1) {
+        CImg<char> message(16384); *message = 0;
+        std::va_list ap;
+        va_start(ap,format);
+        cimg_vsnprintf(message._data,16384,format,ap);
+        va_end(ap);
+#ifdef cimg_strict_warnings
+        throw CImgWarningException("%s",message._data);
+#else
+        std::fprintf(cimg::output(),"\n%s[CImg] *** Warning ***%s%s\n",cimg::t_red(),cimg::t_normal(),message._data);
+#endif
+      }
+    }
+
     //! Search path of an executable.
 #if cimg_OS==2
     inline bool win_searchpath(const char *const exec_name, char *const res, const unsigned int size_res) {
@@ -69759,7 +67669,7 @@ namespace cimg_library {
       if (file_len>NAME_MAX) return false;
       size_t path_total_len = strnlen(path,PATH_MAX - 1) + 1;
 
-      char *buf = new char[path_total_len + file_len + 1];
+      CImg<char> buf(path_total_len + file_len + 1);
       const char *p = path, *z = 0;
       while (true) {
         z = std::strchr(p,':');
@@ -69768,14 +67678,13 @@ namespace cimg_library {
           if (!*z++) break;
           continue;
         }
-        std::memcpy(buf,p,z - p);
+        std::memcpy(buf._data,p,z - p);
         buf[z - p] = '/';
-        std::memcpy(buf + (z - p) + (z>p),file,file_len + 1);
-        if (cimg::is_file(buf) && faccessat(AT_FDCWD, buf, X_OK, AT_EACCESS)==0) { delete[] buf; return true; }
+        std::memcpy(buf._data + (z - p) + (z>p),file,file_len + 1);
+        if (cimg::is_file(buf) && faccessat(AT_FDCWD,buf._data,X_OK,AT_EACCESS)==0) return true;
         if (!*z++) break;
         p = z;
       }
-      delete[] buf;
       return false;
     }
 #endif
@@ -69794,6 +67703,20 @@ namespace cimg_library {
       }
       return res;
     }
+
+    inline BOOL win_getfileattributesEx(const char* const path, WIN32_FILE_ATTRIBUTE_DATA* attr) {
+        BOOL res = GetFileAttributesExA(path,GetFileExInfoStandard,attr);
+        if (!res) {
+          // Try alternative method, with wide-character string.
+          int err = MultiByteToWideChar(CP_UTF8,0,path,-1,0,0);
+          if (err) {
+            CImg<wchar_t> wpath((unsigned int)err);
+            if (MultiByteToWideChar(CP_UTF8,0,path,-1,wpath,err))
+              res = GetFileAttributesExW(wpath,GetFileExInfoStandard,attr);
+          }
+        }
+        return res;
+    }
 #endif
 
     //! Get/set path to the <i>Program Files/</i> directory (Windows only).
@@ -69810,6 +67733,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(MAX_PATH);
         *s_path = 0;
@@ -69817,7 +67741,10 @@ namespace cimg_library {
 #if !defined(__INTEL_COMPILER)
         if (!SHGetSpecialFolderPathA(0,s_path,0x0026,false)) {
           const char *const pfPath = std::getenv("PROGRAMFILES");
-          if (pfPath) std::strncpy(s_path,pfPath,MAX_PATH - 1);
+          if (pfPath) {
+            std::strncpy(s_path,pfPath,MAX_PATH - 1);
+            s_path.back() = 0;
+          }
           else std::strcpy(s_path,"C:\\PROGRA~1");
         }
 #else
@@ -69842,6 +67769,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -69878,6 +67806,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -69914,6 +67843,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -69950,6 +67880,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -70059,6 +67990,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -70095,6 +68027,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -70131,6 +68064,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -70259,6 +68193,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -70305,7 +68240,7 @@ namespace cimg_library {
 #define _cimg_test_temporary_path(p) \
       if (!path_found) { \
         cimg_snprintf(s_path,s_path._width,"%s",p); \
-        cimg_snprintf(tmp,tmp._width,"%s%c%s",s_path.data(),cimg_file_separator,filename_tmp._data); \
+        cimg_snprintf(tmp,tmp._width,"%s%c%s",s_path.data(),cimg_directory_separator,filename_tmp._data); \
         if ((file=cimg::std_fopen(tmp,"wb"))!=0) { cimg::fclose(file); std::remove(tmp); path_found = true; } \
       }
       static CImg<char> s_path;
@@ -70314,6 +68249,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -70339,6 +68275,7 @@ namespace cimg_library {
         if (!path_found) {
           *s_path = 0;
           std::strncpy(tmp,filename_tmp,tmp._width - 1);
+          tmp.back() = 0;
           if ((file=cimg::std_fopen(tmp,"wb"))!=0) { cimg::fclose(file); std::remove(tmp); path_found = true; }
         }
         if (!path_found) {
@@ -70363,6 +68300,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -70400,6 +68338,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -70435,7 +68374,7 @@ namespace cimg_library {
       return str;
     }
 
-    //! Return list of files/directories in specified directory.
+    //! Return the list of files/directories in specified directory.
     /**
        \param path Path to the directory. Set to 0 for current directory.
        \param is_pattern Indicates that a specified path has a matching pattern in it.
@@ -70478,7 +68417,7 @@ namespace cimg_library {
 #if cimg_OS!=2
           is_root = !*_path;
 #endif
-        } else { // No path to folder specified, assuming current folder
+        } else { // No folder path specified; assuming current folder
           is_current = true; *_path = 0;
         }
         lp = (unsigned int)std::strlen(_path);
@@ -70735,7 +68674,7 @@ namespace cimg_library {
       else cimg::strwindows_reserved(ext);
       do {
         cimg_snprintf(filename_local,256,"%s%c%s%s",
-                      cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext._data);
+                      cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand(),ext._data);
       } while (cimg::path_exists(filename_local));
 
 #ifdef cimg_use_curl
@@ -70820,7 +68759,7 @@ namespace cimg_library {
                                 "'wget' or 'curl'.",url);
 #endif
 
-        // Try gunzip it.
+        // Try to gunzip it.
         cimg_snprintf(command,command._width,"%s.gz",filename_local);
         std::rename(filename_local,command);
         cimg_snprintf(command,command._width,"\"%s\" --quiet \"%s.gz\"",
@@ -70845,7 +68784,7 @@ namespace cimg_library {
         // Tic.
         times[pos++] = t1;
         if (pos>=times._width)
-          throw CImgArgumentException("cimg::tic(): Too much calls to 'cimg::tic()' without calls to 'cimg::toc()'.");
+          throw CImgArgumentException("cimg::tic(): Too many calls to 'cimg::tic()' without calls to 'cimg::toc()'.");
         cimg::mutex(2,0);
         return t1;
       }
@@ -71090,16 +69029,16 @@ namespace cimg_library {
                       const char *const button5_label, const char *const button6_label,
                       const bool is_centered) {
       return dialog(title,msg,button1_label,button2_label,button3_label,button4_label,button5_label,button6_label,
-                    CImg<unsigned char>::_logo40x38(),is_centered);
+                    CImg<unsigned char>::logo40x38(),is_centered);
     }
 
     //! Evaluate math expression.
     /**
        \param expression C-string describing the formula to evaluate.
-       \param x Value of the pre-defined variable \c x.
-       \param y Value of the pre-defined variable \c y.
-       \param z Value of the pre-defined variable \c z.
-       \param c Value of the pre-defined variable \c c.
+       \param x Value of the predefined variable \c x.
+       \param y Value of the predefined variable \c y.
+       \param z Value of the predefined variable \c z.
+       \param c Value of the predefined variable \c c.
        \return Result of the formula evaluation.
        \note Set \c expression to \c 0 to keep evaluating the last specified \c expression.
        \par Example
@@ -71118,6 +69057,2106 @@ namespace cimg_library {
     inline CImg<typename cimg::superset<double,t>::type> eval(const char *const expression, const CImg<t>& xyzc) {
       static const CImg<float> empty;
       return empty.eval(expression,xyzc);
+    }
+
+    // Define a 10x13 binary font (small sans).
+    inline const char* data_font_small() {
+      return
+      "                      UwlwnwoyuwHwlwmwcwlwnw[xuwowlwmwoyuwRwlwnxcw     Mw                    (wnwnwuwpwuypwuwoy"
+      "ZwnwmwuwowuwmwnwnwuwowuwfwuxnwnwmwuwpwuypwuwZwnwnwtwpwtwow'y    Hw   cwnw  >{ jw %xdxZwdw_wexfwYwkw 7yowoyFx=w "
+      "ry    qw %wuw  !xnwkwnwoyuwfwuw[wkwnwcwowrwpwdwuwoxuwpwkwnwoyuwRwkwnwbwpwNyoyoyoyoy;wdwnxpxtxowG|!ydwnwuwowtwow"
+      "pxswqxlwnxnxmwDwoyoxnyoymwp{oyq{pyoy>ypwqwpwp{oyqzo{q{pzrwrwowlwqwswpwnwqwsxswpypzoyqzozq}swrwrwqwtwswswtxsxswq"
+      "ws}qwnwkwnydwew_wfwdwkwmwowkw(w0wmwmwGwtwdxQw swuwnwo{q{pynwp|rwtwtwqydwcwcwcwmwmxgwqwpwnzpwuwpzoyRzoyoyexnynwd"
+      "z\\xnxgxrwsxrwsyswowmwmwmwmwmwmwo}ryp{q{q{q{nwmwnwmwozqxswpyoyoyoyoyeyuwswrwrwrwrwrwrwrwrwqwrwmwtwnwmwnwuwpwuyp"
+      "wuwoyZwmwnwuwowuwmwqwkwuwowuwoxnwuxowmwnwuwpwuypwuwZwmwnwuwowuwnwowmwtw\\wuwuwqwswqwswqwswqwswEwqwtweypzr~qyIw "
+      "rwswewnwuwowuwozswtwuwqwtwmwnwlwowuwuwowOxpxuxqwuwowswqwswoxpwlwjwqwswqwsw<wrwowrwuwqwrwqwswrwswpwmwmwrwswrwowl"
+      "wqwtwownxsxsxswqwswqwswqwswrwswqwrwowpwrwrwqwtwswswswswqwswmwpwmwlwoxuxSw_wfwdwYwkw(w0wmwmwGwtwoxnwNw uwswpwuwp"
+      "wmwmwswq{rwrwrwtwtwrwswfydwdyZwnwtwrwqwrwswowowdwrwqxuwSwrwfwuwnwlwnw[yuw[wowtwgwswqwswqwswewuwowuwowuwowuwowuw"
+      "nwowuwowswqwmwmwmwjwmwnwmwowswrxswqwswqwswqwswqwswqwswrwrwqwswrwrwrwrwrwrwrwrwqwswqzpwtw #w DwPwtwtwswqwswuwuwu"
+      "wswswuwswqwGwqxtwf{qzr~r{qzqwrwpxowtwrw rzcwnwuwq}rwuwqwtwuwqwtwmwnwlwnynwOwowswowkwmwpwuwpwmwjwpwswqwswowmwjwi"
+      "wjxswsytwrwuwqwrwrwmwrwqwmwnwmwrwowlwqwuwnwnxsxswuwtwrwqwrwswrwqwswswqwjwpwrwqwswrwtwtwqwuwowuwmwowmwlwpxsx]ypz"
+      "oyozpypzozqznwmwowtwnwqzuyrzoypzozqwuxoypzpwswrwrwrwtwtwswrwrwrwq{owmwmwQyuwqwtwmwoxnypzqxswowowswqwswqwtxr|rwt"
+      "wtwqyp{q{qwswpwuwownwnwqwsxuwuxswrwrwtwtwswqwrwmwuwuwnwnwowtwpwuwuwewnzpwn{pwuwnwnxgwtxtwrwtwowtw_wuytwgynwmwlw"
+      "gwswpyuw[wowtwqwtwpwtwpwtwowuwmwnwuwowuwowuwowuwowuwowuwqxuwpwlwmwmwmwjwmwnwmwowrwswuwtwrwqwswqwswqwswqwswqwrwt"
+      "wqwswuwswrwrwrwrwrwrwrwpwuwpwswqwuwnyoyoyoyoyoyqyuyqyoyoyoyoymwqwjwmwnypzoyoyoyoyoynwnzqwswqwswqwswqwswrwrwqzqw"
+      "rw^}s}swtwtwswtwtwswtwtwK}rwuwe{s~t~s}rwtwqwrwpxowtwrw qwawewtwpwuwpxuwpycwlwnynwOwowswowkwpypwtwpzpzmwoypwsw[y"
+      "r}rymwrwtwtwtwrwuwq{qwmwrwq{q{rwm|owlwqxmwnwuwuwuwswuwtwrwqwrwswrwqwswswqylwpwrwqwswrwuwuwuwpwmwmwnwmwlwMwqwswq"
+      "wmwswqwswpwnwswqwswowmwowuwmwqwswswswswqwswqwswqwswqxnwswpwnwswrwrwrwtwtwrwtwqwrwmwqxlwlx]xuxrwtyqwuwlwpwtwpwmw"
+      "swqwtxpxowswrwqwswtwuxrwtwqwtwtwrwswrwswnwo{pwuwnxpwnwqwswtwtwswrwrwtwtwswuyuwswjwkwowpwrwowcwowuwnwnwswqxuxowo"
+      "wtwhwuwrwrzpwtwq}jwuwtwuw_}qyoxfwswpyuwowdyoxowtwryuwqyuwqyuwmwnwuwowuwowuwowuwowuwowuwqwt{twl{q{q{q{nwmwnwmwpz"
+      "twswuwtwrwqwswqwswqwswqwswqwqxpwtwtwswrwrwrwrwrwrwrwowowswqwuwkwmwmwmwmwmwowswswmwswqwswqwswqwswnwqwjwmwowswqws"
+      "wqwswqwswqwswqwswqwswgwtxqwswqwswqwswqwswrwrwqwswrwrw^wtwtwswqwswuwuwuwswuwswswqwHwowuwf}t~s|r}swrwrwrwqwtwpwtw"
+      "r~#zcwewtwoynwuxtwtwswgwlwowuwuwr}gyexowswowlwlwrwswlwqwswowowswpz^yayqwqwtwtwuwrwswrwrwrwmwrwqwmwnwsyswrwowlwq"
+      "wuwnwnwuwuwuwswtwuwrwqwrzqwqwszmyowpwrwpwuwqwuwuwuwpwmwmwnwlwmwPzqwswqwmwswq{pwnwswqwswowmwoxlwqwswswswswqwswqw"
+      "swqwswqwlxnwnwswqwtwqwuwuwuwqxowtwmwnwmwmwoytwiwtwtwswswpwtxqzpwswpxowswpwuwowuwpwswrwtwtwswtwtwrwtwqwtwtwrwswr"
+      "wswnwowswqwswowownwqwswtwtwswrwqwuwuwrwuyuwt~pwq~pwq~pwcwowuwozpwswowewswiwuwrwiwtwjwjwuytw\\wRwswoxuwHwtwpwswq"
+      "wtxqwswqxowswqwswqwswqwswqwswqwswrwtwpwlwmwmwmwjwmwnwmwowrwswtwuwrwqwswqwswqwswqwswqwqxpwtwtwswrwrwrwrwrwrwrwow"
+      "owswqwtwozpzpzpzpzpzr~swm{q{q{q{nwqwjwmwowswqwswqwswqwswqwswqwswqwswr}rwuwuwqwswqwswqwswqwswqwtwpwswqwtw\\wuwuw"
+      "qwswqwswqwswqwswJ}qxf}t~rzp{rwrwrwrwqwtwpwtwrw qwawg}owuwpwuwtwuwswuwfwlwmwmwPwnwswowmwkwr|mwqwswowowswmw^yo}oy"
+      "qwqwszq{rwrwrwmwrwqwmwnwqwswrwowlwqwtwownwtwtwswtwuwrwqwrwnwqwswtwkwowpwrwpwuwqwuwuwuwqwuwnwnwmwlwmwQwswqwswqwm"
+      "wswqwlwnwswqwswowmwowuwmwqwswswswswqwswqwswqwswqwjwownwswqwtwqwuwuwuwqxowtwnwmwmwmwpwtyhwtwtwswswpwswqwtwpwswqw"
+      "mwswpwuwpwtwpwswrwtwtwswtwtwrwtwqwtwtwrwswrwswnwowswqwswpwnwnwqwsxuwuxswrwpyqwqwswjwkwqwuwuwrwrwqwuwuwewowuwnwn"
+      "wswq{ownxuwiwtxtwrzpwtwkwjwuwtwuw\\wRwswnwuwSzpwtwowtxqwrwrwtxrxn{q{q{q{q{q{s{pwlwmwmwmwjwmwnwmwowrwswtwuwrwqws"
+      "wqwswqwswqwswqwrwtwqwuwswswrwrwrwrwrwrwrwowozpwswqwswqwswqwswqwswqwswqwswswswowmwmwmwmwjwqwjwmwowswqwswqwswqwsw"
+      "qwswqwswqwswgwuwuwqwswqwswqwswqwswqwtwpwswqwtw[yoyoyoyoyGwmwdwuwuwpxnxnyqwrwqwtwpwtwoxpw rwswSwuwmwuwpwuwtwuxsw"
+      "ewlwcwPwnxuxownwnwswnwlwqwswowowswnwZygygwkwswrwrwqwswrwswpwmwmwrwswrwowlwqwswpwnwqwswsxqwswqwmwswrwswqwrwowpxt"
+      "xowowswqwswowowlwlwmwQwswqwswqwmwswqwswpwnwswqwswowmwowtwnwqwswswswswqwswqwswqwswqwmwswpwnwswpxowswqwtwoxnwlwmw"
+      "mw[xuxrwtxpwswqwtwpwswqwmwswpypwtwpwswrwtwtwsxuwuxrwtwqwtwtwrwswrwswnwnwuwpwswqwmwmwswq{rwrwowowswqwkwlwoypwtwo"
+      "ydwowuwnwn{owmwlwgwrwfwtw^wrw6wswnwuwJwtwowtzswrwrwtzswmwswqwswqwswqwswqwswqwswswswowswqwmwmwmwjwmwnwmwowswrwsx"
+      "qwswqwswqwswqwswqwswrwrwqwswrxtxrxtxrxtxrxtxowowmwswqwswqwswqwswqwswqwswqwswswtxowmwswqwswqwswqwswnwqwjwmwowswq"
+      "wswqwswqwswqwswqwswqwswowoxtwqwswqwswqwswqwswpxowswpx Wwlwbwnxcwpwrwqzpwtwoxo|!ydwfwtwozpwsxszuxgxnxcwmwcwoxmyp"
+      "{q{pymwpzoyowmypymwmwjwiwkwowrwrwqws{oyqzo{qwlzrwrwowlwqwrwq{rwqwswsxpypwlyqwrwqznwoznwowswrxsxpwp}qwkwnwPzqzoy"
+      "ozpyowmzqwswowmwowswowqwswswswswpypzozqwlynxozpxowswrwrwpwn{owmwmwQxuxqzoxnyoypwswowpwrwqzpxuxq{qwtxq{qzpylwoyq"
+      "}r{qwnyuypwpwrwownydwcwcwcwnzq{rwqwpwmwkwgzHz]}U|owuw@wqwswrytwqwqyqwqwswqwswqwswqwswqwswqwuwr{ryp{q{q{q{nwmwnw"
+      "mwozqwsxpyoyoyoyoygwuypzpzpzpznwowmwuypzpzpzpzpzpzryuzryoyoyoyoymwqwjwmwnypwswpyoyoyoyoyfzozpzpzpzpwnzow    \\w"
+      "OwnwXw[w SwGz kx0x lxdx gw[w=wiw*wbyowoyGwKwowewawcwow  YwOwoz Ewjwuwdw 7w   9w  Iwnwlw    \\w      0|*y[x=wiw,"
+      "xWw=wKwowewawcwow  Yw  hwVx 8w   9w  Jxmwnxp"; }
+
+    // Define a 26x32 font (normal sans).
+    inline const char* data_font_normal() {
+      return
+      "                                                      #{}~}a{|y~f{|y~}f{|}|x{}|j{|y}y{|y}g{}y~}|2y~|a{}~}f{}y~|"
+      "gy}|yy}|i{}~}a{}~}f{}y~}gy}|yx}N{|}|x{}|hy~|ay~|fx~|g{}y~|y{}~j{|y~|yy~}5{}~}a{}~}f{}y~}gy~}yy~}e{|y~          "
+      "                                                      2{}~}c{|y~f{|y~}~}h{}w~y}~|j{}y~y{}y~h{}~y}y~|2y~|c{}~}f{"
+      "}~y}~|hy~}yy~}hy~|c{|~}f{|~y}~|hy~}y{}y~O{}w~y}~|gy~|cy~|fy~|}~|i{|~y}y~}~}j{|y~|yy~}4{}~|c{}~}f{}~|}~}hy~}yy~}"
+      "ey~|  g{|}y~}                                                              J{}~|dy~|fy~y{}~|i{~}{|}y~}i{}y~y{}y"
+      "~i{|~}x{~}2{|y~d{|~}f{|~}yy~hy~}yy~}gy~cy~f{|~}y{}~|iy~}y{}y~P{|~}{|}y~|ey~d{}~|fy~x{}~|j{}~y{|}~}i{|y}|yy}|3{}"
+      "~|e{}~}f{}~|y{|~|iy}|yx}f{}~|  fy~y}~}           k{|y~|                       /{|y~|                        y{}"
+      "~}   Xy|e{|}|f{|}wy|5{|~|x{}~1{|}|ey|ey|wy|M{|}|e{|}|fy|wy|    g{|}|3{|y~|_{}~}g{|y~2{}~|y{}~|5{|y~^y~}g{}y~N{|"
+      "}|^{|}|g{|}| s{}~}_{|y~|gy~} Z{}~}_{|y~|gy~}    )y}|                       -{|y~                    Jy}|yy}|   "
+      "X{}y~    4{|~}y{|~}     P{|  n{|y~`{|y~fx~}3{}~x{|~|4{}~}`{}~}g{|x~}N{}~}`{|y~|gx~| sy~|`y~|g{}x~| Z{}~}`y~}g{}"
+      "x~|I{}y~  1{|x~|oi| r{|~|O{|d{|y}|j{|y}|u{|y}|h{|   \"{|}x~}|Ny~}g{|y~y{|~}g{|~}x{|~}i{|~l{|}y~}|s{|~}l{|}x~}|e"
+      "{|y~by~g{}~}b{~} S{|y~i{|}x~}|i{|y}x~|i{|y}x~y}i{|y}w~}|d{}x~kq~|i{|}w~}|m{}o~k{|}x~y}h{|}x~}| B{|}w~}L{|x~j{|s"
+      "~y}g{|}w~}|o{|s~y}|k{|o~n{|p~j{|}w~y}|o{|y~|ry~}k{|y~|e{|y~|j{|y~|t{|x~n{|y~|i{|x~}r{|x~}s{|x~|sy~}l{|}x~y}|l{|"
+      "s~}|i{|}x~y}|m{|s~}|hy}w~y}|ok~}r{}y~r{|y~|r{}y~|p{}y~vy~}t{|x~sy~}ux~rx~q{}y~|r{}y~|r{|l~l{}v~hy~|c{|v~|f{|}|L"
+      "{}~}M{}y~@{}~}O{|}w~R{}y~`{|y~d{|y~h{}y~`{|y~    ay}y~}h{}~}h{}y~y} Wy}x~}|O{|y}w~}| xx~}  I{|}x~}f{|x~i{|o~m{|"
+      "o~m{|y}x~}|f{}y~k{|m~}r{|y~|w{}y~vy~}n{|}x~y}|My}Iy}|J{}~| q{|}x~y}T{}y~r{}~}R{}w~}|j{|y~}yy~}O{|}w~} \\{|t~}h{"
+      "|}y~}M{|}x~}|h{|}x~}|e{|y~L{|}t~|7y}y~}f{|}x~}Uy|y}|py}p{|n{|t{|}w~}r{|y~P{|x~e{|x~e{|x~e{|x~e{|x~f{}v~|jk~|o{|"
+      "}w~}|m{|o~n{|o~n{|o~n{|o~j{|y~|e{|y~|e{|y~|e{|y~|k{|s~y}|m{|x~|sy~}l{|}x~y}|i{|}x~y}|i{|}x~y}|i{|}x~y}|i{|}x~y}"
+      "|O{|}x~y}|y{|~}s{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~|r{}y~|p{|y~|b{|}x~}|h{}~}b{|y~|g{}~|}~|h{|y~}|"
+      "{}~iy~}yy~}i{}~|y{}~|3{}~}b{|~}fy~{}~|i{|y~|{|y~}iy~|ay~}g{}~}y~gy~}yy~}i{|y~}wy|j{|y~}y{}~hy~|b{}~}g{|~}|~}h{|"
+      "}y~}{|~}j{}y~y{}y~|4y~|b{}~}g{|~}{y~h{}y~y{|y~|f{|y~|k{}y~by~}y{}y~  ev~o{}k~} r{}~O{|~e{}v~l{}v~w{}w~}j{}~ Y{}"
+      "o~  S{|s~}Oy~}g{|y~y{|~}g{}~|x{}~|i{|~m{|y~y}y~|ty~l{}t~}f{|y~c{}~}fy~b{~} S{}~}j{}t~}kt~|j{}r~|l{|r~}f{|w~kq~|"
+      "j{}s~|n{}p~}m{|r~|l{|s~| D{}s~|i{|y}y~y}|hw~|k{|p~|k{|q~}q{|p~}|m{|o~n{|p~l{|p~}q{|y~|ry~}k{|y~|e{|y~|j{|y~|u{|"
+      "x~m{|y~|i{|w~|sw~}s{|w~sy~}n{}r~}m{|q~}l{}r~}n{|q~}k{|q~|pk~}r{}y~r{|y~|r{|y~}py~}v{}y~t{}x~|u{|y~|u{|y~}t{}y~|"
+      "py~}s{|y~}q{|l~l{}w~}h{}~}c{|v~|gw~}L{}~|N{}y~@{}~}P{|u~R{}y~`{|y~d{|y~h{}y~`{|y~  e{}y~  {}w~}h{}~}h{}v~ Ys~}Q"
+      "{|r~| yv~  K{}t~|hw~|j{|o~m{|o~n{}r~|h{}y~k{|m~}r{|y~|w{}y~vy~}p{}r~}O{}x~Jy~|K{}x~|/{~|f{}t~}Ty~|t{|y~|Ss~j{|y"
+      "~}yy~}i{|}v~}|j{}~w}y~ v{|}v~}|k{|t~}i{|y~}x~N{}~}|}y~|i{|y}y|}~}fy~|N{|u~y}y~|8{|~y}~}g{|y~x}y~W{|w~}q{}~}s{}x"
+      "~}q{|y~t{|}x|}~}s{}~|Pw~|fw~|fw~|fw~|fw~|fw~|j{|k~|q{|q~}o{|o~n{|o~n{|o~n{|o~j{|y~|e{|y~|e{|y~|e{|y~|k{|o~|o{|w"
+      "~sy~}n{}r~}l{}r~}l{}r~}l{}r~}l{}r~}R{}r~}|y~|s{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|py~}s{|y~}o{|y~|cs~}h{"
+      "}~}cy~|g{|~}yy~i{|y~}w~}iy~}yy~}hy~y}~}1y~|d{|y~f{}~|{|~}i{|y~|{|y~}i{|y~b{}~}g{|~}{|~}hy~}yy~}h{|y~y}y~}|k{|y~"
+      "}y~}~}h{|y~c{|~}fy~y{|~|i{}~}v~|j{}y~y{}y~|4{|y~c{|~}fy~y{|~}i{}y~y{|y~|fy~|j{}y~by~}y{}y~  f{|y~{}~|p{|k~| r{~"
+      "}Oy~}g{}u~}n{}t~y{}u~}l{}y~} \\{}m~  T{|x~}|{y|y~|Py~}g{|y~y{|~}gy~|xy~|i{|~my~|y{|y~u{}~}m{}y~}|y{|y}f{|y~d{|y"
+      "~e{}~}hy|x{~}x{| Wy~|k{|y~}|{|}y~}lx~y}y~|jx~}x|}x~|m{|~}v|x~}gv~ky~s|j{}x~w|}~|nr|}y~|mx~}|{y|x~|mx~y|{|}y~| E"
+      "y~}x|}x~k{}q~|k{|w~}k{|y~u|}x~l{}x~}v|}y~|r{|y~u|y}x~}n{|y~q|n{|y~r|m{}x~}v|}x~|r{|y~|ry~}k{|y~|e{|y~|j{|y~|v{|"
+      "x~l{|y~|i{|w~}t{|w~}s{|w~}ty~}o{}x~}|{y|}x~n{|y~v|}x~|n{}x~}|{y|}x~o{|y~v|}x~}m{|x~}v|}~|pt|y~}u|q{}y~r{|y~|qx~"
+      "q{|y~|v{|y~|u{}x~|u{}y~|t{}y~|v{|y~}o{|y~|tx~op|}y~}l{}~}e{|y~`{|y~|h{}v~}L{}~|O{}y~@{}~}Py~}|O{}y~`{|y~d{|y~h{"
+      "}y~`{|y~  e{}y~ !{|y~}e{}~}e{|y~| [{}y~|x{}y~|jy}~y}|ix~|w{|}| w{}y~|  M{}y~|y{|}y~i{|w~}ix~r|m{|y~q|p{|w~}x|}x"
+      "~}l{|y}x~y}|n{|y~q|y~}r{|y~|w{}y~vy~}q{}x~}|{y|}x~Q{}v~Ky~|L{}v~|0{~|g{|y~}|y{|y}T{}y~t{}~}i{}~}h{}y~|x{|}P{}~y"
+      "}x|y}~}k{|v{}~| x{}~y}x|y}~}Qy~x{|~}J{|y~cy~g{}~|Mt~y{}~|5{|~}gy~|x{}~}U{|~}r{|y~r{}y|~}qy~|ny~t{|~}P{|w~}g{|w~"
+      "}g{|w~}g{|w~}g{|w~}fw~}j{}y~y|y~}r|q{}x~}v|}y~|p{|y~q|n{|y~q|n{|y~q|n{|y~q|j{|y~|e{|y~|e{|y~|e{|y~|k{|y~}u|}x~}"
+      "p{|w~}ty~}o{}x~}|{y|}x~n{}x~}|{y|}x~n{}x~}|{y|}x~n{}x~}|{y|}x~n{}x~}|{y|}x~T{}x~}|{y|v~|r{}y~r{|y~|q{}y~r{|y~|q"
+      "{}y~r{|y~|q{}y~r{|y~|p{|y~|tx~n{|y~|d{}y~|x{}y~|h{}~|e{}~|f{~}x{|~}j{|}xx}hy}|yy}|h{|}y~}/y~dy~|g{|~}x{|~|j{|y}"
+      "|yy}|h{|~}d{|~}f{}~x{}~|iy}|yy}|iy|w~|h{}~y{|}~}f{|~}e{|~}f{}~|x{}~|j{}|y{|y}|i{|y}y{|y}2{|~}dy~f{}~|x{}~|j{|y}"
+      "y{|y}|g{}~|i{}y~by}|y{|y}5{|}w~}|i{|}w~}|i{|}w~}|i{|}w~}|i{|}w~}|f{}~}{y|ny~}q{}y~ r{|~O{}x~|hs~|p{|s~y|s~|n{|w"
+      "~} ^{}y~}|  Ix~|u{}|Py~}g{|y~y{|~}gy~wy~k{|}v~y}|s{|y~w{}~|w{|y~ly~}_{|y~d{}~}dy~|iy~}y{~}{|y~|hy}| o{|y~jx~v{}"
+      "y~l{|x{|y~|j{}|u{|x~d{}y~|i{}~|}y~ky~|d{|y~}]{}y~m{|y~|v{|y~}n{}y~|v{}y~ E{}u{}y~|n{|x~}|w{|}y~}|m{}y~}y~k{|y~|"
+      "u{|y~}n{}y~}s{|~|r{|y~|t{|x~|o{|y~|e{|y~|f{}y~}r{}~|r{|y~|ry~}k{|y~|e{|y~|j{|y~|w{}y~}k{|y~|i{|y~}y~t{}~}y~}s{|"
+      "v~ty~}p{}y~}t{}y~}o{|y~|v{|x~o{}y~}t{}y~}p{|y~|v{|x~mx~r{|iy~}k{}y~r{|y~|q{|y~|r{}y~u{|y~|uy~}~}u{}y~rx~vx~m{}y"
+      "~u{}y~|e{|y~}k{}~}dy~|a{|y~|i{}y~|{}y~| y{}y~@{}~}Py~|N{}y~0{}y~`{|y~  e{}y~ !{|y~d{}~}dy~} [y~}v{}~}ju~}jy~| n"
+      "{}y~  N{|y~|v{}~}j{}y~}y~i{|y~}e{|y~|gx~}t{}y~}o{|}q~|p{|y~|ry~}r{|y~|w{}y~vy~}r{}y~}t{}y~}S{}t~Ly~|M{}t~|1{~|g"
+      "{}y~Ly~|v{|y~|i{}~}hy~}L{|y~|t{|y~|g{|~} {{|y~|t{|y~|T{|~|wy~f{}~|ay~ey|y~7{}t~y{}~|5{|~}h{|~}vy~U{|~}r{}~|p{|~"
+      "}r{|~}my~ty~O{}y~}y~g{}y~}y~g{}y~}y~g{}y~}y~g{}y~}y~g{|y~}y~jy~}yy~}i{}y~}s{|~|p{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{"
+      "|y~|e{|y~|e{|y~|k{|y~|t{|x~}q{|v~ty~}p{}y~}t{}y~}p{}y~}t{}y~}p{}y~}t{}y~}p{}y~}t{}y~}p{}y~}t{}y~}V{}y~}t{}x~q{}"
+      "y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|o{}y~u{}y~|n{|y~|e{|y~|v{}~}   A{|}|ey|e{}|wy|Py~}y|y~}   ?{}~}h{}y~ p"
+      "{}r~|l{}r~|l{}r~|l{}r~|l{}r~|h{}~}k{}y~qy~}1{|~}dy}P{}v~|is~|p{|r~}s~}nu~|h{|w}|k{|y}sy}|jx}|j{|y}t{|y}o{}y~|  "
+      "H{|y~|Gy~}g{|y~y{|~}h{|~}x{|~}l{}r~}s{|~}w{}~}w{}~|ly~}_{|y~dy~|d{}~}h{|y~|~y}~}|g{}~| o{}~}k{|y~|uy~}i{|y~|a{}"
+      "y~|e{|y~}j{|~}{}y~ky~|dy~}]{|y~}m{}y~tx~ny~}u{|y~|,{|X{|X{|y~|o{}y~|q{}y~my~}|y~|l{|y~|ty~}o{|x~p{|r{|y~|s{|x~o"
+      "{|y~|e{|y~|g{|x~p{|q{|y~|ry~}k{|y~|e{|y~|j{|y~|x{}y~}j{|y~|i{|y~|y~|uy~|y~}s{|y~|y~}uy~}q{|x~r{}y~|p{|y~|u{}y~|"
+      "q{|x~r{}y~|q{|y~|u{}y~|ny~}_y~}k{}y~r{|y~|py~}s{|y~}ty~}v{|y~|y~uy~}r{|y~}x{}y~|ly~}w{|y~}e{|x~j{}~}d{}~}a{|y~|"
+      "j{}y~|x{}y~| {{}y~@{}~}Py~|N{}y~0{}y~`{|y~  e{}y~ !{}y~d{}~}d{}~} \\{|y~u{}y~j{}x|}y~|kx~| o{|y~|  O{}~}u{|y~jy"
+      "~}|y~|i{|y~}f{|y~|h{}y~|rx~|q{|w~y}y~y}x~}q{|y~|ry~}r{|y~|w{}y~vy~}s{|x~r{}y~|U{}y~|y~}x~My~|N{}y~|y~|x~|2{~|gy"
+      "~}g{|p{}m{}y~v{}~}h{}~}h{}~}L{~}xy|}y|x{}~l{|}u~ {{~}p{}~T{|~|wy~f{}~|b{}~}g{}w~|7{}t~y{}~|5{|~}h{}~|v{}~|V{|~}"
+      "s{|~}o{|~}ry~n{|}~|u{}~}Oy~}|y~|hy~}|y~|hy~}|y~|hy~}|y~|hy~}|y~|hy~}|y~|l{}y~|yy~}j{|x~p{|p{|y~|e{|y~|e{|y~|e{|"
+      "y~|a{|y~|e{|y~|e{|y~|e{|y~|k{|y~|rx~q{|y~|y~}uy~}q{|x~r{}y~|r{|x~r{}y~|r{|x~r{}y~|r{|x~r{}y~|r{|x~r{}y~|q{|}q{|"
+      "}p{|x~s{}x~|r{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|ny~}w{|y~}m{|s~}|l{|y~u{|y~    8{|w{|y~}  _{} G{}y~ r{|"
+      "x~|w{|}y~|o{|x~|w{|}y~|o{|x~|w{|}y~|o{|x~|w{|}y~|o{|x~|w{|}y~|i{}~|jy~|s{|y~|1y~}d{~|Q{|t~is~|p{}i~}os~j{|s~|m{"
+      "|y~sy~|jw~j{|y~|u{}y~p{|y~|  Gx~Fy~}g{|y~y{|~}h{}~}x{}~}m{|y~}{|~x{|}s{|~}w{}~}x{|~}ky~}_{|y~e{|y~c{|y~f{}x~}|e"
+      "{}~| oy~|k{}y~t{}y~i{|y~|a{|y~|dy~|jy~|{}y~ky~|e{|y~|]{}y~|m{}y~ty~}o{|y~|ty~}/{|}~}Xy~}|[{|y~|p{}y~|o{}y~o{|y~"
+      "|{y~}l{|y~|ty~}o{}y~|f{|y~|r{}y~|p{|y~|e{|y~|g{}y~|e{|y~|ry~}k{|y~|e{|y~|j{|y~|y{}y~}i{|y~|i{|y~|}~}v{|y~{y~}s{"
+      "|y~|}y~uy~}q{}y~|qx~p{|y~|u{}y~|q{}y~|qx~q{|y~|u{}y~|o{|y~|_y~}k{}y~r{|y~|p{}y~s{}y~|t{}y~v{|~}{y~|w{|y~|q{}y~|"
+      "{|y~}k{|y~|xx~dx~|j{}~}d{|y~a{|y~|k{}y~|v{}y~|9{|y}x~y}j{}y~y{}x~}|h{|}x~y}|j{}x~}|{}~}k{|}x~}|j{|s~|i{}x~}|{}~"
+      "}n{}y~y{}x~}|h{|y~d{|y~h{}y~u{|y~}j{|y~m{}y~y{}x~}w{|}y~}|p{}y~y{}x~}|i{|}x~}|k{}y~y{}x~}|i{}x~}|{}~}k{}y~y{}x~"
+      "k{|}w~y}|k{|r~l{}~}t{}~}oy~}s{}y~r{}~}v{}y~}v{}~}r{|y~|u{|y~|oy~}s{}y~n{}p~h{}y~d{}~}d{}~} t{}x~}|y{|~}n{|y~u{}"
+      "~}e{}y~k{|w~y}|g{|}w~y}l{}y~y{}x~}|n{}~}|s{}y~iy~}i{}~}t{}~}p{|y~|r{}y~n{|y}y{}y~}lm~p{}y~x{|y~x{|y~|k{}w~}|j{|"
+      "}q~|q{}n~ny~|ty~|l{|y~|{y~}h{|y~}g{|y~|hy~}q{|y~}qx~}y{}y~y{|x~|r{|y~|ry~}r{|y~|w{}y~vy~}s{}y~|qx~V{|y~|{y~y|y~"
+      "}Ny~|O{|y~|{y~|{y~}Ny~}e{|}w~}|jy~}h{|y~r{}~}my~|x{|y~|h{}~}h{|y~}Ny}x{}u~|yy}n{}y~w}y~ y}y{}v~}|xy}T{~}x{|~}f{"
+      "}~|c{|~}fx|y}|Q{}~}t{}~}ns~y{}~|5{|~}h{}~|v{}~|V{|~}sy~n{|~}s{}~|p{}x~}u{|y~f{|y~|h{|y~|{y~}i{|y~|{y~}i{|y~|{y~"
+      "}i{|y~|{y~}i{|y~|{y~}i{|y~|{y~}ly~}xy~}j{}y~|d{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{|y~|e{|y~|e{|y~|k{|y~|r{|y~}r{|y~|"
+      "}y~uy~}q{}y~|qx~r{}y~|qx~r{}y~|qx~r{}y~|qx~r{}y~|qx~qy~}s{|y~}q{}y~|t{}~}x~r{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}"
+      "y~r{|y~|n{|y~|xx~l{|q~}m{}y~w{|w~l{|y}x~y}i{|y}x~y}i{|y}x~y}i{|y}x~y}i{|y}x~y}i{|y}x~y}n{|y}x~y}w{|}x~}|l{|}x~y"
+      "}|j{|}x~}|h{|}x~}|h{|}x~}|h{|}x~}|g{|y~d{|y~d{|y~d{|y~e{|}v~|l{}y~y{}x~}|i{|}x~}|h{|}x~}|h{|}x~}|h{|}x~}|h{|}x~"
+      "}|g{|x~f{|}x~}|{}~|o{}~}t{}~}n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}oy~}s{}y~n{}y~y{}x~}|my~}s{}y~;y~}xy~|y{|y~|py~}s{|y"
+      "~|py~}s{|y~|py~}s{|y~|py~}s{|y~|j{}~|j{}y~sy~}1y~}d{|~Q{|s~}j{}t~o{|i~}p{}s~}kx~}y|}x~m{|y~sy~|k{|w~|jy~}uy~}py"
+      "~}  Fy~}Fy~}g{|y~y{|~}m{|k~}q{}y~y{|~n{|~}w{}~|xy~j{}y~|`{|y~e{}~}by~|g{|x~}d{}~| p{|y~jy~}t{}y~i{|y~|a{|y~|e{|"
+      "y~|k{}~}y{}y~ky~|{|g{}y~\\x~l{|y~|v{|y~|o{|y~|tx~i{}y~d{}y~a{|}w~}Xv~}|^x~p{|y~l{}~}p{}y~y{|y~|m{|y~|ty~}ox~e{|"
+      "y~|qy~}p{|y~|e{|y~|gx~d{|y~|ry~}k{|y~|e{|y~|j{|y~|{}y~}h{|y~|i{|y~y|y~v{}~}{y~}s{|y~|{y~}vy~}qx~p{}y~|q{|y~|u{|"
+      "y~|qx~p{}y~|r{|y~|u{}y~|ny~}_y~}k{}y~r{|y~|p{|y~|ty~}s{}y~|w{}~|{}~|w{|y~|py~}{x~i{}y~y{}y~|e{}y~|i{}~}cy~|b{|y"
+      "~|l{}y~|t{}y~|;{|r~|l{}y~|t~|j{}s~|m{|t~|}~}l{}s~|l{|s~|k{|t~|}~}n{}y~|t~|i{|y~d{|y~h{}y~v{}y~}i{|y~m{}y~|t~y{}"
+      "u~}q{}y~|t~|l{|s~}l{}y~|t~|l{|t~|}~}k{}y~|v~l{|r~k{|s~}l{}~}t{}~}o{}y~sy~}r{|y~v{}x~vy~}q{}y~|w{|y~}n{}y~sy~}n{"
+      "|p~h{}y~d{}~}d{}~} v{|t~|{}~|n{|y~u{}~}e{|y~|k{|t~|j{}s~|m{}y~|t~|o{}x~|ty~}ix~i{}~}t{}~}py~}q{|y~|p{|y~}{}v~|n"
+      "m~p{}y~x{|y~x{|y~|ls~|l{|o~|q{}n~o{|y~|t{}~}l{}y~y{}y~|h{}y~}h{|y~|i{|y~|p{}y~r{}y~|x{}y~x{|x~r{|y~|ry~}r{|y~|w"
+      "{}y~vy~}sx~p{}y~|p{}b{}|yy~|{|}b{}|hy~|i{|}s{}|ly|yy~|y{}My~}g{|r~k{|y~|gx~|}x~}|}y~|m{}y~xy~}g{}~}g{}x~|Q{|~|y"
+      "y~}|yx|y{|~|p{|~}w{|y~gy|w{|<{|~|y{}~}x|y~|y{|~|U{}y~y}y~e{}~|d{|y~a{}~Q{}~}t{}~}n{}t~y{}~|5{|~}h{}~|v{}~|m{|v{"
+      "|k{|~}t{}~|n{|~}t{|~}ox|}y~v{}~|f{|y~|h{}y~y{|y~|j{}y~y{|y~|j{}y~y{|y~|j{}y~y{|y~|j{}y~y{|y~|j{}y~y{}y~m{|y~|xy"
+      "~}jx~c{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{|y~|e{|y~|e{|y~|k{|y~|qx~r{|y~|{y~}vy~}qx~p{}y~|sx~p{}y~|sx~p{}y~|sx~p{}y~"
+      "|sx~p{}y~|r{|y~}u{|x~px~t{}~}{}y~|s{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|m{}y~y{}y~|l{|y~v|}x~}n{}y~x{}y~|"
+      "k{|r~|l{|r~|l{|r~|l{|r~|l{|r~|l{|r~|q{|r~|{}s~n{}s~|l{}s~|k{}s~|k{}s~|k{}s~|i{|y~d{|y~d{|y~d{|y~g{|r~l{}y~|t~|l"
+      "{|s~}k{|s~}k{|s~}k{|s~}k{|s~}h{|x~h{|q~|n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}o{}y~sy~}n{}y~|t~|n{}y~sy~}<{}~"
+      "}wy~|x{|y~q{}~}q{|y~q{}~}{~}w{|~y|y~q{}~}t{|~y|y~q{}~}q{|y~j{}~|j{|y~|u{|y~|<q|}y~w|p{|y}uy}Qq~}k{|u~}o{|i~|q{|"
+      "q~}m{}y~uy~}n{|y~sy~|k{}w~|j{}y~v{|y~|q{|y~  H{}o~My~}fy|xy|m{|k~}q{}~}y{|~n{|y~wy~|y{}~|ix~_y|ey~|by~}i{|}~}~}"
+      "y~}f{}~| p{|~}jy~}t{|y~|j{|y~|a{}y~f{|}y~}k{|y~x{}y~kt~}|ky~}{|w~}|e{|y~|kx~|x{|y~}n{|y~|tx~i{}y~d{}y~d{|}v~}|q"
+      "k|p{|}w~}|a{}y~|p{}~|w{|}y~}|{y|xy~|qy~}xy~}m{|y~|u{|y~|p{|y~}e{|y~|qx~p{|y~|e{|y~|h{|y~}d{|y~|ry~}k{|y~|e{|y~|"
+      "j{|y~|}y~}g{|y~|i{|y~|{y~|wy~|{y~}s{|y~|{}y~vy~}r{|y~}p{|y~|q{|y~|u{}y~|r{|y~}p{|y~|r{|y~|u{}y~mx~}`y~}k{}y~r{|"
+      "y~|oy~}u{|y~|s{|y~|wy~|{|~}w{}y~o{|v~|hy~}|y~}e{}y~}h{}~}c{}~}b{|y~|m{}y~|r{|y~|<{|}y|x{|}y~l{}w~|y{|x~|lx~}|yy"
+      "|}|mx~|y{|}x~}mx~y|y{|x~iy~|h{|x~|y{|}x~}n{}w~|y{|x~i{|y~d{|y~h{}y~w{}y~|h{|y~m{}w~|y{|y~}|~}|{|}y~|r{}w~|y{|x~"
+      "lx~|y{|}y~}m{}w~|y{|x~|mx~|y{|}x~}k{}w~w|ly~}|xy|}i{}y~g{}~}t{}~}o{|y~|u{|y~|r{|y~|ww~vy~|px~wx~m{|y~|u{|y~|f{|"
+      "y~}h{}y~d{}~}d{}~}6{|}x~|x{}x~|o{|y~}|{|}y~{y~m{|y~v{|y~|dy~|l{}~}x{|x~|l{}y~}|yy|}|m{}w~|y{|x~n{|}~}u{|y~|j{|x"
+      "~|j{}~}t{}~}q{|y~|py~}q{|x~y|y~y|x~ny|y~}w|}y~}|p{}y~x{|y~x{|y~|mx~|y{|x~|n{|x~|x{}x~y|pu|y~}v|o{|y~s{}y~ly~}xy"
+      "~}g{}y~|i{|y~|i{}y~o{}y~|sx~w{}y~w{}y~|s{|y~|ry~}r{|y~|w{}y~w{|y~}t{|y~}p{|y~|qy~}_y~|`{|y~|iy~|j{|y~}u{|y~|iy~"
+      "|Jy~}h{|x~y|~|{|}k{|y~|fp~|ky~}{|y~f{}~}h{}~y}y~}|Sy}y{}~}qy}p{|~}w{|y~h{|~|x{}~<y}x{}~}x{|~}xy}T{|}y~}d{}~|e{|"
+      "~}`{}~|R{}~}t{}~}n{}t~y{}~|5{|~}h{|~}vy~l{|~|xy}l{|~}u{|~}m{|~}ty~|k{}~|x{|~}e{|y~|hy~}xy~}jy~}xy~}jy~}xy~}jy~}"
+      "xy~}jy~}xy~}jy~}xy~|n{}y~wy~}k{|y~}c{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{|y~|e{|y~|e{|y~|k{|y~|q{}y~r{|y~|{}y~vy~}r{|"
+      "y~}p{|y~|t{|y~}p{|y~|t{|y~}p{|y~|t{|y~}p{|y~|t{|y~}p{|y~|q{|y~}w{|x~p{|y~}u{|~}y{|y~|s{}y~r{|y~|q{}y~r{|y~|q{}y"
+      "~r{|y~|q{}y~r{|y~|ly~}|y~}k{|y~|ux~n{}y~y{|y~|j{|}y|x{|}y~l{|}y|x{|}y~l{|}y|x{|}y~l{|}y|x{|}y~l{|}y|x{|}y~l{|}y"
+      "|x{|}y~q{|}y|x{|}v~|x{|y~}px~}|yy|}|mx~y|y{|x~lx~y|y{|x~lx~y|y{|x~lx~y|y{|x~i{|y~d{|y~d{|y~d{|y~gx~|x{|y~}m{}w~"
+      "|y{|x~lx~|y{|}y~}lx~|y{|}y~}lx~|y{|}y~}lx~|y{|}y~}lx~|y{|}y~}i{|x~hx~|y{|}y~}m{}~}t{}~}n{}~}t{}~}n{}~}t{}~}n{}~"
+      "}t{}~}o{|y~|u{|y~|n{}w~|y{|x~|o{|y~|u{|y~|={|y~vy~|w{}~|s{|y~o{}~|s{|y~{}y~}y{|y~}{}~|s{|y~t{|y~}{}~|s{|y~o{}~|"
+      "ky~|iy~}u{}y~;k~}qw~u{~|R{}p~|k{}w~}mi~q{|o~|ny~|u{}y~n{|y~sy~|ky~}y~}j{|y~|w{}y~p{}~}  Hx}y~t}|My~}M{|y~x{|~}l"
+      "{}y~y{|~m{}~}y{}~}y{|~}i{|w~I{|y~|b{}y~j{}~}|{~}{|y~|h{}~| p{}~|jy~}t{|y~|j{|y~|b{|y~}j{}u~}jy~|x{}y~kr~}ly~y}t"
+      "~}f{}y~i{}t~|ly~}u{|x~|j{}y~d{}y~f{}v~}|nk~}n{|}w~}|e{}y~|p{|~}w{|u~y}~x{|~}r{|y~|x{}y~m{|y~|xy|}y~}o{|y~|e{|y~"
+      "|q{}y~p{|y~r|m{|y~s|o{|y~|d{|y~q|y~}k{|y~|e{|y~|j{|v~}f{|y~|i{|y~|{}~}x{|~}yy~}s{|y~|yy~}wy~}r{|y~|p{|y~}q{|y~|"
+      "ux~q{|y~|p{|y~}r{|y~|v{|y~}m{|v~}y|ey~}k{}y~r{|y~|o{}y~u{}y~qy~}x{|y~y{|y~wy~}n{}x~}g{|v~e{|y~}g{}~}c{|y~b{|y~|"
+      " o{}~}m{}x~ux~m{}y~|f{}y~u{}y~}n{}y~|uy~}jy~|h{}y~u{}y~}n{}x~v{|y~|j{|y~d{|y~h{}y~x{}y~|g{|y~m{}x~v{}x~|vy~}r{}"
+      "x~v{|y~|n{}y~|v{}y~|n{}x~ux~n{}y~u{}y~}k{}x~h{|y~a{}y~g{}~}t{}~}ny~}u{}y~py~|x{|y~}~|x{|y~o{|y~}y{}y~|l{}~}u{}~"
+      "}ex~g{}y~d{}~}d{}~}6y~y}y~|{}y~}y~}p{}y~vy~}y~m{|y~x{|}x~c{}~}m{|y~u{}y~l{}~}e{}x~v{|y~|n{|y~u{}~}i{}x~}j{}~}t{"
+      "}~}q{}y~o{}y~q{}y~|{|y~y{|y~}my~|w{|y~|o{}y~x{|y~x{|y~|n{}y~ux~n{}y~u{}y~|iy~|j{|n~m{|y~|x{}y~f{}y~|j{|y~|i{}y~"
+      "o{|y~|t{|y~}w{}y~w{|y~}s{|y~|ry~}qy~}w{}y~w{|y~|t{|y~|{r~y|y~}rx~|_y~|_{}y~|jy~|k{|x~s{}y~|jy~|Jx|h{}y~|y{~|h{|"
+      "y~|f{|y~}|y{}y~|n{|u~{u~|j{}~}i{|~}y{|}y~}T{~|yy~p{|~p{|~}wx~i{|y~|y{}y~ok|X{~|x{}~}x{|~}x{|~?k~}m{}~}_y~|R{}~}"
+      "t{}~}mt~y{}~|ix|J{|~}gy~|x{}~}l{|y~|y{}~}m{|~}uy~|u{|t{|~}u{}~}j{}~|xy~cy|h{|y~|x{}y~k{|y~|x{}y~k{|y~|x{}y~k{|y"
+      "~|x{}y~k{|y~|x{}y~k{|y~|x{}y~ny~}wy~}r|t{|y~|c{|y~r|m{|y~r|m{|y~r|m{|y~r|i{|y~|e{|y~|e{|y~|e{|y~|k{|y~|q{}y~|s{"
+      "|y~|yy~}wy~}r{|y~|p{|y~}t{|y~|p{|y~}t{|y~|p{|y~}t{|y~|p{|y~}t{|y~|p{|y~}p{|y~}y{|x~o{|y~|v{|y~wy~}s{}y~r{|y~|q{"
+      "}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|l{|v~j{|y~|u{}y~|o{}y~y{|y~`{}~}d{}~}d{}~}d{}~}d{}~}d{}~}i{}x~u{|y~|r{}y~|f{}y~|"
+      "uy~}n{}y~|uy~}n{}y~|uy~}n{}y~|uy~}j{|y~d{|y~d{|y~d{|y~h{}y~|v{|y~|n{}x~v{|y~|n{}y~|v{}y~|n{}y~|v{}y~|n{}y~|v{}y"
+      "~|n{}y~|v{}y~|n{}y~|v{}y~|ix|i{}y~|w{|x~|n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}n{}~}u{}~}m{}x~ux~n{}~}u{}~}<{"
+      "|~}vy~|w{|~}s{|~}o{|~}s{|~}y{}y~}|y~}y{|~}s{|~}u{|y~}y{|~}s{|~}o{|~}ky~|i{}y~uy~};k~}q{|{y~|w{}~R{|n~o{}o~}|r{|"
+      "k~}qm~|oy~|u{|y~n{|y~sy~|l{|y~|}y~iy~}wy~}p{}~}  F{|y~|Fy~}M{}~}x{}~}l{|y~}y|~lu~xy~|xx}|q{|y~|x~ty|S{|y~a{}y~j"
+      "{}|x{~}x{}|h{}~| py~j{|y~|t{|y~|j{|y~|bx~i{}v~}|k{}~}w{}y~k{}y|x{|x~}mw~}|y{|x~|gy~}h{}u~}l{}y~|v{}x~|jx|dx|i{|"
+      "}w~}|kk~}l{|}v~}|i{}y~|o{}~|wy~}x{}x~wy~rx~w{|y~|n{|q~|n{|y~|e{|y~|q{}y~|q{|p~}n{|q~o{|y~|tu|q{|m~}k{|y~|e{|y~|"
+      "j{|v~e{|y~|i{|y~|yy~xy~|yy~}s{|y~|y{}y~|xy~}r{|y~|oy~}q{|y~|w{|x~}q{|y~|oy~}r{|y~v|}y~}k{|}t~}gy~}k{}y~r{|y~|o{"
+      "|y~}vy~}q{}y~x{|~}xy~|y{|y~|n{|x~e{}x~|ex~f{}~}by~|c{|y~| o{|y~m{}y~|u{|y~|ny~}ey~}u{|y~}ny~|t{}y~jy~|hy~}u{|y~"
+      "}n{}y~|u{}~}j{|y~d{|y~h{}y~y{}y~|f{|y~m{}y~|v{|x~u{}y~r{}y~|u{}~}ny~}ty~}n{}y~|u{|y~|oy~}u{|y~}k{}y~|h{|y~a{}y~"
+      "g{}~}t{}~}n{}y~uy~}p{}~}x{}~}|~}x{}~}n{|y~y|y~}k{|y~uy~|f{}y~f{}~}d{}~}d{}y~7{}~x{|y~|~}x{}~py~}v{}x~}m{|y~{|v~"
+      "|i{}y~}|{}~}my~|ty~}m{}~}e{}y~|u{}~}my~|vy~|j{|y~}y~j{}~}t{}~}qx~o{|y~|ry~}y{|y~x{}y~my~|w{|y~|o{}y~x{|y~x{|y~|"
+      "ny~|u{|y~|oy~}ty~}iy~|j{|n~mx~w{|y~|g{|y~}j{|y~|i{}y~o{|y~|t{|y~|w{}y~vy~}s{|y~|ry~}qx~w{}y~w{}y~|t{|y~|{r~|{y~"
+      "}sx~|^y~|^{}y~|ky~|l{|x~q{}y~|ky~|5{|y~|x{~|h{|y~|f{}~}v{|~}mw}v~w}|j{}~}i{}~|w{|y~}U{~y{|y~p{|~ox~y}~}y~j{}y~|"
+      "y{}y~nk~}Y{~w{}~}y{|}~|x{|~?k~}n{}y~v|ix}|}y~}Q{}~}t{}~}m{|u~y{}~|iy~}Ly|}~}y|i{|y~x}y~j{}y~|y{}y~n{|~}v{|~}v{|"
+      "y~}u{|~}v{|y~y{}w~}wx|{|}y~x{}~|uy~}Wx~w{|y~|lx~w{|y~|lx~w{|y~|lx~w{|y~|lx~w{|y~|l{}y~w{|y~|p{}y~|wo~t{|y~|c{|p"
+      "~}n{|p~}n{|p~}n{|p~}j{|y~|e{|y~|e{|y~|e{|y~|mq~u{}y~|s{|y~|y{}y~|xy~}r{|y~|oy~}t{|y~|oy~}t{|y~|oy~}t{|y~|oy~}t{"
+      "|y~|oy~}o{|y~}|x~n{|y~|vy~|wy~}s{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|k{}x~|j{|y~|u{|y~|o{}y~y{|y~|a{|y~d{"
+      "|y~d{|y~d{|y~d{|y~d{|y~i{|y~|t{}~}ry~}ey~|t{}y~ny~|t{}y~ny~|t{}y~ny~|t{}y~j{|y~d{|y~d{|y~d{|y~hy~}ty~}n{}y~|u{}"
+      "~}ny~}ty~}ny~}ty~}ny~}ty~}ny~}ty~}ny~}ty~}Ty~}w{|~}y~}n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}n{|y~uy~|m{}y~|u{"
+      "|y~|o{|y~uy~|<{}~u|y~}w|{y~s{}~n|{y~s{}~|x{}w~}wy~s{}~|v{|y~}wy~s{}~|vy~}vy~ky~|i{|y~|w{|y~|4{|y~}i{}~}w{~}Rm~}"
+      "qk~|r{}l~q{|m~|p{|y~sy~|o{|y~sy~|l{}y~{|y~|j{}y~x{|y~|p{}i~  V{|y~|F{}~}M{}~|x{}~|k{}v~}|m{|y}|x{}~}y{|v~}s{|y~"
+      "|{|x~v{|y~S{}y~a{|y~e{~}jt|y~}u| w{|~}j{|y~|t{|y~|j{|y~|cx~|hw|}y~|m{|y~v{}y~cx~|nx~}ux~h{|y~|j{|y~}|{y|x~m{|x~"
+      "|y{|}w~|={}w~}|E{|}v~|l{|y~|ny~w{}~}v{}y~wy~s{|y~|vy~}n{|q~}|o{|y~|e{|y~|q{}y~p{|p~}n{|q~o{|y~|u{|u~}r{|m~}k{|y"
+      "~|e{|y~|j{|y~}x~f{|y~|i{|y~|y{}~|{|y~xy~}s{|y~|xy~}xy~}r{|y~|oy~}q{|q~}p{|y~|oy~}r{|r~}h{|y}u~|iy~}k{}y~r{|y~|n"
+      "x~w{|y~|q{}y~x{}~|x{}~|y{|y~|nw~|ey~}e{}y~|f{}~}b{}~}c{|y~| v{|y}t~m{}y~sy~|o{|y~|f{|y~|ty~}o{|y~|t{|y~jy~|i{|y"
+      "~|ty~}n{}y~t{}~}j{|y~d{|y~h{}y~{x~|e{|y~m{}y~ty~}u{|y~r{}y~t{}~}o{|y~|t{}y~n{}y~sy~|p{|y~|ty~}k{}y~g{|y~}b{}y~g"
+      "{}~}t{}~}n{|y~|w{|y~o{|y~x{}~y|y~xy~}m{}w~}iy~|w{}y~f{}y~|g{|y~|d{}~}d{|y~}jy}y~}|t{|}X{~}w{|y~}v{~|r{|y~|v{|x~"
+      "|m{|y~{|v~}|ku~|y~}n{|y~|t{}y~m{|y~}f{}y~t{}~}m{}y~w{}y~i{}y~{y~}k{}~}t{}~}qy~}ny~}s{|y~|y{|y~x{|y~my~|w{|y~|o{"
+      "}y~x{|y~x{|y~|o{|y~sy~|p{|y~|t{}y~iy~|j{|y~s|}y~n{|y~}vy~}gx~|j{|y~|i{}y~o{|y~|t{|y~|w{}y~vy~}s{|y~|ry~}q{}y~|x"
+      "{}y~x{|y~}s{|y~|{r|yy~}tx~}l|ly~|mk|x~|ly~|m{|x~o|x~|ly~|5{}y~w{~|j{}r~}ky~|uy~i{|x~}e{}~}i{}~}v{|y~V{|~y{|y~o{"
+      "~|o{}x~|{y}k{}y~|y{}~}mk~}Z{|~w{}u~|v{~|@t|y~}t|n{}t~i{|}x~y}P{}~}t{}~}k{|}x~y{}~|iy~}Lt~|i{|}x~}h{|y~|y{}y~|rt"
+      "~|yy~ux~}wt~|y{}~|{|~}y|}y~x{}v~}|y{|y~u{}y~}m{|y}i{|y~|vy~}m{|y~|vy~}m{|y~|vy~}m{|y~|vy~}m{|y~|vy~}ly~|vy~}py~"
+      "}vo~t{|y~|c{|p~}n{|p~}n{|p~}n{|p~}j{|y~|e{|y~|e{|y~|e{|y~|m{}s~}u{}y~|s{|y~|xy~}xy~}r{|y~|oy~}t{|y~|oy~}t{|y~|o"
+      "y~}t{|y~|oy~}t{|y~|oy~}n{|v~m{|y~|wy~|vy~}s{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|jy~}i{|y~|u{}y~|o{}y~xx~|"
+      "i{|y}t~k{|y}t~k{|y}t~k{|y}t~k{|y}t~k{|y}t~p{|y}t~s{|y~s{|y~|f{|y~|t{|y~o{|y~|t{|y~o{|y~|t{|y~o{|y~|t{|y~j{|y~d{"
+      "|y~d{|y~d{|y~i{|y~|t{}~}n{}y~t{}~}o{|y~|t{}y~o{|y~|t{}y~o{|y~|t{}y~o{|y~|t{}y~o{|y~|t{}y~pk~}q{|y~|w{~}{}y~n{}~"
+      "}t{}~}n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}my~|w{}y~l{}y~sy~|ny~|w{}y~;{}~|}p~{y~s{}~|}p~{y~s{}~|w{}x~vy~s{}~|w{|y~}vy"
+      "~s{}~|vy~}vy~ky~|h{}~}w{}y~3y~}h{|y~x{|~|S{|l~r{}k~}qm~|p{}o~}o{|y~sy~|o{|y~sy~|ly~}yy~}j{|y~|y{|y~o{}i~  X{|y}"
+      "y~u}K{}~}My~|xy~i{|}u~}i{|y~y{|y~|{|y~|t{}~}x{|x~w{|y~S{}y~a{|y~|f{~}jk~} x{}~}iy~}t{|y~|j{|y~|d{}y~|b{}y~|ny~|"
+      "v{}y~c{|y~}nx~|u{}y~|ix~j{|y~|v{|y~}m{|t~y}y~|=x~}?{|x~}l{}y~m{~}wy~|v{|y~w{}~s{}y~u{}y~n{|y~|v{|}y~|p{|y~|e{|y"
+      "~|q{}y~p{|y~|e{|y~|h{|y~|u{|u~}r{|y~|ry~}k{|y~|e{|y~|j{|y~|}x~g{|y~|i{|y~|y{|y~{}~}xy~}s{|y~|x{|y~|yy~}r{|y~|p{"
+      "|y~}q{|s~}|o{|y~|p{|y~}r{|q~|ey|w~iy~}k{}y~r{|y~|n{|y~|x{}y~p{|y~|yy~|x{}~}y{}y~n{}v~ey~}f{}y~|e{}~}b{|~}c{|y~|"
+      " w{}q~m{}y~sy~}o{|y~e{|y~s{}~}o{|n~jy~|i{|y~s{}~}n{}y~t{}~}j{|y~d{|y~h{}v~c{|y~m{}y~ty~|u{|y~r{}y~t{}~}o{|y~s{}"
+      "y~n{}y~sy~}p{|y~s{}~}k{}y~f{}w~}|f{}y~g{}~}t{}~}m{}~}w{}~}o{|y~|yy~yy~xy~|lw~h{}y~wy~}g{}y~|i{}w~}c{}~}c{|w~}o{"
+      "|s~}w|}~}X{~|vy~|vy}r{|y~tx~l{|y~w{|}x~|m{}y~x{}x~|n{|y~s{}y~l{|}v~j{}y~t{}~}m{|y~|xy~}j{|y~|{}y~k{}~}t{}~}qy~}"
+      "vy~|vy~}s{|y~x{|y~x{|y~|ny~|w{|y~|o{}y~x{|y~x{|y~|o{|y~sy~}p{|y~s{}y~iy~|j{|y~s{}y~n{}y~u{}y~h{}y~|i{|y~|i{}y~|"
+      "p{}y~s{|y~}w{}y~w{|y~}s{|y~|ry~}px~x{}y~x{}y~|s{|y~|p{|y~}u{}h~ly~|m{}h~ly~|mg~ly~|J{}~}i{}y~w{~|j{}r~}ky~ty~|i"
+      "x~d{}~}i{}y~|vy~|W{|~y{|y~o{~|X{}y~xy~}^{|~}Z{|~w{}~}|}~}u{~|9{}~| v{}~}t{}~}hy~y{}~|iy~} s{|y~}y{}y~|st|y{}~|v"
+      "{}~|~}wt|y{|~}sy~|wx|v{}~|vy}|~}m{|y~i{}y~u{}y~m{}y~u{}y~m{}y~u{}y~m{}y~u{}y~m{}y~u{}y~m{}y~u{}y~q{|y~|vy~}k{|y"
+      "~|c{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{|y~|e{|y~|e{|y~|k{|y~|q{}y~|s{|y~|x{|y~|yy~}r{|y~|p{|y~}t{|y~|p{|y~}t{|y~|p{|"
+      "y~}t{|y~|p{|y~}t{|y~|p{|y~}m{}x~|m{|y~|x{}~|v{|y~}s{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|jy~}i{|y~|ux~n{}y"
+      "~x{|x~}k{}q~l{}q~l{}q~l{}q~l{}q~l{}q~q{}f~s{|y~e{|n~o{|n~o{|n~o{|n~j{|y~d{|y~d{|y~d{|y~i{|y~s{}y~n{}y~t{}~}o{|y"
+      "~s{}y~o{|y~s{}y~o{|y~s{}y~o{|y~s{}y~o{|y~s{}y~pk~}q{|y~wy~y{}y~n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}m{}y~wy~"
+      "}l{}y~sy~}n{}y~wy~};{}~|}q~}{y~s{}~|}q~}{y~s{}~|x{|w~}wy~s{}~|x{|y~}uy~s{}~|vy~}vy~ky~g{|y~|xy~|4{}y~fy~|yy}R{|"
+      "l~ri~po~|n{}p~n{|y~sy~|o{|y~sy~|m{|y~|y{}y~iy~}y{}~}o{}~}  H{}r~}K{}~}N{|y~x{|y~f{|~}w~j{}~|y{}~}x{|y~ty~|w{|x~"
+      "x{}~}S{}y~a{|y~|f{|ik~}T{}u~|Ly~|iy~}t{|y~|j{|y~|e{}y~|`y~}o{}~}u{}y~by~}nx~t{|y~|j{|y~}jy~}t{}y~k{}x~}|{}y~<v~"
+      "}|hk|g{|}w~}l{}~}n{|~}wy~ty~wy~sy~}t|y~|o{|y~|t{}y~p{|y~}e{|y~|qx~p{|y~|e{|y~|h{|y~}py~}r{|y~|ry~}k{|y~|e{|y~|j"
+      "{|y~|{}y~}h{|y~|i{|y~|xy~|y~|xy~}s{|y~|wy~}yy~}r{|y~}p{|y~|q{|y~w|k{|y~}p{|y~|r{|y~|w{}x~bx~|jy~}k{}y~r{|y~|my~"
+      "}xy~}oy~}{|y~w{|y~yy~}o{|y~}{y~}fy~}g{|y~}d{}~}ay~c{|y~| x{}y~}|w{|y~m{}y~sy~}o{|y~e{}y~s{}~}o{|n~jy~|i{}y~s{}~"
+      "}n{}y~t{}~}j{|y~d{|y~h{}w~}c{|y~m{}y~ty~|u{|y~r{}y~t{}~}o{}y~s{}y~n{}y~sy~}p{}y~s{}~}k{}y~e{|u~}h{}y~g{}~}t{}~}"
+      "m{|y~wy~|ny~}{|~}y{}~|{|y~k{}y~}h{|y~|y{|y~|h{|y~}h{}w~|c{}~}c{|}x~}oy~}x|}r~|X{~|v{}~|v{~}r{}y~ty~}l{|y~t{}y~n"
+      "{|y~|wx~|n{|y~s{}y~l{|u~j{}y~t{}~}ly~}y{|y~|j{}y~y{|y~|l{}~}t{}~}r{|y~}vy~|vy~}s{}y~x{|y~x{|y~|ny~|w{|y~|o{}y~x"
+      "{|y~x{|y~|o{}y~sy~}p{|y~s{}y~iy~|j{|y~|t{}y~ny~}u{|y~|j{|y~}h{|y~|i{|y~}px~ry~}w{}y~w{}y~|s{|y~|ry~}p{|x~|{}y~y"
+      "{}y~}r{|y~}p{|y~|u{|h~ly~|m{}h~ly~|m{}h~ly~|J{}~}i{}y~w{~|h{|y~|fy~|uy~mv}x~v}|Tx~|wy~U{~|yy~|q{|~or}ly~}xy~|^{"
+      "|~}Y{~|x{}~}y{}~}w{|~8{}~| v{}~}t{}~}hy~y{}~| yr}h{}~}y{|y~|k{|~}v{|~y|~}ny~r{}~|p{|~}v{|~{|~}m{|y~iy~}t|y~|ny~"
+      "}t|y~|ny~}t|y~|ny~}t|y~|ny~}t|y~|ny~}t|y~|r{}y~u|y~}k{|y~}c{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{|y~|e{|y~|e{|y~|k{|y~"
+      "|q{}y~r{|y~|wy~}yy~}r{|y~}p{|y~|t{|y~}p{|y~|t{|y~}p{|y~|t{|y~}p{|y~|t{|y~}p{|y~|n{|w~}m{|y~}y{}~}u{|y~|s{}y~r{|"
+      "y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|jy~}i{|y~|w{|x~}n{}y~v{}x~|n{}y~}|w{|y~m{}y~}|w{|y~m{}y~}|w{|y~m{}y~}|w{|y~"
+      "m{}y~}|w{|y~m{}y~}|w{|y~r{}y~}|w{|n~s{|y~e{|n~o{|n~o{|n~o{|n~j{|y~d{|y~d{|y~d{|y~i{|y~s{}y~n{}y~t{}~}o{}y~s{}y~"
+      "o{}y~s{}y~o{}y~s{}y~o{}y~s{}y~o{}y~s{}y~pk|p{}y~x{}~|y{}y~n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}n{}~}t{}~}m{|y~|y{|y~|l"
+      "{}y~sy~}n{|y~|y{|y~|;{|~}vy~|w{|~}s{|~}o{|~}s{|~}y{}y~}|y~}y{|~}s{|~}y{}y~}u{|~}s{|~}vy|v{|~}ky~fy~}y{}y~9k~}n{"
+      "}y~y{~|R{}l~ri~p{|q~}lq~m{|y~sy~|o{|y~sy~|m{}y~x{|y~|j{}y~yy~}o{|y~  Ey~}E{|Qj~j{|~y{|y~}l{|~}xy~|wy~u{|y~|v{|x"
+      "~{|y~R{}y~a{|y~K{}~|M{}u~|M{|y~hy~}t{}y~i{|y~|f{}y~|_{}y~o{}n~}ey~}n{}y~t{|y~|j{}y~|jy~}t{|y~|e{}y~;{|}v~}jk~}k"
+      "{|}v~}j{}~}n{|~}wy~ty~wy~t{|o~}o{|y~|t{|y~|px~e{|y~|qy~}p{|y~|e{|y~|gx~py~}r{|y~|ry~}k{|y~|e{|y~|j{|y~|y{}y~}i{"
+      "|y~|i{|y~|x{}w~wy~}s{|y~|w{|y~|{y~}qx~p{}y~|q{|y~|gx~p{}y~|r{|y~|v{|y~}c{|y~}jy~}k{}y~r{|y~|m{}y~y{}y~|o{}y~{|~"
+      "}vy~{|y~|ox~y{|y~|gy~}h{|x~c{}~}a{}~|d{|y~| xy~|u{|y~m{}y~sy~}o{|y~e{|y~s{}~}o{|y~_y~|i{|y~s{}~}n{}y~t{}~}j{|y~"
+      "d{|y~h{}y~|y~}d{|y~m{}y~ty~|u{|y~r{}y~t{}~}o{|y~s{}y~n{}y~sy~}p{|y~s{}~}k{}y~b{|}w~i{}y~g{}~}t{}~}ly~|y{}y~m{}~"
+      "}{}~}y{|~}{}~}l{|w~|h{}~}y{}y~h{|y~}d{}y~|d{}~}d{|y~}|m{}t{|}x~}|V{~}w{|x~v{~|r{|y~ty~|l{|y~t{|y~|o{}y~v{}y~m{|"
+      "y~s{}y~m{}y~}f{}y~t{}~}l{|y~y{}~}iy~|xy~}l{}~}t{}~}qy~}vy~}vy~}s{|y~x{|y~x{|y~|ny~|w{|y~|o{}y~x{|y~x{|y~|o{}y~s"
+      "y~}p{|y~s{}y~iy~|j{|y~|ty~}o{|y~|ty~}k{|x~g{|y~|hx~q{|y~}r{}y~|x{}y~x{|x~r{|y~|ry~}o{}x~}x~}x~}px~p{}y~|t{}y~}]"
+      "y~|^{|x~oy|yy~|y{|o{}y~|q{|x~oy|yy~|y{|M{}~}i{}y~w{~|h{|y~|f{}~}v{}~}n{|n~|S{}x~|{}~}Uy}y{}~}qy}p{|r~ky~}y{|y~}"
+      "_{|~}Yy}x{}~}xy~|xy}8{}~| v{}~}t{}~}hy~y{}~| {{|r~iy~}y{|y~}jy~|w{|~|{|~}o{}~|s{|y~oy~v{|~|{|~}m{|y~j{|o~}o{|o~"
+      "}o{|o~}o{|o~}o{|o~}o{|o~}s{|p~}jx~c{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{|y~|e{|y~|e{|y~|k{|y~|qx~r{|y~|w{|y~|{y~}qx~p"
+      "{}y~|sx~p{}y~|sx~p{}y~|sx~p{}y~|sx~p{}y~|o{|x~|y~}my~}{}~}t{}y~|s{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|q{}y~r{|y~|jy~"
+      "}i{|q~}m{}y~u{|x~|oy~|u{|y~my~|u{|y~my~|u{|y~my~|u{|y~my~|u{|y~my~|u{|y~ry~|u{|y~h{|y~e{|y~d{|y~d{|y~d{|y~_{|y~"
+      "d{|y~d{|y~d{|y~i{|y~s{}y~n{}y~t{}~}o{|y~s{}y~o{|y~s{}y~o{|y~s{}y~o{|y~s{}y~o{|y~s{}y~U{|y~y{}~|x{}y~n{}~}t{}~}n"
+      "{}~}t{}~}n{}~}t{}~}n{}~}t{}~}l{}~}y{}y~k{}y~sy~}m{}~}y{}y~:{|y~vy~|w{}~|s{|y~o{}~|s{|y~{|y~}y{|y~}{}~|s{|y~{|y~"
+      "}t{}~|s{|y~o{}~|ky~f{}y~yy~}9k~}n{|y~y|~Q{|u~|y}u~r{}t~y}s~o{|s~}k{|s~|m{|y~sy~|ny~sy~ly~}wy~}j{|y~y|y~|ny~|  F"
+      "x~ uj~j{|~x{}y~ly~wy~|wy~u{|y~|u{|x~}~}R{|y~a{}y~K{}~| r{}~}h{}y~t{}y~i{|y~|g{}y~|^{}y~o{}n~}ey~}n{}y~t{|y~|jy~"
+      "}iy~}t{|y~|ey~}8{|}w~}|mk~}n{|}v~}|hx}m{~}wy~|v{|y~x{|~}t{}n~|p{|y~|t{|y~}p{}y~|f{|y~|r{}y~|p{|y~|e{|y~|g{}y~|q"
+      "y~}r{|y~|ry~}k{|y~|e{|y~|j{|y~|x{}y~}j{|y~|i{|y~|x{|x~}wy~}s{|y~|vy~}{y~}q{}y~|qx~p{|y~|g{}y~|qx~q{|y~|u{}y~|d{"
+      "|y~}jy~}k{|y~|s{}y~|m{|y~|{y~}n{}y~{}~}v{}~y|y~|p{}y~|x{}y~gy~}hx~|c{}~}a{|~}d{|y~| y{|y~t{}y~m{}y~sy~|o{|y~|f{"
+      "|y~|ty~}o{|y~|`y~|i{|y~|ty~}n{}y~t{}~}j{|y~d{|y~h{}y~{|x~e{|y~m{}y~ty~|u{|y~r{}y~t{}~}o{|y~|t{}y~n{}y~sy~|p{|y~"
+      "|ty~}k{}y~_{|y~}j{}y~g{}~}ty~}l{}y~yy~}m{|y~{y~|y{|y~{y~}m{|y~y}y~h{|y~yy~|hx~by~}d{}~}d{}y~7{}~|y{|~}|~}x{}~q{"
+      "|y~|v{|y~}l{|y~t{|y~|o{}~}v{}~}m{|y~|t{}y~my~|e{}y~t{}~}ky~|{y~|j{}y~w{}y~l{}~}ty~}qy~}vy~}vy~}s{|y~|y{|y~x{}y~"
+      "my~|w{|y~|o{|y~x{|y~x{|y~|o{}y~sy~|p{|y~|t{}~}iy~|iy~}ty~|o{}y~s{}y~|lx~|g{|y~|h{|y~}rx~px~|y{}y~y{|x~|r{|y~|ry"
+      "~}n{|r~}o{}y~|qx~r{}y~}^y~|_{|x~o{|y~|{y~|{}~}o{}y~|s{|x~o{|y~|{y~|{}~}Ny~}i{}y~w{~|h{|y~|f{|y~}|{|}y~|h{}y~L{|"
+      "v~}T{|~xy~}|yx|x{~|U{}y~y{|y~}`{|~}Y{|~x{}~}x{|y~x{~|8{}~| v{}~}ty~}hy~y{}~| `{|y~}y{|y~|j{}~}v{~}y{|~}p{|y~ry~"
+      "|p{}~|v{~}y{|~}mx~j{}n~|p{}n~|p{}n~|p{}n~|p{}n~|p{}n~s{}p~}j{}y~|d{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{|y~|e{|y~|e{|y"
+      "~|k{|y~|r{|y~}r{|y~|vy~}{y~}q{}y~|qx~r{}y~|qx~r{}y~|qx~r{}y~|qx~r{}y~|qx~o{|x~y{|y~}n{}y~}~}sx~r{|y~|s{}y~|q{|y"
+      "~|s{}y~|q{|y~|s{}y~|q{|y~|s{}y~|jy~}i{|s~}|l{}y~sy~}p{|y~t{}y~n{|y~t{}y~n{|y~t{}y~n{|y~t{}y~n{|y~t{}y~n{|y~t{}y"
+      "~s{|y~t{}y~|i{|y~|f{|y~|e{|y~|e{|y~|e{|y~|`{|y~d{|y~d{|y~d{|y~i{|y~|t{}y~n{}y~t{}~}o{|y~|t{}y~o{|y~|t{}y~o{|y~|"
+      "t{}y~o{|y~|t{}y~o{|y~|t{}y~ix|j{|y~|}~}w{}y~n{}~}ty~}n{}~}ty~}n{}~}ty~}n{}~}ty~}l{|y~yy~|k{}y~sy~|m{|y~yy~|9{}~"
+      "}wy~|x{|y~q{}~}q{|y~q{}~}{~}w{|~y|y~q{}~}{~}t{|y~q{}~}q{|y~k{|y~f{|y~y|y~|9x|}y~}q|m{}~x}P{}w~}{}{v~|r{|t~y|}u~"
+      "|n{}u~}i{|u~}l{|y~sy~|ny~|u{|y~ly~|w{}y~iy~y}y~m{|y~|  G{|y~| ry~|xy~|f{|~x{}y~m{}~|wy~|wy~ty~}t{|w~Q{|y~|b{}y~"
+      "K{}~| ry~|h{|y~|uy~}i{|y~|h{}y~|]x~ns|x~y|e{|y~}n{|y~|u{}y~|k{|y~|iy~}t{}y~e{}y~4{|}w~}|U{|}v~}|Ty~w{}~}v{}y~xy"
+      "~sy~}ry~}p{|y~|t{|y~}p{|x~p{|r{|y~|s{|x~o{|y~|e{|y~|g{|x~qy~}r{|y~|ry~}k{|y~|e{|y~|j{|y~|w{}y~}k{|y~|i{|y~|wx~|"
+      "wy~}s{|y~|v{|y~|y~}q{|x~r{}y~|p{|y~|g{|y~}r{}y~|q{|y~|u{|y~}d{|y~}jy~}k{|y~}sx~ky~}|y~|n{|y~|y~|v{}~y}y~p{|y~}w"
+      "{|y~}hy~}i{}y~|b{}~}a{|y~d{|y~| y{|y~tx~m{}y~|u{|y~|ny~}ey~}u{|y~}ny~}`y~|hy~}u{|y~}n{}y~t{}~}j{|y~d{|y~h{}y~y{"
+      "|x~f{|y~m{}y~ty~|u{|y~r{}y~t{}~}ny~}ty~}n{}y~|u{|y~|oy~}u{|y~}k{}y~^{}~}j{|y~g{}y~u{|y~}l{|y~y|y~|ly~|y~wy~|y~|"
+      "mx~yy~}hy~y|y~hx~a{}y~d{}~}d{}~}6u~y{}y~}y~|py~|v{}y~}l{|y~t{|y~|o{}~}vy~|ly~}ty~}n{|y~|e{}y~t{}~}k{}~y}y~iy~}v"
+      "y~|m{}y~ty~}qx~w{|x~w{|y~|ry~}y{|y~x{}~}my~|w{|y~|o{|y~x{|y~x{|y~n{}y~|u{|y~|oy~}ty~}iy~|i{}y~u{|y~ny~}s{|y~}m{"
+      "}y~|f{|y~|g{}y~|t{}y~|p{|w~y}y~y}x~}q{|y~|ry~}ly}x~y}|n{|x~r{}y~|q{}y~}_y~|`{|x~mx~|y~|}y~|n{}y~|u{|x~mx~|y~|}y"
+      "~|Ny~}i{|y~|x{~|h{|y~|fp~|i{}y~d{}~}d{|x~|S{~}x{}u~|y{}~S{}y~xy~}a{|~}X{~}y{|~|w{}~|{}~7y| u{}y~ty~}hy~y{}~| a{"
+      "|y~}y{|y~|j{|y~v{}~x{|~}p{}~|s{}~|p{|y~v{}~x{|~}n{}y~|jy~}ry~}py~}ry~}py~}ry~}py~}ry~}py~}ry~}py~}ry~}ty~}ty~}j"
+      "{|x~p{|p{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{|y~|e{|y~|e{|y~|k{|y~|rx~q{|y~|v{|y~|y~}q{|x~r{}y~|r{|x~r{}y~|r{|x~r{}y~"
+      "|r{|x~r{}y~|r{|x~r{}y~|p{|x~w{|y~}o{|w~s{}y~|r{|y~}sx~p{|y~}sx~p{|y~}sx~p{|y~}sx~iy~}i{|y~w|h{}y~s{}~}p{|y~tx~n"
+      "{|y~tx~n{|y~tx~n{|y~tx~n{|y~tx~n{|y~tx~s{|y~tx~}hy~}ey~}dy~}dy~}dy~}`{|y~d{|y~d{|y~d{|y~hy~}ty~}n{}y~t{}~}ny~}t"
+      "y~}ny~}ty~}ny~}ty~}ny~}ty~}ny~}ty~}j{|x~iy~}~}vy~}n{}y~u{|y~}n{}y~u{|y~}n{}y~u{|y~}n{}y~u{|y~}ky~y|y~j{}y~|u{|y"
+      "~|ly~y|y~7y~}xy~|y{|y~|py~}s{|y~|py~}s{|y~|py~}s{|y~|py~}s{|y~|k{|y~ey~y}y~6{|y~}b{|x~|O{}y~}y{}{|}y~|p{|w~}{|}"
+      "{}w~}l{}v~g{}w~}k{|y~sy~|n{}y~uy~}m{|y~v{|y~|j{}w~}l{}y~|  Gx~|u{}|Px|O{|y~x{|y~j{|w{|~x{}~}n{|y~v{}~|x{|y~t{}y"
+      "~}t{}x~Py~|by~}K{}~|dx|Jx|f{|y~fx~v{}y~h{|y~|i{}y~|f{|s{}y~}f{}y~l{|t{|x~l{}y~ux~j{}y~h{}y~|v{|x~f{|y~}hx|dx|a{"
+      "}v~}Xv~}|bx|m{}~|x{|y~}x{|x~{|y~|t{|y~|r{}y~p{|y~|t{}y~|o{}y~}s{|~|r{|y~|t{|x~|o{|y~|e{|y~|f{}y~}ry~}r{|y~|ry~}"
+      "k{|y~|e{|y~|j{|y~|v{}y~}l{|y~|i{|y~|oy~}s{|y~|uv~}p{}y~}t{}y~}o{|y~|f{}y~}t{}y~}p{|y~|t{}y~|o{}r{}y~|jy~}j{}y~|"
+      "u{|y~}k{}y~}y~ly~}y~u{|w~}px~u{|y~|iy~}j{}y~}a{}~}`y~|e{|y~| y{|y~|v{}x~m{}x~ux~m{}y~|f{}y~u{}y~}n{}y~|ay~|h{}y"
+      "~u{}y~}n{}y~t{}~}j{|y~d{|y~h{}y~x{|x~g{|y~m{}y~ty~|u{|y~r{}y~t{}~}n{}y~|v{}y~|n{}x~ux~n{}y~u{}y~}k{}y~^y~}j{|y~"
+      "g{|y~|v{}y~}ky~y}y~kw~}w{}w~m{}y~|y{|y~}i{}~}y~}i{}y~|a{}y~d{}~}d{}~}5{}y~}w{|y~}|o{}y~w{|w~l{|y~}u{}y~n{}~}w{}"
+      "y~k{}y~|v{}y~|my~|e{}y~t{}~}k{|w~}j{}y~u{}~}m{}y~|v{}y~}q{}y~|x{}~}~|x{}y~q{}y~|{|y~y{|y~|my~|w{|y~|ny~}y{|y~x{"
+      "}y~n{}x~ux~n{}y~|v{}y~|iy~|i{|y~}vy~}o{|y~|rx~n{|y~}e{|y~|fx~|v{}y~}n{|}q~|p{|y~|ry~}j{}y~j{}y~}t{}y~}o{}~}_y~|"
+      "`{|y~ks~|l{}~|u{|y~ks~|My~}hx~x{~|h{|y~|gx~|}x~}|}y~|j{}y~d{}~}c{|x~S{|~}xy|}y|x{}~|R{}~|x{}~a{|}|X{|~}p{}~| /{"
+      "}y~|v{}y~}hy~y{}~| a{|~|x{}~|i{}~|vr~|s{|~}s{}~|o{}~|vr~|q{}y~}j{|y~|r{}y~q{|y~|r{}y~q{|y~|r{}y~q{|y~|r{}y~q{|y"
+      "~|r{}y~q{|y~|r{}y~u{|y~|ty~}i{}y~}s{|~|p{|y~|e{|y~|e{|y~|e{|y~|a{|y~|e{|y~|e{|y~|e{|y~|k{|y~|t{|x~}q{|y~|uv~}p{"
+      "}y~}t{}y~}p{}y~}t{}y~}p{}y~}t{}y~}p{}y~}t{}y~}p{}y~}t{}y~}p{|x~u{|y~}o{}y~}t{}y~}p{}y~|u{|y~}o{}y~|u{|y~}o{}y~|"
+      "u{|y~}o{}y~|u{|y~}iy~}i{|y~|e{}y~sy~}p{|y~|v{}x~n{|y~|v{}x~n{|y~|v{}x~n{|y~|v{}x~n{|y~|v{}x~n{|y~|v{}x~s{|y~|v{"
+      "}w~|i{}y~|f{}y~|e{}y~|e{}y~|e{}y~|a{|y~d{|y~d{|y~d{|y~h{}y~|v{}y~|n{}y~t{}~}n{}y~|v{}y~|n{}y~|v{}y~|n{}y~|v{}y~"
+      "|n{}y~|v{}y~|n{}y~|v{}y~|j{|x~i{}y~}v{}y~|n{|y~|v{}y~}n{|y~|v{}y~}n{|y~|v{}y~}n{|y~|v{}y~}k{}~}y~}j{}x~ux~k{}~}"
+      "y~}7{|y~}|{y|{|}y~|o{|y~}|w{|}y~|o{|y~}|w{|}y~|o{|y~}|w{|}y~|o{|y~}|w{|}y~|j{|y~e{|w~|6y~}`x~I{|~hx|y{|}yw|jw~|"
+      "f{}x~j{|y~sy~|mx~w|x~l{}~}uy~}j{}w~|k{}y~}|  I{|x~}|{y|y~|Py~}O{|~}x{|~}j{}~|y{|~{|}y~|n{}~|v{|y~x{}~}sx~}|y{|}"
+      "u~Q{}~}by~|K{}~|d{}y~Jy~}f{}~}f{|y~}|{|}y~}kw|y~w|m{}y~}s|my~}w|}w~e{}y~ly~}w|}x~}l{|x~|y{|x~|jy~}h{|x~}|{y|x~|"
+      "m{~}w|}y~}g{}y~d{}y~_{|}y~}Xy~}|_y~}m{|~}w{|u~y}w~|sx~q{|y~|q{|y~t|}y~}m{}x~}v|}y~|r{|y~u|y}x~}n{|y~q|n{|y~|e{}"
+      "x~}v|}x~}r{|y~|ry~}k{|y~|e{|y~|j{|y~|u{}y~}m{|y~q|r{|y~|oy~}s{|y~|u{|w~}o{}x~}|{y|}x~n{|y~|e{}x~}|{y|}x~o{|y~|t"
+      "{|y~}oy~}x|{y|x~}iy~}j{|x~}w|}x~j{|w~}l{}x~}tw~|q{}y~|t{}y~iy~}k{|x~o|l{}~}`{}~}e{|y~| xx~|y{|}w~m{}w~|y{|x~|lx"
+      "~}|yy|}|mx~|y{|}x~}m{}y~}|x{|}~}jy~|h{|x~|y{|}x~}n{}y~t{}~}j{|y~d{|y~h{}y~w{|x~h{|y~m{}y~ty~|u{|y~r{}y~t{}~}mx~"
+      "|y{|}y~}m{}w~|y{|x~|mx~|y{|}x~}k{}y~g{}~}|x{|}y~|j{|y~}gx~|y{|}x~}k{}w~}k{}x~}w{|x~}n{|y~|w{}y~|j{|w~|j{}y~|`{}"
+      "y~d{}~}d{}~} w{|y~}|{|y~}y~}m{|x~}|y{|}y~}n{|~}x{|y~|jx~|y{|}y~}l{}y~}|x{|y}m{}y~t{}~}jw~|jy~}u{|y~|n{}x~}|{|}w"
+      "~y|s{|x~|{|y~|~}|{}y~}px~y|y~|}y~}ly~|vy~}n{}y~|{|y~y{}y~|n{}w~|y{|x~|mx~|y{|}y~}h{}y~|i{}y~}y{|x~nx~q|}y~|ox~r"
+      "|m{|y~|iw|x~}x{}y~}w|o{|y}x~y}|n{|y~|ry~}j{}y~i{}x~}|{y|}x~m{|^y~|_{|iu~|j{|s{|iu~|Ly~}h{|y~}|{~|{|}mx|y~}t|o{|"
+      "y~r{}~}j{}y~d{}~}b{|y~|S{|~}r{}~|Py|w{}:{|~}r{}~|=k|!{}x~}|{|}w~y|jy~y{}~| ay|w{}h{|~}uv|}~}|ry~s{}~|o{|~}uv|}~"
+      "}|q{|y~}ix~q{|y~|rx~q{|y~|rx~q{|y~|rx~q{|y~|rx~q{|y~|r{}y~q{|y~|vx~sy~}r|q{}x~}v|}y~|p{|y~q|n{|y~q|n{|y~q|n{|y~"
+      "q|j{|y~|e{|y~|e{|y~|e{|y~|k{|y~}u|}x~}p{|y~|u{|w~}o{}x~}|{y|}x~n{}x~}|{y|}x~n{}x~}|{y|}x~n{}x~}|{y|}x~n{}x~}|{y"
+      "|}x~ox~s{|y~}pv~}|{y|}x~o{|x~}w|}x~n{|x~}w|}x~n{|x~}w|}x~n{|x~}w|}x~hy~}i{|y~|e{}y~{x|y{|}y~|ox~|y{|}w~mx~|y{|}"
+      "w~mx~|y{|}w~mx~|y{|}w~mx~|y{|}w~mx~|y{|}w~rx~|y{|}y~|}y~}|x{|}~}qx~}|yy|}|m{}y~}|x{|}~}m{}y~}|x{|}~}m{}y~}|x{|}"
+      "~}m{}y~}|x{|}~}j{|y~d{|y~d{|y~d{|y~gx~|y{|}y~}m{}y~t{}~}mx~|y{|}y~}lx~|y{|}y~}lx~|y{|}y~}lx~|y{|}y~}lx~|y{|}y~}"
+      "i{|x~i{|x~|y{|}y~}lx~|y{|}x~}mx~|y{|}x~}mx~|y{|}x~}mx~|y{|}x~}k{|w~|j{}w~|y{|x~|k{|w~|6{|q~|m{|q~|m{|q~|m{|q~|m"
+      "{|q~|i{|y~dw~5{}~_{}~}I{}~c{}~d{|y~|dy~|j{|y~sy~|m{|s~|ly~}u{}~}j{|w~i{}m~  S{|s~}Oy~}O{}~|x{}~|j{}q~}n{|~}t{}y"
+      "~}x~q{}s~}{|y~}R{|y~c{|y~J{}~|dx~Jy~}fy~|e{}t~}k{}q~}no~|nq~}d{}y~lq~|j{|s~|j{|y~|g{|r~|ls~}f{}y~dx~\\y|X{}|]y~"
+      "}ly~|w{|}y~}|{}~}|r{|y~}py~}q{|p~}k{|q~}q{|p~}|m{|o~|o{|y~|d{|p~}q{|y~|ry~}k{|y~|e{|y~|j{|y~|t{}y~}n{|o~r{|y~|o"
+      "y~}s{|y~|t{}x~}n{}r~}m{|y~|d{}r~}n{|y~|s{}y~|pp~}hy~}i{|r~}hw~|l{}x~}tw~|r{|y~}s{|y~}jy~}k{}l~|m{}~}`{|y~e{|y~|"
+      " x{|t~}|y~m{}y~|t~|j{}s~|m{|t~|}~}l{}r~}jy~|g{|t~|}~}n{}y~t{}~}j{|y~d{|y~h{}y~v{|x~i{|y~m{}y~ty~|u{|y~r{}y~t{}~"
+      "}m{|s~}l{}y~|t~|l{|t~|}~}k{}y~g{}r~}h{}u~k{|t~|}~}k{|w~|k{|x~|w{|x~|ny~}u{}y~iw~io~h{}y~d{}~}d{}~} v{}t~{}x~}o{"
+      "|q~}ly~}y|y~}i{|s~}j{}s~}m{}y~t{}~}j{}x~j{}y~sy~}n{}~}t~}x~}r{|u~|{t~o{|q~ky~|vw~}ot~}x~}m{}y~|t~|l{|s~}g{|v~j{"
+      "}t~|o{|k~}p{|o~|n{|y~|is~y{|t~}l{}y~k{|y~|ry~}j{}y~h{}r~}Ny~|Kw~|Lw~|Ky~}g{|r~n{|o~}n{|p{|i{}y~d{}~}ay~|R{|y~}y"
+      "|{y|}y~| a{|y~}y|{y|}y~|<k~}\"{}~}t~}x~}jy~y{}~| Gy~o{|~}r{}~|ty~|ny~o{|~}q{|y~}i{|y~}py~}s{|y~}py~}s{|y~}py~}s"
+      "{|y~}py~}s{|y~}py~}s{|y~}py~}w{|y~|so~}q{|q~}o{|o~|o{|o~|o{|o~|o{|o~|k{|y~|e{|y~|e{|y~|e{|y~|k{|o~|o{|y~|t{}x~}"
+      "n{}r~}l{}r~}l{}r~}l{}r~}l{}r~}n{|~q{|~p{}~y|r~}m{|r~}l{|r~}l{|r~}l{|r~}gy~}i{|y~|e{}y~{}t~}n{|t~}|y~m{|t~}|y~m{"
+      "|t~}|y~m{|t~}|y~m{|t~}|y~m{|t~}|y~r{|s~|y{}r~|p{}s~|l{}r~}l{}r~}l{}r~}l{}r~}j{|y~d{|y~d{|y~d{|y~fs~}l{}y~t{}~}m"
+      "{|s~}k{|s~}k{|s~}k{|s~}k{|s~}Rq~}k{|t~|}~}m{|t~|}~}m{|t~|}~}m{|t~|}~}jw~i{}y~|t~|iw~3{|}w~}|i{|}w~}|i{|}w~}|i{|"
+      "}w~}|i{|}w~}|g{|~}d{}y~} r{|~|Iy~|dy~|d{|}cy|i{|y}sy}|k{}w~}k{|y~|u{|y~ix~}gy}p~  Q{|}x~}|Ny~}Oy~wy~h{|y}v~}|my"
+      "~r{|x~}o{|}w~}|x{}y~}Ry~|d{}~}J{}~|dy~}Jy~}g{|y~c{|}x~}|j{}q~}no~|m{|}w~y}|c{}y~l{|y}w~y}f{}w~}hx~dy}x~y}|k{|}w"
+      "~}|e{}y~dy~} ry~}l{|y~c{}y~|p{}y~q{|r~}|h{|}w~}|o{|s~y}|k{|o~|o{|y~|b{|}w~y}|o{|y~|ry~}k{|y~|e{|y~|j{|y~|s{}y~}"
+      "o{|o~r{|y~|oy~}s{|y~|t{|x~}l{|}x~y}|l{|y~|b{|}v~}m{|y~|ry~}o{|y}w~y}|gy~}g{|}w~}|g{|x~k{|x~|t{}x~qx~q{}y~|ky~}k"
+      "{}l~|m{}~}_y~|f{|y~| v{}x~}|{|y~m{}y~{|}x~}|h{|}x~y}|j{}x~}|{}~}k{|}w~y}|iy~|e{}x~}|{}~}n{}y~t{}~}j{|y~d{|y~h{}"
+      "y~u{|x~j{|y~m{}y~ty~|u{|y~r{}y~t{}~}k{|}x~}|k{}y~{|}x~}|i{}x~}|{}~}k{}y~f{|y}w~}|fy}w~j{|}x~}y{}~}jx~}ix~ux~|o{"
+      "}y~t{|y~}j{|y~}io~h{}y~d{}~}d{}~} u{|}x~}|y{}y~}o{|y~|}w~}|k{|v~}f{|}x~}|h{|}w~y}|m{}y~t{}~}j{|y~|jy~}s{}y~n{}~"
+      "}{}x~}y{}~}|q{|}y~}|x{}x~}l{}v~}|jy~|v{|}y~}n{}s~|l{}y~{|}x~}|i{|}x~}|e{|}x~i{|}x~}m{}j~p{|o~|n{|y~|is~y{|t~}l{"
+      "}y~k{|y~|ry~}j{}y~f{|}x~y}|My~|Jy~|Jy~|Jy~}f{|}u~}n{|o~}O{}y~d{}~}h{}|w{}y~O{|}v~}| ]{|}v~}|:k~}\"{}~}{}x~}y{}~"
+      "}|jy~y{}~| H{}~|o{|~|s{|~}t{|t~|t{}~|o{|~|q{}y~h{}y~|p{}y~s{}y~|p{}y~s{}y~|p{}y~s{}y~|p{}y~s{}y~|p{}y~s{}y~|p{}"
+      "y~w{}y~ro~}o{|}w~}|m{|o~|o{|o~|o{|o~|o{|o~|k{|y~|e{|y~|e{|y~|e{|y~|k{|s~y}|m{|y~|t{|x~}l{|}x~y}|i{|}x~y}|i{|}x~"
+      "y}|i{|}x~y}|i{|}x~y}|U{|~}x{|}x~y}|j{|}w~}|i{|}w~}|i{|}w~}|i{|}w~}|fy~}i{|y~|e{}y~{|}w~}|k{}x~}|{|y~k{}x~}|{|y~"
+      "k{}x~}|{|y~k{}x~}|{|y~k{}x~}|{|y~k{}x~}|{|y~p{}x~}|v{|}w~y}|n{|}x~y}|j{|}w~y}|j{|}w~y}|j{|}w~y}|j{|}w~y}|i{|y~d"
+      "{|y~d{|y~d{|y~e{|}x~}|k{}y~t{}~}k{|}x~}|h{|}x~}|h{|}x~}|h{|}x~}|h{|}x~}|R{}~|{|}x~}|i{|}x~}y{}~}l{|}x~}y{}~}l{|"
+      "}x~}y{}~}l{|}x~}y{}~}j{|y~}i{}y~{|}x~}|h{|y~}  e{|~} V{|      .{|~ p{}~}dy~|1{|y~2{}~}   U{|y~ ^{}~}  ){|y~|  {"
+      "}y~}  6{}~}_{}~}f{|y~|  -y~}6{|y~ A{}y~Z{}~}  j{|y~I{}y~d{}~}d{}~} \\{|y~a{|}y|*{}~}j{|y~|O{}~}F{|y~K{|}y~y|j{}"
+      "y~     Ry~}c{|~| r{}~}h{}t~|K{| U{| '{}~}^y~y{}~|O{|~| wy|cy}|st|sy|ay~}  ^{|~|    9{|    Y{|~|    8y| Q{|y~h{}"
+      "y~`{|y~  d{|~}        c{|~ oy~e{}~}0{}~}2y~|   U{}~} ]{}y~|r{|y}  7{}y~  y{}y~|  7{}~}_{|y~f{|y~|  .{|y~|6{|y~ "
+      "A{}y~Z{}~}  j{}~}I{|y~d{}~}dy~} \\{|y~ g{}~}j{|y~|O{}~}F{|y~J{|y~h{}y~     Ry~}b{~| r{}~}h{|y}x~}|   ){}~}^y~y{"
+      "}~|N{}~ 'y~}  ]y~         p{~}      g{}~}h{}y~`{}~}  h{|}|{}~}        c{|~ o{}~}fy~/{}~    c{}~ [{}y~}|v{|}y~} "
+      " 7x~  x{}y~|  8{}v~M{|v~|  .{}y~5{}~} A{}y~Z{}~}  k{|y~|I{|y~}e{}~}e{|y~| \\{|y~ g{}~}j{|y~|O{}~}F{|y~J{|y~h{}y"
+      "~     Ry~}b{~| r{}~}    i{}~}*{}~| (x~uy|  e{}~|         q{}~      h{|y~|h{}y~a{|y~|  h{|y~|y~|        c{|~ ny~"
+      "g{}~}      M{|}q~|  9y|}y~|    1{}w~}M{|v~|  6y}|x{|}y~|6{|y~} A{}y~Z{}~}  l{|x~G{}w~}h{}~}h{}w~} [{|y~ g{}~}j{"
+      "|y~|O{}~}F{|y~J{|y~h{}y~     Ry~}b{~| r{}~}    i{}~}-x}y~ '{}x~w|y~|  e{}~|         qy~      i{|x~g{}y~b{|x~  f"
+      "{}w~                e{|y}w~}|  8{|w~}     ({|n~}  m{}s~}7{|w~ @{}y~Z{}~}  nv~|F{|y}~}h{}~}h{}~y}| Z{|y~ g{}~}j{"
+      "|y~|O{}~}F{|y~J{|y~h{}y~     Rx| W{}~}    i{}~}-{}y~}| &{}s~|  i{|~y}y~         t{|~y}y~      kv~|g{}y~dv~|  ex"
+      "}                   s{|y~}|     '{|n~}  m{|y}w~}|6{|y~} ?{}y~Z{}~}  nx~}|-{}~} B{|y~ g{}~}j{|y~|O{}~}F{|y~J{|y~"
+      "h{}y~           q{}~}  -{|}x~}|  f{}y~}|         t{|x~}|      kx~}|f{}y~dx~}|                                  "
+      " :{}~}                                     I{"; }
+
+    // Define a 52x64 font (large sans).
+    inline const char* data_font_large() {
+      const char *const chunk0 =
+      "                                                                                                               "
+      " -{|                                                                                                           "
+      "                                    [{|x}|Dw}|Pw}| @{}v~} C{|w}|Ew}|Pv}| xv|Ev|Pu|  kv|Dw|P{|v}  6{|w}|E{|x}|P{"
+      "|w}| pw}|                                                                                                      "
+      "                           G{|w~}F{}w~P{}v~}Q{}w~}|w{|x~X{|v~vv~|U{|r~| D{}w~F{}w~P{}u~S{|v~|wv~}V{}w~|G{|w~|Q{"
+      "|u~|Sv~}w{}w~}\"{|}x~}|v{|x~W{}w~|F{}w~Q{|u~}Q{}x~}|v{|x~X{}w~}w{|v~ G{}w~F{}w~|Q{}u~Rv~|w{}w~}O{}w~           "
+      "                                                                                                               "
+      "       E{|w~|H{}w~P{}t~}Ss~}|y{}x~X{|v~vv~|V{|p~ Cw~}H{|w~|Q{|t~}T{|v~|wv~}U{}w~Gw~}Q{|s~|Tv~}w{}w~}#{|s~}|{|x~"
+      "}V{}w~|H{}w~Ps~}St~}w{}y~}X{}w~}w{|v~ Fw~}H{|w~|Q{|t~}Sv~|w{}w~}P{|w~|                                         "
+      "                                                                                        D{|w~|J{|w~|Q{|x~}{w~|U"
+      "{}l~}X{|v~vv~|Vw~}x{}x~} D{|w~|J{|w~|Q{|w~{}x~}U{|v~|wv~}T{}x~}Iw~}Pw~y|w~Tv~}w{}w~}#k~|U{}w~I{|w~|Q{}x~|{}x~|U"
+      "{}r~|{|x~}X{}w~}w{|v~ Ew~|Iw~}Pw~|}x~}Tv~|w{}w~}Q{|w~|    M{|                                                  "
+      "                                                                           q{}w~Jw~|Q{|x~}xw~Ux~}y{|}t~}W{|v~vv"
+      "~|W{|x~|v{|x~| D{|w~|Kw~}Pw~x{}x~|V{|v~|wv~}S{}x~}K{}x~}P{}x~|y{|x~}Uv~}w{}w~}${|x~|y{|s~}S{}x~}K{|w~|Q{}x~}xw~"
+      "Ux~}{|}r~W{}w~}w{|v~ E{|w~|K{}x~}Pw~|y{}x~|Uv~|w{}w~}Qw~|    O{}v~}                                            "
+      "                                                                                 s{}x~}L{}x~|Pw~vw~W{|x~v{|}w~}"
+      "V{|v~vv~|W{}y~}tx~} C{|w~L{}x~}P{}x~|w{}x~|W{|v~|wv~}R{}x~|M{}x~}P{}x~|w{|x~}Vv~}w{}w~}${|x~v{|}w~|Q{}x~}Lw~|Q{"
+      "|x~}vw~W{|x~w{|t~|W{}w~}w{|v~ D{|w~L{|x~}P{}x~|w{}x~|Vv~|w{}w~}R{}x~}    P{|r~|                      Y{}w~|    "
+      "                                                                                                  A{}x~|N{}x~}P"
+      "{}x~u{|x~}\"v|vv|V{}y~}t{}y~} B{}x~}N{|x~}P{}x~|u{}x~Vv|vv|P{}x~|O{|x~}P{}x~|u{|x~}Wv|uv| D{}x~|N{}x~|Q{|x~}tx~"
+      "}X{|x~u{|}y~}|Vu|vv| C{|x~}N{|w~P{|x~|u{}x~Vv|vu|S{|x~}    Op~|                      Zv~|                      "
+      "                         ;v~                                                u{|v~      6{|y}|N{|y}|P{|x}s{|x} I"
+      "{}y~}t{}y~} Aw|Nw|Ow|sw|    Qw|Nw|Pw|rx|  5{|x}N{|x}O{|y}|s{|y}| {{|y}| Dv|@v|Rv| C{}x~}x{|w~ Hu|@v|Rw| yv}@v}R"
+      "{|w}  lv|@v|Rv|  8v}@v}|S{|w} m{}w~|        E{|y~x}|                                               ;{|w~}      "
+      "                                          vv~|         J{}y~}t{}y~}               e{}w~}B{|w~}Rv~| Dx~|v{|x~| H"
+      "v~A{}w~|S{|w~} {{|w~}B{}w~|S{|v~| Ay|sx|Y{}w~|B{|w~}Rv~  8{|w~}B{|w~}Rv~| o{|w~}     ?y}~}|  *x~             J{"
+      "|y~|  b{}x~|T{|x~}                            L{|q~} y{}q~| H{|w~} xw~} `{|w~| {{|}t~)w~}Cv~Lv~Tw~}Dv~        G"
+      "{|x}w~}Tw~|U{|v~y}|  1{|y}v~y}|   cv~y}     p{|y}x~y}|             {{v|vv|      3{}w~|         I{|x~|v{|x~|    "
+      "      %{|   5{|y}w~y}|U{}w~|Cv~R{}v~}Q{|}y~}|ux~|Y{|v~|wv~}W{|x~t{}y~} H{|w~}C{}w~|Ru~|S{}w~}w{|v~W{}w~|D{|w~}R"
+      "t~S{|v~vv~|X{|v~}K{}w~}ux~X{}w~C{|w~}R{}v~}Q{|}y~}|ux~|Y{|v~vv~| J{|w~}D{|w~}R{}u~Rv~|w{}w~}N{|w~}Zw~}Hv~}w{}w~"
+      "}    N{|u~}  ,{|y~} Ix|Tx|kw|        Ru|  6{|y~|Yv|fx}|Zu| o{|w~Rw~|Hx|   Xu| vt|Ns| =t| xt|Ot|   [u|  ds|  kr|"
+      "    Qt| ut| ts|    S{|q~} y{}q~| G{}w~| yw~} `{|w~|!{}q~)w~}Cv~Lv~Tw~}Dv~        I{|r~}Tw~|U{|r~}  5{|}o~| yr| "
+      " ps~}     t{|p~|  kt|  is| s{|y} r{|x}| rx}|  bt|  lu|S{|v~vv~|!{|y}w~y}|  :{|l~|Qx| u{|y}w~}|Q{|x}w~y}|K{|w~| "
+      " 9y|y}w~|O{|y}w~}|)y|x}dw~|hy|x}dw~|ly|x}y~y}|e{}x~|   6w~}x{}x~} us|      lt|Nt|Nt|Nt|Nt| ut|p{}~|   9{|}o~|V{"
+      "}w~D{}w~R{|t~|S{|u~}vx~|Y{|v~|wv~}W{}y~}t{|x~ G{|w~}E{|w~}R{}t~S{}w~}w{|v~V{}w~E{|w~}R{}t~}T{|v~vv~|W{|v~}s{|y}"
+      "X{}u~}w{|x~Ww~}Dv~R{|t~|S{|u~}w{|x~X{|v~vv~| I{}w~|Ew~}R{|t~}Sv~|w{}w~}Nw~}Yw~}Hv~}w{}w~}    O{|s~|cW}  i{}y~|"
+      "\"{|}L{|u~}|Z{|}v~}|p{}u~}V{|}  /g|    ({}r~}| v~}R{}x~}vw~}R{|x}|t{|x}|V{|y~|\\{|}t~|i{}x~|]{}q~}|O{}x~}Iw~|R{|"
+      "w~Hx~  *{|w~V{|}s~}|Sy|y}v~}T{|}q~}|V{|y}p~}|L{|u~}\\{|g~}T{}q~y}|_{}c~}[{|}q~}|U{|}r~}|   b{|}q~| w{}v~}X{}k~y"
+      "}|R{|y}p~}|b{}m~x}y|W{}c~|`{}e~Y{|}o~}|a{}w~}hv~|Y{}w~}M{}w~}W{}w~}k{|u~}b{}w~}V{}t~|h{}t~|h{}u~}jv~^{|}p~}|Z{}"
+      "m~y}|U{|}p~}|\\{}m~y}y|S{|}o~}y|bZ~g{|v~h{}w~}i{|v~|d{|v~|rv~|l{|v~}kv~|p{|v~|i{}v~g{}v~fv~}g\\~]{|q~}Uw~}I{}q~"
+      "|P{|w}| w{}w~ yw~} `{|w~|\"o~)w~}Cv~Lv~Tw~}Dv~        J{|q~}Tw~|U{|q~}  7{}l~}\"y}p~y}  sr~}     v{}n~}R{}v~}V{"
+      "}c~|_{}d~}^{|}p~}|R{|v~Y{}^~|iv~}r{|v~qv~}a{|}p~}| x{}x~} s{}w~ s{}w~|  f{|}r~}|-{}w~|i{|v~({|q~}|W{|v~vv~|Ty|u"
+      "}y|U{|}o~|  ly|u}y|U{|l~|T{|}v~}| {|}p~|T{}p~}|N{|w~} yy|}m~} N{|r~|P{}q~|0{|y}t~|f{}x~}l{|y}t~|f{}x~}l{}p~}h{}"
+      "x~}%{}v~}N{}v~}N{}v~}N{}v~}N{}v~}Q{|p~W{}\\~}b{|y}p~}|^{}c~|a{}c~|a{}c~|a{}c~|X{}w~}M{}w~}M{}w~}M{}w~}Z{|m~x}y|"
+      "Z{}u~}jv~^{|}p~}|V{|}p~}|V{|}p~}|V{|}p~}|V{|}p~}|\"{|}q~y}t{}x~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}g{}"
+      "v~fv~}c{}w~}J{|l~}Vw~}F{}w~|R{}x~|w~Ss~}x{|x~X{|v~|wv~}W{}y~}t{|x~ F{|w~|Fw~}R{|x~y}x~}T{}w~}w{|v~U{}x~}Fw~}R{|"
+      "w~{w~|U{|v~vv~|V{}v~|x{|}v~Y{|s~}x{}x~W{|w~}F{}w~Qw~|w~Ss~}x{|x~X{|v~vv~| H{}w~F{}w~Qw~|}x~|Tv~|w{}w~}O{}w~Xw~}"
+      "Hv~}w{}w~}    P{|q~c{}Y~}  ix~!y~|N{}r~}\\{}r~}s{|q~|Y{|y~}  5{|}e~}    *{}m~|\"v~}R{}x~}vw~}Rw~|tw~|V{|y~|]{}q"
+      "~}k{|w~^{|l~|Q{}x~}J{}w~P{}x~}Ix~  *{}x~}W{}n~|Zy|}p~}W{|}k~}Z{}i~|Nt~}\\{|g~}V{}l~|`{}c~}\\{}l~|X{}n~}   e{|l~"
+      "|Ty|y}u~y}|Rt~X{}g~}V{|}j~}d{}g~}|Z{}c~|`{}e~\\{|}i~}|d{}w~}hv~|Y{}w~}M{}w~}W{}w~}l{|u~}a{}w~}V{}t~}i{|s~|h{}t~"
+      "|kv~`{|k~}|\\{}i~}|Z{|k~}|^{}i~}|W{|h~}dZ~g{|v~h{}w~}hv~}d{}v~q{}w~}l{}u~kv~|o{}v~j{|v~|fv~}h{}v~f\\~]{|v~u}U{}"
+      "w~Iu}v~|Qt~| w{}x~} {{w~} `{|w~|#{}o~)w~}Cv~Lv~Tw~}Dv~    Ov|    s~x}|Tw~|U{|x}s~|  9{}j~}%{}j~|  uq~|     x{}l"
+      "~}St~V{}c~|_{}d~}`{|}k~|T{|v~Y{}^~|iv~}r{|v~qv~}c{|k~}| {}v~} t{}w~ t{}u~|  i{|l~-v~i{}w~|Xw}|R{|l~X{|v~vv~|W{|"
+      "}o~}|X{|m~|  p{|}o~}|X{|l~|U{}r~}!{|n~}U{}n~|Ow~} {{|}j~} N{|r~|R{|n~}1{|r~|g{|w~k{|r~|g{|w~k{}n~iw~$t~Nt~Nt~Nt"
+      "~Nt~P{|r~V[~}d{|}j~}`{}c~|a{}c~|a{}c~|a{}c~|X{}w~}M{}w~}M{}w~}M{}w~}Z{|g~}|]{}t~|kv~`{|k~}|Z{|k~}|Z{|k~}|Z{|k~}"
+      "|Z{|k~}|&{|k~}w{|w~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}fv~}h{}v~b{}w~}K{}j~}W{|w~|H{|w~|R{|x~}{|x~}U{|"
+      "x~}|w~}|{}x~X{|v~|wv~}W{|x~t{}y~} E{}w~G{}x~}Qw~|{}x~|U{}w~}w{|v~Tw~}H{}w~Q{}x~|{|x~}U{|v~vv~|U{}v~|}t~}Y{}x~|{"
+      "}w~y|x~}V{|w~|H{|w~|R{}x~|{|x~}U{}x~}|w~}{|x~}X{|v~vv~| G{}x~}H{|w~|R{}x~|yw~Tv~|w{}w~}P{|w~|Xw~}Hv~}w{}w~}    "
+      "P{}w~y|w~|d{|Y~|  j{|y~}\"{}x~Oo~}_{|o~}u{|o~}Zw~|  8{}b~}    ,{|j~}#v~}R{}x~}vw~}Rw~sw~U{|y~|^{}o~}lw~|_{}k~|Q"
+      "{}x~}Jw~|P{|w~|Jx~  *w~|Xk~|[m~}X{}h~}[{}h~}P{}t~}\\{|g~}X{|j~|`{}c~}^{|i~}[{|j~   gi~|X{|}l~}|V{}t~|Y{}e~|Y{}f"
+      "~}f{}d~}\\{}c~|`{}e~]{}e~}|f{}w~}hv~|Y{}w~}M{}w~}W{}w~}m{|u~|`{}w~}V{}s~|j{}s~|h{}t~}kv~b{|g~}]{}g~}]{|g~}_{}g~"
+      "}Y{}f~dZ~g{|v~h{}w~}h{}v~dv~}q{}w~}lt~|m{|v~mv~}kv~}e{|v~|j{|v~|f\\~]{|w~}O{|w~|D{|w~|Rr~| ww~} w~} `{|w~|${|v~"
+      "}|#w~}Cv~Lv~Tw~}Dv~    Ov~   !{|v~}Nw~|O{|v~}  :{|u~}|w{|}v~|'{}i~|  r{|}v~}     y{}v~}|x{|}v~}U{}t~|W{}c~|_{}d"
+      "~}a{}g~|V{|v~Y{}^~|iv~}r{|v~qv~}e{|g~}\"{}t~} u{}w~ u{}s~| >y~}P{|k~-{|w~}k{|w~}Ww~|S{|k~X{|v~vv~|Y{|}k~}|Z{|y~"
+      "}y|xy|}w~|  s{|}k~}|Z{|l~|V{}p~}\"{|y~}|w{|}w~|V{|}|u{|v~P{}x~} {{}h~} N{|~y}y|}x~|S{|v~}|y{|}w~}2{|w~y}x~|g{}x"
+      "~|k{|w~y}x~|g{}x~|kx}|w{|}w~}k{}x~}%{}t~|P{}t~|P{}t~|P{}t~|P{}t~|P{}t~}W{|[~}e{}f~}b{}c~|a{}c~|a{}c~|a{}c~|X{}w"
+      "~}M{}w~}M{}w~}M{}w~}Z{|d~}|`{}t~}kv~b{|g~}]{|g~}]{|g~}]{|g~}]{|g~}){|g~|{|w~|h{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f"
+      "{|v~h{}w~}f{|v~|j{|v~|b{}w~}L{|u~}|w{|}v~|W{|w~|Iw~}Qw~x{}x~|V{}y~}x{}s~|X{|v~|wv~}Vx~}v{|x~| D{}x~}I{}w~Q{}x~|"
+      "xw~U{}w~}w{|v~T{|w~|J{|w~Q{|x~}x{|x~|V{|v~vv~|T{}q~}|Wx~|x{}s~T{|w~I{|w~|R{|x~}x{}x~|Vx~}x{}s~|X{|v~vv~| Fw~}J{"
+      "|w~|R{|x~}x{|x~}Uv~|w{}w~}Q{|w~|Ww~}Hv~}w{}w~}    Pw~}y{|x~}cY~  i{}y~|#{|w~}Qm~|`m~}w{|m~|\\{}v~|  ;{}`~}    -"
+      "{|r~x}t~}$v~}R{}x~}vw~}S{|w~t{|x~}U{|y~|_{|w~}w{}w~|n{}x~}_{|t~w}u~|Q{}x~}K{}w~N{}x~}Jx~  +{|w~Xs~y}s~|\\m~}X{}"
+      "f~\\{}g~}R{|s~}\\{|g~}Y{|i~|`{}c~|_{|s~w}s~}]{|s~x}s~   hr~}r~|[{|f~}Xs~}Y{}d~|\\{|c~}g{}b~|^{}c~|`{}e~_{|a~|g{"
+      "}w~}hv~|Y{}w~}M{}w~}W{}w~}n{|u~|_{}w~}V{}s~}jr~|h{}s~|lv~c{|p~}q~}^{}f~}_{|p~}q~}`{}e~[{}q~}p~dZ~g{|v~h{}w~}h{|"
+      "v~|f{|v~p{|v~m{|t~}m{}w~}m{|v~|m{}v~c{}v~jv~}e\\~]{|w~}Nw~}D{|w~|Sp~| ww~|!w~} `{|w~|${}w~}!w~}Cv~Lv~Tw~}Dv~   "
+      " Ov~   !{}w~}Mw~|N{|v~  :{}v~|s{|v~V{|t}|V{|t~s}w~|  p{|v~     {{|v~|t{|v~|Vs~}W{}c~|_{}d~}c{|d~|W{|v~Y{}^~|iv~"
+      "}r{|v~qv~}f{|p~}q~}${}r~} v{}w~ v{}q~| ?y~}Ps~x}u~,v~k{}w~|Ww~|Su~}v|}w~X{|v~vv~|Z{}v~}y|wy|}v~}[{|}q{}x~}  t{}"
+      "v~}y|wy|}v~}&{}w~|x{|w~}#y|r{}x~}Kw~|R{|w~ {{}p~}v|x~} H{}x~|S{}w~t{}w~|3x|x{}x~|h{|x~}j{|}|x{}x~|h{|x~}`{|w~l{"
+      "|w~$s~}Ps~}Ps~}Ps~}Ps~}Pr~W{}[~}g{|c~}c{}c~|a{}c~|a{}c~|a{}c~|X{}w~}M{}w~}M{}w~}M{}w~}Z{|b~}a{}s~|lv~c{|p~}q~}_"
+      "{|p~}q~}_{|p~}q~}_{|p~}q~}_{|p~}q~}+{|p~}q~}w~|g{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}e{}v~jv~}a{}w~}Lu~r{"
+      "|v~V{|w~J{}x~}Q{}x~|w{}x~Vx~|w{}u~}Vv|vv|U{}x~}x|}w~ Bw~|K{|w~|R{|x~}w{|x~}Vu|vv|S{|w~K{|w~|Qx~}v{}x~Uv|vv|T{|}"
+      "t~}|Tx~|w{|u~|S{}x~}Jw~}Qw~vw~Vx~|w{}u~}Vv|vv| Dw~|Kw~|Qw~v{}x~|Vv|vv|Pw~|Vw~}Hv|uv| G{|t}|P{|t}|P{|t}|P{|t}|P{"
+      "|t}|Lw~|xw~c{|[~}  iy~}\"u~|S{|l~a{}l~|x{}l~]{}t~  ={|^~}    .{|u~}|u{|}w~}$v~}R{}x~}vw~}S{}x~}t{}x~}Xy|y}y~y}x"
+      "|cw~}u{}w~o{|w~^u~}t{|}y~|Q{}x~}Kw~|N{|w~|T{}sx~s{}  4{}x~}Y{}v~}|v{}u~\\m~}X{}v~y}|wy|s~]{}x~}x|v{|}t~}Sr~}\\{"
+      "|v~k|Z{|t~}|v{|y}y~|`h|u~^t~|u{|}u~|^u~}|v{|}v~}   iv~y|v{|t~]{|o~y}p~|[{|r~|Z{}w~}q|}s~]{|s~}|t{|}u~}g{}w~}r|y"
+      "}q~}_{}w~}h|_{}w~}j|`{|s~}|s{|}t~|g{}w~}hv~|Y{}w~}M{}w~}W{}w~}o{}u~|^{}w~}V{}r~k{|r~|h{}r~lv~d{|t~}|uy|s~_{}w~}"
+      "s|y}t~}a{|t~}|uy|s~a{}w~}s|y}s~]{}u~}|ty|}v~dn|}v~}n|g{|v~h{}w~}gv~}f{}w~}ov~|n{|t~}mv~|l{}v~|o{|v~|bv~}l{}v~dc"
+      "|u~}]{|w~}N{}w~D{|w~|T{}o~| x{|w~!w~} `{|w~|${}w~ w~} >w~}Dv~    Ov~   !{}w~|Mw~|M{}w~  :v~|q{}w~|Xp~}X{}v~|p{|"
+      "}|  o{}w~|     v~|r{|v~W{|r~|X{}v~}i|^{}w~}h|d{|s~}y|xy|}s~}[{|y}u~y}y|]{}w~}h|v~|iv~}r{|v~qv~}g{|t~}|uy|s~&{}p"
+      "~} w{}w~ w{}o~| @y~}Q{}v~}|u{|}y~,{|w~}m{|w~}Vw~|T{|v~|s{|}~({|w~}|o{|}w~|P{}x~|  w{|w~}|o{|}w~|(x~}tw~ rw~K{}x"
+      "~|Rw~ {{}o~}w{|x~} H{}x~|T{|w~r{}x~}-{}x~|hw~|d{}x~|hw~|_{}x~|mw~|%{|r~|R{|r~|R{|r~|R{|r~|R{|r~|R{}r~|Y{|v~|y{|"
+      "v~}h|h{|s~}|t{|}u~}c{}w~}h|`{}w~}h|`{}w~}h|`{}w~}h|W{}w~}M{}w~}M{}w~}M{}w~}Z{|v~r|x}q~b{}r~lv~d{|t~}|uy|s~a{|t~"
+      "}|uy|s~a{|t~}|uy|s~a{|t~}|uy|s~a{|t~}|uy|s~-{|t~}|u{|}q~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}dv~}l{}v~`"
+      "{}w~}M{|v~p{}w~|V{}x~}L{}x~}Q{|x~|ux~}Wx~|v{|w~} {{}q~| Aw~|Lw~|Qw~u{}x~| y{|x~}Lw~|Q{}x~tx~}#{|}r~}Rx~u{|}y~}|"
+      "Q{}x~}L{}x~}Q{}x~|v{|x~}Wx~|v{}w~}  j{|w~L{}x~}Q{}x~|u{}x~ x{}x~}Uw~}  b{|}p~}|V{|}p~}|V{|}p~}|V{|}p~}|V{|}p~}|"
+      "P{|w~|xx|av~|fv~|  j{|y~|#{}t~Sk~|c{|k~}y{|k~}_{|s~}  ?{}t~}y|     u{|u~|p{}y~}$v~}R{}x~}vw~}Sw~|tw~|[{|}m~}|h{"
+      "|w~sw~|p{}x~|_{}v~|q{|}|Q{}x~}L{}w~Lw~}U{}y~|ux~u{|y~}U{|x}|  `w~|Z{|v~}s{|v~}]w~y}y|{}w~}X{}x~|p{|u~|^y}|n{|u~"
+      "|U{}x~y}w~}\\{|w~}K{|u~}o{}|Mv~|_{}v~}q{|u~_{}v~}r{|v~|   jy~}|qu~|_{}t~}y|s{|}t~}\\{}w~}w~}Z{}w~}o{|u~}_{|t~|n"
+      "{|}x~}g{}w~}n{|}t~}`{}w~}L{}w~}P{|t~}m{|}w~|g{}w~}hv~|Y{}w~}M{}w~}W{}w~}p{}u~|]{}w~}V{}w~}w~|l{}r~|h{}r~|mv~e{|"
+      "u~}|p{|t~`{}w~}q{|}u~|c{|u~}|p{|t~b{}w~}p{}u~|_{|u~|n{|}y~W{|v~|Z{|v~h{}w~}g{|v~fv~|o{}w~}n{}x~}w~mv~|kv~}ov~}a"
+      "{|v~|n{|v~|M{}v~}\\{|w~}N{|w~|E{|w~|U{}v~}{|u~| x{|x~}\"w~} `{|w~|$v~ w~} >w~}Dv~    Ov~   !v~Lw~|M{}w~|  <{|w~"
+      "}p{|w~}Xn~|Zv~  _{|v~    !{|w~}p{}w~}X{}w~}w~}W{}v~|M{}w~}R{|t~|p{|t~|_{|}l~}|`{}w~}hv~|iv~}r{|v~qv~}h{|u~}|p{|"
+      "t~({}n~} x{}w~ x{}m~| Ay~}R{|v~}p{}+{}w~|nv~Uw~|T{}w~| x{|w~|k{|w~|Q{|x~|  x{|w~|k{|w~|*{|x~rx~|R{|w}Fw~Kw~|S{}"
+      "x~| {|n~}w{|x~} H{}x~|T{}x~}qw~|.{}x~|i{}x~}c{}x~|i{}x~}^{}x~|n{}x~}${}w~}w~}R{}w~}w~}R{}w~}w~}R{}w~}w~}R{}w~}w"
+      "~}Rv~|w~}Y{}w~}x{|v~U{|t~|n{|}x~}c{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~n{|}s~c{}r~|mv~e{|u~}|p{|"
+      "t~c{|u~}|p{|t~c{|u~}|p{|t~c{|u~}|p{|t~c{|u~}|p{|t~/{|u~}|p{}t~}e{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}d{|v"
+      "~|n{|v~|`{}w~}M{}w~}ow~}U{}x~|N{|w~Px~}t{|x~|Xx|sy| w{}s~| @{|w~M{}x~|Q{}x~|tw~ x{}x~}N{}x~|Q{|x~|t{|x~|&{}t~}v"
+      "~} t{}x~|N{|x~}Q{|x~}t{}x~|Xx|sy|  g{|x~}N{|x~}Q{|x~}sx~} {{|x~}Tw~}  d{|j~|Z{|j~|Z{|j~|Z{|j~|Z{|j~|R{|w~Z{}w~}"
+      "g{}w~} Ay|J{}y~#{|s~}Tk~}c{}j~|{}j~_q~|  A{}u~}     q{}v~|n{}~}$v~}R{}x~}vw~}Sw~t{|w~\\{|h~|i{}x~}s{}x~}q{|x~}^"
+      "v~|C{}x~}Lw~}L{}w~V{|v~|wx~w{|v~|V{}w~  a{|w~Yv~}q{|v~|^{}y|u{}w~}Xy}|m{|u~M{|v~}V{|w~|}w~}\\{|w~}Ku~|?{|v~^u~o"
+      "{}v~|a{|v~}p{}v~   j{~|nv~}`u~}|l{|}u~]v~{v~Z{}w~}mu~_u~}j{|y~}g{}w~}l{|}u~}a{}w~}L{}w~}Q{|u~}i{|}y~|g{}w~}hv~|"
+      "Y{}w~}M{}w~}W{}w~}q{}u~|\\{}w~}V{}w~|w~}lw~|v~|h{}q~mv~f{|u~}m{|u~}a{}w~}o{}v~}d{|u~}m{|u~}c{}w~}o{|u~_{}v~|j{|"
+      "W{|v~|Z{|v~h{}w~}fv~|h{}v~n{}w~}nw~|w~|o{|v~j{|v~}q{}v~_{}v~nv~}M{|u~[{|w~}Mw~}E{|w~|V{}v~}x{|u~|  vw~} `{|w~|$"
+      "w~} w~} >w~}Dv~    Ov~   !v~Lw~|M{}w~|  <{}w~|ow~}Xm~|[v~  ^v~|    \"v~|p{|v~Xv~{v~V{}v~|N{}w~}Ru~}l{}u~|b{|g~}"
+      "|b{}w~}hv~|iv~}r{|v~qv~}i{|u~}m{|u~}*{}l~} y{}w~ y{}k~| By~}R{}v~ y{|w~}o{|w~}Uw~|T{}w~ x{|x~}g{}x~|R{|x~}  y{|"
+      "x~}g{}x~|+{}y~}r{}y~}R{}w~Fx~}M{|}w~ Mm~}w{|x~} H{}x~|Tw~p{}x~|.{}x~|j{|w~b{}x~|j{|w~]w~n{|w~#v~{v~Rv~{v~Rv~{v~"
+      "Rv~{v~Rv~{v~S{|w~}{}w~|Zv~|x{|v~Uu~}j{|y~}c{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~k{}t~d{}q~mv~f{|"
+      "u~}m{|u~}e{|u~}m{|u~}e{|u~}m{|u~}e{|u~}m{|u~}e{|u~}m{|u~}1{|u~}m{|u~}e{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w"
+      "~}c{}v~nv~}_{}w~}Mv~n{}w~Tw}N{|x}P{|x}r{|x} F{|}x~}| ={|x}|O{|x}|Px}|s{|x}| xw|Nw|Pw|rw|'{|v~}|y{|v~} tw}Nw}P{|"
+      "x}rx}|  6w|Nw|Ox|rw| Nw~}  e{}h~}\\{}h~}\\{}h~}\\{}h~}\\{}h~}S{|w~Z{|v~gv~| Ay~}L{|y~}${|q~}V{|j~ci~}|i~|a{}p~|"
+      "Oy|Uw|jw|Vu|Wv|kw|b{}v~}     p{|v~|l{|}$v~}R{}x~}vw~}T{|x~}t{|x~}]{|g~|i{}x~|s{|w~qw~|^v~B{}x~}M{|w~|L{|w~}V{|}"
+      "w~}xx~x{}w~}|U{}w~  a{}w~Z{|v~o{}w~}U{}w~}X{|j{}v~|M{}v~Vw~}{}w~}\\{|w~}L{|v~|>v~}_{|v~|nv~}a{}v~nv~|   \\{}w~}"
+      "b{|u~|h{|}v~|`{|w~}{}w~|[{}w~}m{|v~|a{}v~}gy}g{}w~}j{}u~|b{}w~}L{}w~}Q{}v~}f{|~|g{}w~}hv~|Y{}w~}M{}w~}W{}w~}r{}"
+      "u~|[{}w~}V{}w~y|w~m{|w~{v~|h{}w~}v~|nv~f{}v~}ju~|b{}w~}nu~d{}v~}ju~|d{}w~}n{}v~|`v~}D{|v~|Z{|v~h{}w~}f{}w~}hv~}"
+      "n{|v~o{|w~{}x~}o{}w~}i{}v~|s{|v~|^v~}p{}v~M{|u~|[{|w~}M{}x~}E{|w~|W{}v~|v{|u~|  ww~} `{|w~|$w~} w~} >w~}Dv~    "
+      "Ov~   !v~Lw~|M{|w~|  <{}w~|ow~}Xy~}w|}t~[v~|  _{}w~}    #{|w~}n{}w~|Z{|w~}{}w~|Vu~|O{}w~}S{}v~}j{}u~c{}d~|c{}w~"
+      "}hv~|iv~}r{|v~qv~}i{}v~}ju~|,{}v~y}w~|v~} {{}w~ {{}v~y}w~|u~| Cy~}R{}w~}R{|ey|_{}w~|pv~Tw~|T{}w~ y{|x~}e{}x~|\\"
+      "{|}p~}  {{|x~}e{}x~|,{}y~}r{}y~}R{}w~G{}x~|Rq~| N{|m~}w{|x~} H{}x~|U{|w~p{|x~}.{}x~|j{}x~|b{}x~|j{}x~|_{|w~|n{}"
+      "x~|${|w~}{}w~|T{|w~}{}w~|T{|w~}{}w~|T{|w~}{}w~|T{|w~}{}w~|T{}w~|{|w~}[{|v~w{|v~V{}v~}gy}c{}w~}M{}w~}M{}w~}M{}w~"
+      "}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~j{|u~}e{}w~}v~|nv~f{}v~}ju~|f{}v~}ju~|f{}v~}ju~|f{}v~}ju~|f{}v~}ju~|c{}d{}|d{}v~}"
+      "k{}u~|f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}bv~}p{}v~^{}m~y}|Yv~o{|}w~         Py~}|u{|v~}       2w~}  f{"
+      "}u~}x|{x|}t~^{}u~}x|{x|}t~^{}u~}x|{x|}t~^{}u~}x|{x|}t~^{}u~}x|{x|}t~T{|w~Yv~|i{|v~ A{}x~}M{}y~|$o~|W{|j~ch~}i~}"
+      "b{}n~T{|}t~y}|Zw~}kw~}X{}u~|X{}w~|m{}w~|d{|v~|     ov~}j{|$v~}R{}x~}vw~}T{}x~}t{}x~}]u~}|{|y~|y{|y}x~|iw~|rw~r{"
+      "}x~}]v~B{}x~}Mv~Jv~T{|}w~|{x~{|w~}|S{}w~  aw~}Z{}w~}o{|v~U{}w~}Ev~}M{|v~W{}w~y{}w~}\\{|w~}Lv~}>{|v~|_{|v~m{}w~}"
+      "av~|n{|v~ 8{|y}6{|~|4{}v~c{|v~}d{|v~`{}w~|{|w~}[{}w~}lv~|b{|v~}e{|g{}w~}i{}u~b{}w~}L{}w~}R{|v~}dy|g{}w~}hv~|Y{}"
+      "w~}M{}w~}W{}w~}s{}u~Y{}w~}V{}w~|{w~|nw~}{v~|h{}w~y|v~nv~g{|v~}i{|u~b{}w~}n{|v~|f{|v~}i{|u~d{}w~}n{|v~|a{|v~C{|v"
+      "~|Z{|v~h{}w~}f{|v~|j{|v~|mv~|p{|w~{|x~}ov~|hv~}sv~}]{|v~|r{|v~|Mu~|Z{|w~}M{|w~E{|w~|X{}v~|t{|u~|  xw~} `{|w~|$w"
+      "~} w~} >w~}Dv~    Ov~   !w~}Lw~|M{|w~|  <v~nw~}X{|s{}v~}\\{}v~|  `{|v~    #{}w~|n{|w~}Z{}w~|{|w~}Uu~|P{}w~}T{|u"
+      "~h{}v~}f{|r~y}v~}r~}d{}w~}hv~|iv~}r{|v~qv~}j{|v~}i{|u~-{}v~}{}w~{|v~} {}w~ {}v~}{}w~{|u~ Cy~}Rv~|S{}~}g{|y~|_v~"
+      "q{}w~|Tw~|T{}w~| {{x~}t{|y}u~}|u{}x~^{}m~}  {{x~}wq}y|s{}x~,{}y~}r{}y~}R{}w~H{|x~}Qs~} L{}m~}w{|x~} H{}x~|U{|x~"
+      "}p{|x~}.{}x~|k{|x~}a{}x~|k{|w~cx}u~|n{|x~}#{}w~|{|w~}T{}w~|{|w~}T{}w~|{|w~}T{}w~|{|w~}T{}w~|{|w~}Tv~xv~[v~}w{|v"
+      "~W{|v~}e{|c{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~i{|u~|f{}w~y|v~nv~g{|v~}i{|u~g{|v~}i{|u~g{|v~}i{"
+      "|u~g{|v~}i{|u~g{|v~}i{|u~d{}y~f{}y~|f{|v~}k{|s~f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}b{|v~|r{|v~|^{}i~}|"
+      "\\v~q{}t~|         F{}v~|    C{~|   mw~}  gu~}p{}u~|au~}p{}u~|au~}p{}u~|au~}p{}u~|au~}p{}u~|V{|w~Y{}w~}i{}w~} B{"
+      "}w~}Mx~${}n~W{|k~}d{|U~}c{|m~}W{|n~}[w~}kw~}Xt~}X{|w~}mv~cv~|     o{|v~| mv~}R{}x~}vw~}Tw~|tw~|^{}v~|x{|y~|u{|~"
+      "|iw~|rw~s{|w~\\v~B{}x~}N{|w~}J{}w~|S{|n~|Q{}w~  b{|w~|Zv~|nv~|V{}w~}E{}w~}M{|v~X{|w~|y{}w~}\\{|w~}M{|v~={}v~^{|"
+      "v~m{}w~}b{|v~lv~| <{|}x~}6{|x~}|7{}w~}cv~|b{|w~}b{|v~xv~[{}w~}l{}w~}bu~|P{}w~}h{}v~}c{}w~}L{}w~}Ru~M{}w~}hv~|Y{"
+      "}w~}M{}w~}W{}w~}t{}u~X{}w~}V{}w~|{}x~}o{|w~|{v~|h{}w~|{v~}ov~gu~|h{}v~|c{}w~}mv~}fu~|h{}v~|e{}w~}mv~}a{|v~C{|v~"
+      "|Z{|v~h{}w~}ev~}j{}v~l{}w~}p{}x~}{|w~ov~|h{|v~}u{}v~[{}v~rv~}M{}v~}Y{|w~}Lw~|F{|w~|Y{}v~|qu~| Kt|Uw~}uu|Mt|Ru|u"
+      "{|w~|Wt|Ow~}Mu|Tw~}uu| Jw~}Dv~Tu|mv|Vu|Pt|Ku|Qu|Bv|Us|Rv~   !w~}Lw~|M{|w~|  iv|Sv~o{|w~}N{}v~\\{|t~}|Is|Mu| u{}"
+      "w~|   Zt| Lv~|n{|v~[{|v~xv~Tu~P{}w~}T{}v~|gu~g{|t~}|y{|v~x{}t~}e{}w~}hv~|iv~}r{|v~qv~}ju~|h{}v~|/{}v~}y{}w~y{|v"
+      "~}!{}w~!{}v~}y{}w~y{|u~ F{|}y~}x|V{|v~S{}x~}i{|w~|`{}w~|rw~}Sw~|T{|v~|!{}y~}u{|n~}v{}y~}a{|k~}  {}y~}vn~}t{}y~}"
+      "-{}y~}r{}y~}R{}w~I{|w~Pt~}| L{}m~}w{|x~} H{}x~|U{|x~}p{|w~.{}x~|kw~|a{}x~|kw~|ct~}lw~|${|v~xv~U{|v~xv~U{|v~xv~U"
+      "{|v~xv~U{|v~xv~U{|w~}x{}w~|]{|v~v{|v~Wu~|L{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~h{|v~}f{}w~|{v~}o"
+      "v~gu~|h{}v~|hu~|h{}v~|hu~|h{}v~|hu~|h{}v~|hu~|h{}v~|f{}w~h{}w~|gu~|l{|r~|g{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~"
+      "h{}w~}a{}v~rv~}]{}g~}]w~}s{|r~|Xt|Nt|Nt|Nt|Nt|Nt|Xt|lu|Ut|Pt|Nt|Nt|Nt|  0{}v~|Pu|Pt|Nt|Nt|Nt|Nt| ut|t{}y~}   nw"
+      "~}uu|  t{}w~}|wv|v{}v~b{}w~}|m{}v~b{}w~}|m{}v~b{}w~}|m{}v~b{}w~}|m{}v~V{|w~Xv~iv~| C{|v~M{|y~}%{}m~}Wk~}d{|U~}d"
+      "{|k~}Y{}k~|]w~}kw~}Y{|s~X{|v~n{|w~}d{}w~}     n{}w~} lv~}R{}x~}vw~}U{|w~t{|w~]v~|w{|y~|`w~|rw~s{}x~|\\v~|C{}x~}"
+      "N{}w~|J{|w~}Q{|r~|O{}w~  b{}w~Z{|v~m{}w~}V{}w~}E{}w~}M{|v~Xw~}x{}w~}\\{|w~}M{}w~}=v~}^{|v~m{}w~}b{|v~lv~} ?{|}u"
+      "~}6{|u~}|:{}w~}d{}w~|`{|w~}c{}w~|x{}w~}\\{}w~}l{}w~}c{|v~}O{}w~}gu~c{}w~}L{}w~}S{|v~}M{}w~}hv~|Y{}w~}M{}w~}W{}w"
+      "~}uu~}W{}w~}V{}w~|{|w~|p{}w~yv~|h{}w~|{|v~ov~h{|v~}fu~c{}w~}mv~}g{|v~}fu~e{}w~}mv~}a{|v~C{|v~|Z{|v~h{}w~}e{}v~j"
+      "v~|l{}w~}pw~|yw~|q{|v~f{}v~|w{|v~|Zv~}t{}v~M{}v~}X{|w~}L{}x~}F{|w~|Z{}v~|o{}v~| P{|}q~}|Xw~}w{}s~}|S{|}q~}|X{}s"
+      "~}|x{|w~|Z{|}r~}|W{}k~}W{}s~}|x{|w~|`w~}w{|s~}|Rv~Lv~Tw~}n{|v~}Xv~_w~}w{}s~}r{|s~}cw~}w{|s~}|V{|}r~}|Yw~}w{}s~}"
+      "|V{}s~}|x{|w~|Zw~}w{}t~|Y{}o~}|Z{}i~]{|w~|m{}w~|c{|v~iv~i{}w~|pu~ow~}hv~}m{|v~|d{|v~iv~`d~Uw~}Lw~|M{|w~|  l{|s~"
+      "}|u{}x~}av~o{|w~}M{}w~|\\{}q~}|P{}o~}|\\w~}w{|s~}|^x~y}hv~W{}w~}X{|w~|m{}w~|d{}w~}h{}w~}]{|y}w{|}x~}|]_~|dv~t{}"
+      "w~t{|w~}[{|q~}|U{|y}i~}f{|`~b{|v~lv~|\\{}w~|x{}w~}U{|u~Q{}w~}U{|v~}f{|v~|ht~|w{|v~v{}u~}f{}w~}hv~|iv~}r{|v~qv~}"
+      "k{|v~}fu~/{|w~}x{}w~x{|w~}I{|T{}w~S{|i{|\\w~}x{}w~x{|w~|!v~}O{|}p~}|Y{|v~T{|v~}k{|v~}_v~s{}w~|Sw~|Su~|#{|x~u{}l"
+      "~ux~|bv~}y|v{|x~} !{|x~ul~|ux~|.{|x~|t{|x~|R{}w~J{|w~|L{|}x~}&{|w~|m{}w~|a{}m~}w{|x~} H{}x~|U{|x~}p{|w~.{}x~|l{"
+      "}x~}`{}x~|l{}x~}br~|o{}x~}Qv~|S{}w~|x{}w~}V{}w~|x{}w~}V{}w~|x{}w~}V{}w~|x{}w~}V{}w~|x{}w~}V{}w~|x{|w~}]{}w~}v{|"
+      "v~X{|v~}K{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~gu~|g{}w~|{|v~ov~h{|v~}fu~i{|v~}fu~i{|v~}fu~i{|v~}"
+      "fu~i{|v~}fu~g{|u~j{}v~}h{|v~}l{|w~}v~}g{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}`v~}t{}v~\\{}f~}^w~}t{}v~}y|Y"
+      "{|}q~}|U{|}q~}|U{|}q~}|U{|}q~}|U{|}q~}|U{|}q~}|_{|}q~}|r{|}r~}[{|}q~}|W{|}r~}|T{|}r~}|T{|}r~}|T{|}r~}|Qv~Lv~Lv~"
+      "Lv~O{|y}w~}u~|\\w~}w{|s~}|V{|}r~}|T{|}r~}|T{|}r~}|T{|}r~}|T{|}r~}|Q{}u~Q{|}r~}|x{}x~}b{|w~|m{}w~|a{|w~|m{}w~|a{"
+      "|w~|m{}w~|a{|w~|m{}w~|c{|v~iv~aw~}w{}s~}|^{|v~iv~ W{}w~}u{}w~u{}w~}d{}w~}j{}w~}d{}w~}j{}w~}d{}w~}j{}w~}d{}w~}j{"
+      "}w~}W{}w~X{}w~}k{|v~ C{|v~|M{}y~|&{|k~}X{}l~|cU~}di~|[{}i~|^w~}kw~}Y{}s~|Xv~|o{}w~|dw~}     mv~| lv~}R{}x~}vw~}"
+      "^{}Z~f{|w~}v{|y~|`w~|rw~t{|x~}[{}w~}C{}x~}Nv~Hv~O{}v~}M{}w~  bw~}Z{}w~}m{|v~V{}w~}E{}w~}M{|v~Y{}w~w{}w~}\\{|w~}"
+      "Mv~|>{|v~]{|v~m{}w~}b{|w~}l{}w~}W{|v}M{}v~D{}r~}6{|r~}|>{|v~|e{}w~|^{|w~|dv~w{|v~\\{}w~}lv~|c{}v~N{}w~}g{}v~|d{"
+      "}w~}L{}w~}S{}v~L{}w~}hv~|Y{}w~}M{}w~}W{}w~}vu~}V{}w~}V{}w~|yw~}pw~}yv~|h{}w~|y{}w~}pv~h{}v~e{}v~|d{}w~}mv~}g{}v"
+      "~e{}v~|f{}w~}mv~}a{|v~C{|v~|Z{|v~h{}w~}dv~|l{|v~k{|v~q{|w~x{}x~}q{}w~}e{}v~wv~}Y{|v~|v{|v~|N{|v~}W{|w~}L{|w~F{|"
+      "w~|[{}v~l{}v~ S{|}k~|Zw~}y{|o~}V{|k~|\\{|o~}y{|w~|\\{|m~}X{}k~}Y{|o~}y{|w~|`w~}y{|o~}Sv~Lv~Tw~}o{|v~}Wv~_w~}y{|"
+      "o~|v{|o~|ew~}y{|o~}Y{|}n~}|[w~}y{|o~}Y{|o~}y{|w~|Zw~}y{|r~|[{}j~[{}i~]{|w~|m{}w~|b{}w~|k{|w~}i{|w~}q{|u~|q{|w~|"
+      "h{|v~|o{|v~}b{}w~|k{|w~}`d~Uw~}Lw~|M{|w~|  n{|o~}vw~|av~o{}w~|M{|v~[{|o~}|U{}k~}]w~}y{|o~}_u~|k{|w~}Wu~X{|w~|m{"
+      "}w~|dv~|h{|v~_{}x~}x{}s~}__~|dv~t{}w~t{|w~}\\{}n~}Y{|}e~}f{|`~b{|w~}l{}w~|\\v~w{|v~T{|u~R{}w~}U{}v~dv~}i{}u~u{|"
+      "v~u{|u~|g{}w~}hv~|iv~}r{|v~qv~|k{}v~e{}v~|c{~}I{|y~}w{}w~w{|y~}I{}~|U{}w~T{}~|k{}~|\\y~}w{}w~w{|y~| v~}P{}k~Z{|"
+      "v~S{|v~}x{|}v~}|y{|v~}^{|w~}u{|w~}Rw~|S{|u~}${}y~|v{}v~}|wy|}y~u{|y~}c{|x~}r{|x~}Q{|q{| W{}y~|uw~vy|v~u{|y~}-w~"
+      "|v{|w~Q{}w~K{|w~|I{|w~'{|w~|m{}w~|a{}m~}w{|x~} H{}x~|U{|x~}p{|x~}]{|q{|X{}x~|m{|w~_{}x~|m{|w~]{|}w~}q{|w~Pv~|Sv"
+      "~w{|v~Vv~w{|v~Vv~w{|v~Vv~w{|v~Vv~w{|v~W{|v~vv~^{|v~|v{|v~X{}v~J{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z"
+      "{|v~g{|v~}g{}w~|y{}w~}pv~h{}v~e{}v~|j{}v~e{}v~|j{}v~e{}v~|j{}v~e{}v~|j{}v~e{}v~|g{|u~l{}v~}g{}v~kw~}{}v~g{|v~h{"
+      "}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}`{|v~|v{|v~|\\{}w~}s|y}t~}_w~}u{|v~|Y{|}k~|Z{|}k~|Z{|}k~|Z{|}k~|Z{|}k~|Z{|"
+      "}k~|d{|}k~|v{|m~}_{|k~|[{|m~}W{|m~}W{|m~}W{|m~}Rv~Lv~Lv~Lv~Q{|}l~\\w~}y{|o~}Y{|}n~}|X{|}n~}|X{|}n~}|X{|}n~}|X{|"
+      "}n~}|S{}u~S{|}n~}{|x~}a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|b{}w~|k{|w~}aw~}y{|o~}^{}w~|k{|w~} X{|w~}"
+      "t{}w~t{|w~}f{|w~}h{|w~}f{|w~}yy|p{|}y{|w~}f{|w~}ly|y{|w~}f{|w~}h{|w~}X{}x~}X{|v~kv~| Cv~|Lx~&{|i~|Y{|m~}bU~|e{}"
+      "h~\\{|u~}|xy|}u~^w~}kw~}Yr~}X{}w~}ov~d{}w~     lv~| lv~}R{}x~}vw~}^{}Z~f{|w~|v{|y~|`w~|s{|w~tw~|[{|v~|D{}x~}Nw~"
+      "}H{}w~|Q{|t~|N{}w~  c{|w~|Zv~|lv~|W{}w~}E{}w~}M{}w~}Z{|w~|w{}w~}\\{|w~}N{|v~={}w~}\\v~|nv~|b{}w~}l{}v~W{}v~M{}v"
+      "~G{|}p~|6{|o~}@u~e{|w~|\\{}w~e{|w~}v{}w~|]{}w~}m{|v~|cv~}N{}w~}g{|v~}d{}w~}L{}w~}Sv~}L{}w~}hv~|Y{}w~}M{}w~}W{}w"
+      "~}x{|u~}U{}w~}V{}w~|y{}w~q{|w~|yv~|h{}w~|y{|v~pv~hv~}e{|v~}d{}w~}mv~}gv~}e{|v~}f{}w~}mv~}a{|v~|D{|v~|Z{|v~h{}w~"
+      "}d{}w~}l{}w~}jv~|r{|w~x{|x~}qv~|e{|v~}y{}v~W{}v~vv~}N{|u~V{|w~}Kw~|G{|w~|\\{}w~}j{}v~ T{}i~}[w~}{}m~}X{}j~|]{}m"
+      "~}{|w~|]{}j~Y{}k~}Z{}m~}{|w~|`w~}{|l~Tv~Lv~Tw~}p{}v~}Vv~_w~}{|m~|x{|m~|fw~}{|m~}[{|j~|\\w~}{}m~}[{}m~}{|w~|Zw~}"
+      "{|q~|\\{}i~[{}i~]{|w~|m{}w~|b{|w~}k{}w~|hw~}q{|u~}q{}w~|g{}v~ov~}a{|w~}k{}w~|`d~Uw~}Lw~|M{|w~| Gy|l{|Z{}m~}x{|w"
+      "~`v~p{|v~Kv~Z{|m~|X{}j~}]w~}{|l~`t~|l{}w~|X{|u~}Y{|w~|m{}w~|e{}v~f{}w~}b{|v~}y{|q~}`_~|dv~t{}w~t{|w~}^{|k~}[{|c"
+      "~}f{|`~b{}w~}l{}w~}]{|w~}vv~|T{|v~}S{}w~}Uv~}d{}v~j{|u~t{|v~t{|u~g{}w~}hv~|iv~}r{|v~r{|v~|kv~}e{|v~}dx~}I{|}v{}"
+      "w~v{|}I{}x~|V{}w~U{}x~|m{}x~|\\{|v{}w~vy| {{v~}R{|i~Z{|v~R{|v~}|q~}|v~}\\v~u{}w~Qw~|R{|t~|'{|y~}v{}w~}p{|t{}y~|"
+      "d{}x~|r{|x~}Ry}r{|~ X{|y~}tw~sw~|u{}y~|.{|w~}x|}w~|Q{}w~L{|w~|G{|x~}({|w~|m{}w~|a{}m~}w{|x~} H{}x~|U{|w~p{|x~}]"
+      "{~|r{|}Y{}x~|mw~|_{}x~|m{}x~|[{|w~|r{}x~|Pv~|T{|w~}v{}w~|X{|w~}v{}w~|X{|w~}v{}w~|X{|w~}v{}w~|X{|w~}v{}w~|X{}w~}"
+      "v{}w~}_{}w~}u{|v~Xv~}J{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~fu~g{}w~|y{|v~pv~hv~}e{|v~}jv~}e{|v~}"
+      "jv~}e{|v~}jv~}e{|v~}jv~}e{|v~}f{|u~n{}v~}fv~}l{}x~}y{|v~|h{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}_{}v~vv~}["
+      "{}w~}q{|}u~|`w~}uv~W{}i~}[{}i~}[{}i~}[{}i~}[{}i~}[{}i~}e{}i~}x{}k~}a{}j~|\\{}j~Y{}j~Y{}j~Y{}j~Sv~Lv~Lv~Lv~R{}j~"
+      "}]w~}{|m~}[{|j~|Z{|j~|Z{|j~|Z{|j~|Z{|j~|T{}u~T{|f~`{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|b{|w~}k{}w~|a"
+      "w~}{}m~}_{|w~}k{}w~| Xw~}s{}w~s{}w~fw~}f{}w~fw~}y{|y~|r{|y~}y{}w~fw~}l{|y~}y{}w~fw~}f{}w~X{}x~}Wv~|m{|v~ C{}w~}"
+      "[{|}|o{|y~|&g~|Y{}n~|b{}V~e{|g~}]v~}r{|v~}_w~}kw~}Z{|r~}X{|v~p{|w~}dw~}     pw|v~l| {{v~}R{}x~}vw~}^{}Z~f{|w~|v"
+      "{|y~|`{}x~}s{|x~}u{}x~}Y{}v~|E{}x~}O{|w~}H{}w~|S{|}r~}|P{}w~  c{|w~Yv~|lv~|W{}w~}Ev~|N{|v~|Zw~}v{}w~}\\{|w~}|}v"
+      "~y}|X{}w~}>{|v~|\\{}w~}o{|v~a{}w~}l{}v~W{}v~M{}v~J{|}p~}|2{|}p~}|D{}v~|e{}x~}p{|}w~}|vx|uw~|f{}w~|v{|w~}]{}w~}m"
+      "{}v~c{|v~|N{}w~}fv~}d{}w~}L{}w~}T{|v~|L{}w~}hv~|Y{}w~}M{}w~}W{}w~}y{|u~}T{}w~}V{}w~|y{|w~|r{}x~}xv~|h{}w~|x{}w~"
+      "}qv~i{|v~|dv~}d{}w~}mv~}h{|v~|dv~}f{}w~}n{|v~|`u~D{|v~|Z{|v~h{}w~}d{|v~m{|v~|j{}w~}r{}x~}x{|w~qv~|d{}v~y|v~|Vv~"
+      "}x{}v~Mu~|V{|w~}K{}x~}G{|w~|]{}w~}h{|v~ U{}u~v}s~}\\w~}|v~w}t~}Zr~v}v~|^{}t~w}v~}|w~|^{}t~v}t~Zv}v~s}[{}t~w}v~}"
+      "|w~|`w~}|u~x}t~}Uv~Lv~Tw~}q{}v~|Uv~_w~}|v~x}s~y{|v~x}s~fw~}|u~x}t~}]{|s~x}s~|]w~}|v~w}t~}]{|t~w}v~}|w~|Zw~}|t~}"
+      "x~|]{}t~u}u~[{|x}v~q}]{|w~|m{}w~|av~kv~g{}w~q{}t~qv~e{}v~q{}v~_v~|m{|v~_d~Uw~}Lw~|M{|w~| J{|}v~}r{}v~}|_{}u~w}u"
+      "~|y{}x~}`v~q{|v~}K{}w~|\\{}w~}p~}Z{}s~w}u~}]w~}|u~x}t~}as~m{|v~W{}t~Y{|w~|m{}w~|ev~|f{|v~c{|u~}yn~a_~|dv~t{}w~t"
+      "{|w~}_{|t~w}t~}]{|b~}f{|`~b{}w~|l{}w~}]{}w~|v{|w~}S{|v~}T{}w~}Uv~|d{|v~|k{}v~|t{|v~s{}v~|h{}w~}hv~|i{}w~}r{|v~r"
+      "{|v~|l{|v~|dv~}ev~}C{}w~C{}v~|W{}w~V{}v~n{|v~|W{}w~ sv~}S{|s~}y~x}v~Z{|v~Q{|e~}[{|w~}w{|w~}Qw~|R{}r~|){}y~|w{|w"
+      "~}g{|y~}dw~q{}x~}S{}~}s{}y~ X{}y~|tw~s{}x~}u{|y~}-{}p~}P{}w~M{|w~|F{|x~}({|w~|m{}w~|a{}m~}w{|x~} H{}x~|Tw~p{}x~"
+      "|]y~}s{|y~Z{}x~|n{|x~}^{}x~|n{|w~Y{|x~}s{|x~}Ov~|T{}w~|v{|w~}X{}w~|v{|w~}X{}w~|v{|w~}X{}w~|v{|w~}X{}w~|v{|w~}Xv"
+      "~u{|v~_v~|u{|v~Y{|v~|J{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~f{}v~g{}w~|x{}w~}qv~i{|v~|dv~}k{|v~|d"
+      "v~}k{|v~|dv~}k{|v~|dv~}k{|v~|dv~}e{|u~p{}v~}f{|v~|m{}w~wv~}h{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}^v~}x{}v"
+      "~Z{}w~}o{}v~}`w~}v{|w~|W{}u~v}s~}\\{}u~v}s~}\\{}u~v}s~}\\{}u~v}s~}\\{}u~v}s~}\\{}u~v}s~}f{}u~v}s~}{s~w}t~}cr~v}"
+      "v~|]{}t~v}t~[{}t~v}t~[{}t~v}t~[{}t~v}t~Tv~Lv~Lv~Lv~S{}h~|^w~}|u~x}t~}]{|s~x}s~|\\{|s~x}s~|\\{|s~x}s~|\\{|s~x}s~"
+      "|\\{|s~x}s~|U{}u~U{|s~x}q~|`{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|av~|m{|v~`w~}|v~w}t~}_v~|m{|v~ X{|w~"
+      "r{}w~rw~}h{|w~dw~}h{|w~y{|w~|t{|w~}yw~}h{|w~l{|w~}yw~}h{|w~dw~}Y{}x~}W{}w~}m{}w~} Xg|}v~s|e{|}x~}o{}y~&{}f~Y{|o"
+      "~}a{|V~f{|e~}_{|w~}p{|v~_w~}kw~}Z{}w~}v~Wv~|q{}w~}e{|w~     pc~} {{v~}R{|x}|v{|x}|^{}Z~f{|w~|v{|y~|`{|w~s{}x~}v"
+      "{|w~Wu~|F{|x}|O{}w~|H{|w~}U{|}w~|x~|w~}|R{}w~  c{}x~}Yv~|lv~|W{}w~}F{|v~N{|v~}Z{}w~u{}w~}\\{|k~}Z{}w~}x{|}u~y}|"
+      "L{}v~Zv~|pv~}a{|v~l{}v~|X{}v~M{}v~M{|}p~}|,{|}p~}|H{}v~|e{|w~q{|q~}y{}x~|v{|x~}fv~tv~]{}w~}n{}v~|c{|v~|N{}w~}f{"
+      "}v~d{}w~}L{}w~}T{}v~|L{}w~}hv~|Y{}w~}M{}w~}W{}w~}{|u~}S{}w~}V{}w~|xw~}rw~|xv~|h{}w~|x{|v~|rv~i{|v~|d{}v~d{}w~}n"
+      "{|v~|h{|v~|d{}v~f{}w~}n{}v~|`{}v~}|F{|v~|Z{|v~h{}w~}cv~|n{}v~i{}w~}rw~|ww~|s{|v~b{}q~}U{|v~|{|v~|N{}v~|U{|w~}K{"
+      "|w~G{|w~|^{}w~}f{|v~ V{}y~}|r{|u~|]r~|u{|u~}\\{}u~}s{|}y~|_{|u~|u{|}s~|_{}v~}|t{}v~}Vw~}T{|u~|u{|}s~|`r~|u{|u~|"
+      "Vv~Lv~Tw~}ru~|Tv~_r~|v{|}v~}{w~|u{}v~}gr~|u{|u~|^u~}|v{|}u~]r~|u{|u~|_{|u~|u{|}s~|Zr~}|v{|\\v~}|r{|}y~Wv~S{|w~|"
+      "m{}w~|a{}w~|m{|w~}g{}w~|rs~qw~}dv~}s{|v~|_{}w~}m{}w~|Nu~Uw~}Lw~|M{|w~| K{}r~u{|r~}a{|v~}|v{}v~yw~|`v~r{|u~|K{|w"
+      "~|]{}w~|xy|}t~}[u~}|s{|}~}]r~|u{|u~|ay|v~|n{}w~|X{|s~|Z{|w~|m{}w~|f{|v~dv~|e{|u~}|{|v~y|}v~}bx}u~q}u~x}|dv~t{}w"
+      "~t{|w~}_u~|u{|u~|_{|u~}|v{|}t~v}f{|q}u~p}b{}w~|l{|v~]v~tv~R{}v~}U{}w~}V{|v~|cv~}l{|v~}s{|v~s{|v~}h{}w~}hv~|i{}v"
+      "~r{|v~r{|v~|l{|v~|d{}v~fu~|C{}w~C{|u~|X{}w~W{}v~}m{}v~|X{}w~ sv~}T{|u~}|yy~}x{|}y~Z{|v~P{|g~}Y{}w~|xv~Pw~|T{|v~"
+      "}u~}*x~v{}w~ex~dw~qw~}U{|x~}t{}x~ Xx~sw~s{}x~}tx~,{|r~|O{}w~N{|w~|Dw~({|w~|m{}w~|a{|m~}w{|x~} H{}x~|T{}x~}qw~|]"
+      "x~}t{|x~|\\{}x~|nw~]{}x~|nw~|Xw~sw~|Ov~|Tv~tv~Xv~tv~Xv~tv~Xv~tv~Xv~tv~Y{|w~}tv~|a{|v~t{|v~Y{|v~|J{}w~}M{}w~}M{}"
+      "w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~f{|v~|h{}w~|x{|v~|rv~i{|v~|d{}v~k{|v~|d{}v~k{|v~|d{}v~k{|v~|d{}v~k{|v~|d{"
+      "}v~d{|u~r{}v~}e{|v~|n{}w~v{}v~h{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}^{|v~|{|v~|Z{}w~}nu~`w~}v{}w~V{}y~}|r"
+      "{|u~|]{}y~}|r{|u~|]{}y~}|r{|u~|]{}y~}|r{|u~|]{}y~}|r{|u~|]{}y~}|r{|u~|g{}y~}|r{|o~}|u{|}v~}e{}u~}s{|}y~|^{}v~}|"
+      "t{}v~}]{}v~}|t{}v~}]{}v~}|t{}v~}]{}v~}|t{}v~}Uv~Lv~Lv~Lv~T{}u~}|v{|}v~}^r~|u{|u~|^u~}|v{|}u~\\u~}|v{|}u~\\u~}|v"
+      "{|}u~\\u~}|v{|}u~\\u~}|v{|}u~U{}u~Uu~}|u{}u~|_{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{}w~}m{}w~|`r~|u{"
+      "|u~|`{}w~}m{}w~| Xw~|r{}w~r{|w~hw~|d{|w~hw~|yu~|v{|u~y{|w~hw~|m{|u~y{|w~hw~|d{|w~Y{}x~}Vv~mv~| XZ~}g{}t~oy~}'{}"
+      "e~}Y{}p~_W~|fc~|`v~n{}w~|`w~}kw~}Zv~|}w~|X{}w~}qv~|e{}x~}     q{|c~| {{v~} y{|x~}t{}x~}]{|w~}v{|y~|_w~|u{|w~|vw"
+      "~|Wt~ p{}w~|H{|v~V{}w~}yx~y{}w~}S{}w~  cw~|Z{|v~k{}w~}W{}w~}Fv~}Qy|u~}Z{|w~|u{}w~}\\{|i~|\\v~|y{}p~}|Nv~}Z{|v~|"
+      "s{|v~}`{|v~lu~|X{}v~M{}v~P{|}p~}|b{|Z~}b{|}p~}|L{}v~}d{}x~|r{|n~{}x~|uw~|h{}w~}t{}w~|^{}w~}q{|}u~}b{}v~M{}w~}f{"
+      "}v~d{}w~}L{}w~}T{}v~K{}w~}hv~|Y{}w~}M{}w~}W{}w~}|u~}R{}w~}V{}w~|x{|w~s{}w~wv~|h{}w~|w{}w~}rv~i{}v~c{}v~d{}w~}n{"
+      "}v~|h{}v~c{}v~f{}w~}o{|u~_{|t~}|H{|v~|Z{|v~h{}w~}c{}v~nv~}i{|v~s{|w~|w{}x~}s{}w~}b{|q~S{}v~|v~}N{}v~}T{|w~}K{|w"
+      "~|H{|w~|  s{}|m{}w~}]t~}q{}v~|^{}v~}ny|_u~q{}t~|`{|v~|q{|v~|Ww~}Tu~q{|t~|`t~}r{|v~}Vv~Lv~Tw~}t{|u~Rv~_t~}r{}v~}"
+      "y~}r{}v~gt~}r{|v~}_{}v~|r{|v~}^s~q{}v~_{}v~|r{}t~|Zs~T{|w~}m{|Wv~S{|w~|m{}w~|a{|w~}mv~|g{|w~}s{|s~|s{|w~|d{|v~|"
+      "u{|v~}]v~mv~N{}v~Tw~}Lw~|M{|w~| L{}p~w{|p~}bv~}s{}w~y|w~_v~wx|}t~}J{|w~}^{}w~r{}u~|]{|v~|Ot~}r{|v~}_{|v~nv~W{}s"
+      "~}Z{|w~|m{}w~|f{}w~}d{}w~}eu~}x{|w~|x{}v~|`{|w~}q{|w~}`v~t{}w~t{|w~}`{}v~q{}v~_u~}r{|v~}V{|w~}Wv~|l{|v~^{}w~}t{"
+      "}w~|R{}v~}V{}w~}V{|v~bv~}l{|v~|s{|v~r{}v~h{}w~}hv~|i{}v~r{|v~r{}v~k{}v~c{}v~gu~|B{}w~B{|u~|Y{}w~X{}v~}k{}v~|Y{}"
+      "w~ sv~}Tu~|wy~}u{|Z{|v~O{|u~}|x{|}v~}_{|p~}y{|p~}Ww~|Tw~}y{|t~|,y~}vw~|e{}y~dw~|s{}w~}V{|w~}u{}w~ Xy~}sw~s{}x~}"
+      "t{}y~*y}x~}|[m|}w~l|^{}w~C{|x~}({|w~|m{}w~|`m~}w{|x~} H{}x~|T{|w~|s{}x~}\\w~}u{|w~|]{}x~|o{}x~}]{}x~|o{}x~}Ww~t"
+      "{}x~}Nv~|U{}w~}t{}w~|Z{}w~}t{}w~|Z{}w~}t{}w~|Z{}w~}t{}w~|Z{}w~}t{}w~|Z{}w~|t{|w~}av~}t{|v~Y{}v~I{}w~}M{}w~}M{}w"
+      "~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~f{|v~|h{}w~|w{}w~}rv~i{}v~c{}v~k{}v~c{}v~k{}v~c{}v~k{}v~c{}v~k{}v~c{}v~c{|"
+      "u~t{}v~}d{}v~n{|w~|v{|v~h{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}]{}v~|v~}Y{}w~}n{|v~|aw~}vv~V{}|m{}w~}]{}|m"
+      "{}w~}]{}|m{}w~}]{}|m{}w~}]{}|m{}w~}]{}|m{}w~}g{}|m{}r~|q{|v~|g{}v~}ny|_{|v~|q{|v~|_{|v~|q{|v~|_{|v~|q{|v~|_{|v~"
+      "|q{|v~|Vv~Lv~Lv~Lv~U{|v~}q{|v~|_t~}r{|v~}_{}v~|r{|v~}^{}v~|r{|v~}^{}v~|r{|v~}^{}v~|r{|v~}^{}v~|r{|v~}V{}u~V{}v~"
+      "|r{|v~}_{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|`v~mv~_s~q{}v~_v~mv~ X{|w~q{}w~q{}x~|j{|w~b{}x~|j{|w~wu~"
+      "|x{|u~|x{}x~|j{|w~m{|u~|x{}x~|j{|w~b{}x~|Z{}x~}V{}w~|o{|v~ WZ~}gx~}w~|q{}y~|({|c~}_v|{}r~u|d{}X~f{}b~|b{|w~}mw~"
+      "}`w~}kw~}[{|v~{}w~}X{|w~}r{|v~d{}x~|     q{}c~ yv~} y{}x~}t{}x~}\\v~}w{|y~|_{}w~|vw~}v{|x~}X{|r~ qv~Fv~X{}w~}|x"
+      "x~x{|}w~}U{}w~  d{|w~Y{|v~k{}w~}W{}w~}G{}v~|Xm~}Y{}x~}t{}w~}\\{|h~}]v~y|l~}P{|v~|Y{|u~u|}v~}_{|v~|n{|u~|X{}v~M{"
+      "}v~R{|o~}|`{|Z~}_{|}p~}|P{}v~}cw~r{|l~}x~|u{|x~|hv~|t{|v~^{}e~}a{}v~M{}w~}f{|v~|e{}d~|_{}g~|d{}v~K{}^~|Y{}w~}M{"
+      "}w~}W{}p~|Q{}w~}V{}w~|ww~|tw~}wv~|h{}w~|vv~|sv~i{}v~c{|v~|e{}w~}o{|u~g{}v~c{|v~|g{}w~}p{|u~|^{}q~y}|M{|v~|Z{|v~"
+      "h{}w~}c{|v~|p{|v~gv~|t{|w~v{|x~}sv~|a{|s~|Rq~}N{}v~}S{|w~}Jw~}H{|w~|  bv~|^t~ov~}^v~}P{|v~|p{}u~|`v~|o{|v~Ww~}U"
+      "{|v~o{}u~|`u~}p{|v~Vv~Lv~Tw~}u{|v~}Qv~_u~}pt~}pv~|hu~}p{|v~`{|v~|p{|v~|_t~ov~}a{|v~|p{}u~|Zt~S{}w~Gv~S{|w~|m{}w"
+      "~|`v~|o{|v~ev~s{|x~y}x~}s{}w~|c{}v~uv~}\\{}w~|o{|w~}O{}v~|U{|w~}Lw~|M{|w~} M{|x~}x|}w~}xv~}x|}x~|d{}v~qw~y}x~}_"
+      "v~x{}q~}I{|w~}_{|w~|q{|u~]{}w~|Nu~}p{|v~^{}w~|p{|w~}X{|q~Z{|w~|m{}w~|fv~|d{|v~f{|v~}w{}w~|wu~`{|w~}q{|w~}`v~t{}"
+      "w~t{|w~}a{|v~ov~}a{|v~}p{}v~|W{|w~}Wv~}l|}v~^v~|t{|v~Q{}v~}W{}w~}V{|v~b{}w~}l{}v~r{|v~r{}v~|i{}w~}hv~|i{|v~|s{|"
+      "v~r{}v~k{}v~xi~}y{|v~|iu~|A{}w~A{|u~|Z{}w~Y{}v~}i{}v~|Z{}w~ sv}|U{}v~|vy~}S{|v~O{|w~}s{|v~_{|o~|{o~}Ww~|U{}x~}v"
+      "{}u~}.{|y~|w{|w~d{|y~|e{}w~t{}v~}W{|v~|v{}w~}cY|8{|y~|sw~sw~|t{|y~| `{|Z~}_{}x~}C{|w~}({|w~|m{}w~|`{|n~}w{|x~} "
+      "H{}x~|Sv~|u{}w~|\\{}v~v{|v~|^{}x~|p{|w~\\{}x~|p{|w~W{|x~}u{|w~Mv}|Uv~|t{|v~Zv~|t{|v~Zv~|t{|v~Zv~|t{|v~Zv~|t{|v~"
+      "Zv~rv~b{|v~s{|c~l{}v~I{}d~|`{}d~|`{}d~|`{}d~|W{}w~}M{}w~}M{}w~}M{}w~}Z{|v~ev~}h{}w~|vv~|sv~i{}v~c{|v~|l{}v~c{|v"
+      "~|l{}v~c{|v~|l{}v~c{|v~|l{}v~c{|v~|c{|u~v{}v~}c{}v~o{|w~|u{|v~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}\\q~"
+      "}X{}w~}mv~}aw~}vv~Ev~|Mv~|Mv~|Mv~|Mv~|Mv~|Ws~|o{}w~}gv~}Ov~|o{|v~_v~|o{|v~_v~|o{|v~_v~|o{|v~Vv~Lv~Lv~Lv~Uv~}o{}"
+      "w~}_u~}p{|v~`{|v~|p{|v~|`{|v~|p{|v~|`{|v~|p{|v~|`{|v~|p{|v~|`{|v~|p{|v~|Wt|W{|v~|q{}u~|`{|w~|m{}w~|a{|w~|m{}w~|"
+      "a{|w~|m{}w~|a{|w~|m{}w~|`{}w~|o{|w~}_t~ov~}`{}w~|o{|w~} X{}x~}q{}w~q{|x~}j{}x~}b{|x~}j{}x~}vu~|yu~|w{|x~}j{}x~}"
+      "mu~|w{|x~}j{}x~}b{|x~}Z{}x~}V{|v~o{}w~} WZ~}g{}|yw~}qx~'a~|c{|}t~}k~}|fY~}g{}`~b{|w~|m{}w~`w~}kw~}[{|w~}{|v~Wv~"
+      "r{}w~}dw~|     lv~| kv~| yw~|tw~|\\{}v~}|y{|y~|^v~}y|}v~uw~X{|p~ rv~Fv~Xw~|vx~v{|w~U{}w~  d{}x~}Y{|v~k{}w~}W{}w"
+      "~}H{|v~}Wo~}|Y{|w~|t{}w~}\\{|v~x}|x}s~}^v~|j~}Q{}w~}V{}l~}]v~}n{}u~}X{}v~M{|v}U{|}p~}|]{|Z~}\\{}o~|S{}v~}c{|x~}"
+      "rv~}|w{|}t~|tx~}i{|v~rv~|_{}h~}|_v~}M{}w~}f{|v~|e{}d~|_{}g~|dv~}K{}^~|Y{}w~}M{}w~}W{}q~|P{}w~}V{}w~|w{}w~u{|w~|"
+      "wv~|h{}w~|v{}w~}sv~iv~}c{|v~|e{}w~}p{|u~|gv~}c{|v~|g{}w~}sy|}u~}\\{}m~}|Q{|v~|Z{|v~h{}w~}bv~}p{}w~}g{}w~}t{}x~}"
+      "v{|w~sv~|`{}u~}Q{|r~|O{|u~R{|w~}J{}w~H{|w~|  b{|w~}^u~|o{|v~_{}v~Ov~}nu~|a{}w~}m{}w~|Xw~}Uv~|nu~|`u~nv~|Wv~Lv~T"
+      "w~}v{}v~}Pv~_u~o{}u~|p{}w~}hu~nv~|a{}w~}n{}w~}_u~|o{|v~a{}w~}nu~|Zu~|S{}w~Gv~S{|w~|m{}w~|`{}w~}o{}w~}e{}w~s{}x~"
+      "}|w~sv~a{}v~w{}v~[{|w~}ov~|P{}v~|T{|w~}Lw~|M{|w~}:{|4x~|v{|w~}{}x~}u{}x~dv~}q{}s~|_v~x{}r~}S{|y}~y}|w{|w~}_w~}o"
+      "{|v~}^{}w~Mu~nv~|_{|w~}pv~|X{}w~}v~|[{|w~|m{}w~|g{|v~bv~|g{}v~v{}w~v{|v~|a{|w~}q{|w~}`v~t{}w~t{|w~}a{}w~|o{|v~a"
+      "{}v~nv~}W{|w~}W`~_{|v~rv~|Q{}v~|X{}w~}V{|v~b{}w~}lu~r{|v~r{|v~|i{}w~}hv~|hv~}s{|v~rv~}kv~}xi~}y{|v~|ju~|@{}w~@{"
+      "|u~|[{}w~Z{}v~}g{}v~|[{}w~ Gv~}uy~}S{|v~Ow~}q{|w~|`{|n~}o~}Ww~|Uw~|t{}u~|0{|y~|w{|x~}d{|y~|e{|v~}w|t~}X{|v~|vv~"
+      "}c{|Z~}8{|y~|sw~t{}w~s{|y~| `{|Z~}`{}x~}M{|~}|v{|}v~'{|w~|m{}w~|_{}o~}w{|x~}Vv}| s{}x~|S{|v~}|{y|}w~}Z{}v~|w{|v"
+      "~}_{}x~|pw~|o{}w~m{}x~|p{}x~|vy|}w~y}|g{|w~|u{}x~|o{}w~3{|v~rv~|\\{|v~rv~|\\{|v~rv~|\\{|v~rv~|\\{|v~rv~|\\{}w~}"
+      "r{}w~|c{}w~}s{|c~lv~}I{}d~|`{}d~|`{}d~|`{}d~|W{}w~}M{}w~}M{}w~}M{}w~}_{}i~}nv~}h{}w~|v{}w~}sv~iv~}c{|v~|lv~}c{|"
+      "v~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|b{|u~x{}v~}bv~}p{|w~}t{|v~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}\\{|r~|"
+      "X{}w~}mv~}aw~}v{}w~}F{|w~}M{|w~}M{|w~}M{|w~}M{|w~}M{|w~}W{|u~}m{}w~h{}v~O{}w~}m{}w~|a{}w~}m{}w~|a{}w~}m{}w~|a{}"
+      "w~}m{}w~|Wv~Lv~Lv~Lv~V{}v~n{|v~_u~nv~|a{}w~}n{}w~}`{}w~}n{}w~}`{}w~}n{}w~}`{}w~}n{}w~}`{}w~}n{}w~},{}w~}q{}t~}`"
+      "{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|`{|w~}ov~|_u~|o{|v~`{|w~}ov~| X{}x~|q{}w~q{|w~j{}x~|b{|w~j{}x~|u"
+      "u~|u~|v{|w~j{}x~|nu~|v{|w~j{}x~|b{|w~Zw~}Uv~|q{|v~ VZ~}c{}w~r{|y~}({}`~d{}^~|h{|Z~g{|_~}c{}w~l{|w~`w~}kw~}[{}w~"
+      "|yv~|X{}w~|sv~|dV~}    2v~| k{}w~| {{|w~t{|w~Zs~y}y~|^{|o~|v{}x~}rx|e{|v~y}u~n{|w~},{|v~Fv~|Y{|~}tx~t{}~|U{}w~ "
+      " dw~|Y{|v~k{}w~}W{}w~}Hu~Vp~}|Y{|w~}s{}w~}\\{|~}|q{}t~|`{|q~}|xy|t~|Rv~|U{|}p~|[{}v~|ot~} V{|}p~}|Z{|Z~}Z{|}p~}"
+      "|W{}v~|b{}x~|s{}w~|s{|u~|tw~i{}w~}r{}w~}_{}g~}|`v~}M{}w~}f{|v~|e{}d~|_{}g~|dv~}K{}^~|Y{}w~}M{}w~}W{}q~O{}w~}V{}"
+      "w~|w{|w~|v{}w~vv~|h{}w~|uv~|tv~iv~}c{|v~|e{}w~}sy|s~fv~}c{|v~|g{}f~}Z{}k~}S{|v~|Z{|v~h{}w~}b{|v~pv~|g{}w~}tw~|u"
+      "w~|u{|v~_{}u~O{}t~|O{|u~|R{|w~}J{|w~|I{|w~|  aw~}^v~}m{}w~}`v~|P{|v~m{}v~|av~l{|w~}Xw~}V{|v~m{|v~|`v~}n{}w~|Wv~"
+      "Lv~Tw~}w{}v~}Ov~_v~}o{|v~}o{|w~}hv~}n{}w~|av~|n{|v~|`u~mv~|bv~m{}v~|Zv~}R{}w~Gv~S{|w~|m{}w~|`{|v~ov~d{}w~|tw~|{"
+      "w~|u{|w~}`v~}y{|v~|Z{}w~|q{|v~P{}v~|Sv~|Lw~|Lv~|W{|y}w~}|iy}5{|y~}sw~|x~}s{}y~|f{|v~|ps~^v~x{}q~}|W{|r~|y{|w~}`"
+      "{}w~m{}v~^{}w~Mv~}n{}w~|^{}w~q{|v~Wv~y|w~}[{|w~|m{}w~|g{}v~b{}w~}h{|v~|v{}w~u{}w~}a{|w~}q{|w~}`v~t{}w~t{|w~}av~"
+      "mv~|c{|v~|n{|v~W{|w~}W`~_{}w~}r{}w~}Q{|v~}X{}w~}V{|v~b{}w~}lv~}r{|v~r{|v~|i{}w~}hv~|h{}v~s{|v~s{|v~|kv~}xi~}y{|"
+      "v~|ku~|?{}w~?{|u~|\\{}w~[{}v~}e{}v~|\\{}w~ H{}v~ty~}S{|v~P{|w~o{}w~_s|}r~s|Vw~|V{|w~r{|u~0{|y~v{}x~}d{|y~|d{}o~"
+      "|x~}Y{}v~v{|v~|b{|Z~}8{|y~rw~u}v~|s{|y~| `{|Z~}a{}l~|X{|m~|'{|w~|m{}w~|^o~}w{|x~}W{|v~| xm~}W{|n~}X{|v~|vv~}e{}"
+      "n~}v{}x~}o{|v~m{}x~|q{|w~w{|o~|t{|~}y|w{|}v~u{|x~}o{|v~3{}w~}r{}w~}\\{}w~}r{}w~}\\{}w~}r{}w~}\\{}w~}r{}w~}\\{}w"
+      "~}r{}w~}\\v~|r{|w~}cv~|s{|c~lv~}I{}d~|`{}d~|`{}d~|`{}d~|W{}w~}M{}w~}M{}w~}M{}w~}_{}i~}nv~}h{}w~|uv~|tv~iv~}c{|v"
+      "~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|a{|u~|}v~}av~}pw~}s{|v~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}["
+      "{}t~|W{}w~}mv~}aw~}v{}v~|Fw~}Lw~}Lw~}Lw~}Lw~}Lw~}Vu~l{|w~|iv~|Ov~l{|w~}av~l{|w~}av~l{|w~}av~l{|w~}Wv~Lv~Lv~Lv~V"
+      "v~|mv~|`v~}n{}w~|av~|n{|v~|av~|n{|v~|av~|n{|v~|av~|n{|v~|av~|n{|v~|-v~|r{|x~}v~`{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{"
+      "}w~|a{|w~|m{}w~|_{}w~|q{|v~^u~mv~|`{}w~|q{|v~ Ww~p{}w~pw~jw~yd|yw~jw~t{|p~|tw~jw~nu~|tw~jw~pv~}qw~Zw~|U{}w~}q{}"
+      "w~} F{}w~}W{|w~|s{}y~|){|_~}f{}\\~|h{}\\~|g{}^~c{}w~l{|w~|aw~}kw~}[v~x{}w~}X{|w~}t{|v~cV~}    2v~| k{}w~| {{|x~"
+      "}t{|x~}Z{|o~}y|`{|}r~|v{|w~t{}u~}|hv~}y{}u~o{|w~|,{|v~F{}w~|X{|sx~s{|T{}w~  e{|w~X{|v~k{}w~}W{}w~}Iu~|Vm~|[{}w~"
+      "r{}w~}L{}u~`{|r~|s{|u~S{}v~V{|}m~}|\\u~p{}t~} Y{|}p~}|VY|W{|}p~}|[{|v~|aw~rw~}q{|v~|t{}x~iv~q{|v~_{}e~}av~}M{}w"
+      "~}f{|v~|e{}d~|_{}g~|dv~}m{}n~|h{}^~|Y{}w~}M{}w~}W{}q~}P{}w~}V{}w~|vw~}vw~}vv~|h{}w~|u{}v~tv~iv~}bv~|e{}e~|fv~}b"
+      "v~|g{}g~}X{|}k~}U{|v~|Z{|v~h{}w~}av~|r{|v~f{|v~u{|w~|u{}x~}u{}w~}`{|t~|O{}v~}Nu~|Q{|w~}Iw~}I{|w~|  a{}w~^v~|m{|"
+      "w~}a{|v~O{|w~}lv~|b{|w~}kv~Xw~}V{|w~}lv~|`v~|n{|w~}Wv~Lv~Tw~}x{}v~|Nv~_v~|nv~|nv~hv~|n{|w~}b{|v~lv~|`v~}m{|w~}c"
+      "{|w~}m{|v~|Zv~|R{}w~|Hv~S{|w~|m{}w~|_{}w~|q{|w~}d{|w~}u{|w~y{}x~|u{|w~|`{|v~y|v~}Y{|w~}q{}w~|Q{|v~}S{}v~Kw~|L{}"
+      "w~}Y{|p~}|n{|y~}5{}y~r{|t~qy~}f{}v~ot~}^v~x{}o~}Y{}p~|{|w~|`w~}lv~|_{|w~}Nv~|n{|w~}^{|w~|r{}w~|X{}w~}yv~[{|w~|m"
+      "{}w~|gv~}b{}v~h{|v~u{}w~u{|v~a{|w~}q{|w~}`v~t{}w~t{|w~}b{|w~}m{|w~}c{|v~lv~|X{|w~}W`~_v~|r{|v~Qu~W{}w~}V{|v~b{}"
+      "w~}lv~}r{|v~qv~|i{}w~}hv~|h{|v~|t{|v~s{}v~jv~}xi~}xv~|lu~[|]{}w~\\\\|u~|]{}w~\\{}v~}c|u~|]{}w~ H{}w~}ty~}X{}g~|"
+      "[{}x~}nw~Vs~|Nw~|V{}x~}pv~}1{}y~v{}x~}d{|y~}c{}r~}{|x~}Z{}w~}v{|v~|a{|Z~}8{}y~rn~}q{|y~} `{|Z~}a{}l~|X{|o~}|&{|"
+      "w~|m{}w~|]{}q~}w{|x~}W{|v~| xm~}V{|}q~|V{|v~|v{}w~}fm~}vw~o{|u~rm~}vw~|w{}n~|u{|m~|uw~|p{|u~3v~q{|v~\\v~q{|v~\\"
+      "v~q{|v~\\v~q{|v~\\v~q{|v~]{|v~pv~|e{}w~}r{|c~lv~}I{}d~|`{}d~|`{}d~|`{}d~|W{}w~}M{}w~}M{}w~}M{}w~}_{}i~}nv~}h{}w"
+      "~|u{}v~tv~iv~}bv~|lv~}bv~|lv~}bv~|lv~}bv~|lv~}bv~|`{|p~}`v~}q{}x~}qv~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}"
+      "w~}Z{}v~}V{}w~}mv~}aw~}uu~}G{}w~L{}w~L{}w~L{}w~L{}w~L{}w~V{}w~}kw~}j{|v~O{|w~}kv~b{|w~}kv~b{|w~}kv~b{|w~}kv~Wv~"
+      "Lv~Lv~Lv~W{|v~l{}w~}`v~|n{|w~}b{|v~lv~|b{|v~lv~|b{|v~lv~|b{|v~lv~|b{|v~lv~|.{|v~r{|w~{}w~|a{|w~|m{}w~|a{|w~|m{}"
+      "w~|a{|w~|m{}w~|a{|w~|m{}w~|_{|w~}q{}w~|^v~}m{|w~}`{|w~}q{}w~| Ww~yd~|{w~jw~yd~|{w~jw~s{|r~|sw~jw~ou~|sw~jw~pv~}"
+      "qw~Zw~|U{|v~qv~| G{}w~}Uw~}sx~({}^~g{}Z~g]~}f{|_~|cw~}l{|w~|aw~}kw~}\\{|v~x{|v~Wv~t{}w~}cV~}    2v~| k{}w~| {{}"
+      "x~}t{}x~}Y{|}m~}`{|}w~}|tw~|v{|q~}j{}v~w{}u~p{}w~|,{|w~}F{}w~|Ox~Z{|Z~}  t{}x~}X{|v~k{}w~}W{}w~}J{}v~|Ut|}t~}]{"
+      "|w~|r{}w~}K{}v~|a{|s~p{|v~}Tv~}W{}i~}]{}u~|t{|}s~} Z{|q~}| e{|}q~}\\v~}`x~}s{}w~ov~|t{}x~|k{|w~}p{}w~|`{}w~}p|}"
+      "t~|cv~}M{}w~}f{|v~|e{}w~}i|^{}w~}l|cv~}m{}n~|h{}w~}h|v~|Y{}w~}M{}w~}W{}w~}u~}Q{}w~}V{}w~|v{}w~w{|w~uv~|h{}w~|tv"
+      "~|uv~iv~}c{|v~|e{}f~|ev~}c{|v~|g{}i~}S{|}m~}V{|v~|Z{|v~h{}w~}a{}w~}rv~}ev~|v{|w~t{|w~uv~|`r~O{|v~|O{}v~}P{|w~}I"
+      "{}w~I{|w~|  a{}w~^v~|lv~a{}w~}O{}w~|lv~|b{|w~|k{}w~Xw~}V{}w~|lv~|`v~m{|w~}Wv~Lv~Tw~}yu~|Mv~_v~mv~mv~hv~m{|w~}b{"
+      "}w~}l{}w~}`v~|m{|v~c{}w~|lv~|Zv~Q{}v~|Iv~S{|w~|m{}w~|_{|w~}q{}w~|cv~u{}x~}y{}x~}u{}w~^{}q~}Wv~qv~Q{|v~}Uy|}v~|K"
+      "w~|L{|u~}|^{|k~}|s{|}x~}5y~}q{}v~|q{}y~f{}w~}o{}u~|^v~ty|}s~[{|u~y}v~y|w~|a{|w~}l{}w~}^{}w~|Ov~m{|w~}]w~}rv~Wv~"
+      "|y{}w~}\\{|w~|m{}w~|gv~|b{|v~h{}w~}u{}w~tv~a{|w~}q{|w~}`v~t{}w~t{|w~}b{}w~|m{|v~c{}w~}l{}w~}X{|w~}W`~`{|w~}pv~|"
+      "S{}v~|W{}w~}V{|v~bv~}lv~}r{|v~r{|v~|i{}w~}hv~|gu~t{|v~t{|v~}jv~}xh|y{|v~|mT~]{}w~]T~|^{}w~]{}U~|^{}w~ Hv~|ty~}X"
+      "{}g~|[w~|nw~|W{}u~}Mw~|V{}w~ov~1{|y~v{}x~}d{|y~|ay}x~y}ww|[{}w~}v{|v~|`{|Z~}8{|y~ro~o{|y~| Q{}w~R{}l~|V{|y}v~y}"
+      "|${|w~|m{}w~|\\{|}s~}w{|x~}W{|v~| xm~}T{|y}w~}|S{|v~|v{}w~}gm~}w{}x~}oy~y}x~rm~}w{}x~}v{}~}y|w{|v~u{|o~}t{}x~}o";
+
+      const char *const chunk1 =
+      "t~^v|V{|w~}p{}w~|^{|w~}p{}w~|^{|w~}p{}w~|^{|w~}p{}w~|^{|w~}p{}w~|^{}w~}p{}w~}ev~|r{|v~h|lv~}I{}w~}i|_{}w~}i|_{}"
+      "w~}i|_{}w~}i|V{}w~}M{}w~}M{}w~}M{}w~}_v}u~r}nv~}h{}w~|tv~|uv~iv~}c{|v~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|"
+      "_{|r~}_v~}r{}w~q{|v~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}Z{|v~|V{}w~}mv~}aw~}u{|t~|I{}w~L{}w~L{}w~L{}w~"
+      "L{}w~L{}w~V{}w~|kv~j{}w~}O{|w~|k{}w~b{|w~|k{}w~b{|w~|k{}w~b{|w~|k{}w~Wv~Lv~Lv~Lv~W{}w~}l{|w~}`v~m{|w~}b{}w~}l{}"
+      "w~}b{}w~}l{}w~}b{}w~}l{}w~}b{}w~}l{}w~}b{}w~}l{}w~}eY|f{}w~}rw~y{|w~}a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|"
+      "m{}w~|^v~qv~]v~|m{|v~_v~qv~ Vw~yd~|{}x~|kw~yd~|{}x~|kw~r{|t~|r{}x~|kw~pu~|r{}x~|kw~pv~}q{}x~|[w~|T{}w~|s{|v~ G{"
+      "}v~T{}w~t{|y~}(]~|i{|Y~}h{|_~}d{|a~}bw~}kw~|aw~}kw~}\\{}w~}wv~|Xv~|u{}w~|cV~}    2v~| k{}w~| {{w~|tw~|W{|}m~}T{"
+      "}x~}v{|o~}l{|v~|v{}u~q{}w~+{|w~}F{}w~|Ox~Z{|Z~}+m| ww~|X{|v~k{}w~}W{}w~}K{}v~}K{|}v~}^w~}q{}w~}Ju~a{|t~|o{}v~U{"
+      "|v~|X{}u~}|wy|u~}]t~}y|{y|}q~} Z{|t~}| _{|}t~}\\v~`{|x~}s{}x~}o{|w~|t{}x~|kv~|p{|w~}`{}w~}n{|u~cv~}M{}w~}f{|v~|"
+      "e{}w~}L{}w~}Tv~}m{}n~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}|u~}R{}w~}V{}w~|v{|w~|x{}x~}uv~|h{}w~|t{|v~uv~iv~}c{|v~|e{}h~"
+      "}cv~}c{|v~|g{}h~}Qy|y}p~W{|v~|Z{|v~h{}w~}a{|v~s{|v~|e{}w~}v{}x~}t{|w~uv~|a{}r~}P{|v~|P{}v~}O{|w~}I{|w~|J{|w~|  "
+      "n{|y}l~^v~kv~a{}w~|Ov~|l{}w~|b{}w~|k{}w~|Yw~}Vv~|l{}w~|`v~m{|w~}Wv~Lv~Tw~}|u~Kv~_v~mv~mv~hv~m{|w~}b{}w~|l{|v~`v"
+      "~kv~c{}w~|l{}w~|Zv~Pu~}|Kv~S{|w~|m{}w~|^v~qv~b{}w~u{}x~|y{|w~uv~]{}r~V{}w~|s{|w~}R{|v~}X{|q~}Jw~|K{|q~}c{}g~}w|"
+      "}u~}5y~}pw~}p{}y~fv~|o{}u~]v~p{|t~\\v~}w{|w~}w~|a{}w~|l{|w~}]{}w~}y|Rv~m{|w~}]{}w~s{}w~}X{}w~}x{|v~\\{|w~|m{}w~"
+      "|h{|v~|b{|v~|i{}w~|u{}w~tv~|b{|w~}q{|w~}`v~t{}w~t{|w~}bv~kv~c{}w~|l{|w~}X{|w~}Wv~jv~`v~|p{}w~}T{}v~|V{}w~}V{|v~"
+      "|cv~|lv~}r{|v~r{|v~|i{}w~}hv~|g{}v~}u{|v~tu~|jv~}c{|v~|n{|T~]{}w~]T~}^{}w~]T~}^{}w~ I{|v~sy~}X{}g~|[w~m{}x~|Vu~"
+      "|#{|w~|p{|w~|2{|y~|w{|x~}d{|y~|3v~}v{}v~|Aw~}8{|y~|sw~x{|w~}p{|y~| Q{}w~  p{|w~|m{}w~|Y{|}v~}w{|x~}W{|v~|  jv~}"
+      "v{}v~|W{|w~o{}y~{}x~r{}n~}x{|w~uy|rw~|ty|t}|s{|w~o{}y~|}x~^{}w~|Wv~|p{|w~}^v~|p{|w~}^v~|p{|w~}^v~|p{|w~}^v~|p{|"
+      "w~}^v~|p{|v~f{|v~q{|v~Yv~}I{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~ev~}h{}w~|t{|v~uv~iv~}c{|v~|lv~}"
+      "c{|v~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|^{|t~}^v~}s{}w~p{|v~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}Z{|v~|V{}w"
+      "~}n{|v~|aw~}t{}t~}W{|y}l~Y{|y}l~Y{|y}l~Y{|y}l~Y{|y}l~Y{|y}l~c{|y}l~j{}w~j{}w~|O{}w~|k{}w~|c{}w~|k{}w~|c{}w~|k{}"
+      "w~|c{}w~|k{}w~|Xv~Lv~Lv~Lv~W{}w~|l{|v~`v~m{|w~}b{}w~|l{|v~b{}w~|l{|v~b{}w~|l{|v~b{}w~|l{|v~b{}w~|l{|v~f{|Z~}f{}"
+      "w~|s{}x~|y{|w~}a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|^{}w~|s{|w~}]v~kv~_{}w~|s{|w~} Vw~yd~|{}x~|kw~yd"
+      "~|{}x~|kw~qt~|r{}x~|kw~qu~|q{}x~|kw~pv~}q{}x~|[w~|T{|w~}s{}w~} H{|v~|T{|w~|u{}y~({|]~}i{}X~g{|`~b{}b~aw~}kw~}aw"
+      "~}kw~}\\v~|w{}w~}X{}w~}uv~bw~}Z|    5x|v~}p| v{}w~| {|w~t{|w~S{|}n~|Vw~uv~|y{|}w~}m{}w~}t{}u~rw~}+{|w~}F{}w~|Ox"
+      "~Z{|Z~},{|m~ x{|w~|X{|v~k{}w~}W{}w~}L{}v~}H{}v~}`{}w~p{}w~}J{}v~`t~n{|v~|V{}v~X{}v~}q{}v~}^{|j~|v~| Z{|t~| ]{|}"
+      "u~}]{|w~}`{|x~|sw~|o{|w~|t{}x~|l{|v~nv~`{}w~}lv~}dv~}M{}w~}f{|v~|e{}w~}L{}w~}Tv~}m{}n~|h{}w~}hv~|Y{}w~}M{}w~}W{"
+      "}w~}{|t~S{}w~}V{}w~|u{}x~}y{|w~|uv~|h{}w~|sv~|vv~iv~}c{|v~|e{}k~}|av~}c{|v~|g{}w~}t|y}u~}M{|}s~}X{|v~|Z{|v~h{}w"
+      "~}`v~}t{}v~d{}w~}vw~|sw~|w{|v~a{|v~}v~|Q{|v~|Q{|u~N{|w~}Hw~|J{|w~|  p{}h~|_v~k{}w~|bv~|Ov~k{}w~|bv~j}v~|Yw~}Vv~"
+      "k{}w~|`w~}m{|w~}Wv~Lv~Tq~}Jv~_w~}mv~mv~hw~}m{|w~}bv~|l{|v~`v~kv~|dv~k{}w~|Zv~P{}r~}y|Pv~S{|w~|m{}w~|^{}w~|s{|w~"
+      "}b{|w~|vw~|xw~|w{|w~}\\s~|Uv~sv~|Ru~W{|s~}|Iw~|I{|}t~}d{|u~}w|}g~}5{|y~|p{|x~|p{}y~fv~|o{|v~}]v~n{}v~|^{}w~|ts~"
+      "`v~|l{|v~\\{}p~}Xw~}m{|w~}]{|w~|tv~|Xv~|wv~|]{|w~|m{}w~|h{|v~|q{}x~}q{|v~|iv~|u{}w~t{}w~|b{|w~}q{|w~}`v~t{}w~t{"
+      "|w~}bv~kv~|dv~|l{|v~X{|w~}Wv~|l{|v~a{|v~nv~U{|v~}U{}w~}Uv~}d{|v~|l{}v~r{|v~r{|v~|i{}w~}hv~|fu~|v{|v~u{}v~}iv~}c"
+      "{|v~|n{|T~]{}w~]T~}^{}w~]T~}^{}w~ rw|V{|w~}sy~}X{|w}u~q}Zw~m{}x~|V{}v~\"{|v~ow~|2{|y~|w{|w~d{|y~|4{}w~}v{|v~?w~"
+      "}8{|y~|sw~vw~}q{|y~| Q{}w~  p{|w~|m{}w~|Ux~}w{|x~}W{|v~|  i{}w~|v{|v~Ww~|p{|y~|{}x~`{}x~|j{|x~}bw~|p{|y~}{}x~^{"
+      "}w~|X{|v~nv~_{|v~nv~_{|v~nv~_{|v~nv~_{|v~nv~_{|w~}nv~|g{}w~}q{|v~Yv~}I{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}"
+      "M{}w~}Z{|v~ev~}h{}w~|sv~|vv~iv~}c{|v~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|lv~}c{|v~|]{}u~|^v~}t{|w~|p{|v~|i{|v~h{}w~}"
+      "f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}Z{|v~|V{}w~}n{}v~|aw~}s{|s~|[{}h~|\\{}h~|\\{}h~|\\{}h~|\\{}h~|\\{}h~|f{}h~j}v~"
+      "jv~|Ov~j}v~|cv~j}v~|cv~j}v~|cv~j}v~|Xv~Lv~Lv~Lv~Wv~|l{|v~`w~}m{|w~}bv~|l{|v~bv~|l{|v~bv~|l{|v~bv~|l{|v~bv~|l{|v"
+      "~f{|Z~}fv~|t{}x~|wv~a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|]v~sv~|]v~kv~|_v~sv~| Vw~yd~|{w~jw~yd~|{w~j"
+      "w~rr~|sw~jw~ru~|pw~jw~pv~}qw~Zw~|Sv~sv~ H{|v~|Rw~}uy~}({|]~}i{}X~|g{}b~|a{}d~|aw~}kw~}aw~}kw~}]{|v~v{|v~X{|v~v{"
+      "|w~}b{}x~}     pf~ v{|w~ {{|w~t{|x~}P{|y~}r~W{}x~|v{}w~u{}w~mv~r{}u~t{|w~|+{|v~F{}w~|Ox~Z{|Z~},{|m~ x{}w~W{|v~k"
+      "{}w~}W{}w~}M{}v~}F{}v~a{|w~|p{}w~}Iv~|au~}mv~}Vv~|Y{|v~}o{|v~|]{}m~|{v~| Z{|r~}| c{|}r~}]{|w~}`{|x~|sw~|nw~|t{}"
+      "x~k{}w~}n{}w~}a{}w~}l{|v~|e{}v~M{}w~}f{}v~d{}w~}L{}w~}T{}v~mr|v~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}y{|t~T{}w~}V{}w~|u"
+      "{|w~y{}w~tv~|h{}w~|s{|v~vv~i{}v~c{|v~|e{}w~}r|]{}v~c{|v~|g{}w~}q{}v~}K{|t~|Y{|v~|Z{|v~h{}w~}`{}v~tv~|d{|v~w{|w~"
+      "|s{}x~}w{}w~}av~}{}v~Q{|v~|R{|u~M{|w~}H{}x~}J{|w~|  r{|f~|_w~}k{}w~|bv~|Ov~k{}w~|b`~|Yw~}Vv~k{}w~|`w~}m{|w~}Wv~"
+      "Lv~Tq~Iv~_w~}mv~mv~hw~}m{|w~}bv~jv~`v~k{}w~|dv~k{}w~|Zw~}O{}o~}|Sv~S{|w~|m{}w~|^{|w~}s{}w~|b{|w~}w{|w~w{}x~}w{|"
+      "w~|\\{|u~}T{}w~|u{|w~}Ru~V{|s~}|Iw~|J{|}s~}d{|w~|s{|}k~|3y~}p{|x~}p{}y~fv~mv~|]v~m{}v~_{|w~}rt~`v~jv~Z{}r~}Xw~}"
+      "m{|w~}\\w~}u{|w~}X{|w~}v{}w~}]{|w~|m{}w~|h{|v~|q{}x~}pv~|iv~t{}w~t{}w~|b{|w~}q{|w~}`v~t{}w~t{|w~}bv~k{}w~|dv~jv"
+      "~X{|w~}W{}w~|l{|v~a{}w~}n{}w~}W{|u~T{}w~}U{}w~}d{}v~k{}v~|s{|v~r{}v~h{}w~}hv~|f{|u~|w{|v~v{}u~h{}v~c{|v~|n{|T~]"
+      "{}w~]T~|^{}w~]{}U~}^{}w~ s{|w~V{|w~}sy~}S{|v~Pw~|nw~|V{|w~}!{}v~|q{}x~|1y~}vw~|e{}y~ci|]{}w~u{|w~|?w~}7y~}sw~v{"
+      "|w~|r{}y~ P{}w~  p{|w~|m{}w~|Ux~}w{|x~}W{|v~| Fi|U{|w~|u{}w~X{}x~}p{|y~}y{}x~a{|w~i{|x~}c{}x~}p{|y~}y{}x~^{}w~|"
+      "X{}w~}n{}w~}`{}w~}n{}w~}`{}w~}n{}w~}`{}w~}n{}w~}`{}w~}n{}w~}`{}w~|n{}w~}h{|v~p{|v~Y{}v~I{}w~}M{}w~}M{}w~}M{}w~}"
+      "D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~f{|v~|h{}w~|s{|v~vv~i{}v~c{|v~|l{}v~c{|v~|l{}v~c{|v~|l{}v~c{|v~|l{}v~c{|v~|^{}s~|_"
+      "{}v~u{|w~|o{|v~|i{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}Z{|v~|V{}w~}o{|u~`w~}q{}t~|^{|f~|^{|f~|^{|f~|^{|f~|"
+      "^{|f~|^{|f~|h{|P~jv~|O`~|c`~|c`~|c`~|Xv~Lv~Lv~Lv~Wv~jv~`w~}m{|w~}bv~jv~bv~jv~bv~jv~bv~jv~bv~jv~f{|Z~}fv~|u{}x~}"
+      "vv~a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|]{}w~|u{|w~}\\v~k{}w~|_{}w~|u{|w~} Uw~yq}w~r}yw~jw~yd|yw~jw~"
+      "sp~|tw~jw~su~|ow~jw~pv~}qw~Zw~|S{}w~}u{|w~} Hv~|Q{}w~|w{|y~|({|\\~iW~|f{}d~|_e~|`w~}kw~}aw~}kw~|]{}w~}uv~Wv~|w{"
+      "}w~|b{}x~}     q{|g~| v{|w~({}Z~X{|y~|{|}u~}Y{|w~uw~|tw~}o{|w~}q{}u~u{}w~*{|v~F{}w~|*m|}w~l|,{|m~ xw~}W{|v~k{}w"
+      "~}W{}w~}N{}v~}Dv~|bw~}o{}w~}Iv~|au~|m{}w~}W{|v~X{}v~m{}v~\\{|p~}xv~| Y{}p~}| i{|}p~}|]{}w~}`{|x~|sw~mw~|t{}x~kv"
+      "~}n|}v~a{}w~}kv~}e{}v~M{}w~}f{}v~d{}w~}L{}w~}T{}v~dv~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}x{|t~U{}w~}V{}w~|tw~|{w~}tv~|"
+      "h{}w~|rv~}wv~i{}v~c{}v~d{}w~}T{}v~c{}v~f{}w~}p{}v~|Ju~}Y{|v~|Z{|v~h{}w~}_v~|v{|v~bv~|x{|w~r{}w~wv~|b{}v~xv~}R{|"
+      "v~|Ru~|M{|w~}H{|w~J{|w~|  s{|q~t}v~|_w~}k{}w~|bv~Nv~k{}w~|b`~|Yw~}Vv~k{}w~|`w~}m{|w~}Wv~Lv~Tp~Jv~_w~}mv~mv~hw~}"
+      "m{|w~}bv~jv~`w~}k{}w~|dv~k{}w~|Zw~}N{|m~|Uv~S{|w~|m{}w~|]v~t{|v~`v~w{}x~}w{|x~}w{}w~[{|u~|T{|w~}u{}w~|S{}v~|V{|"
+      "x}t~}Jw~|K{|s~y}|d{|y~}n{|}p~}1y~}p{}w~p{}y~fv~mv~\\v~lv~|`{}w~|r{|v~}`v~jv~\\{|p~}Xw~}m{|w~}\\{}w~u{}w~|Xv~|v{"
+      "|v~]{|w~|m{}w~|h{|v~p{}w~pv~}iv~t{}w~t{}w~|b{|w~}q{|w~}`v~t{}w~t{|w~}bw~}k{}w~|dv~jv~X{|w~}W{}w~|l{|w~}av~|n{|v"
+      "~Wu~|T{}w~}U{}v~dv~}k{|v~}s{|v~s{|v~}h{}w~}hv~|e{}u~|x{|v~w{}u~|h{}v~c{}v~l{|u~}\\|]{}w~][|u~|]{}w~\\{}v~}c|u~}"
+      "]{}w~ s{|w~V{|w~}sy~}S{|v~P{}x~}o{|w~`{|a~}+u~|rw~|1y~}v{}w~ex~d{|j~}]{}w~}v{|v~|@w~}7y~}sw~u{}w~rx~ P{}w~  p{|"
+      "w~|m{}w~|Ux~}w{|x~}  w{|j~}V{|v~|v{}w~}Xw~oy~}x{}x~aw~|i{|x~|cw~ox~x{}x~^{}w~|Xv~}n|}v~`v~}n|}v~`v~}n|}v~`v~}n|"
+      "}v~`v~}n|}v~a{|b~h{}v~p|}v~Y{}v~I{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~f{|v~|h{}w~|rv~}wv~i{}v~c{"
+      "}v~k{}v~c{}v~k{}v~c{}v~k{}v~c{}v~k{}v~c{}v~^{}q~|`{}v~v{|w~}n{}v~h{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}Z{"
+      "|v~|V{}w~}p{|u~|`w~}p{|t~}`{|q~t}v~|_{|q~t}v~|_{|q~t}v~|_{|q~t}v~|_{|q~t}v~|_{|q~t}v~|i{|q~t}`~|kv~N`~|c`~|c`~|"
+      "c`~|Xv~Lv~Lv~Lv~Wv~jv~`w~}m{|w~}bv~jv~bv~jv~bv~jv~bv~jv~bv~jv~f{|Z~}fv~u{|x~}uv~a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m"
+      "{}w~|a{|w~|m{}w~|]{|w~}u{}w~|\\w~}k{}w~|_{|w~}u{}w~| U{}x~|q{}w~q{|w~j{}x~|b{|w~j{}x~|uu~|u~|v{|w~j{}x~|uu~|o{|"
+      "w~j{}x~|qv}|r{|w~[{|w~|S{|v~uv~| TZ~}a{|w~}wx~'{|\\~iW~|ee~|^{|g~}_w~}kw~}aw~}kw~|]v~|u{}w~|X{}w~}wv~|b{|w~|   "
+      "  r{}g~ u{|w~({}Z~X{|y~|w{}v~|Zw~|v{|w~s{|w~o{|w~}p{}u~vw~})v~Fv~| w{}w~ x{|m~ y{|w~|Vv~|lv~|W{}w~}O{}v~}C{}w~}"
+      "c{|w~n|}w~}v|N{}w~}au~l{|v~Wv~}Xv~}m{|v~|[{|y}w~y}|x{|v~ V{|}p~}|XY|X{|}q~}|Z{}w~}`{|x~|sw~mw~|tw~l{|b~|b{}w~}k"
+      "{}v~e{|v~|N{}w~}fv~}d{}w~}L{}w~}T{|v~|ev~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}w{|t~V{}w~}V{}w~|t{}w~|w~|tv~|h{}w~|r{|v~"
+      "wv~i{|v~|d{}v~d{}w~}T{|v~|d{}v~f{}w~}o{}v~J{|u~Y{|v~|Z{|v~h{}w~}_{}w~}v{}w~}b{}w~}x{}x~}r{|w~wv~b{|v~|x{|v~|S{|"
+      "v~|S{}v~|L{|w~}Gw~|K{|w~|  t{|u~}|q{}w~|_v~k{}w~|bv~Nv~k{}w~|b`~|Yw~}Vv~k{}w~|`w~}m{|w~}Wv~Lv~Tw~}|u~Kv~_w~}mv~"
+      "mv~hw~}m{|w~}bv~jv~`w~}k{}w~|dv~k{}w~|Zw~}L{|}o~}Vv~S{|w~|m{}w~|]{}w~}u{}w~}`{}w~|xw~|w{|w~wv~\\{|s~Sv~uv~S{}v~"
+      "|O{}v~}Kw~|L{|v~}|_{|~|j{|y}x~y}|/x~q{|v~}qx~fv~m{}x~}\\v~l{}w~|`v~pv~}`v~jv~]n~}Xw~}m{|w~}\\{|w~|vv~X{|v~t{}w~"
+      "|^{|w~|m{}w~|h{|v~p{}w~pv~|iv~t{}w~t{}w~|b{|w~}q{|w~}`v~t{}w~t{|w~}bw~}k{}w~|dv~jv~X{|w~}W{}w~}l{}w~}b{|v~lv~|Y"
+      "{}v~|S{}w~}U{|v~}f{|v~|ju~|t{|v~s{}v~|h{}w~}hv~|dt~}y{|v~y{|t~|g{|v~|d{}v~k{|u~|?{}w~>u~|b{|v{}w~[{}v~|e{}v~}\\"
+      "{}w~ s{|w~V{|w~}sy~}S{|v~P{|w~o{}x~}`{|a~}+{|u~}|u{|w~0{}y~v{|w~}g{|y~}d{|j~}\\{}v~|w{|v~}Aw~}7{}y~sw~tw~}t{|y~"
+      "} P{}w~  p{|w~|m{}w~|Ux~}w{|x~}  w{|j~}W{|v~|vv~}X{}x~|p{}y~|x{}x~b{}x~}hw~c{}x~}p{}y~|x{}x~^v~X{|b~|b{|b~|b{|b"
+      "~|b{|b~|b{|b~|b{}b~}id~Y{|v~|J{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~f{}v~g{}w~|r{|v~wv~i{|v~|d{}v"
+      "~k{|v~|d{}v~k{|v~|d{}v~k{|v~|d{}v~k{|v~|d{}v~_{}v~}u~|a{|v~|ww~}m{}v~h{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w~}f{|v~h{}w"
+      "~}Z{|v~|V{}w~}sy|s~_w~}n{}u~|b{|u~}|q{}w~|`{|u~}|q{}w~|`{|u~}|q{}w~|`{|u~}|q{}w~|`{|u~}|q{}w~|`{|u~}|q{}w~|j{|u"
+      "~}|q{}a~|kv~N`~|c`~|c`~|c`~|Xv~Lv~Lv~Lv~Wv~jv~`w~}m{|w~}bv~jv~bv~jv~bv~jv~bv~jv~bv~jv~.v~v{|w~tv~a{|w~|m{}w~|a{"
+      "|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|\\v~uv~[w~}k{}w~|^v~uv~ T{}x~}q{}w~q{|x~}j{}x~}b{|x~}j{}x~}vu~|{|u~|w{|x~}j{}"
+      "x~}vu~|n{|x~}j{}x~}b{|x~}[{|w~Qv~|w{|v~ SZ~}`v~x{|y~}'{|]~}iW~|e{|g~}\\{}i~}^w~}kw~}aw~}l{|w~|^{|v~t{|w~}X{|v~x"
+      "{|v~`w~}     m{|v~ jw|({}Z~X{|y~|v{}w~}[{}x~}u{}x~}s{|w~o{}w~}o{}u~x{|w~|)v~Fv~ v{}w~  g{}w~Uv~|lv~|W{}w~}P{}v~"
+      "}B{|v~c{|_~|O{}w~}a{}v~l{|v~X{|v~|Y{|v~|lv~|N{|v~ S{|}p~|[{|Z~}[{|}p~}|X{}w~}`{|x~|sw~|nw~|u{|x~}l{}b~}b{}w~}k{"
+      "|v~e{|v~}N{}w~}g{|v~}d{}w~}L{}w~}T{|v~}ev~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}v{|t~W{}w~}V{}w~|t{|r~sv~|h{}w~|q{}w~}xv"
+      "~i{|v~}dv~}d{}w~}T{|v~}dv~}f{}w~}nv~}J{}v~Y{|v~|Z{|v~|i{}w~}_{|v~vv~|b{}w~}xw~|qw~|y{|v~bv~}v{}v~S{|v~|T{}v~}K{"
+      "|w~}G{}x~}K{|w~|  tv~}n{}w~|_v~kv~|bv~|Ov~k{}w~|bv~Bw~}Vv~k{}w~|`w~}m{|w~}Wv~Lv~Tw~}{|u~|Mv~_w~}mv~mv~hw~}m{|w~"
+      "}bv~|kv~`v~k{}w~|dv~k{}w~|Zw~}Iy|}q~Wv~S{|w~|m{}w~|]{|v~uv~_{|w~|xw~uw~|y{|w~}\\r~}T{|w~|w{}w~}T{}v~|M{|v~Kw~|L"
+      "{}w~} O{}y~|rt~|s{|y~}fv~|nw~}\\v~l{|w~}`w~}p{}w~|`v~|kv~^u~}|Qw~}m{|w~}[w~}w{}w~}X{}w~|t{|w~}^{|w~|m{}w~|h{|v~"
+      "pv~pv~|iv~t{}w~t{}w~|b{|w~}q{|w~}`v~t{}w~t{|w~}bv~k{}w~|dv~|l{|v~X{|w~}W{|w~}l{}w~|b{}w~}l{}w~}Z{|v~}R{}w~}T{}v"
+      "~f{}v~i{|u~t{|v~t{|u~g{}w~}hv~|cr~}v~}s~}f{|v~}dv~}j{|u~|@{}w~?u~|b{}~|w{}w~vy~a{}v~|g{}v~}b{}~|w{}w~vy} {{}w~|"
+      "W{|w~}sy~}S{|v~Ow~}q{|w~|`{|a~}){}u~}vw~}0{|y~}v{}w~}p{|t{}y~|d{|j~}[{|v~|vv~}Bw~}7{|y~}tw~t{|w~|u{}y~| P{}w~  "
+      "p{|w~|m{}w~|Ux~}w{|x~}  w{|j~}X{}v~v{|v~}X{|w~p{|y~|w{}x~bw~h{}x~|d{|w~p{|y~}w{}x~^v~X{}b~}b{}b~}b{}b~}b{}b~}b{"
+      "}b~}b`~j{}d~Y{|v~}J{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~fv~}g{}w~|q{}w~}xv~i{|v~}dv~}k{|v~}dv~}k"
+      "{|v~}dv~}k{|v~}dv~}k{|v~}dv~}`{}v~|{|u~|b{|v~}x{}x~}lv~}h{|v~|i{}w~}f{|v~|i{}w~}f{|v~|i{}w~}f{|v~|i{}w~}Z{|v~|V"
+      "{}e~|_w~}m{|u~bv~}n{}w~|`v~}n{}w~|`v~}n{}w~|`v~}n{}w~|`v~}n{}w~|`v~}n{}w~|jv~}n{}w~Tv~|Ov~Lv~Lv~Lv~Av~Lv~Lv~Lv~"
+      "Wv~|l{|v~`w~}m{|w~}bv~|kv~bv~|kv~bv~|kv~bv~|kv~bv~|kv~.v~vw~|u{|v~a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}"
+      "w~|\\{|w~|w{}w~}[v~k{}w~|^{|w~|w{}w~} T{|w~q{}w~q{}x~|j{|w~b{}x~|j{|w~wu~|x{|u~|x{}x~|j{|w~wu~|m{}x~|j{|w~b{}x~"
+      "|[{|w~Q{|w~}w{}w~} SZ~}`{}w~|y{}y~|'{|n~y}~|n~}i{}k~x}k~c{|i~}Z{}j~]w~}kw~}a{}w~l{|w~|^{}w~}sv~Wv~|y{}w~}`{}w~|"
+      "     mv~|  o{}Z~X{|y~|v{|w~}\\{|w~t{}x~|rw~|p{}w~}n{}u~yw~}(v~|Gv~ v{}w~  gw~}U{}w~}m{|v~V{}w~}Q{}v~}A{|v~c{|_~"
+      "|O{}w~}a{}v~l{|v~X{}v~X{|v~k{}w~}N{}w~} Q{|}p~}|^{|Z~}^{|}p~}|U{}w~}`{|x~}sw~|o{|w~|u{}x~|l`~b{}w~}k{|v~|eu~N{}"
+      "w~}g{}v~|d{}w~}L{}w~}Su~ev~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}u{|t~X{}w~}V{}w~|ss~}sv~|h{}w~|q{|v~|yv~hu~e{|v~|d{}w~}"
+      "Su~e{|v~|f{}w~}n{}v~|K{|v~|Z{|v~|Yv~|i{}w~}^v~|x{}v~a{|v~y{|w~|q{}x~}y{}w~}c{}v~tv~}T{|v~|U{|v~}J{|w~}G{|w~K{|w"
+      "~|  u{|v~m{}w~|_v~kv~a{}w~|O{}w~|l{}w~|bv~|Cw~}V{}w~|l{}w~|`w~}m{|w~}Wv~Lv~Tw~}y{|u~|Nv~_w~}mv~mv~hw~}m{|w~}bv~"
+      "|l{|v~`v~kv~cv~|l{}w~|Zw~}D{|}u~}Xv~S{|w~|m{}w~|\\{}w~|w{|w~}^w~}y{|w~u{}x~}y{}w~|]{}q~|Tv~wv~|U{|v~}K{}w~|Lw~|"
+      "Lv~ N{|x~s{}x~{w~|tx~|fv~|o{|v~\\v~l{|w~}a{|w~|p{}w~_{}w~|l{|v~_{}v~|Ow~}m{|w~}[{}w~|xv~X{|v~rv~|_{|w~|m{}w~|h{"
+      "|v~|qv~pv~|iv~|u{}w~t{}w~|b{|w~}q{|w~}`v~t{}w~t{|w~|bv~kv~c{}w~|l{|v~X{|w~}Vv~l{}w~|bv~|l{|v~[{|v~}Q{}w~}T{|v~}"
+      "h{|v~|hu~}u{|v~u{|u~|g{}w~}hv~|b{}f~|du~e{|v~|i{|u~|A{}w~@u~|b{}x~|x{}w~ww~a{}v~|i{}v~}b{}x~|x{}w~w{}y~} {}w~|W"
+      "{|v~sy~}S{|v~O{|w~}s{}w~}^q|}v~q|'{}t~|{|w~}.x~u{}v~}|wy|}y~tx~/{|v~|v{}w~}Cw~}6x~tw~s{}w~ux~ O{}w~  p{|w~|m{}w"
+      "~|Ux~}w{|x~}  B{}w~}v{|v~|Ww~|q{|y~}v{}x~c{}x~|i{}x~}cw~|q{|y~}v{}x~_{|v~X`~b`~b`~b`~b`~c{|`~|kc~Xu~J{}w~}M{}w~"
+      "}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~g{|v~}g{}w~|q{|v~|yv~hu~e{|v~|ju~e{|v~|ju~e{|v~|ju~e{|v~|ju~e{|v~|a{}"
+      "v~|x{|u~|bu~y{}w~l{|v~|gv~|i{}w~}ev~|i{}w~}ev~|i{}w~}ev~|i{}w~}Z{|v~|V{}f~|^w~}l{|v~|d{|v~m{}w~|a{|v~m{}w~|a{|v"
+      "~m{}w~|a{|v~m{}w~|a{|v~m{}w~|a{|v~m{}w~|k{|v~m{}w~T{}w~|Ov~|Mv~|Mv~|Mv~|Bv~Lv~Lv~Lv~W{}w~|l{|v~`w~}m{|w~}bv~|l{"
+      "|v~bv~|l{|v~bv~|l{|v~bv~|l{|v~bv~|l{|v~.v~|x{}x~|t{|v~a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|a{|w~|m{}w~|[v~wv~|[v"
+      "~kv~\\v~wv~| Sw~|r{}w~r{|w~hw~|d{|w~hw~|yu~|v{|u~y{|w~hw~|yu~|m{|w~hw~|d{|w~Z{|w~Pv~wv~| SZ~}_w~}yx~%n~{|~{|o~|"
+      "i{|l~}|}|l~}b{}j~Xk~|]w~}kw~}a{}w~l{}w~]v~|s{}w~|X{}w~}yv~|_w~}     mv~}  g{}x~}t{}x~}O{|y~|uw~}\\{}x~|t{}x~|rw"
+      "~|p{|w~}m{}u~}w~|({}w~|H{|w~} v{}w~  h{|w~|U{}w~}m{|v~V{}w~}R{}v~}@{|v~c{|_~|Ov~|a{|v~l{}w~}Xv~}X{|v~k{}w~}Nv~|"
+      " N{|}p~}|a{|Z~}a{|}p~}|R{|w}|_x~}s{}x~}o{}w~|v{|w~l{}`~|c{}w~}k{|v~|e{}v~|O{}w~}gu~c{}w~}L{}w~}S{}v~|fv~|h{}w~}"
+      "hv~|Y{}w~}M{}w~}W{}w~}t{|t~Y{}w~}V{}w~|s{}t~rv~|h{}w~|p{}w~}yv~h{}v~|f{}v~c{}w~}S{}v~|f{}v~e{}w~}mv~}K{|v~|Z{|v"
+      "~|Yv~|iv~|^{}w~}xv~}`v~|{|w~p{}w~yv~|d{|v~|t{|v~|U{|v~|V{|u~I{|w~}Fw~|L{|w~|  u{}w~|mv~|_v~|m{|v~a{}w~}O{}w~|lv"
+      "~|b{}w~|Cw~}V{}w~|lv~|`w~}m{|w~}Wv~Lv~Tw~}x{|u~|Ov~_w~}mv~mv~hw~}m{|w~}b{}w~|l{|w~}`v~kv~c{}w~|lv~|Zw~}B{|u~Xv~"
+      "S{|w~|m{}w~|\\{|w~}w{}w~|^v~y{}x~}u{|x~}y{}w~]{|v~|}v~T{}w~|y{|w~}U{|v~}J{|w~}Lw~|M{|w~} Mx~}v{|w~|{|w~|v{}x~e{"
+      "}w~|o{}v~\\v~l{|w~}a{|w~|pw~}_{}w~|l{|w~}_v~Mw~}m{|w~}[{|w~}y{|w~}X{}w~|r{}w~}_{|w~|m{}w~|h{|v~|qv~|r{|v~|i{}w~"
+      "|u{}w~tv~|b{|w~}q{|w~}`v~t{}w~t{}w~|bv~kv~c{}w~|l{|w~}X{|w~}Vv~lv~b{}v~jv~|\\u~P{}w~}S{}v~|iu~g{|t~|w{|v~v{}u~}"
+      "f{}w~}hv~|a{}h~|c{}v~|f{}v~g{|u~|B{}w~Au~|b{}v~|y{}w~xu~a{}v~|k{}v~}b{}v~|y{}w~x{}w~}!{}w~|Vv~sy~}S{|v~O{|u~}y|"
+      "{y|u~}T{|w~}Lw}|P{|}p~}-{|y~}u{}l~u{}y~|.{|v~|v{}w~}Dw~}6{|y~}uw~rw~}w{}y~| O{}w~  p{|w~|m{}w~|Ux~}w{|x~}  C{}w"
+      "~}v{|v~|W{}x~}px~u{}x~d{|w~i{}x~}c{}x~}px~u{}x~_{}w~}Y{}`~|d{}`~|d{}`~|d{}`~|d{}`~|d{}w~}j|}w~}l{|c~X{}v~|K{}w~"
+      "}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~gu~|g{}w~|p{}w~}yv~h{}v~|f{}v~i{}v~|f{}v~i{}v~|f{}v~i{}v~|f{}v~"
+      "i{}v~|f{}v~a{}v~|v{|u~|c{}v~|}w~|l{}v~fv~|iv~|ev~|iv~|ev~|iv~|ev~|iv~|Z{|v~|V{}h~}\\w~}k{}w~|d{}w~|mv~|a{}w~|mv"
+      "~|a{}w~|mv~|a{}w~|mv~|a{}w~|mv~|a{}w~|mv~|k{}w~|mv~|U{}w~}O{}w~|M{}w~|M{}w~|M{}w~|Bv~Lv~Lv~Lv~W{}w~}l{}w~}`w~}m"
+      "{|w~}b{}w~|l{|w~}b{}w~|l{|w~}b{}w~|l{|w~}b{}w~|l{|w~}b{}w~|l{|w~}.{}w~|y{}x~|s{|w~}a{|w~|m{}w~|a{|w~|m{}w~|a{|w"
+      "~|m{}w~|a{|w~|m{}w~|[{}w~|y{|w~}Zv~kv~\\{}w~|y{|w~} R{|w~r{}w~rw~}h{|w~dw~}h{|w~y{|w~|t{|w~}yw~}h{|w~y{|w~|lw~}"
+      "h{|w~dw~}Z{|w~P{}w~|y{|w~} Rs}v~g}|_{}w~{|y~}%{|p~|{|~yp~}g{}m~{}~{}m~|a{}l~|X{|m~}\\w~}kw~}a{|w~|mv~]v~r{}w~}X"
+      "{|v~{|v~^{}w~}     n{}v~  gw~|tw~|O{|y~|uw~}]{|x~}sw~|rw~|p{|v~l{}r~}'{|w~}H{|w~} v{}w~  h{|w~T{|v~m{}w~}V{}w~}"
+      "S{}v~}?{|v~c{|_~|Ov~|`v~|m{}w~}Y{|v~W{|v~k{}w~}O{|v~ J{|}p~}|d{|Z~}d{|}p~}|-w~s{|w~ov~|v{}x~|lv~|j{|v~c{}w~}k{}"
+      "v~cv~}O{}w~}h{}v~|c{}w~}L{}w~}Rv~}fv~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}rt~Z{}w~}V{}w~|ru~}rv~|h{}w~|p{|v~|{v~h{|v~}g"
+      "{|v~}c{}w~}Rv~}g{|v~}e{}w~}m{|v~|L{|v~|Z{|v~|Y{}w~}j{|v~|^{|v~|{|v~_{}w~}{}x~}p{|w~yv~cv~}r{}v~U{|v~|W{|u~|I{|w"
+      "~}F{}x~}L{|w~|  u{}w~|n{|v~|_v~}m{}w~}a{|w~}O{|w~}m{|v~|b{}w~}Cw~}V{|w~}m{|v~|`w~}m{|w~}Wv~Lv~Tw~}vu~|Pv~_w~}mv"
+      "~mv~hw~}m{|w~}b{|w~}l{}w~}`v~|m{|w~}c{|w~}lv~|Zw~}@v~|Yv~S{|w~}mv~|[v~wv~]{}w~|{w~|u{|w~yw~}]v~}y{}v~U{|w~}y{}w"
+      "~|V{|v~}I{|w~}Lw~|M{|w~} M{|w~x}v~}x{}v~x}w~|e{}w~}ou~|]v~l{|w~|a{|w~p{}w~|_{|w~}l{}w~}`{|w~}Mw~}m{|w~}Zv~y{}w~"
+      "|Y{|v~q{|v~_{|w~}m{}w~|gv~|r{|v~|r{|v~h{}w~}u{}w~tv~a{|w~}q{|w~}`v~t{}w~t{}w~|bv~|m{|w~}c{|w~}l{}w~}X{|w~}V{}w~"
+      "|n{|w~}bv~}j{}v~]{}v~|P{}w~}Ru~j{}v~|f{|t~}|y{|v~x{|t~}e{}w~}hv~|`{|}l~}`v~}g{|v~}f{|u~|C{}w~Bu~|`u~|{}w~yu~|`{"
+      "}v~|m{}v~}a{|u~|{}w~y{}v~}!{}w~|Vv~|ty~}S{|v~P{|g~}U{|w~}Lw~|N{|r~}+{}y~|u{|}o~}v{|y~}+v~}v{}v~Ew~}5{}y~|vw~r{|"
+      "w~|y{|y~} N{}w~  p{|w~}m{}w~|Ux~}w{|x~}  Dv~}v{}v~|W{|w~p{}y~|u{}x~dw~|j{}w~c{|w~p{}y~|u{}x~`{}v~|Yv~|j{|v~dv~|"
+      "j{|v~dv~|j{|v~dv~|j{|v~dv~|j{|v~dv~|j{|v~l{}w~}n{|v~Wv~}K{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~h{"
+      "|v~}f{}w~|p{|v~|{v~h{|v~}g{|v~}i{|v~}g{|v~}i{|v~}g{|v~}i{|v~}g{|v~}i{|v~}g{|v~}b{}v~|t{|u~|cq~|l{|v~}f{}w~}j{|v"
+      "~|e{}w~}j{|v~|e{}w~}j{|v~|e{}w~}j{|v~|Z{|v~|V{}k~}|Zw~}k{}w~}d{}w~|n{|v~|a{}w~|n{|v~|a{}w~|n{|v~|a{}w~|n{|v~|a{"
+      "}w~|n{|v~|a{}w~|n{|v~|k{}w~|n{|v~}U{|w~}O{}w~}M{}w~}M{}w~}M{}w~}Bv~Lv~Lv~Lv~W{|v~lv~|`w~}m{|w~}b{|w~}l{}w~}b{|w"
+      "~}l{}w~}b{|w~}l{}w~}b{|w~}l{}w~}b{|w~}l{}w~}Xt|X{}w~}{}x~}r{}w~}a{|w~}mv~|a{|w~}mv~|a{|w~}mv~|a{|w~}mv~|[{|w~}y"
+      "{}w~|Zv~|m{|w~}\\{|w~}y{}w~| Qw~}s{}w~s{}w~fw~}f{}w~fw~}y{|y~|r{|y~}y{}w~fw~}y{|y~|l{}w~fw~}f{}w~Y{|w~P{|v~y{}w"
+      "~| Kv~}J{|w~|}y~|${}r~}y{}~y{|q~f{|n~|{}~yn~}_m~|V{|o~}[w~}kw~}`w~}n{|w~}^{|w~}r{|v~Wv~{}w~}]v~|     o{|v~|  hw"
+      "~t{|w~N{|y~|uw~}]w~|s{}x~|rw~|ov~|l{}s~&{|w~}H{}w~| v{}w~  h{}x~}Sv~|nv~|V{}w~}T{}v~}>{}w~}Q{}w~}J{}v~_{}w~}mv~"
+      "}Y{}w~}Vv~|lv~|Ov~} G{|}p~}|0{|}o~}*{}x~rw~}q{}v~|w{}w~l{|v~hv~|d{}w~}ku~c{}v~}P{}w~}i{}u~b{}w~}L{}w~}R{}v~|gv~"
+      "|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}qt~[{}w~}V{}w~|r{}v~|rv~|h{}w~|o{}w~}{v~g{}v~|hu~|c{}w~}R{}v~|hu~|e{}w~}lv~}L{}v~Y"
+      "{|v~|Y{}v~j{}v~\\{}w~}{}w~}_{|v~{w~|ow~y|v~d{}v~pv~}V{|v~|Wu~|H{|w~}F{|w~L{|w~|  u{}w~m{}v~|_u~mv~|a{|v~Nv~|n{}"
+      "v~|b{|v~Cw~}Uv~|n{}v~|`w~}m{|w~}Wv~Lv~Tw~}uu~|Qv~_w~}mv~mv~hw~}m{|w~}b{|v~lv~|`v~}m{}w~}c{|v~m{|v~|Zw~}@{}w~|Yv"
+      "~S{|w~}mv~|[{}w~|y{|w~}]{|w~}{w~sw~y|w~}^{}w~}wv~}U{}w~yv~Uv~}Gw~}Lw~|M{|w~| L{|q~}v{}q~|d{|w~}p{|u~|]v~l{}w~|a"
+      "{|w~pv~^{|v~lv~|`{|w~|Mw~}m{|w~}Z{}w~y|v~X{}w~}pv~|`{|w~}mv~|gv~}r{|v~}r{}v~h{|v~u{}w~u{|w~}a{|w~}q{|w~}`{}w~|u"
+      "{}w~tv~av~}m{}w~}c{|v~lv~|X{|w~}V{|w~}n{}w~|c{|v~i{|v~|_{}v~}O{}w~}R{|v~}l{}v~|d{|r~y}v~y}s~}d{}w~}hv~|]{|}s~y}"
+      "|^{}v~|hu~|e{|v~}C{}w~C{}v~|^u~|}w~{}v~|^{}v~n{|v~}_{|u~|}w~{}v~} {}w~|V{}w~}ty~}S{|v~Q{}e~}V{|w~}Lw~|L{|t~*{|x"
+      "~|t{|y}u~}|u{|x~|*{}w~|v{|v~Fw~}5{|x~|ww|qw|y{|x~|   >{|w~}mv~|Ux~}w{|x~}  Ev~}v{|v~U{}x~|q{|y~}t{}x~e{}x~}j{}w"
+      "~b{}x~|q{|y~}t{}x~a{}v~}Y{|v~hv~|f{|v~hv~|f{|v~hv~|f{|v~hv~|f{|v~hv~|f{}v~hv~|n{|v~|n{|v~W{}v~}L{}w~}M{}w~}M{}w"
+      "~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~i{|u~|f{}w~|o{}w~}{v~g{}v~|hu~|h{}v~|hu~|h{}v~|hu~|h{}v~|hu~|h{}v~|hu~|c{}"
+      "v~|r{|u~|d{}s~|ku~|f{}v~j{}v~d{}v~j{}v~d{}v~j{}v~d{}v~j{}v~Y{|v~|V{}w~}r|Vw~}k{|w~|d{}w~m{}v~|a{}w~m{}v~|a{}w~m"
+      "{}v~|a{}w~m{}v~|a{}w~m{}v~|a{}w~m{}v~|k{}w~m{}u~U{|v~O{|v~M{|v~M{|v~M{|v~Bv~Lv~Lv~Lv~Vv~|n{|v~_w~}m{|w~}b{|v~lv"
+      "~|b{|v~lv~|b{|v~lv~|b{|v~lv~|b{|v~lv~|X{}u~X{|v~|x~}qv~|a{|w~}mv~|a{|w~}mv~|a{|w~}mv~|a{|w~}mv~|Z{}w~yv~Yv~}m{}"
+      "w~}[{}w~yv~ P{|w~}t{}w~t{|w~}f{|w~}h{|w~}f{|w~}yy|p{|}y{|w~}f{|w~}yy|l{|w~}f{|w~}h{|w~}Y{|w~Ov~y|v~ K{}w~}Hw~}y"
+      "~}\"{}t~}x{}~x{|s~d{|p~}y{}~y{|p~}]o~|T{}p~Zw~}kw~}`{}w~|o{}w~|^{}w~|qv~|X{}w~|v~|]{|v~|     o{}v~j{}  {|x~}t{|"
+      "x~}N{|y~|v{}w~}^{}x~}r{}x~}rw~|o{}v~k{}u~|%v~Hv~ u{}w~  hw~|S{}v~o{}v~U{}w~}U{}v~}>{|v~}Q{}w~}Ju~_{|v~n{|v~|Z{|"
+      "v~|Vv~}m{|v~|P{}v~ C{}o~}4{|o~}|({|x~}s{}w~}s{}u~|x{}w~|l{}w~}h{}w~}d{}w~}l{|v~}bu~|g{|}g{}w~}j{}u~|b{}w~}L{}w~"
+      "}R{|u~|hv~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}pt~\\{}w~}V{}w~|r{|v}qv~|h{}w~|nv~|v~g{|u~|j{}v~}b{}w~}R{|u~i{}v~}d{}w~}"
+      "l{|v~|M{}v~Y{|v~|Y{|v~|kv~}\\{|v~{v~|_{|v~|w~|o{}x~y}w~}e{|v~|p{|v~|W{|v~|X{}v~}G{|w~}F{|w~|M{|w~|  u{}w~|nu~|_"
+      "u~}o{}v~_v~}O{}w~}o{|u~|av~}Dw~}U{}w~}o{|u~|`w~}m{|w~}Wv~Lv~Tw~}t{}v~|Rv~_w~}mv~mv~hw~}m{|w~}av~|n{|v~_u~mv~|bv"
+      "~|n{}v~|Zw~}@{}w~|Yv~Rv~n{}v~|[{|w~}y{}w~|\\w~}|x~}s{}x~y}w~|_{}v~v{|v~|V{|w~y}w~}Vu~Fw~}Lw~|M{|w~| K{|s~}t{}s~"
+      "|bv~p{}u~}]v~|mv~`{|w~q{}w~}]v~}n{}v~_{|w~|Mw~}m{|w~}Yw~y}w~|Xv~o{|w~}`{|v~n{|v~|g{}v~r{}u~rv~}gv~|v{}w~uv~|a{|"
+      "w~}q{|w~}`{|w~}u{}w~u{|v~au~mv~|bv~}n{}v~Vv~Uv~nv~b{}w~}hv~}`{|v~}N{}w~}Q{|v~}n{}v~}b{|c~}c{}w~}hv~|Z{|v~Z{|u~|"
+      "j{}v~}c{|w~B{}w~B{}x~|\\u~}w~}v~|\\{}x~|m{}x~}]{|u~}w~}v~} {{v~|V{|v~|uy~}S{|v~R{}v~y|q~}|u~W{|w~}Lw~|J{}u~*{|x"
+      "~|e{|x~|({}x~}u{|w~F{|x}|4{|x~|e{|x~|   ={|v~n{|v~|Ux~}w{|x~}  Ew~|u{|x~}U{|x~}p{}j~}iw~j{}w~b{|x~}p{}j~}f{}v~}"
+      "X{}w~}h{}w~}f{}w~}h{}w~}f{}w~}h{}w~}f{}w~}h{}w~}f{}w~}h{}w~}fv~}h{}w~}n{}w~}m{|v~Vu~|g{|}c{}w~}M{}w~}M{}w~}M{}w"
+      "~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~j{|u~}e{}w~|nv~|v~g{|u~|j{}v~}g{|u~|j{}v~}g{|u~|j{}v~}g{|u~|j{}v~}g{|u~|j{}v~}c{"
+      "}v~|p{|u~|e{|t~}k{}v~}e{|v~|kv~}d{|v~|kv~}d{|v~|kv~}d{|v~|kv~}Y{|v~|V{}w~}Mw~}k{}w~|d{}w~|nu~|a{}w~|nu~|a{}w~|n"
+      "u~|a{}w~|nu~|a{}w~|nu~|a{}w~|nu~|k{}w~|nt~|Uv~}Ov~}Mv~}Mv~}Mv~}Cv~Lv~Lv~Lv~V{}v~nv~}_w~}m{|w~}av~|n{|v~`v~|n{|v"
+      "~`v~|n{|v~`v~|n{|v~`v~|n{|v~W{}u~Wr~q{|v~_v~n{}v~|`v~n{}v~|`v~n{}v~|`v~n{}v~|Z{|w~y}w~}Yu~mv~|[{|w~y}w~} O{}w~}"
+      "u{}w~u{}w~}d{}w~}j{}w~}d{}w~}j{}w~}d{}w~}j{}w~}d{}w~}j{}w~}X{}w~O{|w~y}w~} L{}w~}G{}u~|!{|}x~}|w{}~v{}w~}b{|r~|"
+      "x{}~w{}s~|\\{|q~}Rq~|Zw~}kw~}`{|v~p{|v~]v~p{}w~}X{|q~[{}v~}     p{|v~}ly}$v}|\"{}x~}t{}x~}Yy}|s{|y~|w{|v~|_{|w~"
+      "q{}x~}s{|w~n{|v~}l{|u~}%{}w~|Iw~} u{}w~L{}w~} tv}|P{|w~R{|v~|pv~}U{}w~}V{}v~}={}v~|Q{}w~}K{}v~|^v~|o{}v~Y{}v~U{"
+      "}v~m{}v~P{|v~}U{|v}M{}w~}F{|}q~}6{|q~}|G{|w}|^w~ru~y|x{|}t~y|}v~|kv~|h{|v~d{}w~}m{|u~|b{|u~|i{|~}g{}w~}l{|}u~}a"
+      "{}w~}L{}w~}Q{}u~|iv~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}ot~]{}w~}V{}w~|bv~|h{}w~|n{}q~f{}u~k{}u~a{}w~}Q{}u~k{|u~c{}w~}"
+      "kv~}c{|}h{|v~}Y{|v~|X{}v~l{}v~|[v~}v~]v~}w~n{}r~|ev~}n{}v~W{|v~|Y{}v~}F{|w~}Ew~}M{|w~|  u{}w~|o{}u~|_t~|q{|v~}_"
+      "{|v~|P{|v~}pt~|a{|v~|Ew~}U{|v~|pt~|`w~}m{|w~}Wv~Lv~Tw~}s{}v~|Sv~_w~}mv~mv~hw~}m{|w~}a{}v~nv~}_u~}o{}v~a{}v~o{|u"
+      "~|Zw~}@{}w~|Y{}w~|Sv~|p{|u~|Zv~{|v~[v~}x~}s{|r~_{|v~|u{}v~Uq~V{}v~|Fw~}Lw~|M{|w~| I{|y}~y}|r{|}x~}|`{}w~}qs~]u~"
+      "n{|v~`{|w~r{|v~\\{|v~nv~}_{|w~}Mw~}m{|w~}Y{}r~X{}w~}nv~`{|v~|o{}v~|g{|v~|st~|t{|v~|g{}v~v{}w~v{|v~`{|w~}q{|w~}_"
+      "v~|v{}w~uv~}au~}o{}v~a{|v~nv~}Vv~U{|w~}p{}w~}bv~|h{|v~`u~M{}w~}P{|u~|q{}v~}_{}g~}|b{}w~}hv~|Z{|v~Y{}u~k{}u~a{|y"
+      "~A{}w~A{}~|Zl~|Z{}~|k{}~}[{|l~} yv~}Uv~}uy~}S{|v~S{}v~|x{|y}x~}|wu~X{|w~}Lw~|I{|v~}*{}x~|g{|x~}&{}y~}t{|x~ T{}x"
+      "~|g{|x~}   <{|v~|o{}v~|Ux~}w{|x~}  Ex~|t{|y~}Tw~|p{}j~}j{}x~|k{}x~}aw~|p{}j~}g{}v~}Wv~|h{|v~fv~|h{|v~fv~|h{|v~f"
+      "v~|h{|v~fv~|h{|v~g{|v~g{|v~|ov~|m{|v~V{|u~|i{|~}c{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~k{}t~d{}w~"
+      "|n{}q~f{}u~k{}u~e{}u~k{}u~e{}u~k{}u~e{}u~k{}u~e{}u~k{}u~c{}v~|n{|u~|e{}u~|l{}u~c{}v~l{}v~|c{}v~l{}v~|c{}v~l{}v~"
+      "|c{}v~l{}v~|Y{|v~|V{}w~}Mw~}kv~c{}w~|o{}u~|a{}w~|o{}u~|a{}w~|o{}u~|a{}w~|o{}u~|a{}w~|o{}u~|a{}w~|o{}u~|k{}w~|o{"
+      "}s~U{|v~|P{|v~|N{|v~|N{|v~|N{|v~|Dv~Lv~Lv~Lv~Uv~}p{}v~^w~}m{|w~}a{}v~nv~}`{}v~nv~}`{}v~nv~}`{}v~nv~}`{}v~nv~}W{"
+      "}u~W{}t~|qv~}_v~|p{|u~|`v~|p{|u~|`v~|p{|u~|`v~|p{|u~|Yq~Xu~}o{}v~Yq~ M{}w~}|w{}x~}v{}v~b{}w~}|m{}v~b{}w~}|m{}v~"
+      "b{}w~}|m{}v~b{}w~}|m{}v~W{}x~}Nq~| M{|v~F{|u~ py~|V{|}y~y}|vy~|w{|y}y~y}Y{|s~}Q{|s~|Yw~}kw~}_{}v~|s{}v~|^{|w~}p"
+      "{|v~X{|r~}Z{}u~}     q{}v~}o{|y~}$v~}\"w~|tw~|Y{}y~}|u{|y~|x{|u~^{}x~|q{|w~s{}x~}mu~}n{|s~}&{|w~|J{|w~| u{}w~L{"
+      "}v~ u{|v~|P{}x~}Q{}v~|r{}v~T{}w~}W{}v~}O{}|k{}v~}P{}w~}]{}|l{}u~]{|v~|q{}v~|Yv~}U{|v~}o{}v~}Q{|v~}T{}v~M{}v~C{|"
+      "}t~}6{|t~}|D{}w~}^{}x~|s{|m~y}q~|k{|v~fv~|e{}w~}n{|u~}`{}u~|l{|}y~}g{}w~}n{|}t~}`{}w~}L{}w~}P{}u~}jv~|h{}w~}hv~"
+      "|Y{}w~}M{}w~}W{}w~}nt~^{}w~}V{}w~|bv~|h{}w~|mq~e{}u~|n{}u~|a{}w~}P{}u~|n{}u~|c{}w~}k{|v~|d{|y~}k{|u~|Y{|v~|X{|u"
+      "~n{|u~Z{}r~}]{}s~}n{|r~e{}v~lv~}X{|v~|Z{|u~E{|w~}E{}w~M{|w~|  u{|v~p{|t~|_s~|s{|u~]u~|P{}v~}s{|s~|`u~|k{|Ww~}T{"
+      "}v~}s{|s~|`w~}m{|w~}Wv~Lv~Tw~}r{}v~}Tv~_w~}mv~mv~hw~}m{|w~}`v~}p{}v~|_t~|q{|v~|`v~}q{|t~|Zw~}Q{|kv~|Y{}w~}S{}v~"
+      "pt~|Z{}w~y}w~}[{}s~|rs~}_v~}s{}w~}V{}s~}W{}v~|Ew~}Lw~|M{|w~|  r{|v~|s{}s~}^u~}ov~|_w~|s{}w~|[v~}pu~]v~|Nw~}m{|w"
+      "~}Y{|s~}Xv~m{}w~|a{|u~p{|u~|fv~}t{}x~}x~}t{}v~ev~}w{}w~w{|v~}`{|w~}q{|w~}_{}v~|w{}w~v{}v~`t~|q{|v~|`v~}p{}v~U{}"
+      "w~|Uv~|r{|v~b{|v~fv~|bu~|M{}w~}O{|u~}t{|u~}\\{|k~}|`{}w~}hv~|Z{|v~X{}u~|n{}u~|`{|@{}w~@{|Xn~|X{|i{|Y{|n~} xv~}U"
+      "{|v~}vy~}S{|v~T{|v~|jv~}Y{|w~}Lw~|H{|v~|*{}x~}i{}x~}${}~}s{|y~ S{}x~}i{}x~}   ;{|u~p{|u~|Ux~}w{|x~}  Ey~|s{|~}T"
+      "{}x~}o{}j~}k{|w~k{}x~}a{}x~}o{}j~}h{}v~}W{|v~fv~|h{|v~fv~|h{|v~fv~|h{|v~fv~|h{|v~fv~|h{}w~}f{}w~}p{|v~l{|v~U{}u"
+      "~|l{|}y~}c{}w~}M{}w~}M{}w~}M{}w~}D{}w~}M{}w~}M{}w~}M{}w~}Z{|v~n{|}s~c{}w~|mq~e{}u~|n{}u~|d{}u~|n{}u~|d{}u~|n{}u"
+      "~|d{}u~|n{}u~|d{}u~|n{}u~|d{}v~|l{|u~|et~|n{}u~|c{|u~n{|u~b{|u~n{|u~b{|u~n{|u~b{|u~n{|u~X{|v~|V{}w~}Mw~}x{|p{}v"
+      "~c{|v~p{|t~|a{|v~p{|t~|a{|v~p{|t~|a{|v~p{|t~|a{|v~p{|t~|a{|v~p{|t~|k{|v~p{|q~j{|gu~|Pu~|k{|_u~|k{|_u~|k{|_u~|k{"
+      "|Vv~Lv~Lv~Lv~U{|v~}r{}v~}^w~}m{|w~}`v~}p{}v~|_v~}p{}v~|_v~}p{}v~|_v~}p{}v~|_v~}p{}v~|W{}u~Vu~|q{}v~|_{}v~pt~|`{"
+      "}v~pt~|`{}v~pt~|`{}v~pt~|Y{}s~}Xt~|q{|v~|Y{}s~} Lu~}p{}u~|au~}p{}u~|au~}p{}u~|au~}p{}u~|au~}p{}u~|W{}x~}N{}s~} "
+      "M{|v~|Ev~} py~|Jy~|M{}t~O{|u~}Xw~}kw~}_{|t~}w|}u~}]{}w~}ov~|Xr~|Y{}t~}y|     tt~|r{}x~}$v~}\"w~t{|w~X{}v~}y|y{|"
+      "y~y|}t~|_{|x~}ow~}tw~|m{|t~|r{|}q~}&w~}J{}w~ t{}w~L{}v~ u{|v~|Pw~|Pu~|t{}v~|\\s|}w~}r|a{}v~}Nx~}|p{}t~O{}w~}]{}"
+      "y~}|q{}t~|\\{}v~|s{}u~Y{|v~|T{}u~|r{}u~|_{~}|r{|}u~|T{}v~M{}v~@{|}w~}6{|w~}|A{}w~}^{|w~r{|o~}{}s~}iv~}f{}w~}e{}"
+      "w~}q|y}s~|_{}t~|p{|}w~}g{}w~}r|y}q~}_{}w~}g|`{}w~}O{}t~}o{|}u~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}mt~_{}w~}h|i{}w~|bv~"
+      "|h{}w~|m{}r~dt~}|r{|t~|`{}w~}Ot~}q{|t~}b{}w~}jv~}d{|w~}|p{|}u~}X{|v~|W{}u~|q{}u~|Z{|r~|]{|s~|mr~f{|v~|l{|v~|Y{|"
+      "v~|[{|u~}b|^{|w~}E{|w~|N{|w~|  tv~}r{}s~|_w~y}x~}|w{|}u~|]{|u~|p{|}|^t~y|x{|}w~}w~|`{|u~|n{|y~|Xw~}St~y|x{|}w~}"
+      "w~|`w~}m{|w~}Wv~Lv~Tw~}q{}v~}Uv~_w~}mv~mv~hw~}m{|w~}`{}v~}r{}v~}^s~}s{|v~}_{}v~}s{|s~|Zw~}Qy~}|o{}w~}X{|v~}|U{|"
+      "v~}s{|s~|Z{|q~Z{|s~qs~|`{}w~}qv~}Vs~|X{}v~|Dw~}Lw~|M{|w~|  qu~|u{}w~|v~}_s~|s{|u~^{}w~t{}w~}Z{|v~}|t{|}v~|]{}v~"
+      "|ny|^w~}m{|w~}Xs~|Y{}w~}m{|w~}a{|t~|s{}t~}f{}v~}v{|w~{w~|v{}v~}e{}v~}x{}w~x{}u~_{|w~}q{|w~}^u~}|y{}w~x{}u~}`s~}"
+      "s{|v~}_{|v~}|t{|}v~|U{|v~}|W{|v~|t{|v~|bu~f|v~}c{}v~}h|_{}w~}Vs}t~}v{}t~s}`{|y}t~y}|]{}w~}hv~|Z{|v~Wt~}|r{|t~|#"
+      "{}w~ vp~| {|p~} wv~}T{}v~}wy~}v{}~Z{|v~S{}x~|hx~}X{|w~}Lw~|G{}w~}){|w~|m{|w~|\"{|}q{} R{|w~|m{|w~| XY| ${|u~}r{"
+      "|t~}Ux~}w{|x~}  E{}qy|T{|w~c{}x~gw~|lw~}a{|w~c{}x~e{}v~}Vv~}f{}w~}hv~}f{}w~}hv~}f{}w~}hv~}f{}w~}hv~}f{}w~}hv~|f"
+      "{|v~pv~}l{|v~}h|h{}t~|p{|}w~}c{}w~}g|a{}w~}g|a{}w~}g|a{}w~}g|X{}w~}M{}w~}M{}w~}M{}w~}Z{|v~r|x}q~b{}w~|m{}r~dt~}"
+      "|r{|t~|bt~}|r{|t~|bt~}|r{|t~|bt~}|r{|t~|bt~}|r{|t~|d{|v~|j{|v~}f{}s~}|r{|t~|a{}u~|q{}u~|a{}u~|q{}u~|a{}u~|q{}u~"
+      "|a{}u~|q{}u~|X{|v~|V{}w~}Mw~}xy~}y|wy|u~|bv~}r{}s~|`v~}r{}s~|`v~}r{}s~|`v~}r{}s~|`v~}r{}s~|`v~}r{}s~|jv~}r{}w~}"
+      "|u~|o{|}y~g{|u~|p{|}|_{|u~|n{|y~|`{|u~|n{|y~|`{|u~|n{|y~|`{|u~|n{|y~|Wv~Lv~Lv~Lv~T{}u~}|x{|}u~}]w~}m{|w~}`{}v~}"
+      "r{}v~}^{}v~}r{}v~}^{}v~}r{}v~}^{}v~}r{}v~}^{}v~}r{}v~}V{}u~V{|v~}r{}v~}^{|v~}s{|s~|`{|v~}s{|s~|`{|v~}s{|s~|`{|v"
+      "~}s{|s~|Xs~|Xs~}s{|v~}Ws~| K{}u~}x|{x|}t~^{}u~}x|{x|}t~^{}u~}x|{x|}t~^{}u~}x|{x|}t~^{}u~}x|{x|}t~U{}x~}N{|s~| M"
+      "{|w~|D{}w~| q{|y~}K{|y~}L{}v~|N{}v~Ww~}kw~}^{|j~}\\v~|o{}w~}X{}s~W{|^~}    -s~}v|}v~}$v~}#{|w~t{|x~}X{}e~|^w~|o"
+      "{|w~|v{}w~k{|s~}v|}t~y}v~}'{}w~Jw~} t{}w~L{}v~ u{|v~|Q{|w~O{|u~}w|}u~}\\{|e~|ab~`u~w}|x}r~|O{}w~}]{}v~w}|x}s~}Z"
+      "t~}w|}t~X{}w~}S{|t~y}v|}t~}^v~y}y|y}s~|S{}v~M{}v~={|}~}6{|y~}|?{}w~}]w~}q{}r~|y{}u~}h{|v~|f{|v~e{}c~|]{}s~y}v|y"
+      "}t~}g{}b~|^{}c~}`{}w~}N{}r~y}v|y}r~|h{}w~}hv~|Y{}w~}M{}w~}W{}w~}lt~`{}d~}i{}w~|bv~|h{}w~|lr~cr~}v|}s~}_{}w~}Ns~"
+      "y}v|}s~}a{}w~}j{|v~|e{|s~}u|}r~W{|v~|Vs~}v|y}t~|Xs~}\\{|s~|m{}t~}fv~}j{}v~Y{|v~|[{}\\~}^{|w~}Dw~}N{|w~|  t{}u~y"
+      "|x{|}w~y}w~|_w~}{k~|[{|t~}|wy|}x~|^{|k~y|w~|_{|t~}|vy|y}w~|Xw~}S{|k~y|w~|`w~}m{|w~}Wv~Lv~Tw~}p{}v~}Vv~_w~}mv~mv"
+      "~hw~}m{|w~}_{}u~}|x{|}u~}]w~y}w~y|yy|}u~|^{}u~}|x{|}w~}w~|Zw~}Qv~}y|v{|}u~|Wm~[{}u~}w|}v~}w~|Y{}s~}Yt~}q{}t~|a{"
+      "}v~p{|v~|W{}t~W{}d~Uw~}Lw~|M{|w~|  q{|u~}|y{|}v~{|s~br~}y|yy|}u~|^{|w~}v{}v~X{}u~}y|{y|}u~}\\{|t~}|vy|y}y~}^w~}"
+      "m{|w~}X{}t~Xv~|lv~|b{|s~}v|}q~x}hu~}|{y|w~}{}w~}|{|}u~c{}u~}|}w~|}t~|_{|w~}q{|v~}_{|s~}v~}s~}_w~y}w~y|yy|}u~|^{"
+      "}u~}y|{y|}u~}S{}r~}Z{}v~}|x{|}v~}b{|Z~c{}c~}_{}w~}Vk~v{}l~|^{|v~Y{}w~}hv~|Z{|v~Vr~}v|}s~|\"{}w~ ur~| y{|r~} vv~"
+      "}St~}y|y~}{y|}x~`{}b~}a{}~|f{~}W{|w~}Lw~|G{|w~}({|v~}|s{|}v~|  E{|v~}|s{|}v~| X{|Z~} ${|s~}y|{y|}q~}|}Xx~}w{|x~"
+      "}   l{}x~|c{}x~h{}x~}m{|w~|`{}x~|c{}x~f{|v~}V{|v~|f{|v~i{|v~|f{|v~i{|v~|f{|v~i{|v~|f{|v~i{|v~|f{|v~i{|v~dv~|r{|"
+      "v~k{|b~g{}s~y}v|y}t~}c{}c~}a{}c~}a{}c~}a{}c~}X{}w~}M{}w~}M{}w~}M{}w~}Z{|b~}a{}w~|lr~cr~}v|}s~}`r~}v|}s~}`r~}v|}"
+      "s~}`r~}v|}s~}`r~}v|}s~}b{|x~|h{|x~}f{}o~}v|}s~}_s~}v|y}t~|_s~}v|y}t~|_s~}v|y}t~|_s~}v|y}t~|W{|v~|V{}w~}Mw~}xk~}"
+      "a{}u~y|x{|}w~y}w~|`{}u~y|x{|}w~y}w~|`{}u~y|x{|}w~y}w~|`{}u~y|x{|}w~y}w~|`{}u~y|x{|}w~y}w~|`{}u~y|x{|}w~y}w~|j{}"
+      "u~y|x{|}u~y{|t~}|vy|}v~f{|t~}|wy|}x~|^{|t~}|vy|y}w~|_{|t~}|vy|y}w~|_{|t~}|vy|y}w~|_{|t~}|vy|y}w~|Wv~Lv~Lv~Lv~S{"
+      "}j~}\\w~}m{|w~}_{}u~}|x{|}u~}\\{}u~}|x{|}u~}\\{}u~}|x{|}u~}\\{}u~}|x{|}u~}\\{}u~}|x{|}u~}U{}u~V{}t~}|x{|}u~}\\{"
+      "}u~}w|}v~}w~|_{}u~}w|}v~}w~|_{}u~}w|}v~}w~|_{}u~}w|}v~}w~|X{}t~Ww~y}w~y|yy|}u~|W{}t~ I{}h~}\\{}h~}\\{}h~}\\{}h~"
+      "}\\{}h~}T{}x~}Ms~ K{|y~}C{|w~ p{}x~K{}x~Kw~|L{}x~|Ww~}kw~}]{|l~}\\{|v~n{|w~}X{|s~U{}`~}    -{|h~|$v~}#{}x~}t{}x"
+      "~}X{|}g~|^{}x~}m{}w~}y|}v~|j{|g~}y{}v~}({|w~|L{|w~| t{}w~L{}v~ u{|v~|Q{}x~}N{}k~}[{|e~|ab~`e~|N{}w~}]{}g~}Y{|i~"
+      "|Xv~|R{|g~}]i~|R{}v~M{}v~;y|5{|<{}w~}]{|w~|p{|v}|w{|x}|e{}v~dv~}f{}e~}|[{}d~|g{}d~}\\{}c~}`{}w~}M{}c~}|g{}w~}hv"
+      "~|Y{}w~}M{}w~}W{}w~}kt~a{}d~}i{}w~|bv~|h{}w~|l{|s~b{}f~|^{}w~}M{}f~|`{}w~}iv~}e{|c~V{|v~|Uf~}W{}t~|[s~l{}t~|g{}"
+      "v~hv~}Z{|v~|[{}\\~}^{|w~}D{}w~N{|w~|  sj~{}w~|_w~}{|m~|Y{}i~|]{|m~|{|w~|^{|f~|Xw~}R{|m~|{}w~|`w~}m{|w~}Wv~Lv~Tw"
+      "~}o{}v~}Wv~_w~}mv~mv~hw~}m{|w~}^h~\\w~}{k~|\\k~y|w~|Zw~}Qg~}V{|n~Zk~{}w~|Y{|s~|Y{}u~}q{|t~a{|v~|o{}v~W{|u~|W{}d"
+      "~Uw~}Lw~|M{|w~|  p{|l~|ys~be~}\\{}v~x}u~V{}j~}Z{|h~}^w~}m{|w~}X{|u~|Y{|w~}k{}w~}b{|w~}m~|s~h{|m~xm~|b{}g~|^{|w~"
+      "}pr~a{|f~}^w~}{k~|\\{}j~}R{|r~}Y{}l~}a{}Z~}d{}c~}_{}w~}Vk~v{}l~|^{|v~Y{}w~}hv~|Z{|v~U{}f~|!{}w~ tt~| w{|t~} uv~"
+      "}R{}i~`{}b~}`{|?{|w~}Lw~|Fw~}&{}t~w}t~}  A{}t~w}t~} V{|Z~} ${|w~}m~|s~Xx~}w{|x~}   m{|x~}b{}x~hw~lk~k{|x~}b{}x~"
+      "fv~}U{}v~dv~}j{}v~dv~}j{}v~dv~}j{}v~dv~}j{}v~dv~}j{}w~}d{}w~}r{}w~}k{|b~f{}d~|c{}c~}a{}c~}a{}c~}a{}c~}X{}w~}M{}"
+      "w~}M{}w~}M{}w~}Z{|d~}|`{}w~|l{|s~b{}f~|^{}f~|^{}f~|^{}f~|^{}f~|`{|~|f{|~}f{|w~|}f~|]f~}]f~}]f~}]f~}V{|v~|V{}w~}"
+      "Mw~}xl~}_j~{}w~|_j~{}w~|_j~{}w~|_j~{}w~|_j~{}w~|_j~{}w~|ii~w{|f~e{}i~|]{|f~|^{|f~|^{|f~|^{|f~|Wv~Lv~Lv~Lv~R{}l~"
+      "}[w~}m{|w~}^h~Zh~Zh~Zh~Zh~){|f~Zk~{}w~|^k~{}w~|^k~{}w~|^k~{}w~|X{|u~|Ww~}{k~|V{|u~| H{|j~|Z{|j~|Z{|j~|Z{|j~|Z{|"
+      "j~|S{}x~}M{}u~} I{}Ax~} pw~|Lw~|L{|y~|Jy~|Vw~}kw~}[{}o~|[{}w~}mv~Wt~}T{|}b~}    +{}l~}\"v~}#w~|tw~|U{|}l~}]{|w~"
+      "ko~|h{|j~}|w{}u~({}w~L{}w~ s{}w~Lv~| u{|v~|Qw~}M{|m~}Z{|e~|ab~`g~}|M{}w~}]{}h~|W{|k~W{}v~P{|i~|\\k~}P{}v~Mv~|  "
+      "i{}w~}\\{}w~Jv~}d{}v~f{}g~}|X{|}h~}e{}g~}|Z{}c~}`{}w~}L{|}g~}|e{}w~}hv~|Y{}w~}M{}w~}W{}w~}jt~b{}d~}i{}w~|bv~|h{"
+      "}w~|ks~a{|i~}\\{}w~}L{|i~}^{}w~}i{|v~|e{}f~}U{|v~|T{}i~|Ut~Z{}u~}l{|t~g{|v~|h{|v~|[{|v~|[{}\\~}^{|w~}D{|w~N{|w~"
+      "|  s{|l~|{}w~|_w~}x{}q~}|W{|j~|[{}p~|y{|w~|]{|g~|Xw~}P{}q~}|y{}w~|`w~}m{|w~}Wv~Lv~Tw~}n{|v~}Xv~_w~}mv~mv~hw~}m{"
+      "|w~}]{}l~}[w~}{|m~|Zm~|{|w~|Zw~}Qh~|T{|o~Z{|m~|{}w~|Xs~X{}u~|pu~}av~}m{}w~}Wu~V{}d~Uw~}Lw~|M{|w~|  o{|n~|w{}u~b"
+      "f~}Z{}p~}T{}l~}X{|i~}^w~}m{|w~}Wu~Xv~|k{|v~b{|w~y|o~|{}t~g{|o~|x{|o~}`{}i~|]{|w~}p{}s~_{}j~}|]w~}{|m~|Z{}l~}P{|"
+      "s~}X{}n~}`X~d{}c~}_{}w~}Vk~v{}l~|^{|v~Y{}w~}hv~|Z{|v~T{|i~} {{}w~ sv~| u{|v~} tv~}Q{}j~`{}b~}#{|w~}Lw~|G{|w~}${"
+      "}m~}  ={}m~} T{|Z~} ${|w~y|o~|{}t~Xx~}w{|x~}   mw~|b{}x~i{}x~|lk~kw~|b{}x~g{|v~Tv~}d{}v~jv~}d{}v~jv~}d{}v~jv~}d"
+      "{}v~jv~}d{}v~k{|v~|d{|v~rv~|k{|b~e{|}h~}a{}c~}a{}c~}a{}c~}a{}c~}X{}w~}M{}w~}M{}w~}M{}w~}Z{|g~}|]{}w~|ks~a{|i~}["
+      "{|i~}[{|i~}[{|i~}[{|i~}/{|w~|y{|i~}Z{}i~|[{}i~|[{}i~|[{}i~|U{|v~|V{}w~}Mw~}xm~|^{|l~|{}w~|_{|l~|{}w~|_{|l~|{}w~"
+      "|_{|l~|{}w~|_{|l~|{}w~|_{|l~|{}w~|i{|l~}u{|g~d{|j~|\\{|g~|]{|g~|]{|g~|]{|g~|Wv~Lv~Lv~Lv~Q{|}p~}|Zw~}m{|w~}]{}l~"
+      "}X{}l~}X{}l~}X{}l~}X{}l~}){|w~}l~}Y{|m~|{}w~|^{|m~|{}w~|^{|m~|{}w~|^{|m~|{}w~|Wu~Vw~}{|m~|Tu~ E{|}p~}|V{|}p~}|V"
+      "{|}p~}|V{|}p~}|V{|}p~}|Qw~}Lu~|  i{}y~| q{|w~}M{|w~}K{|}I{|}Uw~}kw~}Y{|y}w~y}|Yv~|m{}w~|X{}u~|Q{|}e~}    *{|}p~"
+      "}|!v~}#w~t{|w~Py|x}y~x}y|[w~|j{}r~|e{|n~}|t{}u~){|w~|N{|w~| s{}w~Lv~ t{|v~|R{|w~|L{|}p~|Y{|e~|ab~`y|}l~}|K{}w~}"
+      "]{|}k~|S{}o~|Vv~}N{|m~}Z{}n~}|O{}v~Mv~  h{}w~}[v~L{|v~|d{|v~|g{}k~y}y|T{|}m~}|c{}m~x}y|W{}c~}`{}w~}J{|}k~}|c{}w"
+      "~}hv~|Y{}w~}M{}w~}W{}w~}it~c{}d~}i{}w~|bv~|h{}w~|k{|t~_{|m~}|[{}w~}J{|l~|]{}w~}h{}w~}c{|}k~}|T{|v~R{|}m~|S{}v~}"
+      "Z{|u~|kt~gv~}f{}v~[{|v~|[{}\\~}^{|w~}Cw~|O{|w~|  q{}p~}x{}w~|_v}vy}w~y}|S{}m~}Xy}w~y}|w{|w}|[{|l~}|Vw~}N{|}w~y}"
+      "|w{}w~|`v}lw}|Wv~Lv~Tv}m{|u}Yv}_w~}mv~mv~hw~}m{|w~}\\{|n~|Zw~}x{}q~}W{}q~}|y{|w~|Zw~}Q{|}l~}P{|y}s~X{}q~}x{}w~|"
+      "X{}u~}X{|u~o{}v~|b{}w~}kv~}X{}w~}V{}d~Uv~Lw~|M{|w~|  n{|}q~}u{|}w~bv~{}o~}|X{|r~|R{|}p~}|U{}l~}|^w~}m{|w~}W{}w~"
+      "}Xw}|i{|w}b{|w~|{|q~|y{|t~f{|q~|v{|q~|^{|l~}[{|w~}os~]{|}o~}|[w~}x{}q~}W{|}p~}|M{|}v~}W{|p~|`{|X~|e{}c~}_{}w~}V"
+      "k~v{}l~|^{|v~Y{}w~}hv~|Z{|v~R{|m~}| y{}w~ rx~| s{|x~} sv~}P{|}n~}|`{}b~}#{|w~}Lw~|Ty|pv~|\"y|}u~}y|  9y|}u~}y| "
+      "R{|Z~} ${|w~|{|q~|y{|t~Xx~}w{|x~} y}|  q{}x~}aw}j{|w~kk~l{}x~}aw}gv~}U{|v~|d{|v~|l{|v~|d{|v~|l{|v~|d{|v~|l{|v~|"
+      "d{|v~|l{|v~|d{|v~|l{|v}bv}|t{}w~}j{|b~c{|}m~}|_{}c~}a{}c~}a{}c~}a{}c~}X{}w~}M{}w~}M{}w~}M{}w~}Z{|m~x}y|Z{}w~|k{"
+      "|t~_{|m~}|X{|m~}|X{|m~}|X{|m~}|X{|m~}|.w~}v{|}n~}|X{|}m~|X{|}m~|X{|}m~|X{|}m~|S{|v~|V{}w~}Mv|wy|}u~y}|Z{}p~}x{}"
+      "w~|]{}p~}x{}w~|]{}p~}x{}w~|]{}p~}x{}w~|]{}p~}x{}w~|]{}p~}x{}w~|g{}o~|r{|l~}|a{}m~}Y{|l~}|Y{|l~}|Y{|l~}|Y{|l~}|U"
+      "v~Lv~Lv~Lv~O{|y}v~y}|Xw~}m{|w~}\\{|n~|V{|n~|V{|n~|V{|n~|V{|n~|(w~|{|n~|V{}q~}x{}w~|\\{}q~}x{}w~|\\{}q~}x{}w~|\\"
+      "{}q~}x{}w~|W{}w~}Vw~}x{}q~}R{}w~} B{|t}|P{|t}|P{|t}|P{|t}|P{|t}|Nw~}  3{|~}     ;f|    '{|y}w~}y|  8{|y~|X{|x~}"
+      "h{|}w~}|ay|y}w~y}| rw~}N{}w~ ?{|w~| D{}w~I{|y}w~y}|%b|\\{|x}u~y}|!y|y}u~y}y|O{|y}w~y}| {{y|}u~y}|Vy|y}v~}y| u{|"
+      "w~|  B{|v~| 1{|y}u~y}|  o{|x}u~y}y| Fv~|  7y|y}v~y}| {{y|y}q~|#y|y}u~y}y| {{|y}v~y}y|   a{|w~}C{}x~}O{|w~|  oy}"
+      "v~}|vv|!{|}t~y}|!{|y}t~y}|Sv|Av~\"v|Lv~ Rv|mv|mv|hv|lv|Z{|y}u~}|Xw~}v{|}w~y}|T{|}w~y}|w{|w~|Zv|Ny|y}u~y}| {{|y}"
+      "w~}|uw|W{|u}|Wv}|o{|v}av|ju|Xv~| sv~Lw~|M{}w~|  ly|}v~}|Uv~yy|}v~y}|S{|y}~y}|N{|y}v~y}|Qy|y}v~x}|[v|m{|w~}W{|w~"
+      "|#{|w~|x{|}w~}|v{|}y~y}c{|y}x~y}ry}x~y}|Z{|y}s~}y|G{}w~}|Zy|v~}|Ww~}v{|}w~y}|T{|y}v~y}| x{|y}w~}|    Ry|y}v~y}|"
+      "   Zy| rv~}M{|y}u~}|]`| Iw~|T{|y~}|u{|u~       5{|w~|x{|}w~}|v{|}x~}Wx~}w{|x~} {}y~}  r{|y}|Kw~|L{|y}|Hv~|    E"
+      "{|y}u~y}|      qy|y}v~y}|Sy|y}v~y}|Sy|y}v~y}|Sy|y}v~y}|Sy|y}v~y}|+{|y~}r{|y}v~y}|R{|y}v~y}y|S{|y}v~y}y|S{|y}v~y"
+      "}y|S{|y}v~y}y|  oy}v~}|vv|Zy}v~}|vv|Zy}v~}|vv|Zy}v~}|vv|Zy}v~}|vv|Zy}v~}|vv|d{|}v~y}|n{|y}u~y}y|\\{|}t~y}|U{|y}"
+      "t~y}|T{|y}t~y}|T{|y}t~y}|T{|y}t~y}|Rv|Lv|Lv|Lv|!v|lv|Z{|y}u~}|R{|y}u~}|R{|y}u~}|R{|y}u~}|R{|y}u~}|'{}x~|w{|y}u~"
+      "}|S{|y}w~}|uw|Z{|y}w~}|uw|Z{|y}w~}|uw|Z{|y}w~}|uw|Vv~|Vw~}v{|}w~y}|Qv~|    Mw~|                K{|y~|  e{|w~Nw~"
+      "| ?{}w~ Cw~}      .{}w~  @{|v~|d{}|     Kv~|   !u~|     J{|w~}C{|w~O{|w~|     9w~} Iv~   bw~}9{|w~|    X{|v~ rv"
+      "~Lw~|M{}w~|  <v~  S{|w~}W{|w~|#{|w~| j{}w~ s{}w~Uw~}          )v~}Iy~}  gw~|T{|u~y}s~|       5{|w~|Ax~}w{|x~} {"
+      "{x~|   0{|v~    ?{}y~}         R{|}        5x~|         O{|y~}  &{|v~Uw~}D{|v~    Lw~|                K{|y~|  d"
+      "{}x~}P{}w~ >w~| D{|w~|      .w~|  ?{|v~}g{|x~|     M{|v~    {|u~|     K{|w~}Bw~|P{|w~|     :{}w~} Iw~}   bw~}9{"
+      "|w~|    X{}w~| r{}w~|Mw~|Mv~  ;v~  S{|w~}W{|w~|#{|w~| j{}w~ s{}w~Uw~}          )v~}Iy~}  gw~|T{|l~|       4{|w~"
+      "|Ax~}w{|x~} {{}y~}   /v~|    ?x~|                  f{|x~         M{}  %{}w~|Uw~}D{}w~|    Lw~|                K"
+      "{|y~|  d{|w~Pw~| ?{|w~ C{}w~      .{|w~  ={|u~}|l{|u~|     N{}v~    {{|u~|     L{|q~}H{}x~}V{}q~|     :v~| Iw~}"
+      "   bw~}9{|w~|    Xv~ q{}w~}Mw~|N{|v~  ;v~  S{|w~}W{|w~|#{|w~| j{}w~ s{}w~Uw~}          )v~}Iy~}  gw~|T{|}o~}|  "
+      "     3{|w~|Ax~}w{|x~} {{|x~|   0v~}m{}    N{|x~                  e{}y~}            Rv~Tw~}Dv~    S{}x~x{|w~|   "
+      "             K{|y~|  c{}x~}R{}x~} >{|x~| Cw~}      .{|x~|  ;{}t~}|sy|}t~|     N{|v~}    y{|u~|     M{|q~}H{|w~V"
+      "{}q~|     ;{}v~ I{|w~}   bw~}9{|w~|    Y{}w~} q{|v~}|Ow~|P{|}v~}  ;v~  S{|w~}W{|w~|#{|w~| j{}w~ s{}w~Uw~}      "
+      "    )v~}Iy~}  gw~|Q{|y}v~y}|       1{|w~|Ax~}w{|x~} yx~|   0{}v~|p{|~}    N{|x~|                  f{|x~        "
+      "    S{}w~}Tw~}E{}w~}    S{}x~|y{|w~                J{|y~|  bw~|Sw~| >{}y~}        K{}y~}  9{|p~x}q~}|     N{|u~"
+      "|    x{|u~     M{|q~} y{}q~|     K{|}|p{|u~| I{}w~|   bw~}9{|w~|    Z{|v~ o{}q~}Tw~|U{|p~  :v~  S{|w~}W{|w~|#{|"
+      "w~| j{}w~ s{}w~Uw~}          )v~}Iy~}  gw~|        W{|w~|Aw|vx| y{|x~}   0{|u~|s{}x~}    N{|x~|                "
+      "  f{|x~|            U{|v~Sw~}F{|v~    R{|x~}y{}w~                J{|y~|  b{|x}|T{|x}|             w{}g~}|     Q"
+      "x|y}u~}    v{|u~     N{|p} yp}|     K{|x~}y|wy|}u~} J{|}v~   aw~}9{|w~|    \\{|}v~} nq~}Tw~|U{|q~|  :v~  S{|w~}"
+      "W{|w~|#{|w~| j{}w~ s{}w~Uw~}          )v~}Iy~}  gw~|        W{|w~| :{|}w|}w~|   /t~y}x|y}v~}    U{|}|x{|w~|    "
+      "              f{}x~|            W{|}v~}Sw~}H{|}v~}    Qq~|                J{|y}               *{|}l~}|     O{}q"
+      "~    tt|            `{|i~} Lr~|   aw~}9{|w~|    `{}q~ l{}s~}Tw~|U{|s~}|  9v~  S{|w~}W{|w~|#{|w~| j{}w~ s{}w~Uw~"
+      "}          )v~}Iy~}  gw~|        W{|w~| :{|q~   .{|i~}    U{|q~                  ly}w|}w~|            [{}q~Rw~}"
+      "L{}q~    P{}r~                                M{|y}u~y}y|     L{}r~|                R{|j~} Ks~}   `w~}9{|w~|   "
+      " `{}r~| jy|v}|Tw~|U{|u}|  6v~  S{|w~}W{|w~|#{|w~| j{}w~ s{}w~Uw~}          )v~}Iy}|  gw~|        W{|w~| :{|r~| "
+      "  -{|k~}|    U{|r~}                  l{}r~}            Z{}r~|Rw~}L{}r~|    O{}t~                               "
+      "       k{}t~}           -{|`}|    `{|}m~}| Jt~}   _w~}9{|w~|    `{}s~| :w~|   cv~  S{|w~}W{|w~|#{|w~| j{}w~ s{}"
+      "w~Uw~}          )v~}           d{|w~| 9y}w~y}   ){}o~}|    S{|}u~}|                  k{}r~            Y{}s~|Qw~"
+      "}L{}s~|    M{}w~}                                      j{}w~}|           +{}`~}    ]{|x}v~y}| Gw~y}   ]w~}9{|w~"
+      "|    `{}v~}| 8w~|   cv~  S{|w~}W{|w~|#{|w~| j{}w~ s{}w~Uw~}                      g{|w~|     8{|}v~y}|    Ly|   "
+      "               g{|y}w~}|            X{}v~}|Ow~}L{}v~}|    Iy|                                                  "
+      "l{}`~}                Ww~|                                                                                     "
+      "                                            L{}`~}                Ww}|                                         "
+      "                                  r{";
+
+      static CImg<char> value;
+      if (!value) {
+        cimg::mutex(0);
+        const size_t s0 = std::strlen(chunk0), s1 = std::strlen(chunk1);
+        if (!value) {
+          value.assign(s0 + s1 + 1);
+          std::memcpy(value._data,chunk0,s0);
+          std::memcpy(value._data + s0,chunk1,s1 + 1);
+        }
+        cimg::mutex(0,0);
+      }
+      return value;
+    }
+
+    // Define a 104x128 binary font (huge sans).
+    inline const char* data_font_huge() {
+      const char *const chunk0 =
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                        FY  AY "
+      "'Z      ;W      @Y  @Y 'Z    Y  @Y (Z        :Y  ?Y (Z          0Y  ?Y (Z    >X                                "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                         )X  AX '\\ )XAV 7YDY -]      BY  BY '[ +YEY 2X  AY (\\ -YDY   'XAU 3Y  AY (\\ )XAV 8YD"
+      "Y      LY  AY (\\ ,YEY #Y                                                                                      "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                  (X  CX '^ +[CU 6ZEY .`      C"
+      "X  CY '] -ZEZ 2X  CY (^ .ZEZ   )[CU 2Y  CY (] *[CU 7ZEZ      LY  CY (] -ZEZ %Y                                 "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                        'Y  EY '^ ,^FV 6ZEY /b      CX  DX '_ .ZEZ 2Y  DX '_ /ZEZ   +_FV 1X  CX (_ ,^FV 7ZEZ   "
+      "   KX  CX (_ .ZEZ &Y                                                                                           "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                             %Y  GY '` .aHV 6ZEY 1e      DY  FX"
+      " 'a /ZEZ 1Y  FX '` /ZEZ   +aHV 0X  EX '` .aHV 7ZEZ      JX  EX (a /ZEZ &X                                      "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                   #X  GX 'XNX 0dKW 6ZEY 1f      DY  HX &WMX 0ZEZ 0X  GX 'XMW 0ZEZ   ,dLX /X  GX 'WMX 0dLX 7ZEZ"
+      "      IX  GX 'WMX 0ZEZ 'X                 :T                                                                   "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                    ;X  IX 'XLX 1o 5ZEY 2ZLY   "
+      "   CX  IX &WKW 0ZEZ /X  HX (XLX 1ZEZ   ,o .Y  HX (WKX 1o 6ZEZ      IY  IY (WKW 0ZEZ (X                 <Z      "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                  =X  KX 'XJX 3WKd 5ZEY 3XGX      CX  JX 'WIW 1ZEZ .X  JX (XJX 2ZEZ   -WKd -X  "
+      "IX (WIW 2WKd 6ZEZ      HX  IX (WIW 1ZEZ )X                 =^                                                  "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                     >X  MX &WH"
+      "W 3VHa 4ZEY 3WDW      CX  LX 'WGW 2ZEZ -X  LX 'WHW 2ZEZ   -VHa +X  KX (XHW 3VHa 5ZEZ      GX  KX (WGW 2ZEZ )X  "
+      "               ?b                                                                                              "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                         ?W  MW &WFW 4VF^ 3ZEY 4WBV      BW  MX 'WEW 3ZEZ ,W  M"
+      "X 'WFW 3ZEZ   -VF^ )X  MX 'WFW 4VF^ 4ZEZ      FX  MX 'WFW 3ZEZ *X                 ?d                           "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "             ?W  X 'WDW 5UC[ 2ZEY 4VAV      AW  X &WDW 4ZEZ +W  NW 'WDW 4ZEZ   -UC[ 'W  MW 'WDW 5UC[ 3ZEZ      "
+      "EW  MW 'WDW 4ZEZ +X                 ?f                                                                         "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                              @X \"X 'WBW 6UAW 0ZEY 4V@V      B"
+      "X !W &WBV 4ZEZ +X !W 'WBW 5ZEZ   .VAW $W  W 'WBW 6UAW 1ZEZ      DW  W 'WBV 4ZEZ +W                 >f          "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                              ?X #W 'W@W      U?V      AX #W &W@V    NX #W &V@W        9W \"W 'W@V          .W "
+      "\"W 'W@V   !W                 >XHX                                                                             "
+      "         3Y                                                                                                    "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                           6W $W &V>V      U?V      @W $W &W>V "
+      "   NW $X 'V>V        8W $X (W>V          /X $W 'W>V   #W                 >XFX                                  "
+      "                                                    5Z                                                         "
+      "                                                                                                               "
+      "                ,Z                                                                                             "
+      "                                                                                             GZ                "
+      "                    #U?V                                                           NY  7Z ,X      CVCW      MY "
+      " 7Z ,X   $Z  7Z ,X        >Z  6Y ,X          4Z  7Y +W    7Y                                 @Z                "
+      "                                                                                                               "
+      "                                                         +Z                                                    "
+      "                                                                                                               "
+      "                       HY                                    \"U?V                                             "
+      "              MY  8Y ,Y      CVBV      LY  9Z ,Y   #Z  9Z ,Z        >Z  8Y ,Y          3Y  8Z ,Y    9Y         "
+      "                        ?Z                                                                                     "
+      "                                                                                                   *Y          "
+      "                                                                                                               "
+      "                                                                 IY                                    !U?V    "
+      "                                                       LY  :Y ,[ $R>U   ,V@V      MZ  :Y +Z   #Y  9Y +Z      ?R"
+      ">U 8Y  9Y +Z %S?U        HY  :Z ,[    ;Y                                 ?[                                    "
+      "                                                                                                               "
+      "                                     )Y                                                                        "
+      "                                    8U                                                                         "
+      "    9Y                                     V@U                                                           JY  <Y"
+      " +[ 'XAU   ,V@V      LY  ;Y +\\   #Y  ;Y +\\      CXAU 7Y  ;Z ,\\ )XAV        HY  ;Y +[    <Z                  "
+      "               ?U                                                    ;T        $W /W                           "
+      "                                                                                   8e   !f      LY    Y     LX "
+      "   L]   :Y  <Y  NX 0X  >Y                                 @Y /X 0Y           K`            .X                  "
+      "  ^                                                  =ZEY                          @Y                          "
+      "           NVAV                                          <P              -X +Y  =Y +] )[CU 7YDY 4V@V      KY  ="
+      "Y +] ,YDY 5Y  =Y *] .YDY 5[  M[CU 6Y  <Y ,] *[CV 7YDY      Y  =Y +] ,YEZ !Y =Y  FYDY                 8X        "
+      "   EU                                                    :T        %W .X                                       "
+      "                                                                       9e   !f      KY   !Y     LY   \"a   :Y  "
+      "<Y  NX 0X  >Y                                 E^ /X 0_          %f            1]                   'c          "
+      "                                        @ZEZ                          AY                                     MV"
+      "CW                                          <R              4a .Y  >X *^ +]DU 7ZEZ 5U>U      JY  ?Y *^ -YEZ 4Y "
+      " ?Y *^ .ZEZ 5[  ]DU 5Y  >Y +^ ,]DU 6ZEZ      Y  ?Y +_ .ZEZ \"Y <Y  FYEZ                 :[           FU        "
+      "                                 7Y          -T 7W#W <Y    9X -W  DU             KY    HZ \"\\      4Z    M[ \""
+      "Y             LZ        +\\        8]                 >Z    G[    G\\                 @e   !f      JX   !Y     "
+      "LY   %d   :Y  <Y  NX 0X  >Y                                 Ha /X 0b          *j    L]        D_               "
+      "    +g                 A[                      LY        8Z -ZEZ   \"Y          1o )V    FX  NZ  FY            "
+      "%Y    ,X  NX*Z NW              3WEW    H\\                       #[ !Z \"[ \"[ \"[    G[7T              8g 0Y  "
+      "@Y +_ ,_FV 7ZEZ 5U>U      IY  @Y +` .YEZ 3X  ?X *` /ZEZ 4[:P 8_FV 4X  ?Y +` ._EU 6ZEZ      NX  @Y *_ .ZEZ #Y ;Y"
+      "  FYEZ                 ;]           GU                                         <b          1T :]'X @b    >W ,X "
+      " FV             a   \"d -g      >d   (d +b            %b        4f        Bg                 Ie   \"e   \"h    "
+      "             Ge   !f      IX   \"Y     LY   &e   :Y  <Y  NX 0X  >Y                                 Jc /X 0c    "
+      "      -n   $g        I`                   .j        >a        ;e    HU        .U        +b        Ac 2ZEZ   'b "
+      "         5o -]    Na (c  KY          .Y #_   8Y!W'Y\"X.c$X              3XGX    Mf                       -e +d "
+      ",e ,e ,e   \"e=V              ;k 1Y  BY +XNW .aGV 7ZEZ 5V@V      HX  AY +XNW .YEZ 3Y  AY *WNW /ZEZ 4\\>T 9`GV 3"
+      "X  AY +XNW .`GV 6ZEZ      NY  AX *XNW /ZEZ $Y :Y  FYEZ                 <_           IU   (Q  LZ 4Z2Z 1Q        "
+      "                      &g   %Z +XCX    MT <a)W Ah $X  HX +X  GV           GX 3e )_ /j 4n  L] ?y /i C~S =i 0g    "
+      "        +g    L\\ 8t (m Ks 2~R E} <o HZ(Z :Z \"Z 4Z,] LZ 2_'_(^-Z Ck :q 0k ?q *n J~d'Z(Z*Z LZ=Z.\\.Z7Z(Z([$Z'~^"
+      " @e 3X  Ff )\\    MY   #Y     LY   (g   :Y  <Y  NX 0X  >Y                                 Kd /X 0e          0p "
+      "  (m        Lb                   1m ,\\ 5~S E~R Ah 'Z :~]+[;Z;Z Ik    LW    DX    DW        /i   ?Y(Y   4h 5ZEZ"
+      " ,\\ ,h        7\\ -o .`   $f -h  NY    No     %_ %c   @_\"X-_\"W0h&W   .\\ $\\ \"\\ #\\ #\\ )g 5~a Lm D~S I~S "
+      "H~R H~R 6Z !Z !Z \"Z :r 8^,Y Bk 2k 2k 2k 2k   (kAX+Z(Z#Z(Z$Z(Z$Y'Y&[%[ MZ  Im 1X  CY *WMX /bHV 7ZEZ 5V@V      G"
+      "X  CY *WLW /YEZ 2Y  CY *WLW 0ZEZ 3[AW :bHV 3Y  BX *WLW 0bHV 6ZEZ      MY  CX *XMX 0ZEZ $X 9Y  FYEZ             "
+      "    =a M~i        7U   (Q  N_ 9_8_ 3R                              )k   'Z +XCX +X@X 4T >e,X Cl &X  IX *X  GV  "
+      "         GX 5i 0d 2p ;u !^ ?y 2o F~S @n 4j            /l    N\\ 8x .r Nx 7~R E} >t KZ(Z :Z \"Z 4Z-] KZ 2_'_(^-Z"
+      " Ep =t 5o Au 1u N~d'Z(Z)Z MZ<Z/\\/Z5Z*['[&Z&~^ @e 3X  Ff )]    MY   $Y     LY   )h   :Y  <Y  NX 0X  >Y         "
+      "                        Le /X 0e          1r   +r        c                   3o -\\ 5~S E~R Dn *Z :~]+[;Z;Z Ko "
+      "   Y    EX    EY        2m   @Y)Y   6l 7ZEZ 0e 2k        >e 1o 0c   'j /i  X   !r     (b 'g   Eb\"W0c#X0i(W   -"
+      "\\ $] #\\ $] #\\ (f 6~b r F~S I~S H~R H~R 6Z !Z !Z \"Z :w =^,Y Ep 6p 7p 7o 7p   ,oDY+Z(Z#Z(Z$Z(Z$Y'Y%Z%Z LZ  Kp"
+      " 1X  DX *WKW /WMYJV 6ZEZ 5V@V      GY  EY *WKX 0YEZ 1Y  EY *XKW 1ZEZ 2[EZ :WMZKV 1Y  DX *WKX 1WLYKW 6ZEZ      L"
+      "Y  EY *WKW 0ZEZ %X 8Y  FYEZ                 >c M~h        7T   (S !a <b:b 6S          %|                  $o   "
+      ")Z +XCX +W?W 3T ?g.X Dp (X  IX )X  HV           HY 6l 7i 5t <v #_ ?y 3p F~S Aq 8n            3p (Y $^ 9z 2v!{ :"
+      "~R E} Az NZ(Z :Z \"Z 4Z.] JZ 2`)`(_.Z Gt ?w :s Cx 5x!~d'Z(Z)Z N[<Z/\\/Z5[,[%Z'[&~^ @e 2X  Gf *_    MX   $Y     "
+      "LY   )h   :Y  <Y  NX 0X  >Y                 >X               8f /X 0f          3t   -s        c                "
+      "   4q /^ 6~S E~R Fr ,Z :~]+[;Z;Z Ms   #[    FX    F[        4n   @Y*Y   6m 7ZEZ 3k 5l        Bk 4o 1f   )k 0k #"
+      "X   #u     (b (i   Fb#X0c#W/k+X   .^ %] $^ %] $^ (d 5~b\"v H~S I~S H~R H~R 6Z !Z !Z \"Z :{ A_-Y Gt :t ;t ;s ;t "
+      "  0sGY*Z(Z#Z(Z$Z(Z$Y'Y$Z'[ LZ  Ls 2X  FX *WIW 1WJc 6ZEZ 4VBV      EY  FX *XJW 0YEZ 0X  EX )WJW 1ZEZ 1[I^ <WJc 0"
+      "X  EX )WJW 2WJZNW 5ZEZ      KX  FY *WIW 1ZEZ &X 7Y  FYEZ                 ?d M~h        8U   )T #e ?d=e 8U      "
+      "    *~Q                  &r   *Z +XCX +W?W 3T @i/W Dq (X  JX (X  HV           HX 7o <m 7x >x %_ ?y 5r F~S Ct :p"
+      "            6s /e *^ 9| 6z#~ =~R E} B}!Z(Z :Z \"Z 4Z/\\ HZ 2`)`(_.Z Iw @y >w Ez 9z!~d'Z(Z)[ Z;Z0]/Z4Z,Z$[(Z%~^ "
+      "@e 2X  Gf +a    MX   %Y     LY   *i   :Y  <Y  NX 0X  >Y                 >Y               9f /X 0g          5v  "
+      " 0u        d                   6_K_ 0^ 6~S E~R Gu .Z :~]+[;Z;Z w   &]    GX    G]      6U &o   ?Y+Y 7X )n 7ZEZ "
+      "6p 7m        Eo 6o 2h   *l 1l %X   #v     (b )k   Gb$X/c$X/l,W   -^ &_ %^ &_ %^ 'b 4~b$z J~S I~S H~R H~R 6Z !Z "
+      "!Z \"Z :~ D_-Y Hw =v >w >w >w   4wIX)Z(Z#Z(Z$Z(Z$Y'Y$[)[ KZ  Mt 1X  HX )WHW 2VHb 6ZEZ 4WDW      DX  GX )WHW 1YE"
+      "Z /X  GX )WHW 2ZEZ 0[M` ;VHb /X  GY *WHW 3VHb 5ZEZ      JX  GX )WHW 2ZEZ 'Y 7Y  FYEZ                 ?e M~f    "
+      "    7U   )U %g Bh@g :W          .~T                  't   +Z +XCX ,X@X 3T Ak1X Er (X  JX 'X  IV           HX 8q"
+      " =m 7y ?y '` ?y 6s F~S Dv <r            8u 4m /_ 9~ :~%~Q ?~R E} D~Q\"Z(Z :Z \"Z 4Z0\\ GZ 2`*a(`/Z Jz Bz Az F{ "
+      ";{!~d'Z(Z(Z Z;Z0^0Z3Z.[#[*Z$~^ @X %X  :Y ,c    MX   &Y     LY   +^   .Y  <Y  NX 0X  >Y                 >Y      "
+      "         :] %X &]          5]C\\   1v        Nc                   7\\D\\ 1_ 6~S E~R Iy 0Z :~]+[;Z;Z!y   (_    H"
+      "X    H_      7U 'p   ?Y,Y 6X *o 7ZEZ 8t 9YH]        Ht 9o 3i   *XG[ 1VE[ &Y   %x     (b *[I[   Hb$W.c%X.VE[-X  "
+      " ._ &_ %_ '_ %_ '` 4~c%} L~S I~S H~R H~R 6Z !Z !Z \"Z :~Q F`.Y Jz @z Az Ay Az   7zKX(Z(Z#Z(Z$Z(Z$Y'Y#[*Z JZ  Na"
+      "J_ 2X  IX )WGW 2VG` 5ZEZ 4XFX      CX  IX )WFW 2YEZ .X  IX )WFW 3ZEZ /j 8VG` -X  HX *WFW 4VG` 4ZEZ      IX  IX "
+      ")WGW 2ZEZ 'X 6Y  FYEZ                 ?XKX M~f        7T   )W 'i DiAi ;X          1~V                  (w   -Z "
+      "+XCX ,X@X 3T AZI[2W Es (X  KX &X  IV           HX 9s >m 7z @z )a ?y 7t F~R Dx >t            9v 8s 2` :~P <~Q&~S"
+      " A~R E} E~T$Z(Z :Z \"Z 4Z2] FZ 2a+a(`/Z K| C{ C} H| =|!~d'Z(Z(Z!Z9Z1^1Z2[0[!Z+[$~^ @X $X  ;Y -e    MX   'Y     "
+      "LY   +[   +Y  <Y  NX 0X  >Y                 >Y               :[ #X #Z          6\\?[   2v        F\\           "
+      "        8Z@[ 2` 7~S E~R J{ 1Z :~]+[;Z;Z#}   +`    HX    Ia      8U (q   >Y-Y 6X +p 7ZEZ 9bMb ;U@Y        JbMb :"
+      "n 3ZIZ   +T@Y 2R>Y 'X   %y     (XLV +ZEZ   IXMW%X.YMW%W-R>Y.W   -` '_ &` '_ &` '` 4~c'~R N~S I~S H~R H~R 6Z !Z "
+      "!Z \"Z :~S Ha/Y K| B| C| D} D|   9|MX'Z(Z#Z(Z$Z(Z$Y'Y\"Z+[ JZ  N]B\\ 2X  JX *WEW 3UE_ 5ZEZ 3YJY      AX  JW )WE"
+      "W 2YEZ -X  KX (WFW 3ZEZ .f 5UE_ ,X  JX )WFW 4VF_ 4ZEZ      HX  KX )WEW 3ZEZ (X 5Y  FYEZ                 @YJW M~"
+      "e        7U   *X (j EkCk =Y          3~X                  )x   -Z +XCX ,W?X 3T BYEY3X Ft (X  KX %X  JV         "
+      "  IX 9u ?m 7{ A{ *a ?y 8u F~R Ez @v            :v :w 4` :~Q >~S'~U C~R E} G~V$Z(Z :Z \"Z 4Z3] EZ 2a+a(a0Z M~P D"
+      "| E~P I} ?}!~d'Z(Z'Z\"Z9Z1^1Z1Z0Z [,Z#~^ @X $X  ;Y .g    MW   'Y     LY   +Y   )Y  <Y  NX 0X  >Y               "
+      "  >Y               :Z \"X \"Z          7[=Z   3aE[        E[                   9Z>[ 3` 7~S E~R L~ 2Z :~]+[;Z;Z$"
+      "~P   -b    IX    Jc      9U )r   >Y.Y 5X ,]DX 7ZEZ ;\\>\\ <R;X        M]>\\   0XDX   ,R=Y  MX (X   %hEW     (SG"
+      "V ,YAY   JSHW%W-SGW&X GX/W   ,` (a '` (a '` (a 5~d(~S N~S I~S H~R H~R 6Z !Z !Z \"Z :~T Ia/Y L~P F~P F~P F~P F~P"
+      "   <~X&Z(Z#Z(Z$Z(Z$Y'Y\"[-[ IZ  \\>Z 1X  LX )VCW 4UD] 4ZEZ 2f      ?X  LX )WDW 3YEZ ,W  KX )WDW 4ZEZ -b 2UD] *W"
+      "  KX )WDW 5UD] 3ZEZ      GW  LX (VCW 4ZEZ )X 4Y  FYEZ                 @XIX M~d        7U   *Y *l GmDl ?[       "
+      "   6~Z                  *`C\\   -Z +XCX ,W?W 2T CYCY5X E]CZ (X  LX $X  JV           IX 9]E^ @m 7aGb B^Ec ,b ?y "
+      "9aF[ F~R E_C_ B_E^            ;]E_ ={ 7b ;~R @cBb'~V D~R E} HeBc$Z(Z :Z \"Z 4Z4] DZ 2b-b(a0Z NbCb E} GbCb J~ Aa"
+      "B_!~d'Z(Z'Z#[9Z2_1Z0Z2[ N[.Z\"~^ @X $X  ;Y /i    MW   (Y     LY   ,Y   (Y  <Y  NX 0X  >Y                 >Y    "
+      "           :Y !X !Y          8[;Z 1\\ 0\\:U        D[                   ;Z<Z 4b 8~S E~R M~R 4Z :~]+[;Z;Z%bCb   "
+      "/d    JX    Ke      :U )]BW   =Y/Y 5X ,[?U   3Z8[ &W        NZ7Z   2XBW    EX  LW )X   %iEW      KV -Y?Y   @W&X"
+      "!W&W EW0X   -b )a (b )a 'a )a 5~d)dCb N~S I~S H~R H~R 6Z !Z !Z \"Z :~V Kb0Y MbCb HbCb HbCb HbCb HbCb   >bCh%Z(Z"
+      "#Z(Z$Z(Z$Y'Y![.Z HZ  Z;Z 1X  NX )WBV 5VBZ   $e      >W  MX )WBW   !X  MX )WBW   #` /UBZ (W  MX )WBW 6UBZ       "
+      " 9X  MW (WCW    MX 3Y                    GXHW M~d        8U   *[ +m HnFn A]          9~\\                  +^=Y"
+      "   -Z +XCX -X@X 2U DXAX5W E\\=V (X  LX #X .R@V?Q          ,X :\\A\\ @m 7\\>_ CY<_ -c ?y :^=V F~Q E]>^ D]@]     "
+      "       <Z@^ @~P 9b ;Z=d Aa;^'Z>j E~R E| Ha8^$Z(Z :Z \"Z 4Z5] CZ 2b-b(b1Z `<_ FZ@d I`=` K[@d C_:Z ~b&Z(Z'Z#Z8Z2`"
+      "2Z0[4[ LZ/[\"~^ @X #X  <Y 0\\N]    NX   )Y     LY   ,Y   (Y  ;X  NX 0X  >Y                 >Y               ;Z "
+      "!X !Y          8Z9Y 6d 4[5R        CZ                   ;Y:Z 5b 8~R D~Q MbAb 8` =~]+[;Z;Z&`=`   1f    KX    Lg "
+      "     ;U *\\=T   =Y0Y 4X ,Z;R   5Z3Y &W       !Y3Y   3W@W    EW  LX *W   %jEW      KV -X=X   @W'X W'X EX1W   ,b "
+      "*b (b )b )b )b 7ZH~R)a:] N~R H~R G~R H~R 6Z !Z !Z \"Z :Z>j Lb0Y N_<` J`<_ J`=` J`=` J`=`   @`=e%Z(Z#Z(Z$Z(Z$Y'Y"
+      " Z/[ HZ !Z9Y 0W  X )WAW 6VAW   \"d      <W  X (VAW    X  X (V@V   &a .VAW &X  NW (V@V 6UAW        6X  X )WAW   "
+      " NW 2Y         N\\ #[ \"\\ #\\ #[  MXHW L~b        7U   +\\ ,n IoGp C_          ;~]                  ,]:X   -Z "
+      "+XCX -X@X 8c LX@X7X E[:T (X  MX \"X /TAVAT          .X :\\?\\ Am 7Y9] CT4] .c ?Y  J]8S  Z E\\;\\ E]=[          "
+      "  <W;\\ B~T ;b ;Z7_ C_5['Z7e GZ  MZ '`3[$Z(Z :Z \"Z 4Z6] BZ 2b-b(b1Z!_8^ GZ;` K_9_ LZ:` D]5W 3Y 9Z(Z&Z$Z7Z3`3Z."
+      "Z4Z JZ0Z  \\ ?X #X  <Y 1\\L]    NX   *Y     LY   ,Y   (Y      8X  >Y                 >Y               ;Y  X !Y "
+      "         8Y8Y 6f 6Z2P        BY                   <Z9Z 7c 7\\  Z (`;` >j BZ(Z+[;Z;Z'_9_   3h    LX    Mi      <"
+      "U *[:R   <Y2Z 4X -Z8P   6Y/X 'W       #Y/Y   6W>V    EW  KW +W   %kEW      KV .X;W   @W'W NW(X CW2X   -c *c )b "
+      "*c )c +c 7ZHZ 2_5[ NZ !Z  Z !Z  >Z !Z !Z \"Z :Z7d Mc1Y ^8_ K^8^ L_8^ L_9_ L^8_   B_9b$Z(Z#Z(Z$Z(Z$Y'Y [1[ GZ !Z"
+      "8Y 0W !W (V?W      I`      :X !W (V?W    X \"X (W@W   *d    EX !W (W@W          0X \"X (V?W   !W 1Y        #d ,"
+      "e +d +d ,e #XHW LZ#Z        7U   +] -o KqHp C_          <c                   2]7V   -Z +XCX -W?X <l#X?X7W E[7R "
+      "(X  MX \"Y 0VCVCV          .X :[<[ B\\IZ 7V5] DQ0] 0XNZ ?Y  K\\4Q !Z E\\9\\ F\\;[            =U8[ DdAc =d <Z5^ "
+      "E^1Y'Z3b HZ  MZ (_/Y$Z(Z :Z \"Z 4Z7] AZ 2c/c(c2Z!]4] HZ9^ L^5^ MZ8^ E\\0T 3Y 9Z(Z&Z%Z6Z3`3Z-Z6[ J[2Z  \\ >X #X "
+      " <Y 2\\J]    NW   *Y     LY   ,X   'Y      8X  >Y                 >Y               ;Y  X  X          9Z7X 6g 7Y"
+      "        #Z                   =Y8Z 7d 7[  Z )_7_ Bp EZ(Z+[;Z;Z(^5^   5j    MX    Nk      =U +[7P   <Z3Y 3X -Y   "
+      " MX+W 'V       $X+X   7V=W    FW  KW ,W   $kEW      KV .X;X   AW(X NW(W BW2W   ,d +c *d +c *d +c 7ZHZ 3^0X NZ !"
+      "Z  Z !Z  >Z !Z !Z \"Z :Z3a Nc1Y!^5] L]4] N^5^ N^5^ N^5]   C^5_#Z(Z#Z(Z$Z(Z$Y'Y N[2Z FZ \"Z7Y /W #W (W>V      H^"
+      "      8X #W (W>V    NW \"W (W>W   .h    EW \"X )W>W          0W #X (V=V   \"W 0Y        &j 1i 0j 1j 1i &X <Z#Y "
+      "       7U   +_ /p KrJr Ea          >`                   .\\5U   -Z +XCX -W?W =r'X>W8X EZ  ;X  NY !X 1XDVDX 2X  "
+      "      &X ;[;[ BWDZ 7T2\\ \"\\ 1XMZ ?Y  L\\  2Z E[7[ G\\9[            >S5[ F`7` ?YNY <Z3\\ F]-W'Z0` IZ  MZ )^+W$"
+      "Z(Z :Z \"Z 4Z8] @Z 2YNX/XNY(c2Z\"]2] IZ7] N]2] MZ6] G\\-R 3Y 9Z(Z&[&Z6Z4XNW3Z-[8[ HZ3[ !\\ =X #X  <Y 3\\H]    N"
+      "W   +Y     LY   ,X   'Y      8X  >Y                 >Y               ;Y  X  Y          :Y6Y 7i 9Y        \"Y   "
+      "                >Y6Y 7YNY 6[ !Z *^3] Dt GZ(Z+[;Z;Z)]2]   6l    NX    m      >U +Z   !Y4Z 3X -Y    NW(W (W      "
+      " &X)X   8V<V +X  DW  LW ,W   $lEW      KV .W9W   AW(W MW)X CW2W   +YNY ,YNZ +YNY ,ZNY +YNY +YNY 9ZGZ 4^.W NZ !Z"
+      "  Z !Z  >Z !Z !Z \"Z :Z1` d2Y\"]2] N]2] ]2]!^2]!]2]   E]2]\"Z(Z#Z(Z$Z(Z$Y'Y MZ3[ FZ \"Z6X .V $W 'V<V      GZ   "
+      "   5W $W 'V<V    NW $W 'V<V   2m    EW #W (V<V          /W $W (W=W   #W 0Y        (n 6o 5n 5n 6n (X ;Z%Z       "
+      " 7U   ,a 0q LrJr Fc          A_                   ,\\2S   -Z +XCX .X@X ?u(W=X:X DY  :X  NX  Y 2ZFVFZ 2X        "
+      "'X :Z9[ CR?Z 7R/\\ \"[ 1XMZ ?Y  L[  2[ F[5Z G[7Z            >R4[ G^1^ AZNY <Z2[ G]*U'Z.^ IZ  MZ )](U$Z(Z :Z \"Z"
+      " 4Z9] ?Z 2YNX0YNY(d3Z#]0] JZ6\\ N\\/\\ NZ5\\ G[  <Y 9Z(Z%Z&Z6Z4XNX4Z,Z8Z FZ4Z  [ <X \"X  =Y 4\\F]       #Y     "
+      "LY   -Y   'Y      8X  >Y                 >Y               ;Y  X  Y          :Y6Y 7j :Y        \"Y              "
+      "     >Y6Z 9YMY 5[ \"Z *]1] Hy IZ(Z+[;Z;Z)\\/\\   8n    X   !o      ?U ,[    Y5Y 2X -Y    W&W )W       'W%W   9V"
+      "<V +X  DW  LW     )mEW      KV /X9X   BW)X MW)W BW3X   ,YMY ,YMY ,ZNZ -YMY +YNZ -YMY 9ZGZ 5]*U NZ !Z  Z !Z  >Z "
+      "!Z !Z \"Z :Z/_!d2Y#]0]!]0]\"]0\\!\\/\\\"]0]   F\\0]#Z(Z#Z(Z$Z(Z$Y'Y M[5[ EZ \"Y5X            +P                "
+      "       %_K[                              CY        *r 9q 8r 9r 9q *X ;Z%Z      >Q  JT   ,b 0q MsKs Ge          "
+      "C^                   *[0R   -Z +XCX .X@X @v)X=X:W CY  :X  Y  NX 1[HVH[ 1X        'X ;Z7Z 0Z 7P,[ ![ 3XLZ ?Y  M["
+      "  1Z EZ4[ I[5Z            ?P1Z I^-] BYLY =Z1[ H\\(T'Z-^ JZ  MZ *\\$S$Z(Z :Z \"Z 4Z:] >Z 2YMX1XMY(YNZ4Z$].\\ JZ5"
+      "\\!\\-\\ Z4[ GZ  ;Y 9Z(Z%Z'Z4Z5XNX5Z*Z:[ F[6Z  [ ;X \"X  =Y 5\\C[       #Y     LY   -Y   'Y      8X  >Y        "
+      "         >Y               ;Y  X  Y          :Y6Y 7k ;Y        \"Z                   @Z5Y 9YLY 5[ #Z +\\.] J| KZ"
+      "(Z+[;Z;Z*\\-\\   :p   !X   \"q      @U ,Z    NY6Y 1X -X    W#V *W       (W#W   :U;V +X  DW  LW     )mEW      KV"
+      " /X9X   BW*X LW*X BW3W   +YLY -YMY ,YLY -YMY ,YLY -YMZ ;ZFZ 5\\'S NZ !Z  Z !Z  >Z !Z !Z \"Z :Z-^\"e3Y#\\.]#].\\"
+      "#\\-\\#\\-\\#\\-\\   H\\.]$Z(Z#Z(Z$Z(Z$Y'Y L[6Z DZ \"Y5Y                                    /[G[               "
+      "               DY        +u =u <u ;u =u ,X :Y&Z      >S  LU   ,c 1q MtLt Hf          E]                   )[.Q "
+      "  -Z +XCX .W?X Bx)X=X;X DZ  :X  X  MY 0ZIVIZ /X        'X ;Z7[ 1Z  AZ ![ 4XKZ ?Y  MZ  0Z EZ3Z I[5Z             "
+      "Z J])\\ CYLY =Z1[ I\\%R'Z+] KZ  MZ +\\\"R$Z(Z :Z \"Z 4Z;] =Z 2YMX1XMY(YNZ4Z$\\,\\ KZ4[\"\\+[ Z4\\ I[  ;Y 9Z(Z$Z"
+      "(Z4Z5WLW5Z*[<[ DZ7[ !\\ ;X \"X  =Y 6\\A[       $Y     LY   -Y   'Y      8X  >Y                 >Y              "
+      " ;Y  X  Y          :Y6Y 7l <Y        !Y                   @Y4Z :YLY 4[ $Z ,\\,] M~Q MZ(Z+[;Z;Z+\\+\\   <r   \"X"
+      "   #s      AU ,Z    MY7Y 1X -Y   \"W!V :f       (V!W   ;U;V +X  EX  MW     (mEW      KV /W7W   BW*W KW+X BW3X  "
+      " +YLY .YKY -YLY .YKY -YLY .ZLY ;ZFZ 6\\%R NZ !Z  Z !Z  >Z !Z !Z \"Z :Z,^#YNZ3Y$\\,\\#\\,\\$\\,\\%\\+\\%\\,\\ MP"
+      " NP N\\-]$Z(Z#Z(Z$Z(Z$Y'Y KZ7[ Dq :Z4X                                    /XC[                              EY "
+      "       -x @x >x ?x @x -X :Z'Z      ?U  MU   -e 2q MtLt Ig          E[                   'Z,P   -Z +XCX .W?W By)"
+      "X<W;W CZ  :X  X  MY .ZKVKZ -X        (Y <Z5Z 1Z  A[ !Z 4XKZ ?Y  N[  1Z DZ3Z IZ3Y             NY K\\%[ EYKZ >Z0Z"
+      " J\\#Q'Z*\\ KZ  MZ +[ Q$Z(Z :Z \"Z 4Z<] <Z 2YMY3XLY(YMZ5Z%\\*\\ LZ4[\"[*\\!Z3[ IZ  :Y 9Z(Z$Z)[4Z6XLW5Z)Z<Z BZ8Z"
+      " !\\ :X !X  >Y 7[>[       %Y     LY   -Y   'Y      8X  >Y                 >Y               ;Y  X  Y          ;Y"
+      "5Y 7UH_ <Z        \"Z                   AY3Y ;YKZ 4[ %Z ,[*\\ N~S NZ(Z+[;Z;Z+[*\\   =\\NXM[   #X   $\\MXN\\    "
+      "  BU ,Z  *P DY8Y 0X -Y   #W NV @k       )V NV   <V;V +X  EW  NY     )nEW      KV /W7W   BW+X KW+W CY4X   +YKZ /"
+      "YKY .ZLZ /YKY .ZKY /YKY <ZEZ 7\\#Q NZ !Z  Z !Z  >Z !Z !Z \"Z :Z+]#YMZ4Y%\\*\\%\\*\\&\\*[%[)[%[*\\ R!R [-_%Z(Z#Z"
+      "(Z$Z(Z$Y'Y K[9[ Ct =Y3X                                    /U@[                 \"Q            EY        .z B{ "
+      "B{ Az B{ /X :Z'Y      >V  U   -g 4r NvNu Ji *\\ 5X.X 6\\ 7Z1Z M[                   '[    8Z +XCX /X@X C`MTL_)W;"
+      "W<X CY  9X !Y  LX ,ZMVMZ +X        (X ;Z5Z 1Z  A[ !Z 5XJZ ?Y  NZ  0Z DY2Z J[3Z      )Q   Q   JZ M[!Z FYJY >Z0Z "
+      "J[ 'Z)\\ LZ  MZ ,\\ \"Z(Z :Z \"Z 4Z=] ;Z 2YLX3XLY(YMZ5Z%[([ LZ3[$\\)\\\"Z3[ IZ  :Y 9Z(Z$Z)Z3Z6XLX6Z(Z>[ B[:Z !"
+      "\\ 9X !X  >Y 8[<[       &Y     LY   -Y   'Y      8X  >Y                 >Y               ;Y  X  Y          ;Y5Y "
+      "7RB] =\\        $Z                   BY2Y ;YJY 3[ &Z -[(\\!~U Z(Z+[;Z;Z,\\)\\   ?\\MXL[   $X   %\\LXM\\      CU"
+      " ,Y *Q\"R DY9Y 0X -Y   #V=_?V Cm       *V LV   <U;V +X  FX \"[     (nEW      KV /W7W   BW+W JW,X F[3W   *YJY 0Z"
+      "KZ /YJY /YKZ /YJY /YJY =ZEZ 7[!P NZ !Z  Z !Z  >Z !Z !Z \"Z :Z*]$YMZ4Y%[([%[(['\\)\\'\\)\\'\\)[!T#T\"\\-`&Z(Z#Z("
+      "Z$Z(Z$Y'Y J[:Z Bw @Y6[                                    .Q<[                 #S            GY        /`Da E`C"
+      "` DaD` C`Da E`C` 0X 9Y(Z      ?X !U   .h 4r NvNu Kk .c 9X.X 7^ 7Y1Y M[                   &Z    7Z +XCX /X@X C\\"
+      "ITFY)W;W=X BY  9X !X  KY +YNVNZ *X        (X ;Z4Z 2Z  @Z !Z 6YJZ ?Y  Z  /Z DY2Z JZ1Y      ,T   T   MZ N[ NZ HZJ"
+      "Y >Z0Z K[ &Z(\\ MZ  MZ ,[ !Z(Z :Z \"Z 4Z>] :Z 2YLX3XLY(YLZ6Z&['\\ MZ3[$['[\"Z2Z IZ  :Y 9Z(Z#Z*Z2Z7XLX7Z'[@[ @Z;"
+      "[ ![ 8X !X  >Y 9[:[       'Y     LY   -Y   'Y      8X  >Y                 >Y               ;Y  X  Y          ;Y"
+      "5Y %\\ =]        %Y                   BY2Z =ZJY 3\\ 'Z .\\'[#cLZLb!Z(Z+[;Z;Z,['[   @\\LXK[   %X   &\\KXL\\     "
+      " DU -Z +S$T EY:Y /X -Z   %V?fBU Eo       +VEg=V   =V<V +X  GX *b     &nEW      KV /W7W   BW,X JW,W Nb2X   +ZJY "
+      "0YIY /YJY 0YIY /YJZ 1YIY =ZEZ 8\\  NZ !Z  Z !Z  >Z !Z !Z \"Z :Z)\\$YLZ5Y&\\'['['\\(['['['['['[#V%V#[-a&Z(Z#Z(Z$"
+      "Z(Z$Y'Y IZ;Z Ay BY9^                                     G[                 %U            HY        0]<^ G^=^ F"
+      "^<] E]<^ G^=^ 1X 9Z)Z      @Z \"U   .i 5r NvNu Lm 2h ;X.X 7^ 7Y1Y N[                   &[    7Z +XCX /W?X D[GTC"
+      "V)W;W=W AZ  :X \"Y  KY *j (X        (X <Z3Z 2Z  @Z !Z 6XIZ ?Y  Z  0Z DZ2Z JZ1Z      0W   V   Y NZ KZ IYIZ ?Z0Z "
+      "K[ &Z(\\ MZ  MZ -[  Z(Z :Z \"Z 4Z?\\ 8Z 2YKX5XKY(YLZ6Z&[&[ MZ3[%[&\\#Z2[ JZ  :Y 9Z(Z#Z+Z1Z7WJW7Z&Z@Z >Z<Z ![ 7X"
+      "  X  ?Y :[8[     \"\\ 3YBZ  \\ ,ZAY 4\\ &Y \"Z 0YAZ     \"X  >Y .Y3Y 3Z '\\  MZ )Z  ;Z 2^ +Y               ;Y  "
+      "X  Y        6Y /Y5Y $[ =`  G^ !Z    IZ             M\\     #Y2Z =YIZ 3\\ (Z .[%[%aIZI`\"Z(Z+[;Z;Z-[%[   B\\KXJ["
+      "   &X   '\\JXK\\      H\\ 1Z ,U&V EY;Y /X ,Z   'V@jDV Gp       +UDj?V   >V<V +X  GW )`     $nEW      KV /W7W   "
+      "BW-X IW-X N`0W   *YIZ 1YIY 0YHY 1YIY 0ZIY 1YIZ ?ZDZ 8[  MZ !Z  Z !Z  >Z !Z !Z \"Z :Z(\\%YLZ5Y&[&['[&[)\\&[)[%[)"
+      "[&[$X'X%[-b&Z(Z#Z(Z$Z(Z$Y'Y I[=[ Az CY;` 5\\ $] $\\ \"\\ #\\ $] 8\\/[ 3\\ '\\ #\\ \"[ \"[          \"[ &Z &[ !["
+      " #\\ #[ ![    G[@W            IYBZ        J]8] I\\7\\ H]8] I]8] I\\7\\ 2X 8Y*Z      @Z \"U   .k 5q N~o Mm 4l =X"
+      ".X 7^ 7Z3Z NZ                   %Z    6Z +XCX /W?W D[FT@S)W;W>X AZ  :X \"Y  JX (f &X        )X ;Z3Z 2Z  @Z !Z 7"
+      "XHZ ?Y !Z  /Z CY1Y JZ1Z      2Y   Y  $Z Z HY JYHY ?Z/Y L[ %Z'\\ NZ  MZ -[  Z(Z :Z \"Z 4Z@\\ 7Z 2YKX5XKY(YKZ7Z'["
+      "$[ NZ2Z%[%[#Z2[ JZ  :Y 9Z(Z#[,Z1Z8XJW7Z%ZB[ >[>Z !\\ 7X  X  ?Y ;[6[     (e 7YE` (e 3aEY 8c 2r 5`DX GYEa (X  NX "
+      "0X1Z 8Y FXD`9` YD` -c 9XD` /aEX :XD] 6g 7t BX0Y LY)Y+X6Z6X)Z/Z NX)Y I} 2Y  X  Y        9_>W KY5Y #[ =c  h >XD` "
+      "AT#X 5Y 6X0X LY'Y ?RCW ?~Y!X?X?X ;d 'r!~W KZ1Y =YHY 2\\ )Z /[$[%_GZG_#Z(Z+[;Z;Z-[%[   C\\JXI[   'X   (\\IXJ\\  "
+      " (Y  d 5Z -W(X FY<Y .X ,[   (UAmDV Iq       ,VDl@U   >V=W +X  HX )^   ,Y1Y HnEW      KV 0X7W   BW-W HW.X M^/X )"
+      "Y +YHY 2YHZ 1YHY 2ZHY 1YHY 2ZHY ?ZDZ 9[  LZ !Z  Z !Z  >Z !Z !Z \"Z :Z'[%YKZ6Y'\\%[)[$[*[%[)[%[)[%[%Y)Z&[.d'Z(Z#"
+      "Z(Z$Z(Z$Y'Y H[>Z @{ DY=b ;f -f -f ,e -f -f Ae7c ;e /b )c *c *c 'Y  NX  NX  X  E[ >XD` -c )c *b *c )c '\\ &bDX L"
+      "X0X GX0X GX0X GX0X KY)X KYE` ?Y*Y     8[4\\ K[3[ J\\4[ I[4\\ K[3[ 3X 8Z+Z      AZ !U   /m 6q N~o No 6o ?X.X 8_ "
+      "6Y3Z Z                   $Z    6Z +XCX 0X@X DZET>Q)W;W>W ?Y  :X \"X  IY 'b $X        )X ;Z2Y 2Z  @Z !Z 8YHZ ?Y "
+      "!Z  0[ CY1Y JZ1Z      5\\   \\  'Z!Z FY LZHZ @Z/Y L[ %Z&[ NZ  MZ .[  NZ(Z :Z \"Z 4ZA\\ 6Z 2YKX6YKY(YKZ7Z'[$[ NZ"
+      "2Z&[#Z#Z2[ JZ  :Y 9Z(Z\"Z,Z1Z8XJX8Z%[D[ <Z?[ \"\\ 6X  X  ?Y <[4[     -l :YGd ,k 9eGY :h 5r 8eGY GYGe +Y  NX 0X3"
+      "\\ 8Y FYGd=c!YGe 2h ;YGd 3eGX ;YG` 9m :t BY1Y LZ+Z+Y7[7Y*[1Z MY+Z J~ 2Y  X  Y        <eAW KY5Y \"Z <f 'o CYFd D"
+      "Y(Y 5Y 6Y1Y MY'Z CUE\\ B~Y!Y@X@Y =h 0z\"~W KY0Y >ZHY 1\\ *Z /[#['^EZE^$Z(Z+[;Z;Z.[#Z   C[IXH[   (X   ([HXI[   ("
+      "Z $k 9Z .Y*Z FY=Y .X ,\\   *UAnCU J^CW       -VCmAV   ?W>V *X  IX (a   /Y1Y HnEW      KV 0X7W   BW.X HW.W La3X "
+      "(Y ,ZHY 2YGY 2ZHZ 3YGY 1YHZ 3YGY @ZCZ 9[  LZ !Z  Z !Z  >Z !Z !Z \"Z :Z'\\&YJY6Y'[$[)[$[*[$[+[#[+[$[&[+\\([.e'Z("
+      "Z#Z(Z$Z(Z$Y'Y GZ?Z ?| EY>c >l 4l 3l 2l 3l 4l Gl=h @k 5h /h /h /h )Y  Y  NX  Y  E[ ?XFd 1g .h /h /h /h )\\ )hHX "
+      "LY0X HY0X GX0X GX0Y LZ+Y KYGd AY*Y     9[EXD[ M[1[ L[1[ K[1[ M[1[ 4X 8Z+Y      A[ !T   /n 6q N~o q 8q @X.X 8` 7"
+      "Y3Y Z                   $Z    5Z +XCX 0X@X DYDT EW;W?X ?Y  :X #Y  IY %^ \"X        )X <Z1Z 3Z  @Z !Z 8XGZ ?Y !Z"
+      "  0Z BY2Z JY0Z      8_   _  *Z!Y DX LYFY @Z/Y M[ $Z&[ NZ  MZ .[  NZ(Z :Z \"Z 4ZB\\ 5Z 2YJX7XJY(YJZ8Z([#[ NZ2Z&["
+      "#[$Z2[ JZ  :Y 9Z(Z\"Z-Z/Z9XJX9Z#ZDZ :Z@Z \"\\ 5X  NX  @Y =[1Z     1q <YIh 0o =hHY <l 7r 9hIY GYHg ,Y  NX 0X4\\ "
+      "7Y FYIg@g#YHh 6l =YIh 7hHX ;YHa ;q <t BY1Y KY+Y*Y8\\8Y([3[ MY+Y I~ 2Y  X  Y        =gCX KY6Z !Z <i -q CYHh F[*Y"
+      " 5Z 7Y1Y NZ&Y EWG` D~Y!Y@X@Y >k 5}\"~W KY0Z ?YGZ 1[ *Z /Z\"[(]CZD^%Z(Z+[;Z;Z.[#[   CYHXGY   'X   'YGXHY   'Z &o"
+      " ;Z /[,[ FZ?Y -X +\\   +UBoBU LZ>W       -UBnAU   >W@W *X  JX 'c   1Y1Y HnEW      KV /W7W   BW.W GW/X Lc5W 'Y ,"
+      "YFY 4ZGY 2YFY 3YGZ 3YFY 3YGZ AZCZ 9Z  KZ !Z  Z !Z  >Z !Z !Z \"Z :Z&[&YJZ7Y'[#[*Z\"Z+[#[+[#[+[#[&[-\\'[/YM[(Z(Z#"
+      "Z(Z$Z(Z$Y'Y G[A[ ?} FY?] :p 8q 8q 7q 8q 8p LqAl Do 9l 3l 3l 3l +Y  Y  NX  Y #i @XHh 5k 2l 3l 3k 2l +\\ +lKX KY0"
+      "X HY0X GX0X GX0Y KY,Z KYIh CZ,Z     :ZCXC[ [/[ N[.Z MZ.[ [/[ 5X 7Y,Z      AZ !U   /o 7p M~n s :s AX.X 8` 7Z4Y Y"
+      "                   #Z    5Z +XCX 0W?X EYCT EW;W@X >Z  ;X #Y  HX #Z  X        *X ;Z1Z 3Z  @Z !Z 9XFZ ?Y \"Z  /Z "
+      "BY2Z KZ0[      <b   a  -[\"Y BX MYFY @Z0Z M[ $Z%[ Z  MZ .Z  MZ(Z :Z \"Z 4ZD] 4Z 2YJX7XJY(YJZ8Z([\"[ Z2Z&Z\"[$Z2"
+      "[ JZ  :Y 9Z(Z!Z.Z/Z9WHW9Z\"ZF[ :[BZ \"\\ 4X  NX  @Y >[/Z     4t =YJj 3q >kJY >o 8r ;kJY GYJk .Y  NX 0X5\\ 6Y FY"
+      "JiBi$YJk 8o ?YJj 9kJX ;YJc <r <t BY1Y KZ-Z)X8\\8Y'Z4[ LZ,Y I~ 2Y  X  Y        ?jDX KY6Y  Z ;k 1r CYIj G]-Z 5Z 7"
+      "Y1Y NZ&Z HYHb E~Y!Y@X@Y @n 8~P\"~W KY0Z ?YFY 0[ +Z 0[!Z)]BZB]&Z(Z+[;Z;Z.Z\"[ LQ  GWGXFW  HQ /X /Q*Q @WFXGW   &Z"
+      " (q ;Z .[BVB[ DY@Z -X *]   .UC^EXBU LX<W       .VBWC[AU   ?WAW )X  KX %c   2Y1Y HnEW      KV /W7W   BW/X GW/W J"
+      "c7X 'Y ,YFY 4YFZ 3YFY 4YEY 3YFY 4ZFY AYBZ :[  KZ !Z  Z !Z  >Z !Z !Z \"Z :Z&[&YIZ8Y([\"[+[\"[,[\"Z+Z!Z,[\"[%[/\\"
+      "&Z/YL[(Z(Z#Z(Z$Z(Z$Y'Y F[BZ >Z@d GY@\\ :t ;t <u ;t ;t ;t tDn Gr <o 6o 6o 6o ,Y  Y  NX  Y &l @XIj 8o 5o 6n 6o 5o"
+      " -\\ ,nLW JY0X HY0X GX0X GX0Y KY,Y JYJj CY,Y     :ZBXBZ!Z+Z Z,Z Z,Z!Z+Z 6X 7Z-Z      BZ  U   0q 7o M~n s ;u BX."
+      "X 9a 6Y5Z!Y                   \"Z    5Z +XCX C~d&YCT EW;W@W =[  <X #Y  HY $Z  X        *X ;Z1Z 3Z  @Z !Z :YFZ ?"
+      "Y \"Z  0Z AZ3Z KZ0[ 5Z \"[  ?e   d  0Z\"Y AY YEZ AZ0Z MZ #Z%[ Z  MZ /[  MZ(Z :Z \"Z 4ZE] 3Z 2YJY9XIY(YIZ9Z(Z![ "
+      "Z2Z'[!Z$Z2[ JZ  :Y 9Z(Z!Z/[/Z:XHW9Z\"[H[ 8ZC[ \"[ 3X  NX  @Y ?[-Z     5v ?YKm 6r ?mKY ?q 9r <mKY GYKm /Y  NX 0X"
+      "6[ 4Y FYKkEl%YKm ;r @YKl ;mKX ;YKd >t <t BY1Y JY-Y(Y9]9Y&Z5Z JY-Y H~ 2Y  X  Y        @lFX JY6Y  NY 9k 4s CYJl H"
+      "^.Y 4[ 8Y1Y NY$Y J[Ie G~Y!Y@X@Y Ap ;~R\"~W KY0Z @YEZ 0[ ,Z 0Z [*\\AZA\\&Z(Z+[;Z;Z/[![ NS  GUFXEU  HS 0X 0S,S @U"
+      "EXFU   %Z )r ;Z -[G^G[ CZAY ,X )]   /UC[>TAU NX;W )P9P     =UAWAYAU   >XDX )X  LX  HY   3Y1Y HnEW      KV /W7W "
+      "AP9P 9W0X FW0X ?Y8W &Y -YEZ 5YEY 4ZFZ 5YEY 4ZEY 5YEY BZBZ :[  KZ !Z  Z !Z  >Z !Z !Z \"Z :Z%['YIZ8Y([!Z+Z![,Z![-"
+      "[![-[!Z$[1\\&[/XJZ(Z(Z#Z(Z$Z(Z$Y'Y EZCZ =Z;` HYA[ 8u <u =v <v =u <u!uGr Js =r 9r 9r 9r .Y  Y  NX  Y (o AXJl :q "
+      "7q 9r 9q 7q .\\ -y IY0X HY0X GX0X GX0Y KZ-Y JYKl DY-Z     ;ZAXAZ\"Y)Y!Z*Z\"Z*Z\"Y)Y 6X 7Z-Y      BZ  NT   0s 8o"
+      " L~m!u =w CX.X 9b 7Y5Y Y                   \"Z    5Z +XCX C~d&YCT EX<WAX <Z  <X #X  GY &^ \"X        *X ;Z0Y 3Z"
+      "  @Z !Y 9XEZ ?Y \"Z  0Z AZ3Y JZ/Z 5Z \"[  Ag   g  4[\"X ?X YDY AZ0Z MZ #Z%[ Z  MZ /[  MZ(Z :Z \"Z 4ZF] 2Z 2YIX9"
+      "XIY(YIZ9Z(Z Z Z2Z'[![%Z2[ JZ  :Y 9Z(Z!Z/Z.Z:XHX:Z!ZHZ 6ZDZ \"\\ 3X  NY  AY @Z*Z     6w @YLo 9t @oLY At :r =oLY "
+      "GYLo 0Y  NX 0X7[ 3Y FYLmGn&YLo =t AYLo >oLX ;YLe ?u <t BY1Y JY-Y(Y9]9X%[7Z IZ.Y H~ 2Y  X  Y        AnGX JY7Z  N"
+      "Z 9k 6t CYKn I^/Z 5\\ 8Y1Y Z$Z L\\Jg H~Y!Y@X@Y Br =~S\"~W LZ/Y @YDY /[ -Z 0Z NZ+\\@Z@\\'Z(Z*Z;Z;Z/[![ U  GSEXDS"
+      "  HU 1X 1U.U @SDXES   $Z +t ;Z ,[JbJ[ AYBY +X (^   2UCZ9QAU NW:W *Q:Q     >VAW?XAU   ?ZHY (X  MX  EX   4Y1Y HnE"
+      "W      KV /W7W AQ:Q :W0W EW1X <X:X &Y -YDY 6ZEZ 5YDY 6ZEZ 5YDY 5YEZ CZBZ :Z  JZ !Z  Z !Z  >Z !Z !Z \"Z :Z%['YHZ"
+      "9Y(Z Z+Z Z-[![-[![-Z [$[3\\%[0XI[)Z(Z#Z(Z$Z(Z$Y'Y E[E[ =Z9^ HYBZ 6v =v >w =w >v =v\"vIt Lt >t ;t ;t ;t /Y  Y  N"
+      "X  Y *r BXKn <s :t ;t ;s :t /\\ /{ IY0X HY0X GX0X GX0Y JY.Z JYLo FZ.Y     :Y@X?Y$Y'Y#YIP5PIY\"Y.PIY$Y'Y 7X 6Z/Z"
+      "      CZ  NU   1u 8m K~m\"w ?^C] CX.X 9b 7Z6Y X                   \"Z    4Z +XCX C~d&XBT EX=XAW ;[  =X $Y  GY ("
+      "b $X        +X :Y/Z 4Z  @Z \"Z :XDZ ?Y \"Y  0[ @Y4Z JZ/Z 5Z \"[  Dj   j  8[\"X =X\"ZDY AZ0Z N[ #Z$[!Z  MZ /Z  L"
+      "Z(Z :Z \"Z 4ZG] 1Z 2YIX:YIY(YHZ:Z)[ [!Z2Z'Z [%Z2[ J[  ;Y 9Z(Z Z0Z-Z;XHX;Z NZJ[ 6[FZ \"\\ 2X  MX  AY AZ(Z     7x"
+      " AYMq ;u AqMY Bv ;r >qMY GYMp 0Y  NX 0X8[ 2Y FYMoIp'YMq ?v BYMp ?qMX ;YMf ?u <t BY1Y JZ/Z(Y:^:Y$[9[ HY/Z H~ 2Y "
+      " X  Y        BpHX JY7Z  MY ;o 9u CYLp J_0Y 4\\ 8Y1Y Y#Z M]Jh I~Y!Y@X@Y Ct ?~T\"~W LZ/Y AZDY .[ .Z 1[ NZ+[?Z?['Z"
+      "(Z*Z;Z;Z/Z NZ!W  GQDXCQ  HW 2X 2W0W @QCXDQ   #Z ,u ;Z +[MfM[ ?YCY +X '_   4UDZ'U W:W +R;R     >U@W?XAU   >j (X "
+      " NX  CX   5Y1Y HnEW      KV /W7W AR;R ;W1X EW1W :X<X %Y .ZDY 6YCY 5YDZ 7YCY 5YDZ 7ZDY DZAZ ;[  JZ !Z  Z !Z  >Z "
+      "!Z !Z \"Z :Z$Z'YHZ9Y)[ [-[ [.[ Z-Z NZ-Z [#[5\\$Z0XH[)Z(Z#Z(Z$Z(Z$Y'Y D[FZ <Z7] IYBY 5w >w ?x >x ?w >w#wKv Nu ?v"
+      " =v =v =v 0Y  Y  NX  Y +s BXLp >u <v =v =u <v 0\\ 0{ HY0X HY0X GX0X GX0Y JZ/Y IYMp EY.Y     ;Y?X?Y%Y%Y$YJR7RIY$"
+      "Y.RJY%Y%Y 8X 6Z/Y      CZ  MU   2v 8m K~m#y @[>\\ DX.X :c 7Z7Z!Y                   \"Z    4Z +XCX C~d&XBT DW=XB"
+      "X :[  >X $Y  FY +f &X        +X ;Z/Z 4Z  AZ !Z ;YDZ ?YFP -Z?Q  BZ ?Z5Z JZ/Z 5Z \"[  Gj   Ii  ;[\"X1Q,W\"YCZ BZ1"
+      "Z MZ \"Z$[!Z  MZ /Z  LZ(Z :Z \"Z 4ZH] 0Z 2YHX;XHY(YHZ:Z)Z N[!Z2Z([ NZ%Z2Z I[  ;Y 9Z(Z Z1Z,Z;XGW;Z N[L[ 4[H[ #\\"
+      " 1X  MX  AY BZ&Z     8^Ga AYN[H_ <cI\\ B`I[MY CaH_ <r ?`H[NY GYNr 1Y  NX 0X9[ 1Y FYNqJp'YMq @aJa CYN[H_ A`I[MX "
+      ";YNg @`E[ <t BY1Y IY/Y&X:^:Y#Z:[ GY/Y G~ 2Y  X  Y      JW5V B`M_JX IY8Z  LY =r ;cL_ CYM^Na J`1Y 5^ 9Y1Y!Z\"Z ^K"
+      "j J~Y!Y@X@Y D_I` A~U\"~W LY.Y AYCZ .[ /Z 1Z MZ,\\?Z?\\(Z(Z*Z;Z<[/Z NZ\"Y  ;X  ;Y 3X 3Y2Y 3X    EZ -hM[ ;Z *~Q >"
+      "YDY *X )b   6UDY%U V9W ,S<S     >U@W>W@T   =h 'X  X  AW   5Y1Y HnEW      KV /X9X AS<S <W1W DW2X 9W<W $Y .YCZ 7Y"
+      "CY 6YBY 7YCY 6ZCY 7YCZ EZAZ ;[  JZ !Z  Z !Z  >Z !Z !Z \"Z :Z$Z'YGZ:Y)[ NZ-[ [.Z N[.Z NZ.[ NZ\"[7\\$[1XFZ)Z(Z#Z("
+      "Z$Z(Z$Y'Y CZGZ ;Z6\\ IYCY 4^Ga ?^Ga @_Hb ?^Ga ?^Ga ?^Ga$^GaMaI`!bH\\ @aI` ?aI` ?aI` ?aI` 1Y  Y  NX  Y ,u CXM^Nb"
+      " @aKa >aJa ?aJa ?aKa =`Ja 1\\ 0`Ic GY0X HY0X GX0X GX0Y IY0Z IYN[H_ FZ0Z     <Y>X>Y&X#X%YJT9TIY&Y.TJY&X#X 8X 5Y0"
+      "Z      CZ ;P4U   1w 9l J~m#z B[;[ EX.X :d 7Y7Y X                   )~Q   #Z +XCX C~d&XBT DW=XCX 9\\  ?X $Y  FY "
+      "-j (X        +X ;Z/Z 4Z  AZ \"Z :XCZ ?YM_ 5ZE^  IZ >Y6Z IZ0[ 5Z \"[  Jj   Ci  ?\\\"X6\\2X#YBY BZ1Z MZ \"Z$[!Z  "
+      "MZ 0[  LZ(Z :Z \"Z 4ZI] /Z 2YHX;XHY(YGZ;Z)Z N[!Z3[([ NZ%Z2Z H[  <Y 9Z(Z NZ2Z,Z<XFW;Z MZLZ 2ZHZ #\\ 0X  MX  AY C"
+      "Z$Z     9Y>^ BcB] >_?W C^CYNY C]A] 4Y /]Bc GYNYD^ 2Y  NX 0X;\\ 0Y FYNXC\\KYD](YNYC] A]B^ DcB] C^CYNX ;YNZDQ A\\"
+      ";V 5Y .Y1Y IY/Y&Y;_;Y\"Z;Z FZ0Y $[ 2Y  X  Y      M];\\ F]E[JX IY9[  LY >ZKf =]=V CYNYC] K`2Z 5^ 9Y1Y!Z\"Z!^JZM^"
+      " K~Y!Y@X@Y E]C^ CaHl\"~W LY.Z BYBY .\\ 0Z 1Z M[-[>Z>[(Z(Z*Z;Z<[0[ N[$[  <X  <[ 4X 4[4[ 4X    EZ ._KUHV ;Z )~ <Y"
+      "EY *X *e   8UDY$T!W:X .U=T     ?U?W>W@U   =f &X !X  @W   5Y1Y HnEW      KV /X9X AT=T =W2X DW2W 8W=X $Y .YBY 8ZC"
+      "Z 7YBY 8ZCZ 7YBY 8ZBY FZ@Z ;Z  IZ !Z  Z !Z  >Z !Z !Z \"Z :Z$[(YGZ:Y)[ NZ-Z MZ.Z N[/[ N[/[ NZ![9\\#[2YFZ)Z(Z#Z(Z"
+      "$Z(Z$Y'Y C[I[ ;Z5\\ JYCY 4X=^ @X=] @Y=] ?Y>^ @X=^ @X=^%X=l@\\\"_?W A]@\\ @]@\\ @^A\\ @^A\\ 1Y  Y  NX  Y -w DXNY"
+      "C] A^C^ ?^C^ A^B] @^C^ ?^C^ 2\\ 1^C_ FY0X HY0X GX0X GX0Y IY0Y HcB] FY0Y     ;X=X=Y(Y#Y'YJV;VIX&X.VJY(Y#Y 9W 4Z1"
+      "Z      DZ =S4U   2y 9j I~l#{ BZ9Z EX.X :d 7Z8Y!Y                   *~R   #Z +XCX C~d'YBT DX?XBW 7\\  @X $Y  FY "
+      "/ZNVNZ *X        ,X :Z/Z 4Z  AZ #Z :XBZ ?o 9ZGc  MZ =Z8[ HY0\\ 6Z \"[  Li   >j  C\\\"X8aGVBW$ZBZ CZ2Z LZ \"Z#Z!"
+      "Z  MZ 0[  LZ(Z :Z \"Z 4ZJ] .Z 2YHX<YHY(YFY;Z)Z MZ!Z3[([ N[&Z3[ H]  >Y 9Z(Z NZ2Z,Z<XFX<Z LZN[ 2[JZ \"[ /X  LX  B"
+      "Y DZ\"Z     :U7\\ Ca>\\ @^:T C\\?b D\\=\\ 5Y 0\\>a Ga?\\ 2Y  NX 0X<\\ /Y Fa@\\MX@[(b@\\ B]?\\ Da?] D\\?a ;b 1Z6"
+      "S 5Y .Y1Y IZ1Z&Y;_;X![=Z DY1Y #[ 2Y  X  Y      `>` I\\B[KX IY:\\  LY ?ZDa ?\\7R Cb?\\ F[3Y 5_ 9Y1Y\"Z Y!]IYJ] L"
+      "~Y!Y@X@Y F\\?\\ D^Ai\"~W LY.Z CZBZ .\\ 1Z 1Z LZ.[=Z>[(Z(Z*Z;Z<[0[ N[%\\  <X  <\\ 5X 5\\4\\ 5X    EZ /^IUFT ;Z ("
+      "| ;YFY )X +h   :TDY#U\"W:X /V?V     ?U?W>XAU   <c $X \"X  ?X   6Y1Y HnEW      KV .W9W @U>V ?W3X CW3X 8X>W #Y /Z"
+      "BZ 9YAY 8ZBZ 9YAY 8ZBZ 9YAY FZ@Z ;Z  IZ !Z  Z !Z  >Z !Z !Z \"Z :Z$[(YFZ;Y)Z MZ-Z MZ/[ MZ/[ N[/Z M[![;\\\"[3YE[*"
+      "Z(Z#Z(Z$Z(Z$Y'Y B[JZ :Z4[ JYCX 3U8\\ @U8\\ AV8\\ @U7\\ AU7[ @U8\\%U8h=\\$]9T B\\=\\ B\\=\\ B\\=\\ B\\<[ 2Y  Y  "
+      "NX  Y .x Da?\\ C]?] A]?] B\\?] B]?] A]?] 3\\ 2]?] FY0X HY0X GX0X GX0Y IZ1Y Ha?] GY1Z     <X<X<X(X!X'XJX=XJY(X.X"
+      "JX(X!X 9W 4Z1Y     >~d W5T   2{ 9i H~k$} DZ7Z FX.X :d 7Z9Z!X                   )~R   #Z   0~d&XBT DX?XCX 6\\   "
+      " =Y  EY 0ZMVMZ +X        ,X :Z/Z 4Z  B[ %\\ :XBZ ?q ;YHg  Z <Z:[ GZ1\\ 6Z \"[  i M~c Nj  G\\!W9eIVBX%Y@Y CZ3[ M"
+      "[ \"Z#Z!Z  MZ 0Z  KZ(Z :Z \"Z 4ZK] -Z 2YGX=XGY(YFZ<Z*[ MZ!Z3[(Z M[&Z3[ H^  ?Y 9Z(Z NZ3Z*Z=XFX=Z Kf 0[L[ #\\ /X "
+      " LX  BY        JS4[ C`<\\ A\\5Q D[;` E[9Z 5Y 1\\<` G`<Z 2Y  NX 0X=\\ .Y F_=[MV=[)`<[ D\\<\\ E`<[ E[;_ ;` 0Z3Q 5"
+      "Y .Y1Y HY1Y%Y<`<Y [?[ DZ2Y $[ 1Y  X  Y     !cBc J[?YLX HY<]  JX @Y?_ @[ '`<[ EZ4Z 5` :Y1Y\"Z Z#\\GYI\\ EZ:Z IY@"
+      "X@Y FZ;[ E]>\\ 0Z 6Y.Z CYAZ -\\ 2Z 1Z LZ.[=Z=[)Z(Z*Z;Z<Z/Z LZ&\\  ;X  ;\\ 6X 6\\2\\ 6X    EZ /\\GUCQ ;Z 'z 9YGY"
+      " )X -ZN_   ;TDX\"U\"W;Y 0W@W     ?T>W>X@T   ;a #X #X  =W   6Y1Y GmEW      KV .X;X @W@W @W3W BW4X 6W?X #Y /Y@Y :"
+      "ZAY 8Y@Y 9YAZ 9Y@Y 9YAZ GZ@Z ;Z  IZ !Z  Z !Z  >Z !Z !Z \"Z :Z#Z(YFZ;Y)Z M[/[ MZ/[ MZ/Z LZ/Z M[ [=\\!Z3YD[*Z(Z#Z"
+      "(Z$Z(Z$Y'Y AZKZ 9Z4[ JYDY 3R3[ AR3[ BS3Z @S4[ AS4[ AR3[&R3e:[&]6R C\\:[ D\\:[ D\\:[ D\\:[ 3Y  Y  NX  Y /_B] E_<"
+      "[ C[;[ B\\<\\ C\\<\\ C[;\\ C\\<\\ 3\\ 3\\<\\ FY0X HY0X GX0X GX0Y HY2Z H`<[ FY2Y     ;X<X<X)X NX)YKZ?ZJX(X/ZKX)X"
+      " NX ;X 3Y2Z     >~d#Z6U   3} :h G~k%~P EY5Y FX.X ;ZNY 6Y9Z!X                   *~R   \"Z   0~d&YCT CXAXBW 5]   "
+      " >Y  EY 2ZKVKZ -X        ,X :Z/Z 4Z  BZ &] :XAZ ?s =YJk #[ ;[=[ FZ1\\ 6Z \"[ #j L~d Ki  J\\!X:hKVAW%Y@Y CZ5\\ L"
+      "[ \"Z#Z!Z  MZ 0Z  KZ(Z :Z \"Z 4ZL] ,Z 2YGX=XGY(YEZ=Z*[ M[\"Z4['Z LZ&Z4[ F`  BY 9Z(Z MZ4Z*Z=XEW=Z Jd .ZLZ #\\ .X"
+      "  LX  BY        JQ1[ D_:[ B\\ ([9_ F[7Z 6Y 1[:_ G^9Z 3Y  NX 0X>\\ -Y F^;b;Z)_:Z D[:\\ F_:[ G[9^ ;_ /Y  EY .Y1Y "
+      "HY2Z$Y=a=Y NZ@[ BY3Z %[ 0Y  X  Y     \"eCd L[>YLX HY>^  IY AY=] @Z &_:Z DY4Y 5a :Y1Y\"Z Z$\\GYG\\ EY9Y IY@X@Y G"
+      "Z9[ G\\;[ 0Y 5Y.Z DZ@Y ,\\ 3Z 1Z LZ.Z<Z=[)Z(Z*Z;Z<Z/Z LZ'\\  :X  :\\ 7X 7\\0\\ 7X    EZ 0\\FU -Z &x 8YHY (X -YK"
+      "_   >UDX!T\"X<Y 1XAX     ?T>W>X@U   :] !X $X  <W   6Y1Y GmEW      KV .Y=X ?XAX AW4X BW4W 5W@X \"Y 0Z@Y :Y@Z 9Y@"
+      "Y :Z@Y 9Y@Z ;Z@Y HZ?Z <[  IZ !Z  Z !Z  >Z !Z !Z \"Z :Z#Z(YEZ<Y*[ M[/[ M[0Z LZ/Z LZ/Z M[ N[?\\ Z3XBZ*Z(Z#Z(Z$Z(Z"
+      "$Y'Y @ZM[ 9Z3[ KYDY 3P0Z AP0Z BQ0Z AQ0Z BP0Z AP0Z&P0b7Z'\\2P CZ7Z DZ7Z DZ7Z DZ7Z 3Y  Y  NX  Y 0]<Z E^:Z D[9[ C["
+      ":\\ E\\:[ D[9[ C[:\\ 4\\ 3[9[ GY0X HY0X GX0X GX0Y HZ3Y G_:[ GY2Y     <X;X;X*X NX)XJ[A\\JX*X/[JX*X NX ;X 3Z3Z   "
+      "  >~d&^7U   4~ 9f E~i%~R GY4Y FX.X ;ZNZ 7Y9Y!X                   )~R   \"Z    NW?W BYCT CYBXCX 6_    ?Y  EZ 5ZI"
+      "VIZ /X        ,X :Z.Y 4Z  C[ )_ :YAZ ?t >YKn %Z 9\\A\\ EZ1\\ 6Z \"[ &j I~d Hi  N\\ W:jLVAW&Z@Z DZ8^ KZ !Z#[\"Z "
+      " MZ 0Z  KZ(Z :Z \"Z 4ZM] +Z 2YGY?XFY(YEZ=Z*Z L[\"Z4['Z LZ&Z4[ Fc  EY 9Z(Z MZ5Z)Z>XDW=Z Ic .[NZ #\\ -X  KX  CY  "
+      "      )Z D^8[ D\\ '[8^ FZ5Z 7Y 2[8^ G]8Z 3Y  NX 0X?[ +Y F]9`9Y)^9Z E[8[ F^8Z GZ8^ ;^ .Y  EY .Y1Y GY3Y#Y=WNX=Y M"
+      "ZAZ AY3Y %[ /Y  X  Y     #gEf N[<YMX HYBb  IY BY;] BZ %^8Z DY5Y 5b ;Y1Y#Z NZ$[FYF[ EY9Y IY@X@Y HZ8[ H\\9[ 1Y 5Y"
+      ".Z DZ@Z ,\\ 4Z 2[ LZ.Z<Z<Z)Z(Z*[<Z<Z/Z LZ(\\  9X  9\\ 8X 8\\.\\ 8X    EZ 1\\EU -Z %^E] EhIg 6X .YI_   ?UEX T!W="
+      "Z 2YBY     @U>W>W?U   7W <~d BX  ;W   6Y1Y GmEW      KV -X=X ?YBY BW4W AW5X 5W@W !Y 0Y?Z ;Y?Y :Z@Z ;Y?Y :Z?Y ;Y"
+      "?Y HZ?Z <[  IZ !Z  Z !Z  >Z !Z !Z \"Z :Z#Z(YEZ<Y*[ LZ/[ M[0Z LZ/Z LZ0[ LZ M[A\\ NZ4XAZ*Z(Z#Z(Z$Z(Z$Y'Y @[NZ 8Z3"
+      "[ KYDY  AZ !Y  Y  Z !Z !Z 5`5Z([ %Z5Z FZ5Z FZ5Z FZ5Z 4Y  Y  NX  Y 1\\:[ F]8Z F[7[ E[8[ E[8[ E[8[ E[8[ 4\\ 4[9\\"
+      " GY0X HY0X GX0X GX0Y GY4Z G^8Z GZ4Z     <X;X:W+X LX*WH[C\\IX*X0[HW+X LX <X 2Y4Z     =~d(`7T   4~Q 9e E~i%~R GY3"
+      "Y GX.X ;YMZ 7Z;Z!X                   *~R   !Z    X@X BZDT BXCYDX 6`    ?Y  DY 7[HVH[ 1X        -X 9Z.Y 4Z  D[ 7"
+      "m 9X@Z ?v AZLp &Z 8^H_ DZ1\\ 6Z \"[ (i F~d Ei #\\ NW;lMV@W'Y>Y D~P JZ !Z#[\"~Q Dy Z  K~] :Z \"Z 4ZN] *Z 2YFX?XF"
+      "Y(YDZ>Z*Z L[\"Z5\\([ LZ&Z5\\ Eg  JY 9Z(Z MZ5Z)Z>XDX>Z Ib ,f $\\ ,X  KX  CY        (Y D]6Z D[ '[7^ GZ4Z 7Y 2Z6] "
+      "G]7Z 4Y  NX 0X@[ *Y F]8^8Z*]7Z FZ6[ G]6Z I[7] ;] -X  DY .Y1Y GY3Y#Y=WNX=X L[CZ ?Y4Y &[ .X  NX  Y     $iGh Z:XNX"
+      " GYHg  HY CY8\\ CY $]7Z DY6Y 4b ;Y1Y#Z MZ&[EYE[ FY9Y IY@X@Y HZ7[ I[7[ 2Y 5~V DY>Y +\\ 5Z 2Z KZ/[<Z<[*Z(Z)Z<Z<Z/"
+      "ZIuIZ)\\  8X  8\\ 9X 9\\,\\ 9X    EZ 1[DU -Z $Z@[ EhJh 6X /YF_   ATDX U\"X?[ 3ZCZ     @U>W>W?U     K~d CX  ;X  "
+      " 6Y1Y FlEW      KV -Y?Y ?ZCZ CW5X AW5W 5XAX !Y 0Y>Y <Z?Z ;Y>Y <Z?Z ;Y>Y ;Y?Z JZ>~Q3[  I~Q G~Q F~Q G~Q 5Z !Z !Z "
+      "\"Z :Z#Z(YDZ=Y*[ LZ/Z L[0Z L[0Z LZ0[ LZ L[C\\ N[5X@Z*Z(Z#Z(Z$Z(Z$Y'Y ?e 7Z3[ KYDY  @Y  Y !Z  Y  Y  Y 4_4Y)[ %Z3"
+      "Y GZ3Y FZ4Y FZ4Y 4Y  Y  NX  Y 1[8Z F\\7Z F[7[ EZ6[ G[6[ G[6Z EZ6[   <Z9^ HY0X HY0X GX0X GX0Y GY4Y F]6Z GY4Y    "
+      " ;W:X:X,X LX+XG[E\\GW*W0[GX,X LX <X 2Z5Z     =~d(`8U   4~R 9c D~h%~T HX2Y GX.X <ZLY 6Y;Z!X                   *~"
+      "R   !Z    X@X BZDT BZGZCW 6b    @Y  DY 8ZFVFZ 2X        -X 9Z.Y 4Z  DZ 7l 8X?Z ?w BZMr ([ 7s C[3] 6Z \"[ +i C~d"
+      " Cj '\\ NW;nNV@W(Z>Y D~ IZ !Z#[\"~Q Dy![  K~] :Z \"Z 4h )Z 2YFX@YFY(YDZ>Z*Z KZ\"Z5\\([ LZ&Z6\\ Ck  Y 9Z(Z LZ6Z("
+      "Z?XDX?Z G` *d #[ +X  KX  CY        'Y E]6[ F[ &Z5] GY2Y 7Y 3Z4\\ G\\6Z 4Y  NX 0XA[ )Y F\\7]6Y*\\5Y G[5Z G\\5Z I"
+      "Z5\\ ;] -X  DY .Y1Y GZ5Z#Y>XMW>Y K[E[ ?Y5Y &[ .Y  NX  Y     $XIZHZIY!Z:XNX GYHf  GY DY6[ CY $\\5Y CX6Y 5c ;Y1Y#"
+      "Z MZ&[EYDZ FY9Y IY@X@Y IZ5Z IZ5Z 2Y 5~V EZ>Y *[ 5Z 2Z KZ/[<Z<[*Z(Z)Z<Z=[0[IuIZ*\\  7X  7\\ :X :\\*\\ :X      L["
+      "CU -Z %Z>Z EiKh 6X /XC^   BTDX U\"YA\\ 4ZCZ N~d  &U>W?X>T     K~d EY  :W   5Y1Y EkEW      KV ,YAY =ZCZ DW6X @W6"
+      "X 5W@W   'Z>Y <Y=Y <Z>Z =Y=Y ;Y>Z =Z>Y JZ>~Q3Z  H~Q G~Q F~Q G~Q 5Z !Z !Z \"Z :Z#[)YDZ=Y*[ LZ/Z KZ0Z L[1[ LZ0[ L"
+      "Z K[E\\ M[6Y@Z*Z(Z#Z(Z$Z(Z$Y'Y >d 7Z2Z KYDY  @Y  Y  Y  NY  Y !Y 4^3Z*Z $Z3Z HZ3Z HZ3Z HZ2Y 5Y  Y  NX  Y 2[6Z G"
+      "\\6Y FZ5[ G[5Z GZ5[ GZ5[ G[5Z   =[:_ HY0X HY0X GX0X GX0Y GZ5Y F\\5Z GY5Z     <X:X:X,W JW+XF[G\\FX,X1[FX,W JW <X "
+      "2Z5Y     <~d'UNY9U   5~T H[LaM[!~g&~V JY1X GX.X <ZLZ 7Y;Y X                    Z    3Z    W?X AZET A\\M\\CX 7d "
+      "   BZ  DY 8XDVDX 2X        -X 9Z.Y 4Z  E[ 7j 7Y?Z ?x CZNt )Z 5p @Z3] 6Z \"[ .i @~d @i *\\ MW<^Ib@W(Y=Z E| GZ !Z"
+      "\"Z\"~Q Dy![  K~] :Z \"Z 4f 'Z 2YEXAXEY(YCZ?Z*Z KZ\"Z6\\'[ LZ&Z8] An $Y 9Z(Z LZ7Z'Z?XDX?Z F_ *c #\\ +X  JX  DY "
+      "       'Y E\\4Z FZ %Z4\\ HZ1Y 8Y 3Z4\\ G[4Y 4Y  NX 0XC\\ (Y F[6]6Y*[4Y GZ4[ H\\4Z JY4\\ ;\\ ,X  DY .Y1Y FY5Y!Y?"
+      "XMX?Y JZF[ >Z6Y &[ .Y  NX  Y     %WEYJYEX#Z8a GYHe  FY DX4[ DY $\\5Y CY8Z 5d <Y1Y$Z LZ'[DYD[ GY9Y IY@X@Y IY4Z J"
+      "[5[ 3Y 6~W EY=Z *[ 6Z 2Z KZ/Z;Z<[*Z(Z)Z<Z=Z/[IuI[,\\  6X  6\\ ;X ;\\(\\ ;X      LZBU -Z %Y<Z FjMi 6X 0X@]   CTD"
+      "W NU!ZE^ 5ZCZ M~d  &T=W@X=T     K~d FY  :X   5Y1Y EkEW 3Z    CV +ZEZ ;ZCZ EW6W ?W7XA]\"XAX   'Y=Z =Y=Y <Y<Y =Y="
+      "Y <Z=Y =Y=Z KY=~Q3Z  H~Q G~Q F~Q G~Q 5Z !Z !Z \"Z Ew5[)YCZ>Y*Z KZ/Z KZ0Z L[1[ L[1[ LZ J[G\\ L[7Y?Z*Z(Z#Z(Z$Z(Z$"
+      "Y'Y >c 6Z2Z KYDY  ?Y  X  NX  NY  Y  Y 4\\1Y+[ %Z1Y HY1Y HY1Y HY1Y 5Y  Y  NX  Y 3[5Z G[5Z HZ3Z GZ4[ HZ4Z HZ3Z GZ"
+      "4[   >Z9` IY0X HY0X GX0X GX0Y FY6Z F\\4Z GY6Y     ;W9X9W-X JX,WD[I\\DW,W1[DW-X JX =X 1Y6Z     <~d'RKY:U   5~U J"
+      "~T$~g'~X KY1X GX.X <YKZ 7Z<Y W                    NZ    3Y    NW?W @\\GT @jCW 7f    CZ  DY 7VCVCV 1X        .X "
+      "8Z.Y 4Z  F[ 6h 5X>Z ?y DgF` *Z 2k >Z4^ 6Z \"[ 1j >~d =i -[ LW=\\C_?W)Y<Y Ez EZ !Z\"Z\"~Q Dy![  K~] :Z \"Z 4e &Z"
+      " 2YEXAXEY(YCZ?Z*Z KZ\"Z8^'[ L['Z:_ @p 'Y 9Z(Z KZ8Z'Z@XBW?Z F^ (b $\\ *X  JX  DY        &X E[2Y FZ &Z3\\ HY0Y 8Y"
+      " 3Y2[ G[4Y 4Y  NX 0XD\\ 'Y F[5[5Y*[4Y HZ2Z H[3Z KZ3[ ;[ ,Y  DY .Y1Y FY5Y!Y?WLX?Y J[GZ <Y7Z '[ -Y  NX  Z     'WC"
+      "YKXBV#Z8` FYHc +YCY EY4[ DY $[4Z CX8Y 5e <Y1Y$Z KZ([DYCZ GY9Y IY@X@Y IY3Z KZ3Z 3Y 6~W EY<Y )[ 7Z 2Z KZ/Z;Z;Z*Z("
+      "Z)[=Z=Z/[IuI[-\\  5X  5\\ <X <\\&\\ <X      LZBU -Z &Y:Y FjNj 6X 0X?]   EUEX NU!s 6ZCZ L~d  &T=WAY=T     K~d GX"
+      "  9Y   5Y1Y DjEW 3Z    CV *]M] 9ZCZ FW7X5X3W7WCc%XBX5Y   JY<Y >Z=Z =Y<Y >Z=Z =Y<Y >Z=Z LZ=~Q3Z  H~Q G~Q F~Q G~Q"
+      " 5Z !Z !Z \"Z Ew5[)YCZ>Y*Z KZ/Z KZ0Z KZ1[ L[1Z KZ I[I\\ K[8Y>[+Z(Z#Z(Z$Z(Z$Y'Y =a 5Z2Z KYDY  ?Y  Y  X  MX  Y  Y"
+      " 4\\1Y+Z $Y0Y IZ1Y IZ1Y IZ0X 5Y  Y  NX  Y 3Z3Y GZ3Y HZ3Z HZ2Z IZ2Z IZ3Z GZ3Z   >Z:a IY0X HY0X GX0X GX0Y FZ7Y E["
+      "3Z GY6Y     ;W9X9W-W HW,WC[K\\CW,W2[CW-W HW =X 1Z7Z     <~d NX:U   5~V M~X%~e&~Y LX0Y HX.X =ZJY 6Y=Z W         "
+      "           NZ    3Y    X@X ?]IT ?hCW 7h2X   ;Y  CY 7TAVAT 1X        .X 8Z.Y 4Z  G\\ 6g 5X=Z ?X?a EeB^ +Z /f ;[5"
+      "^     4i ;~d :i 1[ LW<Z?]?W*Z<Z Fx CZ !Z\"Z\"~Q Dy![  K~] :Z \"Z 4e &Z 2YEXBYEY(YBZ@Z*Z KZ\"Z9^&[ L['[Ad >r *Y "
+      "9Z(Z KZ8Z'Z@XBX@Y D\\ &` $\\ )X  JX  DY        &X E[2Z HZ %Z3\\ IZ/X 8Y 4Z2[ GZ3Y 4Y  NX 0XE\\ &Y FZ4[5Y*[4Z IZ"
+      "2Z H[2Y KY2[ ;[ +X  DY .Y1Y FZ7Z!Y?WLX?X H[IZ ;Y7Y '[ ,Y  NX  NY  *Q   NV@WLW?U#Z8` FYHd .^FY EX2[ DX $[3Y CX8Y"
+      " 5YMY <Y1Y$Z KZ(ZCYCZ GY9Y IY@X@Y JY2Z L[3Z 3Y 6~W FZ<Z )[ 8Z 2Z KZ/Z;Z;Z*Z(Z)[=Z>[/[IuI[.\\  4X  4\\ =X =\\$\\"
+      " =X      MZAU -Z &X8Y G~W 6X 0W<\\   FUEX MT iNW 8[D[ K~d  &T=WE\\<T     K~d HX  NQ<Y   4Y1Y CiEW 3Z    CV )k 7"
+      "ZC[ HW7W5Y3W8XFh>Q<YAW5Z   KZ<Z ?Y;Y >Z<Z ?Y;Y >Z<Z ?Z<Y LZ=~Q3Z  H~Q G~Q F~Q G~Q 5Z !Z !Z \"Z Ew5[)YBZ?Y*Z KZ/"
+      "Z KZ0Z KZ1[ L[1Z KZ H[K\\ J[8X=[+Z(Z#Z(Z$Z(Z$Y'Y <` 5Z2Z KYDZ  ?X  Y  Y  NX  NX  NX 4[/Y,Z $Y/Y JY/Y JY/Y JY/Y "
+      "6Y  Y  NX  Y 3Z3Z HZ3Y IZ1Z IZ2Z IZ2Z JZ1Z IZ2Z   ?Z:b IY0X HY0X GX0X GX0Y EY8Z E[2Y GZ8Z     ;W9X9X.W HW-XB[M"
+      "\\BW,W3[BX.W HW =X 0Y8Z     ;~d NY;U   6~X!~[%~c&~Z LX0Y HX.X =ZJZ 7Y=Y N~l                  4Z    3Y    X@X ?`L"
+      "T >eBX<U\"[M\\4Y   ;Y  CZ 7Q?V?Q 0X        .X 8Y-Z 5Z  H\\ 5j 9Y=Z ?T9_ Ec>] ,Z 1j <[7_     7i 8~d 7i 5[ KW=Z="
+      "\\?W*Y:Y F{ FZ !Z\"Z\"~Q Dy![1j&~] :Z \"Z 4e &Z 2YDXCXDY(YBZ@Z*Z KZ\"Z<a&Z K['} <s ,Y 9Z(Z KZ9Z%ZAXBXAZ E] &_ $"
+      "\\ (X  JY  EY        &Y F[2Z HZ %Y1[ IY.Y 9Y 4Z1Z GZ3Z 5Y  NX 0XF\\ %Y FZ4Z3Y+Z2Y IZ1Z I[2Z LY1Z ;[ +X  DY .Y1Y "
+      "EY7Y NX@XKW@Y G[K[ :Y8Y ([ ,Z  NX  NY /[(R   NU?XNW=U%Z7_ EYHg 3bHY FY1Z DX $Z2Y CY:Y 5ZMZ =Y1Y$Z KZ)[CYBY GY9Y"
+      " IY@X@Y JY1Y LZ1Z 4Y 6~W FY;Z *[ 7Z 2Z KZ/Z;Z;Z*Z(Z(Z=Z>[/[IuI[/\\  3X  3\\ >X >\\\"\\ >X      MZAU -Z 'X6X 5c "
+      "%X 1X;\\   GUEX MT NgMW 9[D[ J~d  &T=m;T     K~d In 4TA[   4Y1Y BhEW 3Z    DX )i 5[D[ IX9W5Z3W8WFj?TA[BX5Z   KY"
+      ";Z @Z;Z ?Y:Y @Z;Z ?Z;Y ?Y;Z NZ<~Q3Z  H~Q G~Q F~Q G~Q 5Z !Z !Z \"Z Ew5[)YAY?Y*Z KZ/Z KZ1[ KZ1[ L[1Z KZ G[M\\ IZ8"
+      "X<[+Z(Z#Z(Z$Z(Z$Y'Y <_ 4Z2Z KYD[  @X  NX  Y  NY  X  NX 3Z/Y-Z $Z/Y KZ/Y KZ/Y KZ/Y 6Y  Y  NX  Y 4Z2Z HZ3Y IZ1Z I"
+      "Z1Z JY1Z JZ1Z IZ1Z   @Z;XNZ JY0X HY0X GX0X GX0Y EY8Y D[2Z GY8Y     ;X9X8W.W HW-W@hAW-X4[@W.W:[:W =X 0Z9Z      I"
+      "[ 7Y<U   6~Y\"~^'~c'~\\ MX/X HX.X =YIZ 7Z>Y ~m                  4Z    3Y    W?X >g =cAW?]'[K\\5Y   ;Y  CZ %V  M"
+      "X        /X 7Y-Z 5Z  H[ 4l ;X<Z ?Q4^ Fb<] .[ 3o ?[7_     :i    5j 9[ JW=Y;[?W+Z:Y F~ IZ !Z\"Z\"~Q Dy![2l'~] :Z "
+      "\"Z 4f 'Z 2YDXCXDY(YAZAZ*Z KZ\"~%Z K['| 9s .Y 9Z(Z JZ:Z%ZAXBXAZ E] %] #[ 'X  IX  EY        &Y FZ0Y HY %Z1[ IY.Y"
+      " 9Y 4Y0Z GZ2Y 5Y  NX 0XG[ #Y FZ4Z3Y+Z2Y JZ0Z IZ0Y MZ1Z ;Z *Y  EY .Y1Y EY8Z NYAXKXAY FZL[ 9Y9Y ([ +Y  MX  NZ 4b,"
+      "S   U=`=U%Z6^ EYHi 6dIY FY1Z DY %Z2Y BX:Y 5ZLY =Y1Y%[ KZ)ZBYBZ HY9Y IY@X@Y JY1Z MZ1Z 4Y 6~W GZ:Y +\\ 7Z 2Z KZ/Z"
+      ";Z;Z*Z(Z([>Z>Z.[IuI[0\\  2X  2\\ ?X ?\\ \\ ?X      MY@U 8y ;X6X 4a $X 1X9[   HUEX MT MeLW :[D[ I~d  &T=l:T     "
+      "K~d Io 5m   3Y1Y AgEW 3Z    Nl 2g 3[D[%lDX5Z>mDXFk@mAW5[   LZ:Y @Y:Z ?Y:Y @Z:Y ?Y:Z AZ:Y NZ<~Q3Z  H~Q G~Q F~Q G"
+      "~Q 5Z !Z !Z \"Z Ew5[)YAZ@Y*Z KZ/Z KZ1[ KZ1[ L[1Z K[ Gh HZ9X;[+Z(Z#Z(Z$Z(Z$Y'Y ;] 3Z2Z KYC[  AX  NX  Y  NY  Y  X"
+      " 3Y.Y-Z $Y.Y KY.Y KY.Y KY.Y 6Y  Y  NX  Y 4Z1Y HY2Y IZ1Z IY0Z KZ0Z KZ1Z IY0Z   @Y;XMZ JY0X HY0X GX0X GX0Y DY9Y D"
+      "Z0Y GY9Z     ;W8X8W.W HW-W?f?W.W4[?W.W:[:W =X 0Z9Y      HZ 5X<U   6~Z$~`'~a&~\\ NY/X HX.X =YHY 7Z?Z ~m         "
+      "         4Z    3Y    W?W <i >_@XAa*[I\\6Y   ;Y  CZ %V  MX        /X 7Y-Z 5Z  I[ 3n >X;Z  ] G`9\\ .Z 4s @[9`    "
+      " =i    /i ;Z IV=Y9Z>V+Z:Z G~P JZ !Z\"Z\"~Q Dy!Z1l'~] :Z \"Z 4g (Z 2YDYEXCY(YAZAZ*Z KZ\"}$Z K['z 5r /Y 9Z(Z JZ;Z"
+      "$ZAW@WAZ F_ %\\ $[ &X  IX  EY        &Y FZ0Y IZ %Y/Z IY.Y 9Y 4Y0Z GY1Y 5Y  NX 0XH[ \"Y FY3Z3Y+Z2Y JZ0Z IZ0Y MY0"
+      "Z ;Z *Z  FY .Y1Y DY9Y MYAWJXAY F[MZ 8Z:Y )[ +Z  MX  N[ 7g1U   U<^;U&Z6^ EYHj 9gJY FX/Y CY &Z2Y BY<Z 6ZKZ >Y1Y%Z"
+      " J[*ZBYBZ HY9Y IY@X@Y KY0Z MY/Y 4Y 6~W GZ:Z ,[ 6Z 2Z KZ/Z;Z;Z*Z(Z([>Z?[.ZHuI[1\\  1X  1\\ @X @\\ M\\ @X      NZ"
+      "@U 8y ;W4X 5` #X 1X8Z   HUEX MT LbJW ;ZC[ H~d  &T=j8U     L~d Io 5l   2Y1Y @fEW 3Z    Nl 0c 0[CZ&lDW5[>mEXE\\N^"
+      "AlAX6\\   LZ:Z AY9Y @Z:Z AY9Y @Z:Z AY9Z!Z;~Q3Z  H~Q G~Q F~Q G~Q 5Z !Z !Z \"Z Ew5[)Y@ZAY*Z KZ/Z KZ1[ KZ1[ L[1Z K"
+      "[ Ff GZ:X:[+Z(Z#Z(Z$Z(Z$Y'Y :\\ 3Z2Z KYC\\  BY  X  NX  NY  Y  X 3Y-X-Y #Y-X KY-X KY-X KY-X 6Y  Y  NX  Y 5Z0Y HY"
+      "2Y IY/Y JZ0Z KZ0Z KY/Z KZ/Y   AZ;WKY JY0X HY0X GX0X GX0Y DY:Z DZ0Y FY:Y     :WK~KW.WK}KW-W>d>W.W5[>W.W:[:W =X /"
+      "Y:Z      IZ 4Y=T   6~[%~b'~_%~\\ NY/X HX.X >ZHY 6Y?Y N~m                  4Z    3Y   !X@X ;l @[>WBe,ZG\\7Y   ;Y"
+      "  CZ %V ;~c        LX 7Y-Z 5Z  J\\ 2n @Y;Z  N\\ G`8\\ /Z 5u A\\<b     ?i    *i ?Z IW=X8Z>V+Y8Y G~R LZ !Z\"Z\"~Q"
+      " Dy![2l'~] :Z \"Z 4h )Z 2YCXEXCY(Y@ZBZ*Z KZ\"|#Z K['x 0q 1Y 9Z(Z IZ<Z$ZBX@XBY F` %[ $\\ &X  IX  EY        &Y FZ"
+      "0Z JZ %Y/Z JY,X 9Y 5Z0Z GY1Y 5Y  NX 0XI[ !Y FY3Z3Y+Y1Y JZ/Y IZ0Y MY/Y ;Z *[  GY .Y1Y DY9Y MYBXIWBY Dg 7Y;Z *[ +"
+      "[  MX  M[ :l6W   T:\\:U&Y5] DYHk :hKY GY/Z DZ 'Z2Y BY<Y 5ZKZ >Y1Y%Z IZ*YAYBZ HY9Y IY@X@Y KY/Y MY/Y 4Y 6~W GY9Z "
+      "-[ 5Z 2[ LZ/Z;Z;Z*Z(Z'[?Z?[.[IuI[2~n BX B~n AX A~m AX      NZ@U 8y <X4X 4_ #X 1X7Z   IUEX MT J^HW <ZCZ F~d  &T="
+      "g5T     -X ,o 5k   1Y1Y >dEW 3Z    Nl ._ ,ZCZ'lEX6\\>mEWDVCZBkAX6]   LY8Y BZ9Z AY8Y BZ9Z AY8Y BZ9Z!Z;~Q3Z  H~Q "
+      "G~Q F~Q G~Q 5Z !Z !Z \"Z Ew5[)Y@ZAY*Z KZ/Z KZ1[ KZ1[ L[1Z KZ Ee FZ;Y:[+Z(Z#Z(Z$Z(Z$Y'Y :[ 2Z2Z KYB\\  CY  X  NX"
+      "  NY  Y  Y 4Y-Y.Y #Y-X KY-X KY-Y LY-Y 7Y  Y  NX  Y 5Z0Z IY2Y JZ/Z KZ/Y KY/Z KY/Z KZ/Y#~d$Z<WJY JY0X HY0X GX0X G"
+      "X0Y DZ;Y CZ0Y FY:Y     :WK~KW/WJ}JW.W=b=W.W6[=W/W9[9W >X /Z;Z      JZ 2X>U   6~\\'~c&~^$~Z MY/X HX.X >YGZ 7Z@Y "
+      "N~m                  4Z    3Y   !X@X :n 'WBg.ZE\\8X   :Y  CZ %V <~e        NX 6Y-Y 4Z  K\\ #a AX:Z  M\\ H_6[ 0Z"
+      " 6aI` A]?c     ?f    $f ?Z IW>Y7Y>V,Z8Z HZ8` MZ !Z\"Z\"Z  MZ 1[2l'Z(Z :Z \"Z 4ZN] *Z 2YCXFYCY(Y@ZBZ*Z KZ\"{\"Z "
+      "K['v +o 2Y 9Z(Z IZ<Z#YBX@XCZ Fa %Z %\\ %X  HX  FY        6i FZ0Z JZ %Y/Z JY,X 9Y 5Z/Y GY1Y 5Y  NX 0XK\\  Y FY3Z"
+      "3Y+Y1Y JY.Y IY/Z NY/Y ;Z *\\  HY .Y1Y DZ;Z LXBXIWBY Ce 6Y;Y )[ -\\  LX  L\\ >q:X  !U:[9U&Y5] DY?d =jLX FY/Z C[ ";
+
+      const char *const chunk1 =
+      ")Y1Y AX=Z 6ZIY >Y1Y%Z IZ*YAYAY HY9Y IY@X@Y KY/Y NZ/Z 5Y 5Y-Y HZ8Y .[ 4Z 1Z LZ/Z;Z;Z*Z(Z'[?Z@[-[ L[3~o BX B~o BX"
+      " B~o BX      NZ@U 8y <X4X 4^ \"X 1X6Y   IUEX MT GW *ZCZ E~d  &T=g5T     -X ,o 5i   /Y1Y <bEW 3Z    Nl *W 'ZCZ(l"
+      "EW6]>mFXDS?YBi?W5] CY 4Z8Y BY7Y BZ8Z CY7Y AY8Z CZ8Y!Y:Z <Z  HZ !Z  Z !Z  >Z !Z !Z \"Z Ew5[)Y?ZBY*Z KZ/Z KZ1[ KZ"
+      "1[ L[1Z KZ Dc E[=Y9[+Z(Z#Z(Z$Z(Z$Y'Y 9Z 2Z2Z KYB^ &i 0i 1i /i 0i 0i Ej-Y/Z $Z-Y MZ-Y MZ-Y LY-Y 7Y  Y  NX  Y 5Y/"
+      "Z IY1X JZ/Z KZ/Z LY.Y LZ/Z KZ/Z$~d$Z=WIZ KY0X HY0X GX0X GX0Y CY<Z CY/Z GZ<Z     :WK~KW/WJ}JW.W<`<W.W7[<W/W9[9W "
+      ">X .Y;Y      JZ 1Y?U   6~\\(~e'~]\"~X LX.X HX.X >YFY 7ZAZ N~m                  4Z    3Y   !W?X 9p +XCi0ZC\\9X  "
+      " :Y  CZ %V <~e        NX 6Z.Y 4Z  L\\  M^ CY:Z  L[ H^4Z 0Z 7^A^ C_Ce     ?c     Mc @Z HW>X6Y>V,Y7Z HZ5^ NZ !Z\""
+      "Z\"Z  MZ 1[2l'Z(Z :Z \"Z 4ZM] +Z 2YBXGXBY(Y?ZCZ*Z KZ\"z![ LZ&w 'k 3Y 9Z(Z IZ=Z\"ZCX@XCZ Gc &Z &\\ $X  HX  FY   "
+      "     >q FY.Y JY $Y/Z JY,X 9Y 5Y.Y GY1Y 5Y  NX 0XL\\  NY FY3Z3Y+Y1Y JY.Z JY/Z NY/Y ;Y (^  KY .Y1Y CY;Y KYCXIXCY "
+      "Bc 4Y<Y *[ 2a  KX  La Du?Z  !U9Z8T'Z5] DY9^ >\\IYMX FY/Z B\\ +Y1Y AY>Y 5ZIZ ?Y1Y%Z IZ*YAYAY HY9Y IY@X@Y KY/Y NZ"
+      "/Z 5Y 5Y-Y HZ8Z 0\\ 4Z 1Z LZ/Z;Z;Z*Z(Z&[@Z@[-[ L[4~p BX B~o BX B~p CX      NY?U 8y <W2W 3] \"X 1Y7Y   IUEX MT  "
+      " JZCZ  8X  &T=WIZ6T     -X ,o 3e   -Y1Y :`EW 3Z    Nl   (ZCZ)lFW5UNV>mFWCQ;XAe>X6UNW CY 4Y7Z DZ7Y BZ8Z CY7Z CZ7"
+      "Y CY7Z#Z:Z <Z  HZ !Z  Z !Z  >Z !Z !Z \"Z :Z#[)Y?ZBY*Z KZ/Z KZ0Z KZ1[ L[1Z KZ Ca D[>Y8[+Z(Z#Z(Z$Z(Z$Y'Y 9Z 2Z3[ "
+      "KYA^ /q 9r 9q 7q 8q 9r Mq,Y/Z $Y,Y MY,Y MY,Y MZ-Y 7Y  Y  NX  Y 5Y.Y IY1X JZ/Z KY.Z LY.Y LZ/Z KY.Z$~d$Y=XIZ KY0X"
+      " HY0X GX0X GX0Y CY<Y BY/Z FY<Y     9WK~KW/WJ}JW.W;^;W.W8[;W/W9[9W >X .Y<Z      K[ 1Y@U   6~](~f'~[ ~V KX.Y IX.X"
+      " ?ZFY 6YAZ N~m                  4Z    3Y   !W?W 6p -WCk1ZB\\;Y   :Y  CZ %V <~e        NX 6Z.Y 4Z  M\\  J] EY9Z "
+      " L[ H^4[ 2[ 8\\<\\ BbKi     ?`     Ha @Z HV=X5X>W-Y6Y HZ2\\ Z !Z\"Z\"Z  MZ 1[2l'Z(Z :Z \"Z 4ZL] ,Z 2YBXGXBY(Y?Z"
+      "CZ*Z KZ\"x N[ LZ&x #f 3Y 9Z(Z HZ>Z\"ZCW>WCZ Hd &Z &[ #X  HX  FY        At FY.Y JY $Y/Z JY,Y :Y 5Y.Y GY1Y 5Y  NX"
+      " 0XM\\  MY FY3Y2Y+Y1Y JY.Z JY.Y Z/Y ;Y (b  Y .Y1Y CY;Y KYCWHXCY Bb 3Y=Y *[ 6e  JX  Ke KzF^  !U9Y7T'Z4[ CY7] @[E"
+      "XNX GZ.Y Ai 9Y1Y AY>Y 5YHZ ?Y1Y&[ IZ+ZAYAY HY9Y IY@X@Y KY/Y NZ.Y 5Y 5Y-Y IZ6Y 0[ 3Z 1Z LZ/Z;Z;Z*Z(Z&\\AZA[,[ L["
+      "4~p BX B~o BX C~q CX      NY?U 8y <W2W 3\\   )Y6Y   JUEX NU   KZCZ  7X  &T=WGY7T     -X    J^   *Y1Y 7]EW 3Z   "
+      "     8ZCZ 4X6UMV GX-X=^;W6UMW CY 4Y6Y DZ7Z CY6Y DZ7Z CY6Y DZ7Z#Z:Z <Z  HZ !Z  Z !Z  >Z !Z !Z \"Z :Z#[)Y>ZCY*Z K"
+      "Z/Z KZ0Z L[1[ L[1Z KZ B_ C[>X7[+Z(Z#Z(Z$Z(Z$Y'Y 9Z 2Z3[ KY@_ 5u <u <t :t <u <u!t,Y/Y #Y,Y MY,Y MY,Y MY,Y 7Y  Y "
+      " NX  Y 6Z.Y IX0X JY-Y KY.Z MZ.Y LZ.Y KY.Z$~d$Y>XHZ KY0X HY0X GX0X GX0Y BY=Y BY.Y FY=Z     9WK~KW/WJ}JW.W:\\:W.W"
+      "9[:W/W9[9W >X .Z=Y      JZ /X@U   6~^*~g&~Y N~V KX.Y IX.X ?ZFZ 7ZBY L~l                  4Z    3Y   \"X@X 3n /X"
+      "CZIZ2Z@\\<Y   :Y  BY %V <~e        Y 6Z.Y 4Z  N\\  G\\ FX8Z  K[ I]2Z 2Z 8\\9[ BsNZ     ?]     B^ @Y GV=W4X>W.Z6"
+      "Z IZ1[ Z !Z#[\"Z  MZ 1[2l'Z(Z :Z \"Z 4ZK] -Z 2YBXHYBY(Y>ZDZ*Z KZ\"v L[ LZ&z !c 4Y 9Z(Z HZ>Z\"ZDX>XDY Ge 'Z '[ "
+      "\"X  GX  GY        Dw FY.Y JY %Z/Z J~W :Y 5Y.Y GY1Y 5Y  NX 0XN\\  LY FY3Y2Y+Y1Y JY.Z JY.Y Z/Y ;Y 'e $Y .Y1Y CZ=Z"
+      " KYDXGWDY @a 3Z>Y +[ 5d  IX  Ic L~d  !U8X7T'Z4[ CY5\\ AZCa GY-Y @h 9Y1Y @X?Z 6ZGY ?Y1Y&[9X9Z+ZAYAZ IY9Y IY@X@Y "
+      "KY/Z Y-Y 5Y 5Y.Z IZ6Z 2[ 2Z 1Z M[/Z;Z<[*Z(Z%[AZB\\,[ LZ3~p BX B~o BX C~q CX      NY?U 8y <W2W 2[   (Y7Y   ITDW "
+      "NU   M[CZ  6X  &T=WFY8T     -X        EY1Y 1WEW 3Z        7ZC[ 6W6ULV HX+W JX7ULW CY 5Z6Z EY5Y DZ6Z EY5Y DZ6Z E"
+      "Z6Y$Z9Z <Z  HZ !Z  Z !Z  >Z !Z !Z \"Z :Z#[)Y>ZCY*Z KZ/Z KZ0Z L[1[ L[1[ LZ A] B[?X6Z*Z(Z#Z(Z$Z(Z$Y'Y 9Z 2Z3[ KY?"
+      "_ 8w ?x ?w =w >w >w$~u/Y #~W M~W M~W M~W 7Y  Y  NX  Y 6Z.Y IX0X JY-Y KY.Z MZ.Z MY-Y KY-Y$~d$Y?XFY KY0X HY0X GX0"
+      "X GX0Y BY>Z BY.Y EY>Y     8WK~KW/WJ}JW.W;]:W.W:[9W/W9[9W >X -Y>Z      KZ .YAU   6~^*~g%~W L~T JX.Y IX.X ?YEZ 7Z"
+      "CZ L~k                  :y    KY   \"X@X 0m 1WCYEY3Y>\\=X   9Y  BY %V <~e   =l    X 5Z.Y 4Z  \\  E[ GY8Z  JZ I]"
+      "2Z 2Z 8[7[ BqMZ     ?^     C^ @Y GV=W4X>V-Y5Z IZ0[!Z !Z#[\"Z  MZ 1[2l'Z(Z :Z \"Z 4ZJ] .Z 2YAXIXAY(Y=YDZ*Z L[\"s"
+      " I[ LZ&[Cc  Na 5Y 9Z(Z HZ?Z YDX>XEZ Hg (Z (\\ \"X  GX  GY        Fy FY.Y KZ %Z/Z J~W :Y 5Y.Y GY1Y 5Y  NX 0e  KY"
+      " FY3Y2Y+Y1Y KZ.Z JY.Y Y.Y ;Y &h (Y .Y1Y BY=Y IXDXGWDY ?_ 1Y?Z ,[ 4b  GX  Ga L~c   T6V6T'Z4[ CY4\\ CZ@_ GY-Y >f "
+      "9Y1Y @Y@Y 5YFZ @Y1Y&Z8X9[,ZAYAZ IY9Y IY@X@Y KX.Z Y-Y 5Y 5Y.Z IY5Z 3[ 1Z 1Z M[/[<Z<[*Z(Z%\\BZC\\+[ LZ3~p BX B~o "
+      "BX C~q CX    DX 4Z?U -Z (W2W 2Z   'Z7X   ITDX U   MZCZ  5X  &U>WEY9T     -X        EY1Y 1WEW 3Z        6ZCZ 7X7"
+      "UKV HW*W KX6ULW CY 5Y5Z FZ5Z EY4Y FZ5Z EZ5Y EY5Z%Z9Z <Z  HZ !Z  Z !Z  >Z !Z !Z \"Z :Z#Z(Y=ZDY*[ LZ/Z KZ0Z L[0Z "
+      "LZ0[ LZ A] B[@X5Z*Z(Z#Z(Z$Z(Z$Y'Y 9Z 2Z4[ JY>` <y @y Ay ?y @y @y%~v/Y #~W M~W M~W M~W 7Y  Y  NX  Y 6Z.Y IX0X JY"
+      "-Y KY-Y MZ.Z MY-Y KY-Y$~d$Y?WEY KY0X HY0X GX0X GX0Y BZ?Y AY.Y EY>Y     8WK~KW/WJ}JW.W<_;W.W;[8W/W9[9W >X -Z?Z  "
+      "    LZ -YBU   5~^*~h%~U J~R IX.Y IX.X @ZDY 6YCZ LW                   'y    JY   \"W?X ,j 3WCYCY4Y=\\>X   9Y  CZ"
+      " %V <~e   =l    X 5Z.Y 4Z !\\  C[ IY7Z  JZ I]2Z 3[ 9[5[ BoLZ     ?a     Ia @Y HW>X3W>V.Z4Y IZ/Z!Z !Z#[\"Z  MZ 0"
+      "Z Z'Z(Z :Z \"Z 4ZI] /Z 2YAXIXAY(Y=ZEZ*Z L[\"o DZ LZ&Z<^  M_ 5Y 9Z(Z GZ@Z ZEX>XEZ I[MZ (Z )\\ !X  GX  GY        "
+      "Gz FY.Y KZ %Y-Y J~W :Y 5Y.Y GY1Y 5Y  NX 0c  IY FY3Y2Y+Y1Y KZ.Z JY.Y Y.Y ;Y %j +Y .Y1Y BY=Y IYEXGXEY >] 0Y?Y ,[ "
+      "3`  EX  E_ L\\Cx   NT6V6T'Z4Z BY2Z CY>^ GY-Y ;c 9Y1Y @YAZ 6ZEY @Y1Y&Z8X9[,ZAYAZ IY9Y IY@X@Y KX.Z Y-Y 5Y 5Y.Z JZ"
+      "4Y 4\\ 1Z 1[ NZ.[<Z<Z)Z(Z$\\CZD]*Z LZ3~p BX B~o BX C~q CX    DX 4Z?U -Z (W2W 2Z   'Z7X   ITDX U   MYBY  4X  &U>"
+      "WDX:U     -X        EY1Y 1WEW 3Z        5YBY 7W6UKV IX*W KW6UKW CY 6Z4Y FZ5Z FZ4Z GZ4Y EY4Z GZ4Y%Y8Z <[  IZ !Z "
+      " Z !Z  >Z !Z !Z \"Z :Z#Z(Y=ZDY*[ LZ/Z L[0Z L[0Z LZ0[ LZ B_ BZAY5Z*Z(Z#Z(Z$Z(Z$Y'Y 9Z 2Z5\\ JY=` ?{ B{ Bz @z B{ "
+      "B{'~x/Y #~W M~W M~W M~W 7Y  Y  NX  Y 6Z.Y IX0X JY-Y LZ-Y MZ.Z MY-Y KY-Y$~d$Y@WDY KY0X HY0X GX0X GX0Y AY@Z AY.Y "
+      "DY@Z     8WK~KW/WJ}JW.W=a<W.W<[7W/W9[9W >X ,Y?Y      LZ +XBU   6~_+~i%~U I~P HX.Y IX.X @ZDZ 7YCY KX            "
+      "       (y    JY   \"W?W (h 5XCXAX5Z<\\@Y   9Y  CZ $T ;~e   =l    X 5Z/Z 4Z \"\\  AZ IX6Z  JZ I\\1[ 4Z 8Z3Z AmKZ"
+      "     ?d     d AZ HW>X3W>V.Z4Z JZ.Z\"[ \"Z#[\"Z  MZ 0Z Z'Z(Z :Z \"Z 4ZH] 0Z 2YAYKX@Y(Y<ZFZ*[ M[\"Z /Z LZ&Z:\\  K"
+      "^ 6Y 9Z(Z GZAZ NZEW<WEZ IZL[ )Z *\\  X  FX  HY        H{ FY.Y KZ %Y-Y K~X :Y 5Y.Y GY1Y 5Y  NX 0c  IY FY3Y2Y+Y1Y"
+      " KZ-Y JY.Y Y-X ;Y $l .Y .Y1Y AY?Y HYEWFXEX =\\ .Y@Y -[ 2b  GX  Ga LY=s   LT6W7T'Z4Z BY2Z DY=^ GY-Z =d 9Y1Y ?XAY"
+      " 5YDZ AY1Y&Z8X9[,ZAYAZ IY9Y IY@X@Y KX.Z Y-Y 5Y 5Y.Z JZ4Z 5[ 0Z 0Z NZ-Z<Z<Z)Z(Z#\\DZD\\)Z LZ3~p BX B~o BX B~p CX"
+      "    DX 4Z?U -Z (W2W 2Z   &[9X   IUEX T s AXAY  4X  &U>WCX;U     -X        EY1Y 1WEW 3Z      Is 0YAX 8W6UJV IW)W"
+      " LX7UJW CY 6Z4Z GY3Y FZ4Z GY3Y FZ4Z GY3Z'Z8Z <[  IZ !Z  Z !Z  >Z !Z !Z \"Z :Z#Z(Y<ZEY*[ M[/[ M[0Z LZ/Z LZ/Z LZ "
+      "Ca CZBY4Z*Z(Z#Z(Z$Z(Z$Y'Y 9Z 2Z5\\ JY<` A| C| C{ A{ C| C|(~y/Y #~W M~W M~W M~W 7Y  Y  NX  Y 6Y-Z JX0X JY-Y LZ-Y"
+      " MZ.Z MY-Y KY-Y$~d$YAWCY KY0X HY0X GX0X GX0Y AY@Y @Y.Y DY@Y     7WK~KW/XK}KX.W>c=W.W=[6W/X:[:X >X ,Y@Z      M[ "
+      "+YCT   5~`,~i$~S H~P HX.Y IX.X @YCZ 7ZDY KX                   )y    HX   #X@X (TNc 6WCX@X5Y:\\AX   8Y  CZ   :~e"
+      "   =l   !X 4Z/Z 4Z #\\  @[ KY6Z  IZ I[0Z 4Z 9Z2[ @jJZ     ?f    %g AZ HW>X3W>V.Y2Y JZ.Z\"[ \"Z#Z!Z  MZ 0Z Z'Z(Z"
+      " :Z \"Z 4ZG] 1Z 2Y@XKX@Y(Y<ZFZ*[ MZ!Z /Z LZ&Z8[  K] 6Y 9Z(Z FZBZ NZFX<XFY I[KZ )Z +\\  NX  FX  HY        I| FY."
+      "Y KZ %Y-Y K~X :Y 5Y.Y GY1Y 5Y  NX 0d  JY FY3Y2Y+Y1Y KZ-Y JY.Y Y-X ;Y #m 0Y .Y1Y AY?Y HYFXEWFY =\\ .YAY ,[ 2d  I"
+      "X  Ic LW8n   JU7W7T'Y2Y BY1Z EY<\\ FY-Z @g 9Y1Y ?YBY 6ZDZ AY1Y&Z8X8Z,Y@YAZ IY9Y IY@X@Y LY-Y Y-Y 5Y 5Y.Z JY3Z 6["
+      " /Z 0Z [-[=Z=[)Z(Z#]EZE\\(Z LZ2~o BX B~n AX A~n BX    DX 4Z?U -Z (X4X H~W   <\\:W   HUDX!T s AZCZ  5X  %T>WBX<U"
+      "     -X        EY1Y 1WEW       \"s 1ZCZ 9X7UIV JX)W LW7UIW CY 6Y2Y HZ3Z GY2Y HZ3Z GY2Y HZ3Z'Z8Z <[  IZ !Z  Z !Z"
+      "  >Z !Z !Z \"Z :Z#Z(Y<ZEY)Z M[/[ M[0[ MZ/Z LZ/Z M[ Dc DZCY3Z*Z(Z#Z(Z$Z(Z$Y'Y 9Z 2Z6\\ IY:` D} D} D| B| D} D})~z"
+      "/Y #~W M~W M~W M~W 7Y  Y  NX  Y 6Y-Z JX0X JY-Y LZ-Y MY-Z MY-Y LZ-Y$~d%ZBXCY KY0X HY0X GX0X GX0Y @YAY @Y.Y DYAZ "
+      "    7W8X8W.W HW-W?e>W.W>[5W.W:[:W =W +ZAY      LZ *YDU   5~`,~i#~Q F} GX.Y IX.X AZBY 7ZEZ KX                   "
+      ")y    HX   6~e 9TJ_ 7XCX?X6Y9\\BX   8Y  CZ    KX    Nl   !X 4Z/Z 4Z $\\  >Z LY5Z  IZ I[0Z 5Z 8Z1Z >fHY     =h  "
+      "  +i @Z HW>X3W?W/Z2Z KZ.[#[ \"Z#Z!Z  MZ 0Z Z'Z(Z :Z \"Z 4ZF] 2Z 2Y@XLY@Y(Y;ZGZ*[ MZ!Z /Z M[&Z7[  K\\ 6Y 9Z(Z FZ"
+      "BZ MYFX<XGZ J[IZ *Z +[  MX  FX  HY        Jb>Y FY.Y KZ %Y-Y K~X :Y 5Y.Y GY1Y 5Y  NX 0e  KY FY3Y2Y+Y1Y KZ-Y JY.Y"
+      " Y-X ;Y !m 2Y .Y1Y AZAZ GYGXEXGY >] .ZBY -[ 1e  JX  Ke LU4k   IU8Y8T'Y2X AY0Y EX:[ FY-Z Ah 9Y1Y >XCZ 6YBY AY1Y&"
+      "Z8X8Z,Y@YAZ IY9Y IY@X@Y LY-Y Y-Y 5Y 5Z/Y JZ2Z 8[ .Z 0[!Z,[=Z=[)Z(Z\"]FZG]'Z M[1]  1X  1\\ @X @\\ L\\ AX    DX 4"
+      "Z?U -Z (X4X H~W   ;\\;W   GTDX\"U s A[D[  6X  %T>WBX<T     ,X        EY1Y 1WEW       \"s 2[D[ 9W7UHV KX(W MX7UI"
+      "W CY 7Z2Z IZ3Z HZ2Z IZ3Z HZ2Z IZ3Z(Z7Z ;Z  IZ !Z  Z !Z  >Z !Z !Z \"Z :Z$[(Y;ZFY)Z M[/[ MZ/[ MZ/Z M[/Z M[ Ee EZC"
+      "X3[*Z(Z#Z(Z$Z(Z$Y(Z 9Z 2Z8^ IY9` Fb=Y Eb=Y Eb=X Cb>Y Eb=Y Eb=Y*b=~V/Y #~W M~W M~W M~W 7Y  Y  NX  Y 6Y-Z JX0X JY"
+      "-Y LZ-Y MY-Z MY-Y LZ-Y   CZCXBY KY0X HY0X GX0X GX0Y @YBZ @Y.Y CYBY     6W8X8W.W HW-W@g@X.W?[4W.W:[:W =W *YBZ   "
+      "   MZ (XDU   5~`,~i\"~ D{ FX.Y IX.X AZBZ 7YEY IX                   +y    GX   6~e 9TG] 8WBW>X6Y8\\DY   8Y  CZ  "
+      "  KX    Nl   !X 4Z/Z 4Z %\\  =Z LX4Z  IZ I[0Z 5Z 9Z0Z <bFY     ;i    1i =Z HW>X3W?W/~S KZ-Z\"Z \"Z#Z!Z  MZ 0[!Z"
+      "'Z(Z :Z \"Z 4ZE] 3Z 2Y?XMX?Y(Y;ZGZ)Z MZ!Z /[ N[&Z6[  K\\ 7Y 9Z(Z FZCZ LZGX<XGZ JZH[ +Z ,\\  MX  FY  IY        K"
+      "]8Y FY.Y KZ %Y-Y K~X :Y 5Y.Y GY1Y 5Y  NX 0f  LY FY3Y2Y+Y1Y KZ-Y JY.Y Y-X ;Y  Mk 3Y .Y1Y @YAY FYGWDXGY >^ .YCZ ."
+      "[ )_  KX  L_ ES/e   FU8Z9T'Z3X AY0Y FY:[ FY-Z Cj 9Y1Y >XCY 6ZBZ BY1Y&Z8X9[,Y@YAZ IY9Y IY@X@Y LY-Y Y-Y 5Y 5Z/Y J"
+      "Z2Z 9\\ .Z /Z!Z,\\>Z>[(Z(Z!]GZH^'[ N[0\\  1X  2\\ ?X ?[ M\\ @X    DX 4Z?U -Z 'W4W G~W   :]>X   GTDY#U s @[D[  7"
+      "X  %U?WAX>U     ,X        EY1Y 1WEW       \"s 3ZC[ 9X7UHV KW(W MX7UHW CY 7~S J~S H~S I~S I~S I~S)} ;Z  IZ !Z  Z"
+      " !Z  >Z !Z !Z \"Z :Z$[(Y;ZFY)Z MZ-Z MZ/[ N[/[ N[/Z MZ Eg F[EX2[*Z(Z#Z(Z$Z(Z$Y(Z 9Z 2Z9^ HY7_ G]8Y F^8Y F^8X D]8"
+      "Y E]8Y F^8Y+^8~V/Y #~W M~W M~W M~W 7Y  Y  NX  Y 6Y-Z JX0X JY-Y LZ-Y MY-Z MY-Y LZ-Y   BYDXAY KY0X HY0X GX0X GX0Y"
+      " @ZCY ?Y.Y CYBY     5W9X8W.W HW-WAiAW,WA[3W.W9Y9W >X *ZCZ     6~d IYET   4~`,~i!| By EX.Y IX.X AYAZ 7ZFY IX    "
+      "                Z    3X   6~e 9TF\\ 9WBX=W7Z7\\EX   7Y  CZ    KX    Nl   \"X 3Z/Z 4Z &\\  ;Z M~Z %Z I[0Z 6[ 9Z/"
+      "Y 8ZCZ     8i 6~d 5i ;Z HW>X3W?W0~T KZ-Z\"Z \"Z$[!Z  MZ 0[!Z'Z(Z :Z \"Z 4ZD] 4Z 2Y?XMX?Y(Y:ZHZ)Z N[!Z /[ NZ%Z6["
+      "  J[ 7Y 9Z(Y DZDZ LZGW:WGZ K[GZ +Z -\\  LX  EX  IY        L\\6Y FY.Y KZ %Y-Y K~W 9Y 5Y.Y GY1Y 5Y  NX 0XM\\  MY "
+      "FY3Y2Y+Y1Y KZ.Z JY.Y Y-X ;Y  Ji 4Y .Y1Y @YAY FYGWDXGX >` /YCY .[ $\\  LX  M\\ AR+`   CT9[:U'Z3X AY0Y FY9Z FY-Z "
+      "D` .Y1Y >YEZ 6YAZ BY1Y&Z8X9[,ZAYAZ IY9Y IY@X@Y LY.Z Y-Y 5Y 5Z/Y KZ1Z 9[ -Z /Z\"[+[>Z>[(Z(Z ^IZJ_&[ NZ.\\  2X  3"
+      "\\ >X >[ \\ ?X    DX 4Z?U -Z 'X6X G~W   9^@X   GUDY$T Ns ?[CZ  8X  %U?WAY?U     ,X        EY1Y 1WEW       \"s 4"
+      "ZCZ 7W7UGV LX)X MW7UGW CY 8~T J~T I~S J~T I~T K~T*~ ;Z  IZ !Z  Z !Z  >Z !Z !Z \"Z :Z$[(Y:ZGY)[ NZ-Z N[.Z N[/[ N"
+      "[/[ NZ Fi G[FX1Z)Z(Z#Z(Z$Z(Z$Z)Z 9Z 2Z<a HY5^ I[5Y F[5Y G\\5X E\\6Y F\\6Y F[5Y+[5~V/Y #~V L~V L~W M~W 7Y  Y  NX"
+      "  Y 6Y-Z JX0X JY-Y LZ-Y MZ.Z MY-Y KY-Y   BYDW@Y KY0X HY0X GX0X GX0Y ?YDZ ?Y.Y BYDY     4W9X9X.W HW-XC\\L[BW,WB["
+      "3X.W HW >X )YCY     5~d IYFU   4~`,~i!{ @x EX.Y IX.X AY@Y 7ZGZ IX                    Z    3X   6~e 9TD[ ;XBX=X8"
+      "Z6\\GY   7Y  CY    JX    Nl   \"X 2Y/Z 4Z '\\  :Z M~Z %Z I[0Z 6Z 8Z/Z \"Z     5i 9~d 8i 8Z HW>X3W?W0~U LZ-Z\"[ "
+      "#Z$[!Z  MZ /Z!Z'Z(Z :Z \"Z 4ZC] 5Z 2Y?XNY?Y(Y:ZHZ)[ [!Z .Z NZ%Z5[  K[ 7Y 9Z(Y DZDY KZHX:XHY K[EZ ,Z .\\  KX  EX"
+      "  IY        LZ4Y FY.Y KZ %Z.Y KZ  <Y 5Y.Y GY1Y 5Y  NX 0XL\\  NY FY3Y2Y+Y1Y KZ.Z JY.Y Y.Y ;Y  Ff 5Y .Y1Y @ZCZ FY"
+      "HXCWHY ?b /YDY /[ ![  MX  M[ @Q%W   ?T9\\;U'Z3X AY0Z GX8Z FY-Z E\\ )Y1Y =XEY 6Z@Y BY1Y&Z9Y9[,ZAYAZ IY9Y IY@X@Y "
+      "LY.Z Y-Y 5Y 4Y/Y KZ0Z ;[ ,Z /[#Z*\\?Z?\\(Z(Z N`LZL`$Z NZ-\\  3X  4\\ JPCXCP J[\"\\ >X    DX 4Z?U -Z 'X6X G~W   "
+      "8^BX   FUDY%U Ns =ZCZ  9X  $U@W@X?T     +X        EY1Y 1WEW       \"s 5ZCZ 7W7UFV LW(W MX8UFW CY 8~U K~T J~U K~"
+      "T J~U K~T*~ ;[  JZ !Z  Z !Z  >Z !Z !Z \"Z :Z$Z'Y9YGY)[ [-[ [.Z N[.Z NZ.[ NZ G\\L[ GZGX0Z)Z(Z#Z(Z$Z(Y#Z)Z 9Z 2~ "
+      "GY4] J[4Y G[4Y G[4X EZ4Y FZ4Y G[4Y,[4X 1Y #Y  Y  Y  Y  9Y  Y  NX  Y 6Y-Z JX0X JY-Y LZ-Y MZ.Z MY-Y KY-Y   BYEW?Y"
+      " KY0X HY0X GX0X GX0Y ?YDY >Y.Y BYDY     4W9X9W-X JX,WD\\J[CW,WC[2W-X JX >X )YDZ     5~d HXFU   4~_+~i z @w DX.Y"
+      " IX.X BZ@Y 6YGZ IY                    Y        @~e 9TCZ ;WAX=X8Y4\\HX   6Y  CY    JX    Mj   !X 2Y/Y 3Z (\\  9Z"
+      " M~Z %Z I[0Z 6Z 8Z/Z \"Z     2i <~d ;i 5Z HW>X3W@W/~U LZ-[#[ #Z$Z Z  MZ /Z!Z'Z(Z :Z \"Z 4ZB] 6Z 2Y>a>Y(Y9ZIZ)[ "
+      "Z Z .Z [%Z4Z  JZ 7Y 9Z)Z DZEZ JYHX:XIZ KZD[ -Z /\\  JX  EX  IY        MZ3Y FY.Y JY %Z/Z JY  <Y 5Y.Y GY1Y 5Y  NX"
+      " 0XK\\  Y FY3Y2Y+Y1Y KZ.Z JY.Y Y.Y ;Y  Bc 6Y .Y1Y ?YCY DYIXCXIY @c /YEY /[  NZ  MX  N[     *U;^=U&Z4Y AY/Y HY7X"
+      " EY-Y E[ 'Y1Y =YFY 6Z@Z CY1Y&Z9Y9Z+ZAYAZ IY9Y IY@X@Y LZ/Z Y-Y 5Y 4Y0Z KZ0Z <[ +Z .Z$[)\\@Z@\\'Z(Z M~Q#Z [,\\  4"
+      "X  5\\ JRDXDR J[$\\ KQCXDQ   #Y 4Z?U -Z &X8X F~W   7_EY   EUDY&U Ns <ZCZ  :X  $U@W?XAU     +X        EY1Y 1WEW "
+      "      \"s 6ZCZ 7X8UEV MX)X MW7UFW DZ 8~U L~V K~U L~V K~U K~U+~ :Z  JZ !Z  Z !Z  >Z !Z !Z \"Z :Z%['Y9ZHY(Z [-[ Z"
+      "-[ Z-Z [-Z [ H\\J[ HZHY1[)Z(Z#Z(Z$Z(Y#Z)Z 9Z 2} FY2\\ KZ3Y GZ3Y GY3Y FZ3Y GZ3Y GZ3Y,Z3X 1Y #Y  Y  Y  Y  9Y  Y  "
+      "NX  Y 6Y-Z JX0X JY-Y KY.Z MZ.Z MY-Y KY-Y   BYFX?Y KY0X HY0X GX0X GX0Y >YEY >Y.Y BYEZ     4X:X9W,W JW+WE\\H[EX,X"
+      "E[1W,W JW =X )ZEY     4~d HYHU   2~^+~i Nx >u CX.Y IX.X BY?Z 7ZHY GX                    Z        A~e 9TCZ <XAW<"
+      "X8Z4\\JY   6Z  DY    JX        4X 1Z0Y 3Z )\\  8Z M~Z %Z I[0Z 7Z 7Z/Z \"Y     /i >~d >i 2Z GV>X3W@W0~V LZ-[\"Z "
+      "#Z%[ Z  MZ /[\"Z'Z(Z :Z \"Z 4ZA] 7Z 2Y>a>Y(Y9ZIZ(Z Z Z .[![%Z4[  KZ 7Y 9Z)Z CZFZ JZIX:XIZ L[CZ -Z /[  IX  DX  J"
+      "Y        MY2Y FY.Y JY %Z/Z JY  <Y 5Y.Y GY1Y 5Y  NX 0XJ\\ !Y FY3Y2Y+Y1Y JY.Z JY.Y Z/Y ;Y  ?a 7Y .Y1Y ?YCY DYIWBX"
+      "IY @d /YFY 0[  LY  MX  NZ     )U<VNW=U&Z4Y AY/Y HY8Y EZ.Y F[ &Y1Y =YGZ 7Z>Y CY1Y&Z9Y9Z+ZAYAY HY9Y IY@X@Y LZ/Y N"
+      "Y-Y 5Y 4Y0Z LZ.Y =[ *Z .[%Z(]AZA]'Z(Z L~\"[![+\\  5X  6\\ JTEXET J[&\\ KSDXES   $Y 3Y?U -Z &Y:Y F~W   5_GX   DU"
+      "CZ9QAU   DZCZ  ;X  $VAW?YBU     +X        EY1Y 1WEW          DZCZ 6W7UEV NX)X MX8UEW DY 8~V L~V L~W M~V K~V M~V"
+      ",~P :Z  JZ !Z  Z !Z  >Z !Z !Z \"Z :Z%['Y8ZIY(Z Z+Z Z-[![-[![-[![ I\\H[ I[JY0[(Y(Z#Z(Z$Z)Z#Z)Z 9Z 2| EY1\\ LY2Y "
+      "HZ2Y HZ3Y FY2Y GY2Y GY2Y-Z2X 1Y #Y  Y  Y  Y  9Y  Y  NX  Y 6Z.Y IX0X JY-Y KY.Z MZ.Z MY-Y KY.Z   BYGX?Z KY1Y HY0X"
+      " GX0X GX0Y >YFZ >Y.Y AYFY     2W:X:X,W JW+XG\\F[FW+XF[1X,W JW =X (YEY     4~d GXHU   2kNRMk*tNq Mv <s BX.Y IY/X"
+      " BY>Y 7ZIZ GY                   !Z        A~e 9TBY <W@W;W8Z3\\KX   5Z  DY    JX        4X 1Z1Z 3Z *\\  7Z M~Z %"
+      "Z HZ0Z 7Z 7Y.Z #Z     ,i A~d Aj 0Z GV=W4X@W0~W MZ-[\"[ $Z%[ Z  MZ /[\"Z'Z(Z :Z \"Z 4Z@] 8Z 2Y>`=Y(Y8ZJZ([\"[ Z "
+      ".[!Z$Z3Z  KZ 7Y 9Z)Z CZGZ IZIW8WIZ M[AZ .Z 0\\  IX  DX  JY        MY2Y FY.Y JY $Y/Z JY  <Y 5Z/Y GY1Y 5Y  NX 0XI"
+      "\\ \"Y FY3Y2Y+Y1Y JY.Z JY.Y NY/Y ;Y  ;] 7Y .Y1Y >YEY CYIWBXIX @f 0YGZ 0[  LZ  NX  NY     'U>WMW?V&Z4Y AY/Y HY8Y"
+      " EZ.Y FZ %Y1Y <XGY 6Z>Y CY1Y&[:Z:Z+ZAYAY HY9Y IY@X@Y LZ/Y NZ.Y 5Y 4Y0Y KZ.Z ?\\ *Z -['['\\AZB]&Z(Z K|![!Z)\\  6"
+      "X  7\\ JVFXFV J[(\\ KUEXFU   %Y 3Y?U -Z %Y<Y /Z    M`KY   BUC[=SAU   CZCZ  <X  #UAW>XCU     *X        EY1Y 1WEW"
+      "          F[CZ 6X8UDV NW)X MX8UDW DY 8~W N~W L~W M~V L~W M~W-~P :[  KZ !Z  Z !Z  >Z !Z !Z \"Z :Z%['Y8ZIY([\"[+["
+      "\"[,Z![-[!Z,[!Z I\\F[ J[KY/Z'Z)Z#Z)Z#Z)Z#Z)Z 9Z 2{ DY0[ MY1Y HY1Y HY2Y FY2Y HZ2Y HY1Y-Y2Y 1Z $Y  Y  Y  Z  :Y  Y"
+      "  NX  Y 6Z.Y IX0X JZ.Y KY.Z MZ.Y LZ.Y KY.Z   BYHX>Z KY1Y HY1Y GX0X GX0Y =YGY =Y.Y AYFY     2X;X:W+X LX*WH\\D[HX"
+      "*WG[0W+X LX =X (YFZ     4~d GYIU   2jLQLj*pNRNq Lt :q AX.Y IY0Y CZ>Y 6YIZ FX                   !Z        A~e 9T"
+      "BZ >W?W;W8Z2\\MY   4Y  DY    JX        4X 1Z1Z 3Z +\\  6Z M~Z %Z HZ0Z 8[ 7Y.Z #Z     )i D~d Ci -Z GV=W4XAW/~W M"
+      "Z-[\"[ $Z&[ NZ  MZ .Z\"Z'Z(Z :Z \"Z 4Z?] 9Z 2Y=_=Y(Y8ZJZ([\"[ Z -Z\"[$Z3[  L[ 8Y 9Z)Z BZHZ IZJX8XJY LZ@[ /Z 1\\"
+      "  HX  DX  JY        NY1Y FZ0Z JY $Y/Z JY  <Y 5Z0Z GY1Y 5Y  NX 0XH\\ #Y FY3Y2Y+Y1Y JY.Y IY/Z NY/Y ;Y  9\\ 8Y .Y1"
+      "Y >YEY BXJXAWJY A[N[ 1YGY 0[  JY  NX  NY     'V@WLX@U$Y5[ BY/Y HX7X DZ.Y FY $Y1Y <YIZ 6Y=Z DY1Y&[:Z:Z*YAYAY HY9"
+      "Y IY@X@Y LZ/Y NZ/Z 5Y 3Y1Y KY-Z ?[ )Z -[([%]CZC]%Z(Z Jy M[#[(\\  7X  8\\ JXGXGX J[*\\ KWFXGW   &Y 3Y?U -Z %Z>Z "
+      "/Z    K_MZ   BUC]BVBU   A[D[  >X  #VBW=XDU     *X        EY1Y 1WEW          G[D[ 5W8UCV X*X LW8UCW EZ 8~W N~X M"
+      "~W N~X M~W N~X.~Q :[  KZ !Z  Z !Z  >Z !Z !Z \"Z :Z&[&Y7ZJY([\"[+[\"[,[\"Z+[#[+Z\"[ J\\D[ JZKX/['Z*[#[*Z#Z)Z#Z)Z"
+      " 9Z 2z CY/Z MY1Y HY2Z HY2Y GY1Y HY1Y HY1Y-Y2Z 2Z $Z !Z !Z !Z  :Y  Y  NX  Y 6Z.Y IX0X JZ/Z KY.Z LY.Y LZ/Z KY.Z  "
+      " BYHW=Z KY1Y GX1Y GX1Y GX0Y =YHZ =Y/Z @YHY     1X;X;X*W LW)XJ\\B[IX*XI[0X*W LW <X (ZGY     3~d GYJU   1iKQKi*pN"
+      "RMo Jr 9q AX.Y HX0Y CZ>Z 7ZJY EY                   !Z        1X@X &TAY ?X?W;W8Z1\\NX   3Y  DY    JX        5Y 0"
+      "Y1Z 3Z ,\\  5Z M~Z %Z HZ0Z 8Z 6Y.Z #Z     &i G~d Fi )X FV=X5XAW0~Y NZ-[!Z $Z&[ NZ  MZ .[#Z'Z(Z :Z \"Z 4Z>] :Z 2"
+      "Y=_=Y(Y7ZKZ'Z#[ NZ -[#[$Z2[  M[ 8Y 9Z)Z BZHZ HYJX8XKZ M[?Z /Z 2\\  GX  CX  KY        NY1Y FZ0Z JZ %Y/Z JZ  =Y 4"
+      "Y0Z GY1Y 5Y  NX 0XG\\ $Y FY3Y2Y+Y1Y JZ/Y IZ0Y MY/Y ;Y  8[ 8Y .Y1Y >ZGZ BYKXAXKY B[LZ 0YHY 1[  IY  NX  Z     &VB"
+      "XKXBV$Y5[ BY/Y HX8Y CY/Z GY #Y1Y <YIY 6Z<Y DY1Y%Z:Z:Z*YAYAY HY9Y IY@X@Y LZ/Y NZ/Z 5Y 3Y2Z LZ,Z A[ (Z ,[)[%^DZD^"
+      "%Z(Z Iw L[#['\\  8X  9\\ JZHXHZ J[,\\ KYGXHY   'Y 3Z@U -Z $[B[ .Z  NW $j   @UCpBU   @[D[  ?X  \"UBW=XEU     )X "
+      "       EY1Y 1WEW          H[D[ 5W8UBV W*X LX8UCW F[ 9~Y ~X N~Y ~X N~Y ~X.~Q 9[  LZ !Z  Z !Z  >Z !Z !Z \"Z :Z&[&"
+      "Y7ZJY'[#Z)Z#[+[#[+[#[+[#[ K\\B[ K[MX.['Z*Z!Z*Z#Z)Z#Z)Z 9Z 2x AY.Z NY2Z HY2Z IY1Y GY1Y HY1Y HY2Z-X1Z 2Z $Z !Z !Z"
+      " !Z  :Y  Y  NX  Y 5Y/Z IX0X JZ/Z KZ/Y KY.Y LZ/Z KZ/Y   AYIW<Y IX1Y GX1Y GX1Y GY2Z =YHY <Z0Y ?YHY     0X<X;X*X N"
+      "X)XJ[@[KX(XK[/X*X NX <X 'YHZ     3~d FXJU   0hKQKh(nMRMo Jq 7o @X.Y HX0X BY=Z 7ZKZ DY                   \"Z    "
+      "    1W?X &TAY ?W>W;W8Z0e   3Y  EZ    JX        5X /Z2Y 2Z -\\  4Z M~Z %Z HZ0Z 8Z 6Z/Z $Z     #j J~d Ii   CW>X6Y"
+      "BX0~Y NZ-[![ %Z'\\ NZ  MZ -Z#Z'Z(Z :Z \"Z 4Z=] ;Z 2Y<]<Y(Y7ZKZ'[$[ NZ -[$[#Z1Z  M[ 8Y 8Z*Z BZIZ GZKX8XKZ N[>[ 0"
+      "Z 3\\  FX  CX  KY        NY2Z FZ0Y IZ %Y/Z JZ  =Y 4Y0Z GY1Y 5Y  NX 0XF\\ %Y FY3Y2Y+Y1Y JZ/Y IZ0Y MY/Y ;Y  7Z 8Y"
+      " .Y2Z =YGY AYKW@XKY BZJZ 1YIY 1[  HY  NX  Y     %WEYIYFW#Y5[ BY/Y HX8Y CY/Z GY #Y1Y ;XIY 6Y;Z EY1Y%Z:Z:Z*ZBYBZ "
+      "HY9Y IY@X@Y LZ/Y MY/Z 4Y 4Y2Y KZ,Z B[ 'Z +[+[#_FZF_$Z(Z Gt JZ$[%\\  9X  :\\ J\\IXI[ I\\/\\ K[HXI[   (Y 3Z@U -Z "
+      "%^F^ /Z  X \"f   >VBnCU   >[D[  @X  \"VCW<XGV     )X        EY1Y 1WEW          I[D[ 5X8UBV!W)X LW8UBW FZ 8~Y!~Z"
+      " ~Y!~Z ~Y ~Y0~R 9[  LZ !Z  Z !Z  >Z !Z !Z \"Z :Z'[%Y6ZKY'[$[)[$[*[$[*[%[*[$[ K\\@[ Le.[&Z*Z!Z*Z\"Z*Z#Z*[ 9Z 2v "
+      "?Y.Z NY2Z HX1Z IY1Y GY1Y HY2Z HX1Z.Y1Z 1Y #Y  Y  Y  Y  :Y  Y  NX  Y 5Y/Z IX0X IY/Z KZ/Y KY/Z KY/Z KZ/Y 7\\ 7ZKW"
+      ";Y IX1Y GX1Y GY2Y GY2Z <YIY <Z0Y ?YIZ     0X<X<X)X Y(XJY>YJX(XJY/X)X Y <X 'ZIZ     3~d FYKT   /gJQJg(nMRLm Hp 6"
+      "m ?X.Y HY1X CZ<Y 6YKZ DY                   \"Z        1W?W %TAY @X>W;W7Y/c   2Y  EY    IX        5X /Z3Z 2Z .\\"
+      "  3Z M~Z &Z FY1Z 8[ 6Z/Z $Z      i L~d Li   @W>Y7YBW0Z*Y NZ-[![ %Z'[ MZ  MZ -[$Z'Z(Z :Z \"Z 4Z<] <Z 2Y<]<Y(Y6ZL"
+      "Z'[%[ MZ ,[%[#Z1[  N[ 8Y 8Z+[ AZJZ GZKW6WKZ NZ<[ 1Z 3[  EX  CX  KY        NY2Z FZ0Y IZ %Z1[ IY  =Y 4Z1Z GY1Y 5Y"
+      "  NX 0XE\\ &Y FY3Y2Y+Y1Y JZ0Z IZ0Y MZ1Z ;Y  6Y 8Y .Y2Z =YGY AYKW?WKX B[J[ 1YJY 2[  GY  NX  Y     $ZL[H[JY#Y6\\ "
+      "BY0Y GX8X BZ0Z GY #Y1Y ;YKZ 7Z:Y EY2Z%Z:Z:Z*ZBYBZ HY9Y IY@X@Y L[1Z MY/Y 3Y 4Z3Y LZ+Z C\\ 'Z +[,[!_GZG_#Z(Z Fq H"
+      "[%[$\\  :X  ;\\ H\\JXJ\\ H\\1\\ J\\IXJ\\   (Y 3Z@U -Z &x 0Z  X  c   <UAmDV   =[CZ  AX  !VDW<YHU     (X        E"
+      "Y1Y 1WEW          JZCZ 3W8UAV\"X*X LX9UAW G[ 9Z*Y!Z+Z Y*Y!Z+Z Y*Z\"Z+Z0Z3Z 8[  MZ !Z  Z !Z  >Z !Z !Z \"Z :Z(\\%"
+      "Y6ZKY&[%[)\\&[)[%[)[%[)[%[ L\\>[ Ld.[&Z*Z!Z*Z\"Z+[\"Z+Z 8Z 2s <Y-Y NX1Z IY1Z IY2Z GY2Z HY2Z HX1Z.Y1Z 1Z $Y  Y  "
+      "Z !Z  ;Y  Y  NX  Y 5Y/Z IX0X IY/Y JZ0Z KZ0Z KY/Y IY0Z 7\\ 6YLX<Z IX1Y GY2Y GY2Y GY2Z <YJZ <Z0Y >YJY     .X=X=Y("
+      "X!X'YJW<WJX&XJW/Y(X!X ;X &YIY     #[  LYLU   .fJQJf&lLRLm Gn 4k >X.Y HY2Y CZ<Z 7YKY BY                   #[    "
+      "    3X@X %TAY @W=W;W7Z0b   1Y  EY    IX        5X /Z3Z 2Z /\\  2Z )Z  JZ FZ2Z 8Z 5Z/Z %Z      Ki   :j   >W=X8ZC"
+      "W/Z*Z Z-Z N[ &Z(\\ MZ  MZ -\\%Z'Z(Z :Z \"Z 4Z;] =Z 2Y<]<Y(Y6ZLZ&[&[ MZ ,\\'[\"Z0Z  NZ 7Y 8Z+Z @ZJY FZLX6XLY N[;"
+      "Z 1Z 4\\  EX  BX  LY        NY2Z F[2Z HZ %Y1[ IZ  >Y 4Z2[ GY1Y 5Y  NX 0XD\\ 'Y FY3Y2Y+Y1Y IY0Z IZ1Z MZ1Z ;Y  6Y"
+      " 8Y .Y2Z =ZIZ @XLX?WLY C[H[ 2YKZ 3[  EX  NX  Y     $hFh\"Z7\\ BY0Y GX9Y BZ1Z FX \"Y1Y ;YKY 6Y9Y EY2Z%Z;[:Z*ZBYB"
+      "Y GY9Y IY@XAZ L[1Y LZ1Z 3Y 3Y3Y LZ*Z D[ &Z *[-[ aJZJa\"Z(Z Cl F\\'[\"\\  ;X  <\\ F\\KXK\\ F\\3\\ H\\JXK\\   'Y "
+      "2ZAU -Z 'z 1Z  X  Na   ;V@jDV   :ZCZ  BX   UDW;XIU     'X        EY2Z 1WEW          KZCZ 3X9U@V\"W*X LX9VAW H[ "
+      "8Z*Z\"Y)Y!Z*Z\"Z*Y!Z*Z\"Z*Z1Z3Z 8[  MZ !Z  Z !Z  >Z !Z !Z \"Z :Z(\\%Y5ZLY&[&['[&[([&[)\\'\\)[&[ L\\<[ Mc.[$Z,[!"
+      "[,[\"Z+Z!Z+Z 8Z 2n 7Y-Y NX1Z IY2[ IY2Z GY2Z HY2Z IY2[.Y2\\ 2Z $Z !Z !Z !Z  ;Y  Y  NX  Y 5Z0Y HX0X IZ1Z IY0Z KZ0"
+      "Y JZ1Z IZ1Z 7\\ 6YMX;Z IY3Z GY2Y GY2Y GY2Z ;YKY ;Z1Z >YJY     .Y>X=X'Y#Y&XIU:UJY&YJU.X'Y#Y ;X &YJZ     #Z  JXLU"
+      "   -dIQId%kKRKk El 2j >X.Y HY2Y CY;Z 7ZMZ BZ                   #Z        3X@X %TAX @W<W;W7Z/a   0Y  FY    IX   "
+      "     6X -Z4Z 2Z 0\\  2[ )Z  JZ FZ2Z 8Z 5Z/Z %Z      Hi   @j   :V=Y9ZDX/Z*Z Z-Z N\\ 'Z)\\ LZ  MZ ,[%Z'Z(Z :Z \"Z"
+      " 4Z:] >Z 2Y;[;Y(Y5ZMZ&\\([ LZ +['[\"Z0[  Z 7Y 8[,Z ?YKZ EYLX6XLY [:[ 2Z 5\\  DX  BX  LY        NY3[ F[2Z HZ %Y1"
+      "[ IZ  >Y 3Y2[ GY1Y 5Y  NX 0XC\\ (Y FY3Y2Y+Y1Y IZ2Z H[2Z LY1Z ;Y  6Z 9Y .Y2Z <YIY ?YMX?XMY CZFZ 2YKY 3[  DY  X  "
+      "Y     #gEf!Z7\\ BY0Y GX9Y BZ1Z FX \"Y1Y :XLZ 7Z9Z FY2Z%Z;\\<[)ZCYCZ GY9Y IZAXAZ L[1Y LZ1Z 3Y 3Y4Y KZ*Z E[ %Z )["
+      "/[ MdNZNd!Z(Z Ag B['[!\\  <X  =\\ D\\LXL\\ D[4\\ F\\KXL\\   &Z 3ZAU -Z (| 2Z  X  L^   9V?fBU   8ZCZ  CX   V JV "
+      "             CY2Z 1WEW          LZCZ 2W9V@V#X+X KW8U@W I[ 7Z*Z#Z)Z\"Z)Y#Z)Z\"Z)Y#Z)Z2Z2Z 7[  NZ !Z  Z !Z  >Z !Z"
+      " !Z \"Z :Z)\\$Y5ZLY%[(\\'\\(['\\(['['['[(\\ M\\:[ Ma-[$Z,Z NZ,Z![,Z!Z,[ 8Z 2Z #Y-Y NX2[ IY2[ IY2Z GY3[ HX2[ IY2"
+      "[.Y2\\ 2Z $Z !Z !Z  Y  ;Y  Y  NX  Y 5Z1Z HX0X IZ1Z IZ1Z JZ2Z JZ1Z IZ1Z 7\\ 6c:Z IY3Z GY3Z GY3Z GY3[ ;YKY ;[2Z ="
+      "YLY     ,Y?X>Y&Y%Y%YIS8SJY$YJS.Y&Y%Y :X &ZKY     #Z  IYNU   ,cISIb#jKRJi Cj 1i =X.Y GY4Y BY:Y 7ZMZ AZ          "
+      "         $[,P       )W?X %TBY AX<W;W7[/_   /Y  FY    IX        6X -Z5Z 1Z 1\\  1Z (Z  K[ EY2Z 9Z 4Z0[ &[      F"
+      "j   Ei   7W=Y;[EX/Z(Z!Z.[ M[!P'Z*] LZ  MZ ,\\&Z'Z(Z :Z \"Z 4Z9] ?Z 2Y;[;Y(Y4YMZ%[)\\ LZ +\\)[!Z/Z  Z 7Y 7Z-[ ?Z"
+      "LZ EZMX6XMZ Z8[ 3Z 6\\  CX  BX  LY        NY3[ F[2Y GZ %Z3\\ HZ  ?Y 3Z4\\ GY1Y 5Y  NX 0XB\\ )Y FY3Y2Y+Y1Y IZ2Z "
+      "H[2Y KZ3[ ;Y  6Z 9Y .Z4[ <YIY ?YMW>XMY DZDZ 2YLY 3[  DY  X  Y     \"eCd NY8^ CY0Y GX:Y @Z2Z FX \"Y1Y :YMY 6Y7Y "
+      "FY2Z%[<\\<Z(ZCYCZ GY9Y HYAXAY K\\3Z KZ2Z 3Y 3Z5Y LZ)Z F[ $Z ([1[ K~U Z(Z ;[ <\\)[ N[  <X  <Z B\\MXM\\ BZ3Z D\\L"
+      "XM\\   %Z 3ZAU -Z )~ 3Z  X  J]   9V>a@V   7YBY  CX   NV LV              BZ3Z 1WEW          LYBY 2W8U?V#W+X KX9U"
+      "?W J[ 7Z(Y#Z)Z#Z(Z$Z)Z\"Y(Z$Z(Y2Z2Z 7\\\"P NZ !Z  Z !Z  >Z !Z !Z \"Z :Z*\\#Y4ZMY%\\)[%[)\\&[)\\'\\)\\'\\)[ M\\8"
+      "[ N`-[#Z,Z NZ,Z Z-[![-[ 8Z 2Z #Y-Y NX2[ IY2[ IY3[ GY3[ HY3[ HX2[.Y3^ 2Z $Z !Z !Z !Z  <Y  Y  NX  Y 4Z2Z HX0X HZ2"
+      "Z IZ2Z IZ2Z IZ2Z IZ2Z 6\\ 5a:Z HY3Z GY3Z GY3Z GY3[ ;YLY :[2Y <YLY     ,Y?X?Y$Y'Y#YIQ6QIY$YIQ.Y$Y'Y 9X %YLZ     "
+      "$Z  HYNU   +aHSH`!hJRIg Bi /g <X.Y GY4Y CZ:Y 6YMY @[                   $Z-Q       )W?W $TBY AW;W<X6Z.]   .Y  GY"
+      "    HX        6X -Z5Z 1Z 2\\  0Z (Z  L[ DZ4Z 8Z 4[1Z %Z      Bj   Ki   4W=Z=\\GY.Z(Z!Z.[ M\\#Q'Z+] KZ  MZ +\\'Z"
+      "'Z(Z :Z \"Z 4Z8] @Z 2Y:Y:Y(Y4ZNZ%\\*[ KZ *\\+\\!Z/[ \"[ 7Y 7Z-Z >ZMZ DZMW4WMZ![7Z 3Z 7\\  BX  AX  MY        NY3"
+      "[ F\\4Z FZ &Z3\\ HZ  ?Y 3Z4\\ GY1Y 5Y  NX 0X@[ *Y FY3Y2Y+Y1Y HZ3Z H\\4Z KZ3[ ;Y  5Y 9Y -Y4[ ;YKY >YNX=WNY D[D[ "
+      "3YMY 3[  CY  X  Y     !cAb MZ9^ CZ2Z GX:Y @Z3Z EX \"Y1Y :YMY 7Z7Y FZ4[$Z<\\<Z(ZCYCY FY9Y HYAXBZ K\\3Z KZ3Z 2Y 2"
+      "Y6Z LZ(Z H\\ $Z (\\3[ I~R MZ(Z :Z ;\\+\\ MY  ;X  ;X @\\NXN\\ @X1X B\\MXN\\   $Z 2ZBU -Z *~Q 4Z  X  I]   :W9U;V "
+      "  5XAX  CX   MV NV              AZ3Z 1WEW          LXAX 2X8s+W,Y JW8t#\\ 7Z(Z%Z'Y#Z(Z$Y'Z$Z(Z$Z(Z4Z1Z 6[#Q NZ !"
+      "Z  Z !Z  >Z !Z !Z \"Z :Z+]#Y4ZMY$[*\\%\\*[%\\+\\%\\+\\%\\+\\ N\\6[ N^-\\#[.[ N[.[ [.Z NZ-Z 7Z 2Z #Y-Y NY4\\ IY3"
+      "\\ IY3[ GY3[ HY4\\ HX3\\.Y3^ 2Z $Z !Z !Z !Z  <Y  Y  NX  Y 4Z3Z GX0X HZ3Z GZ3Z IZ3[ IZ3Z GZ3Z 6\\ 5`9Z HY4[ GY4["
+      " GZ5[ GZ5\\ :YMY :\\4Z ;XMZ     +Y@X@Y#Z)Z\"Y(Y\"Y(Y#Z)Z 9X %ZMZ     %Z  F_   )^GSG^ NfIRHe @g -e ;X.Y GZ6Z CY9"
+      "Z 7ZNY ?[                   %[/R       *X@X $TBY BX;X=X6[.]   /Y  GY    HX        7X +Z7Z 0Z 3\\  0[ (Z  L[ DZ4"
+      "Z 9[ 3Z2[ &Z      >i   i   2W<Z?]HZ.Y'Z!Z/\\ L\\&S'Z,] JZ  MZ *\\(Z'Z(Z :Z \"Z 4Z7] AZ 2Y JY(Y3e$\\,\\ KZ )\\-"
+      "\\ Z.Z \"[ 7Y 7[/[ =ZNZ DZNX4XNY![6[ 4Z 7[  AX  AX  MY        NY4\\ F\\4Z F[ &Z5] H[  @Y 2Z6] GY1Y 5Y  NX 0X?[ +"
+      "Y FY3Y2Y+Y1Y HZ4Z G\\4Z JZ5\\ ;Y  6Y 8Y -Y5\\ ;YKY =XNX=WNY E[B[ 3YNY 4[  BY  X  Y      N_=_ LZ:_ CZ2Y FX;Y >Z4"
+      "Z EY #Y1Y 9XNZ 7Y6Z GZ4[$Z=]=['ZDYDZ FY9Y HZBXBZ K]5Z J[5[ 2Y 2Z7Y L[(Z H[ #Z '\\5[ F~ LZ(Z :Z :\\-\\ KW  :X  :"
+      "V >r >V/V @s   #Z 2[CU -Z +[MeL[ 5Z  X  G\\   :W!V   3W@W     7V!W              AZ4[ 1WEW          LW@W 1W7s,X-"
+      "Y JX8t$\\ 7Z'Z%Z'Z$Z'Y%Z'Z$Z'Y%Z'Z4Z1Z 6\\&S NZ !Z  Z !Z  >Z !Z !Z \"Z :Z,]\"Y3ZNY$\\,\\#\\,\\$\\,\\$\\-\\$\\,"
+      "\\ N\\4[ ]-\\![/Z LZ/[ N[/[ N[/[ 7Z 2Z #Y-Y NY4\\ HY5] IY4\\ GY4\\ HY4\\ HY4\\.Z5` 2Z $Z !Z !Z !Z  =Y  Y  NX  Y "
+      "3Z4Z GX0X H[5[ GZ4Z GZ4Z H[5[ GZ4[ 6\\ 5_9[ HZ5[ GZ5[ FY5[ FY5\\ :YNZ :\\4Z ;YNY     )YAXAZ\"Z+Z!Z*Y Y*Z\"Z+Z 8"
+      "X $YMY     %[  F^   '\\FSF\\ LcGRGc >f ,c :X.Y FZ7Y BY8Y 7e >[                   %[1S   -Y   'X@X ;Q:TCZ CX:X=X"
+      "5[.]   /Y  HY    HX  NZ    GZ 'X +[8Z 0Z 4\\  0[ 'Z  M\\ CZ6[ 9Z 2[3[ '[ 0Y  Y  ?f   f  BX DW=\\C_J[.Z&Z\"Z0\\ "
+      "J\\(T'Z._ JZ  MZ *])Z'Z(Z :Z \"Z 4Z6] BZ 2Y JY(Y3e#\\.\\ JZ )]/\\ NZ.[ NQ'[ 6Y 6[0[ =ZNZ CYNX4XNY!Z4[ 5Z 8[  @X"
+      "  AX  MY        NY5] F]6Z DZ &Z5] G[  AY 2[8^ GY1Y 5Y  NX 0X>[ ,Y FY3Y2Y+Y1Y H[6[ G]6Z IZ5\\ ;Y  6Y 8Y -Z6\\ ;Z"
+      "MZ =b=b EZ@Z 3d 5[  AY  X  Y      L[:\\ IZ;` D[4Z FX<Z >Z5[ EY #Y1Y 9c 7Z5Y GZ5\\$[>^>['[EYE[ FY9Y HZBXCZ J]5Z "
+      "IZ5Z 1Y 1Y8Z LZ&Z J[ \"Z &\\8] E| KZ(Z :Z :]/] JU  9X  9T <p <T-T >q   \"Z 1ZCU -Z ,[JaI[ 6Z  X  F\\   :W#V   1"
+      "V?V     7W#W              @[5[ 1WEW          LV?V 1X7s,W-Y JX7t%\\ 6Z&Z&Z'Z%Z&Z&Z'Z%Z&Z&Z&Y4Y0Z 5\\(T NZ !Z  Z "
+      "!Z  >Z !Z !Z \"Z :Z.^!Y3e#\\.\\!\\.\\#].\\#]/]#\\.\\ N\\2[ ]/]![0[ L[0[ M[0[ N\\1[ 6Z 2Z #Y-Y NY5] HY5] IZ6] GY"
+      "5] HY5] HY5]-Y5a 3[ %[ \"[ \"[ \"[  >Y  Y  NX  Y 3Z5[ GX0X GZ5Z F[6[ G[6[ GZ5Z F[5Z 5\\ 4^9Z FY6\\ FY6\\ FY6\\ "
+      "FY6] 9c 9]6Z :d     )[CXBZ Z-Z NZ-[ [-Z Z-Z 7X $YNZ     %Z  D]   $VCSDW G`FSG` ;d +c :X.Y F[9Z CZ8Y 6d =\\     "
+      "              '\\3T   -Z   (W?X ;S<TDZ BW8W=W4\\1`   0Y  HY    HX  NZ    GZ 'X *Z9Z /Z 5\\  0\\ 'Z  N\\ B[8[ 8Z"
+      " 2\\5[ '[ /Z \"[  >d   c  @Z EW<_Ks-Z&Z\"Z1] J^,V'Z/_ IZ  MZ )]*Z'Z(Z :Z \"Z 4Z5] CZ 2Y JY(Y2d#]0\\ IZ (]1] NZ-"
+      "Z NS*\\ 6Y 6[1[ <e Bc4c\"[3Z 5Z 9\\  @X  AX  MY        NZ6] F^8[ D[ &Z7^ G[  AY 1[:_ GY1Y 5Y  NX 0X=[ -Y FY3Y2Y"
+      "+Y1Y G[7Z F]7[ HZ7] ;Y  6Y 7Y .Z7] :YMY <a<a EZ>Z 4c 5[  @Y  X  Y      HS3V FZ<a D\\5Z FX<Y =[7[ DZ $Y1Y 9c 7Y4"
+      "Z H[6\\#Z?WNV>Z%ZEYF[ EY9Y GZCXD[ J^7Z H[7[ 1Y 1Z:Z KZ&Z K[ !Z %];] Bx IZ(Z :Z 9]1] HS  8X  8R :n :R+R <o   !Z "
+      "1[DU -Z -[F\\F[ 7Z  X  E\\   :W&W   /U>U     6W%W              ?[6\\ 1WEW          LU>U 0W6s-X.X HW6t&\\ 5Z&Z'Z"
+      "%Z&Z&Z'Z%Z&Z&Z&Z&Z6Z0Z 4],V NZ !Z  Z !Z  >Z !Z !Z \"Z :Z0`!Y2d\"\\0]!]0\\!]0\\!]1]!]1] \\0[ ]1] N[2\\ L\\2[ L\\"
+      "2[ L[1[ 6Z 2Z #Y.Y MZ7^ HY6^ HY6] GZ6] HZ7^ HZ7^-Y6c 3[ %[ \"[ \"[ \"[  ?Y  Y  NX  Y 3[7[ FX0X G[7[ E[7[ FZ7[ F"
+      "[7[ E[7[ 5\\ 4]9[ FZ8] FZ8] FZ8] FZ7] 9c 9]7[ 9b     '[DXD[ N[/Z LZ/[ M[0[ N[/Z 6X $d     %Z  C\\    ?S 2\\ETD"
+      "\\ 9b )a 9X.Y E[<[ BY7Z 7c ;\\                   '\\5U   -Z   (W?W :U>TE[ CX8X?X3\\3b   1Y  IY    GX  NZ    GZ ("
+      "X )[;[ /Z 5[ %Q-\\ &Z BQ/] AZ9\\ 9Z 0[6\\ (\\ /Z \"[  ;a   `  =Z EX<nNd,Z$Y\"Z2] H^.W'Z2a HZ  MZ (^,Z'Z(Z :Z \""
+      "Z 4Z4] DZ 2Y JY(Y2d\"]3^ IZ ']3] MZ-[ U-] 6Y 5\\4\\ ;d Bb2b#[2[ 6Z :\\  ?X  @X  NY        MZ8^ F^8Z B[ '[9_ F[,"
+      "P 7Y 1\\<` GY1Y 5Y  NX 0X<[ .Y FY3Y2Y+Y1Y G[8[ F^9[ G[9^ ;Y *Q/Z 7Y -Z9^ :YMY <a;` F[>[ 4b 6[  ?Y  X  Y        "
+      "FZ=b E]7Z EX=Z <[9\\ D[ %Y1Y 8a 6Y3Y H\\8]#[@WNW@[%[FYG\\ EY9Y G[DXD[ J_9[ G[9[ /Y 1Z;Z LZ%Z L\\ !Z $]=\\ >t GZ"
+      "(Z :Z 8]3] FQ  7X  7P 8l 8P)P :m    Z 0[EU -Z .[?P?[ 8Z  X  D[   9W(W   -T<S     5X)X              >\\8] 1WEW  "
+      "        LS<T 0W5s-W.X HX6t'\\ 5Z$Y'Z%Z'[%Z(Z%Z&Z%Z(Z%Z6Z0Z 4^.W NZ !Z  Z !Z  >Z !Z !Z \"Z :Z2a Y2d\"^3] N]3^ ]3"
+      "] N]3] N]3] \\.[!^3] M\\4\\ J\\4\\ K\\4\\ L\\4\\ 5Z 2Z #Y.Y MZ8_ HZ8_ HZ8^ FZ8^ HZ8_ HZ8_-Z8e-Q)\\ &\\-Q G\\-Q "
+      "G\\-Q G\\-Q 5Y  Y  NX  Y 2[9\\ FX0X F[9[ D\\9[ E[8[ E[9[ D\\9[ 4\\ 3[9[ EZ9^ FZ9^ FZ9^ F[9^ 9b 8^9[ 8b     &[2["
+      " L\\3\\ K[2[ K[2[ L\\3\\ 6X #c     &Z  B\\    ?S /UATAT 4a '_ 8X.Y E\\>\\ BY6Y 7c :]                   (\\7V   "
+      "-Z   )X@X :W@TF[ BW7X?X3]6e   1X  IY    GX  NZ    GZ (X ([=[ .Z 6[ $S1^ &Z BS3^ @\\<\\ 8Z 0]9] FR6] .Z \"[  8^ "
+      "  ^  ;Z DW;lMc+Z$Z#Z4_ G_2Y'Z5c GZ  MZ '^/\\'Z(Z :Z \"Z 4Z3] EZ 2Y JY(Y1c!^6^ HZ '^6^ LZ,Z X1] 5Y 5]6\\ :c Ab2a"
+      "\"Z0[ 7Z ;\\  >X  @X  NY        MZ:` F_:[ B\\3P D[;` E\\1S 7Y 0\\>a GY1Y 5Y  NX 0X;\\ 0Y FY3Y2Y+Y1Y F[:[ E_;\\ "
+      "F[;_ ;Y *S1Y 6Z .[;_ :e ;`;` G[<[ 5a 6[  >Y  X  Y        F[?YNY F_:[ DX?Z :[;\\ B[ &Y1Y 8a 7Z3Y H]:^#\\BXNWA[#["
+      "GYH\\ DY9Y F\\FXF\\ I`;[ F\\;\\ /Z 2[=Z KZ$Z N\\  Z #^A] :n DZ(Z :Z 7]5]   +X    Mj   (k    NZ 0\\FUBP ;Z /[,[ "
+      "9Z  X  CZ   8X+W   *R;R     4X+X              =]:^ 1WEW          LR;R /X5s.W.X GW5t(\\ 4Z$Z(Z%Z'Z$Z(Z$Y'Z$Z(Z$Z"
+      "8Z/Z 3_2Y NZ !Z  Z !Z  >Z !Z !Z \"Z :Z5c NY1c!^6^ L^6^ M^6^ M]5] M^6^ \\,[#a7^ K\\6] I\\6\\ J]6\\ J\\6] 5Z 2Z #"
+      "Y/Z LZ:` H[:` H[:_ FZ:` GZ:` GZ:`-[:YN\\0S(\\4Q C\\0S F\\0S F\\0S F\\0S 5Y  Y  NX  Y 1[:[ EX0X F\\;\\ C\\;[ C[:"
+      "[ D\\;\\ C\\;\\ 4\\ 3[:\\ DZ;_ EZ;_ EZ;_ EZ;` 8a 8_;\\ 7a     %\\6\\ J\\5\\ I\\6\\ I\\6\\ J\\5\\ 5X #c     'Z  "
+      "@[    @T  JT  _ %] 7X.Y D^D^ BZ6Y 6b 9_                   *];X   -Z   )X@X :ZCTH] CX7YAX1^:h   2Y  JY    GX  NZ"
+      "    GZ (X (\\?\\ .Z 7\\ $W7_ %Z BV8` ?\\>] 9[ /];] ET9] -Z \"[  5[   [  8Z DX;jLb*Z$Z#Z7a E`7\\'Z9f FZ  MZ &`4^"
+      "'Z(Z :Z \"Z 4Z2] FZ 2Y JY(Y1c _:_ GZ &_9^ KZ,[![6^ 4Y 4]9] 8b @a2a#[/Z 7Z ;[  =X  @X  NY        M[<a Fa>\\ @]7R"
+      " D\\=a E]4U 7Y /]Bc GY1Y 5Y  NX 0X:\\ 1Y FY3Y2Y+Y1Y E\\>] E`=\\ E\\=` ;Y *U5[ 6[ /\\>a 9c :_:` GZ:Z 4` 6[  >Y  "
+      "X  Y        E[AYMZ G`<[ CX@Z 9\\=\\ A\\3Q EY1Y 7` 7Y2Z I^<_\"[BWMXC\\#]IYI\\ CY9Y F]GXG] Ia=\\ E\\=\\ .[ 2[?Z J"
+      "Z$Z N[  NZ \"^C^ 7g @Z(Z :Z 7_9_   +X    Lh   &i    MZ /]HUDR ;Z .Y*Y 8Z  X  BZ   8Y/X   (Q:Q     2X/Y         "
+      "     <^<` 2WEW          LQ:Q .W MV(X/X GX NW\"\\ 3Z$Z)Z#Z(Z$Z)Z#Z(Z$Z)Z#Z8Z/Z 2`7\\ NZ !Z  Z !Z  >Z !Z !Z \"Z :"
+      "Z9f MY0b _:_ J_:_ K_:_ L_9_ L_9^ N[*[$c:^ J^:^ H^:^ I^:] H]9] 4Z 2Z #YIP7[ L[<a G[<a G[=a F[<a G[<a G[<a,[=ZL\\"
+      "4V'\\7S B\\4V E]5V E]5V E]5V 5Y  Y  NX  Y 1\\=\\ DX0X E\\=\\ A\\=\\ C]>] C\\=\\ A\\=\\ 3\\ 2\\=\\ C[=` E[=` E[="
+      "` E[=a 8a 8`=\\ 6`     #]:] H]9] G]:] G]:] H]9] 4W !a     'Z  ?Z    ?U  KT  N] $] 7X.Y Cv AZ6Z 7a 7a           "
+      "        -_?Z   -Z   )W?X :^GTK_ CX5XAX0_>k   3Y  JX    FX  NZ    GZ )Y ']C] ?} I~S IZ=b %Z BZ>a =]B^ 8Z ._?^ DX"
+      "@_ ,Z \"[  3Y   X  5Z CW:gJ`)Z\"Z$~T Cb=_'~W E~S FZ %b:a'Z(Z :Z \"Z 4Z1] G~Q)Y JY(Y0b N`>` FZ %a?` JZ+Z!^<a 4Y "
+      "3_>_ 8b @a2a$[.[ 8Z <~` AX  ?X  Y        L\\@c Fb@] ?^<U C]Ac D^9X 7Y /aI[NY GY1Y 5Y  NX 0X9\\ 2Y FY3Y2Y+Y1Y E]"
+      "@] Db@\\ C]Ab ;Y *X9\\ 5] 1\\Ac 9c :_:_ GZ9[ 5` 7[  =Y  X  Y        E]DZM[ Hb@] BXB[ 8]A^ @]8T EY1Y 7_ 7Z1Y I`@"
+      "b#]EXLXE\\!]JYK^ CY9Y E_JXJ_ HcA] C]A] ,] 4[B\\ K~c!~T FZ 3oDo A[ :Z(Z :Z 6a?a   *X    Kf   $g    LZ .^JUGU H~U"
+      " JW(W 7Z  X  AY   7Z3Y   &P9P     1Y3Y     <~d       3`@b 2WEW          LP9P .X MV(W/X GX MW#\\ 3Z\"Z*Z#Z)Z\"Z*"
+      "Z#Z)[#Z*Z#Z9Z.~T+b=_ N~T J~T I~S I~S 7Z !Z !Z \"Z :~V KY0b N`>` H`>` I`>` Ja?a Ja?` LY(Y$f?` H_>_ F_>_ G_>_ H_>"
+      "_ 3Z 2Z #YIS;[ K\\?c G\\?c G\\?b E\\@c F\\@c G\\?c,\\?[L^9Y'^<V B_:Y E_:Y E_:Y D^:Y 5Y  Y  NX  Y 0]@] DX0X D]A]"
+      " @]@] A]@] A]A^ A]@] 2\\ 2]@] B]Ab E]Ab D\\Ab D\\Ac 7_ 7b@\\ 5`     \"_@_ F_?_ E_@_ E_@_ F_?_ 3W !a     'Z  ?Z "
+      "   ?U  KT  M\\ #[ 6X.Y Bu AY5Z 7a 6f                   2aE]   -Z   )W?W 9~ BW4YCY/bFp   3X  KY    FX  NZ    GZ "
+      ")X %^G^ >} I~S I~ $Z B| ;^F_ 7Z -aEa Dv +Z \"[  0V   U  2Z CX9dI^'Z\"Z$~S AfGd'~U C~S FZ $gGg&Z(Z :Z \"Z 4Z0] H"
+      "~Q)Y JY(Y0b McGd EZ $dGc IZ+[\"cEd 3Y 3cGc 7a ?`1a$Z,[ 9Z =~a AX  ?X  Y        L^DZNY FYNZF_ =`CY B^EZNY CaB] 7"
+      "Y .qMY GY1Y 5Y  NX 0X8\\ 3Y FY3Y2Y+Y1Y D_F_ CYNYE_ B^EZNX ;Y *]A^ 4k >^G[NY 8a 9_9^ H[8[ 5^ 6~P 2Y  X  Y       "
+      " D^H[La NfH` AYD[ 6^E_ ?`?X EY1Y 7_ 7Y0Y IcFk(]HZLZI^ `Nk BY9Z E~Q GYNZE^ B_E_ ,e ;]G] J~c!~T FZ 3oDo @Z :Z(Z :"
+      "Z 5dGd   )X    Jd   \"e    KZ -`MUKY H~U IU&U 6Z  X  AY   5Z7Z          LZ7Z     ;~d       3cFk 8WEW           "
+      " BW LV)X0X FW LW$\\ 2Z\"Z+[#Z)Z\"Z*Z\"Z*Z\"Z*Z\"Z:Z.~T*fGd N~T J~T I~S I~S 7Z !Z !Z \"Z :~U JY/a MdGc FcGd GcGd"
+      " HdGd HdGc JW&W$kGc FbFb DbFb FcFb FcGc 3Z 2Z #YIWB] I^DZNY F]D[NY F]D[NX E^DZNY F^DZNY F^E[NY+]D]J`@]&`BY AaA]"
+      " DaA] DaA] DaA] 5Y  Y  NX  Y /_F_ CX0X D_E_ ?_F_ ?_F_ @_E_ ?_F_   7aF_ @^FZMX D^FZMX D_GZMX D_G[NY 7_ 7YNYE_ 4^"
+      "      dLd CdMd BdLd CdLd DeMd 2X !`     %X  =Y    ?U  LV  MZ !Y 5X.Y As AZ4Y 6` 5~]                  )x   -Z   "
+      "*X@X 9} BX3YFZ-{L]   4Y  LY    FX  NZ    GZ )X $t >} I~S I} #Z B{ :v 7[ ,{ Cu *Z \"[  -S   S  0Z BW8aG[%[\"Z$~R"
+      " ?~S'~T B~S FZ #~V%Z(Z :Z \"Z 4Z/] I~Q)Y JY(Y/a L~ DZ #~ HZ*Z\"~R 2Y 2} 5` ?`0_$[+Z 9Z =~a AX  ?X  Y        KsN"
+      "Y FYNr ;u AqMY B{ 7Y -oLY GY1Y 5Y  NX 0X7\\ 4Y FY3Y2Y+Y1Y Cv BYNr ArMX ;Y *y 2j >qMY 8a 8^9^ I[6Z 5^ 6~P 2Y  X "
+      " Y        CpK` N} ?YF[ 5w =x EY1Y 6] 7Z0Z J~Y(nJm M{ AY9\\ F~ FYMq @w *d ;r J~d!~T FZ 3oDo @Z :Z(Z :Z 4~   'X  "
+      "  Ib    c    JZ ,u H~U HS$S 5Z  X  AY   4\\>\\          I]>\\     :~d       3~Y 8WEW            CW KV)W0X FX LW"
+      "$[ 2[\"Z+Z!Z*Z\"Z+Z!Z*Z!Z,Z!Z:Z.~T)~S N~T J~T I~S I~S 7Z !Z !Z \"Z :~T IY/a L~ D~ E~ F~ E~ HU$U$~X D| B| D} D} "
+      "2Z 2Z #YIr HrMY FsMY FsMX DsNY ErMY FsMY+uH|%v @| C| C| C| 5Y  Y  NX  Y .v BX0X Cw =w >v >w =w   8{ ?qMX CqMX C"
+      "qMX CqMY 6] 6YNr 3^      My Ay @y @z Ay 1X  _     $V  <X    ?V  LV  LX  NW 4X.Y @p ?Z4Z 7_ 2~[                 "
+      " (v   ,Z   *X@X 9| AW1[K[+yJ]   5Y  LX    EX  NZ    GZ )X #r =} I~S I| \"Z Bz 8t 6Z *y Bt )Z \"[  *P   P  -Z BX"
+      "6[DX\"Z Z%~Q <~P&~R @~S FZ \"~T$Z(Z :Z \"Z 4Z.] J~Q)Y JY(Y/a K| CZ !{ GZ*[#~Q 1Y 1{ 4_ =_0_%[*[ :Z =~a AX  >X !"
+      "Y        JqMY FYMp 9t ApLY Az 7Y ,mKY GY1Y 5Y  NX 0X6\\ 5Y FY3Y2Y+Y1Y Bt AYMp ?pLX ;Y *x 1j =oLY 8a 8]8^ IZ4Z 6"
+      "] 5~P 2Y  X  Y        CoI_ N} ?[K] 3u ;w EY1Y 6] 7Y.Y JvM_'mJm Ly @Y9b K| EYLp ?u (c :p I~e\"~T FZ 3oDo @Z :Z(Z"
+      " :Z 2{   &X    H`    Ma    IZ +t H~U GQ\"Q 4Z  X  AY   2aLb          FaKa     8~d       3YNlN_ 8WEW            "
+      "DX KV*W0o-W KW%[ 1Z Z,Z!Z+Z Z,Z!Z+Z Z,Z!Z;Z-~T'~P M~T J~T I~S I~S 7Z !Z !Z \"Z :~R GY.` K| B| C{ B{ B{ FS\"S$YM"
+      "{ Bz @z B{ B{ 1Z 2Z #YIq GqLY EqLY EqLX CqMY ErMY EqLY*sF{$u ?{ B{ B{ B{ 5Y  Y  NX  Y -t AX0X Bu ;u <t <u ;u   "
+      "8{ >pLX CpLX CpLX BoLY 6] 6YMp 1]      Lv >w =v =v >w 0X  _     #T  ;X    ?W  MV  LW  LV 4X.Y ?n >Y3Z 7_ 1~Z   "
+      "               't   +Z   *W?X 8y @X1j)vG]   5X  MY    EX  NZ    GZ *X !p <} I~S Iz  Z By 6r 5Z )w As (Z \"[    "
+      "    5Z AX  HZ Z%~ 9|$~P >~S FZ  ~P\"Z(Z :Z \"Z 4Z-] K~Q)Y JY(Y.` Jy AZ  x EZ)Z#~P 0Y /x 3_ =_0_%Z([ ;Z =~a AX  "
+      ">X !Y        JpLY FYLn 7s @nKY @y 7Y +kJY GY1Y 5Y  NX 0X5\\ 6Y FY3Y2Y+Y1Y Ar @YLn =nKX ;Y *w /i <mKY 7_ 7]8] IZ"
+      "3[ 6\\ 5~P 2Y  X  Y        BmH_ N{ <k 0r 9v EY1Y 6] 8Z.Z KYNkM_&kHk Jw ?Y8a Jy CYKn =s &b 9n H~e\"~T FZ 3oDo @Z"
+      " :Z(Z :Z 1y   %X    G^    K_    HZ *s H~U   *Z  X  AY   1t          Bs     6~d       3YNkM_ 8WEW            DW "
+      "JV+X0o.X KW%Z 0Z Z-Z NZ,Z Z-[ Z,Z Z-[ Z<Z-~T&| K~T J~T I~S I~S 7Z !Z !Z \"Z :~P EY.` Iy @y @y @y @y DQ Q$YKy @x"
+      " >x ?x @y 0Z 2Z #YIp EoKY DoKY DoKX BoLY DpLY DoKY)qCy#t =y @y @y @y 5Y  Y  NX  Y ,r @X0X As 9s :r :s 9s   7z <"
+      "nKX BnKX BnKX BnKY 6] 6YLn 0\\      Jt ;s :t ;t ;s .X  N]     !R  9V    >W  NX  LU  KU 3X.Y >l =Y2Y 7_ /~X     "
+      "             %p   )Z   *W?W 4u @X/i(tE]   6Y  NX    DX  NZ    GZ *X  m :} I~S Iy  NZ Bw 2o 5Z 'u @r 'Z \"Z     "
+      "   4Z AY  J[ Z%} 6x\"} <~S FZ  N| Z(Z :Z \"Z 4Z,] L~Q)Y JY(Y.` Hv @Z  Mu DZ)[$~ /Y .u 0^ =^/_&['Z ;Z =~a AX  >X"
+      " !Y        InKY FYKl 5r ?lJY >w 7Y )hIY GY1Y 5Y  NX 0X4\\ 7Y FY3Y2Y+Y1Y @p ?YKl ;lJX ;Y *v -h ;kJY 7_ 7]7\\ J[2"
+      "[ 7\\ 5~P 2Y  X  Y        AkE] Nz :i .p 7u EY1Y 5[ 7Y,Y KYMiL_%iGj Hu >Y8a Hv BYJl :p $a 7k H~f\"~T FZ 3oDo @Z "
+      ":Z(Z :Z /u   #X    F\\    I]    GZ )r H~U   *Z  X  AY   /p          >o     4~d       3YMiK^ 8WEW            EX "
+      "JV+W/o/X JW&Z 0[ Z-Z NZ-[ [.Z NZ,Z NZ.Z NZ=Z,~T$x I~T J~T I~S I~S 7Z !Z !Z \"Z :| BY-_ Hv <v =v =u =v   BXHu =v"
+      " <v =u <u .Z 2Z #YIo CmJY CmJY CmJX BnKY CmJY CmJY(oAx!r <x ?x ?x ?x 5Y  Y  NX  Y +p ?X0X ?p 7p 7p 7p 7p   6WNp"
+      " 9lJX AlJX AlJX AlJY 5[ 5YKl /\\      Hp 8q 7p 7p 8q -X  N]      NP  9V    ?Y  X  KS  IS 2X.Y <h <Z2Y 6^ -~V   "
+      "               $n   (Z   +X@X 1o =W-f$pB]   6X  NX    DX  Z    FZ *X  Nk 9} I~S Iw  LZ Bv 0m 4Z %q >p %Z \"Z   "
+      "     4Z @X  JZ MZ&{ 3u z 9~S FZ  Lx MZ(Z :Z \"Z 4Z+] M~Q)Y JY(Y-_ Fr >Z  Lr BZ(Z!y -Y -s /] <^.]&[&[ <Z =~a AX "
+      " =X \"Y        GjIY FYJj 2p =iIY =u 6Y 'dGY GY1Y 5Y  NX 0X3\\ 8Y FY3Y2Y+Y1Y >m >YJj 8iIX ;Y *u *f :iIY 7_ 6\\7"
+      "\\ K[0Z 6Z 4~P 2Y  X  Y        ?hC\\ NYMm 8f +m 3s EY1Y 5[ 8Z,Y KYLgJ^$gEh Fs =Y8a Fr @YIi 7m !` 6i G~g#~T FZ 3o"
+      "Do @Z :Z(Z :Z .s   \"X    EZ    G[    FZ 'p H~U   *Z  X  AY   ,k          :k     2~d       3YLgJ^ 8WEW         "
+      "   EW IV,X/o/W IW&Z 0Z MZ/[ NZ-Z MZ.Z N[.Z MZ.Z MZ>Z,~T\"t G~T J~T I~S I~S 7Z !Z !Z \"Z :y ?Y-_ Fr 8r 9r :s :r "
+      "  AXEr :r 8r :s :s -Z 2Z #YIn AkIY BkIY BkIX @jIY BkIY BkIY'l=t Mq :t ;t ;t ;t 3Y  Y  NX  Y *m =X0X >m 3m 5n 5m"
+      " 3m   6XLm 7iHX @iHX @jIX @jIY 5[ 5YJj -Z      El 3k 2l 3l 4l *X  N\\        5U    ?Y  Y  KR  HQ 1X.Y 9b 9Y1Z 7"
+      "] )~S                  \"j   &Z   +X@X -h ;X+c!l?\\   6X  Y    DX  Z    FZ +X  Kh 8} I~S Fr  JZ As ,i 3[ $n ;m "
+      "#Z \"Y        3Z ?X  KZ MZ&x -p Mu 4~S FZ  Js JZ(Z :Z \"Z 4Z*] N~Q)Y JY(Y-_ Dn <Z  Jn @Z([ Nt +Y +o ,\\ ;].]&Z$"
+      "[ =Z =~a AX  =X \"Y        FhHY FYHf .m ;gHY ;p 3Y %`EY GY1Y 5Y  NX 0X2\\ 9Y FY3Y2Y+Y1Y =j <YHf 5gHX ;Y (q &d 9"
+      "fGY 6] 5[6\\ KZ.Z 7Z 4~P 2Y  X  Y        >gB[ NYLj 5d (j 0q EY1Y 5Z 7Y+Z LYKdG]\"dBd Bo ;Y7` Dn >YHg 4i  L^ 4e "
+      "E~g#~T FZ 3oDo @Z :Z(Z :Z ,n    NX    DX    EY    EZ %m G~U   *Z  X  BZ   )e          4e     /~d       3YKeH] 8"
+      "WEW            FW HV,W.o0X IW'Z /Z MZ/Z LZ.Z MZ/[ MZ.Z MZ/[ MZ>Y+~T p E~T J~T I~S I~S 7Z !Z !Z \"Z :u ;Y,^ Dn 4"
+      "n 5n 6o 6n   @XBm 5n 4n 6o 6o +Z 2Z #YIl =gGY AhGY AhGX ?hHY @hHY @gGY%i:o Hm 7p 6o 6p 7p 1Y  Y  NX  Y (i ;X0X "
+      "<i 0j 1j 1j 1j   5XIi 3fGX >fGX >fGX >fGY 4Y 4YHf +Z      Bg /g .g -g /g (X  M[        5T    ?Z !Z  JP   'X.Y 5"
+      "[ 6Y0Y 7] &~P                   Ne   $Z   +W?X '] 6W)a Mh<\\   7Y !X    CX  Y    EZ +X  Id 6} I~S Cm  HZ =l 'e "
+      "1Z  i 6h !Z #Z        3Z ?Y  M[ M['s &k Jo .~S FZ  Gm GZ(Z :Z \"Z 4Z)] ~Q)Y JY(Y,^ Bi 9Z  Gl AZ'Z Jm (Y (i )\\ "
+      ";].]'[#Z =Z =~a AX  =X \"Y        DdFY FYFb *h 6cFY 8j 0Y \"YAY GY1Y 5Y  NX 0X1\\ :Y FY3Y2Y+Y1Y ;f :YFb 1cFX ;Y"
+      " $k  ` 7cFY 6] 5[5Z KZ-[ 8Y 3~P 2Y  X  Y        ;b=X NYJe 0` $e +l BY1Y 4Y 7Y*Y LYIaE[ b@a >k 9Y6_ Ah ;YFc 0e  "
+      "FZ 2a D~i$~T FZ 3oDo @Z :Z(Z :Z )i    LX    CV    CW    DZ #h D~U   *Z  X -R9Z   #[          *[     *~d       3"
+      "YIaE\\ 8WEW            GX HV-W-o0W HW'Z 0Z L[0Z LZ/[ LZ0Z LZ/[ LZ0Z LZ?Z+~T Lj B~T J~T I~S I~S 7Z !Z !Z \"Z :o "
+      "5Y,^ Ai /h 0i 0i 0i   >W?i 1j 0j 1j 1i (Z 2Z #YGh 9cEY ?dEY ?dEX =dFY >dFY >cEY#d5j Ch 1j 1j 1j 1j -Y  Y  NX  Y"
+      " &e 9X0X :e ,f -f -e ,f   4XFe 0cEX <bEX <bEX <bEY 4Y 4YFb )Z      ?` (a '` '` (a %X          'T               "
+      "       L{                   K_          0T 4X&[ Ga    AX \"Y      :Y      EX  G_      Ie   #e !_    c /a    EY "
+      "         EY       Hc        ?e      FZ          +b    Ni   )d    Nc            (X  =Y #Y        A^  J^ %a /]  N"
+      "c    ;Y      NX          *` 7YD^ ,]CX   1c    ^        /Y    DY  X  Y        8] 1YF] *\\  N` %c  DY 4Y   *YG\\A"
+      "X J\\;] 9e  A^ =` 7YC] *_    G[                 >a             NU    CZ  N`        9X -T<[                     "
+      "         LYG]BX 5WEW   %U        HW  NX  MX  GZ                 (d                       +b (b )b )a )b   9V;a "
+      ")c *c *c *c      =a 4_ &^ %^ $^ &_ &_ :_/c <b +c *c *c *c          3_    K_ &` '` '_ &`   1WB_ *] $] $^ %^  NZ "
+      "4YD^ 'Y      6Q  HQ  GQ  FQ  HQ  LX          &S                                          DQ          )T 4W Q :Q"
+      "    9Y #X      :Y      EX  ?Q      8R    ?R  @Q    @R  MQ    =Y          DY       @R        -Q      <Z         "
+      " #R    >RM]   !R    <R             X  <X #Y        ;Q  <Q  GR !Q  @Q    2Y      MX          #R 0Y=Q  Q=X   'Q  "
+      "  @Q        *Z    DY  X  Y          ;Y  <P  AQ  CQ  ;Y 4Y   *YAQ8P @Q0Q -Y  8X 7Y 3Y=Q  LQ                     "
+      " JQ                 4Z  IU        3X -W@[                              KYAQ8P 1WEW   $U        IV  MW  LW  FZ  "
+      "                V                        KQ  GR  HQ  GQ  GQ   0T2Q  HR  GR  HR  HQ      ,Q %Q  GP  GQ  FQ  GQ  "
+      "GP *P NQ ,V  MQ  GR  HR  HR          #Q    =Q  FQ  HR  HQ  FQ   *V:Q  LQ  GQ  GQ  GQ  GY 3Y=Q !Y               "
+      "  9X                                                                MT        +X #X      :Y      EX            "
+      "              5X          BZ                      7Y               7]                     8X  <X #Y            "
+      "          HY      MX            0Y  'X                 MY    CY  X  Y          ;Y         8Y 4Y   *Y    1Y    E"
+      "X 3Y                                          CZ  IU        3X -\\I_                              KY  8WEW   $V"
+      "              %Z                  NU                                    0R                                 #V  "
+      "                                  )T           <Z 3Y  =Y                 8X                                    "
+      "                            MT        +X $X      9X      DX                          6Y          AZ NR         "
+      "            =Z               6\\                     8X  <X #Y                      HY      MX            0Y  '"
+      "X                 NZ    CY  X  X          :Y         8Y 4Y   *Y    1Y    EX 3Y                                 "
+      "         CZ  IU        3X -q                              JY  8WEW   #V              &Z                  NV    "
+      "                                                                  0V                                    (R     "
+      "      <Y 2Y  =Y                 8X                                                                MT        *X "
+      "%X      9X      EY                          6X          @[!T                     >Z               5\\          "
+      "           9X  ;X $Y                      HY      NY            0Y  'X                 NY    BY  X !Y          "
+      ":Y         8Y 4Y   *Y    1Y    EX 3Y                                          CZ  IU        3X -p              "
+      "                IY  8WEW   #V              &Z                  MV                                              "
+      "                        0U                                    'P           ;Y 2Y  >Z                 8X        "
+      "                                                        MT        *X &X      9X      DX                        "
+      "  5X          ?\\%W                     ?Z               4\\                     :X  ;X $Y                     "
+      " IZ      NY            0Y  'X                 NY    BZ !X !Y          :Y         8Y 4Y   *Y    1Y    EX 3Y     "
+      "                                     CZ  IU        3X -o                              HY  8WEW   \"V           "
+      "   'Z                  LU                                                                      0V              "
+      "                                  CZ 2Y  >Y                 7X                                                 "
+      "               MT        )X 'X      9X      DX                          5W          <\\(X                     ?"
+      "Z               3\\                     ;Y  <X $Y                      IY      MY            0Y  'X            "
+      "     Z    AY !X !Y          :Y         8Y 4Y   *Y    1Y    EX 3Y                                          CZ  I"
+      "U        3X -n                              GY  8WEW   \"V              '[3Q                 <V                "
+      "                                                      0V                                                DY 1Y  "
+      "?Z                 7X                                                                MT        )X (X      8W   "
+      "   CX                          6X          ;],[                     AZ               1\\                     <e"
+      "  GX 2f                      JZ      MY            0Y  'X                 Y    @Z \"X \"Z          :Y         8"
+      "Y 4Y   *Y    1Y    EX 3Y                                          CZ  IU        3X ,k                          "
+      "    EY  8WEW   !V              'Z4R                 <V                                                         "
+      "             0V                                                EZ 1Y  ?Y                 ARGX                  "
+      "                                              MT        (X )X      8W      DX                          5W      "
+      "    9^1^                     AZ               0\\                     =e  GX 2f                      KZ      LY"
+      "            0Y  'X                !Z    @[ #X #Z          9Y         8Y 4Y   *Y    1Y    EX 3Y                 "
+      "                         CZ  IU        3X )f                              CY  8WEW   !V              '[7T      "
+      "           ;V                                                                      1V                          "
+      "                      EY 0Y  ?Y                 FWGW                                                           "
+      "     LT        'W *X      8W      CX                          5W          8`7`                     A[          "
+      "     /\\                     >e  GX 2f                      KZ      LY            0Y  'X                !Y    >"
+      "\\ %X &]          9Y         8Y 4Y   *Y    1Y    EX 3Y                                          CZ  IU        3"
+      "X $^                              @Y  8WEW   !V              '\\:V                 ;V                          "
+      "                                            1W                                                GZ 0Y  @Z        "
+      "         FWHX                                                                LT        'X +W      7W           "
+      "                      V          5b?c                     A[               -\\                     ?e   !f     "
+      "                <P2\\      MY            /Y  'X                \"Z    >f /X 0g          9Y         8Y 4Y   *Y  "
+      "  1Y    EX 3Y                                          CZ  IU        3X                                5Y      "
+      " NV              &\\=X                 ;V                                                                      "
+      "1W                                                GY /Y  AZ                 EWHX                               "
+      "                                 LT        &W ,X      7V                                 V          3~T        "
+      "             A]               ,\\                     @e   !f                     <R5\\      LY            /Y  "
+      "'X                #Z    =f /X 0f          8Y         8Y 4Y   *Y    1Y    EX 3Y                                 "
+      "         CZ  IU        3X                                5Y       NW              '^B[                 <W      "
+      "                                                                1W                                             "
+      "   HZ /Y  AZ                 DWIX                                                                LT        &X -"
+      "W      6U                                 NV          1~P                     B_               *\\             "
+      "        Ae   !f                     <U:]      LZ            /Y  'X                #Z    <e /X 0e          7Y   "
+      "      8Y 4Y   *Y    1Y    EX 3Y                                          CZ  IU        3X                      "
+      "          5Y       X              &aJ_                 <W                                                      "
+      "                2X                                                IZ .Y  BZ                 CWJY               "
+      "                                                 LT        %X /X                                               "
+      "   7|                     Hf               )\\                     Be   !f                     <X?_      N[    "
+      "        .Y  'X                %[    :d /X 0e          7Y         8Y 4Y   *Y    1Y    EX 3Y                     "
+      "                     CZ  IU        3X                                5Y      -PDX              %v              "
+      "   JQDX                                                                      ?QEY                              "
+      "                  J[ .Y  D\\                 CXLY                                                              "
+      "  KT                                                             7x                     Fe                     "
+      "                                          -_Me     %b            .Y  'X                /e    9c /X 0c          "
+      "5Y         8Y 4Y   *Y    1Y    EX 3Y                                          CZ  IU        3X                 "
+      "               5Y      -d              $u                 Je                                                   "
+      "                   ?d                                               $d -Y  Ne                 Ad               "
+      "                                                 KT                                                            "
+      " 5s                     Cd                                                               ,v     %b            -"
+      "Y  'X                0e    6a /X 0b          4Y         8Y 4Y   *Y    1Y    EX 3Y                              "
+      "            CZ  IU        3X                                5Y      -d              #t                 Jd      "
+      "                                                                >d                                             "
+      "  %e -Y  Nd                 @c                                                                                 "
+      "                                            (m                     @c                                          "
+      "                     +u     $b            -Y  'X                0d    2^ /X 0_          1Y         8Y 4Y   *Y  "
+      "  1Y    EX 3Y                                          CZ  IT        2X                                5Y      "
+      "-c              !q                 Hd                                                                      >c  "
+      "                                             $d ,Y  Nd                 ?b                                      "
+      "                                                                                       %g                     ="
+      "b                                                               *t     #a            ,Y  'X                0d  "
+      "  ,X /X 0Y          +Y         8Y 4Y   *Y    1Y    EX 3Y                                          CZ          '"
+      "X                                5Y      -c               Nm                 Fc                                "
+      "                                      =c                                               $c +Y  Nc               "
+      "  >a                                                                                                           "
+      "                   M\\                     8a                                             \"~Y                1"
+      "r     !`            +Y  'X                0c      1X            1Y         8Y 4Y   *Y    1Y    EX 3Y           "
+      "                               CZ          &W                                5Y      -b               Lj       "
+      "          Db                                                                      <b                           "
+      "                    #b *Y  Nb                 <_                                                               "
+      "                                                                                    (_                         "
+      "                     ~Y                1q      _            *Y  'X                0b      0X            1Y     "
+      "    8Y 4Y   *Y    1Y    EX 3Y                                          CZ                                      "
+      "     3Y      -`               He                 A`                                                            "
+      "          :`                                               !a )Y  Na                 :]                        "
+      "                                                                                                               "
+      "            ']                                              M~Y                .l      M]            (Y  'X    "
+      "            0`      .X            1Y         8Y 4Y   *Y    1Y    EX 3Y                                         "
+      "                                             KY      *Z               B^                 9Z                    "
+      "                                                  5Z                                                M` (Y  N`  "
+      "               8Z                                                                                              "
+      "                                                     %X                                              H~Y       "
+      "         *d      I[            &Y  'X                0^      ,X            1Y         8Y 4Y   *Y    1Y    EX 3Y"
+      "                                                                                      KY                       "
+      "                                                                                                               "
+      "                         H^ &Y  N]                 3V                                                          "
+      "                                                                                                               "
+      "                         B~Y                #X      CU            !X  &X                /Y      (X            1"
+      "Y         7X 4X   )X    0Y    EX 2X                                                                            "
+      "          KY                                                                                                   "
+      "                                                            HZ \"X  MY                                         "
+      "                                                                                                               "
+      "                                                            J~Y                                                "
+      "               9X                                                                                              "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                          3~Y                                  "
+      "                             9X                                                                                "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                                               "
+      "                                                                                        3~Y                    "
+      "                                           9X                                                                  "
+      "                                                                                                               "
+      "                                                                                                               "
+      "  '";
+
+      static CImg<char> value;
+      if (!value) {
+        cimg::mutex(0);
+        const size_t s0 = std::strlen(chunk0), s1 = std::strlen(chunk1);
+        if (!value) {
+          value.assign(s0 + s1 + 1);
+          std::memcpy(value._data,chunk0,s0);
+          std::memcpy(value._data + s0,chunk1,s1 + 1);
+        }
+        cimg::mutex(0,0);
+      }
+      return value;
     }
 
   } // namespace cimg { ...

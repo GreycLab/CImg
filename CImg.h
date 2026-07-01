@@ -5652,7 +5652,7 @@ namespace cimg_library {
       return randomid;
     }
 
-    // Convert filename as a Windows-style filename (short path name).
+    // Convert filename to a Windows-style filename (short path name).
     inline void winformat_string(char *const str) {
       if (str && *str) {
 #if cimg_OS==2
@@ -6078,10 +6078,10 @@ namespace cimg_library {
       if (!file) cimg::fclose(nfile);
     }
 
-    // Try to guess format from an image file.
+    // Try to guess the format of an image file.
     inline const char *ftype(std::FILE *const file, const char *const filename);
 
-    // Load file from network as a local temporary file.
+    // Load a file from network as a local temporary file.
     inline char *load_network(const char *const url, char *const filename_local,
                               const unsigned int timeout=0, const bool try_fallback=false,
                               const char *const referer=0, const char *const user_agent=0);
@@ -67583,7 +67583,7 @@ namespace cimg_library {
       siz = (cimg_int64)_filelengthi64(fd);
 #endif
       // Fallback, used for non-POSIX systems or if fstat failed (pipes or sockets).
-      if (siz < 0) {
+      if (siz<0) {
         const cimg_long pos = cimg::ftell(file);
         cimg::fseek(file, 0, SEEK_END);
         siz = (cimg_int64)cimg::ftell(file);
@@ -67606,12 +67606,12 @@ namespace cimg_library {
 #elif cimg_OS==2
       WIN32_FILE_ATTRIBUTE_DATA attr;
       if (win_getfileattributesEx(filename, &attr)) {
-          if (!(attr.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-              LARGE_INTEGER size;
-              size.HighPart = attr.nFileSizeHigh;
-              size.LowPart = attr.nFileSizeLow;
-              return (cimg_int64)size.QuadPart;
-          }
+        if (!(attr.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+          LARGE_INTEGER size;
+          size.HighPart = attr.nFileSizeHigh;
+          size.LowPart = attr.nFileSizeLow;
+          return (cimg_int64)size.QuadPart;
+        }
       }
 #endif
       // Fallback for other systems.

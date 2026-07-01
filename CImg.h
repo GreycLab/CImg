@@ -34407,6 +34407,7 @@ namespace cimg_library {
     **/
     T otsu(const unsigned int nb_levels=256) const {
       T m,M = max_min(m);
+      if (nb_levels<2) return (T)(((Tfloat)m + M)/2);
       CImg<ulongT> hist = get_histogram(nb_levels,m,M);
       ulongT sum = 0, sumB = 0, wB = 0;
       double best_variance = 0;
@@ -45551,10 +45552,9 @@ namespace cimg_library {
                                     cimg_instance,
                                     metric._width,metric._height,metric._depth,metric._spectrum);
       CImg<Tfloat> result(_width,_height,_depth,_spectrum,cimg::type<Tfloat>::max()), Q;
-      CImg<charT> state(_width,_height,_depth); // -1=far away, 0=narrow, 1=frozen
-
-      cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2) firstprivate(Q,state))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2))
       cimg_forC(*this,c) {
+        CImg<charT> state(_width,_height,_depth); // -1=far away, 0=narrow, 1=frozen
         const CImg<T> img = get_shared_channel(c);
         const CImg<t> met = metric.get_shared_channel(c%metric._spectrum);
         CImg<Tfloat> res = result.get_shared_channel(c);
@@ -46210,6 +46210,7 @@ namespace cimg_library {
               wr = nwr;
             }
           }
+          if (delta==N) break;
         }
         if (is_inverse) { real/=N; imag/=N; }
       } break;
@@ -46256,6 +46257,7 @@ namespace cimg_library {
               wr = nwr;
             }
           }
+          if (delta==N) break;
         }
         if (is_inverse) { real/=N; imag/=N; }
       } break;
@@ -46302,6 +46304,7 @@ namespace cimg_library {
               wr = nwr;
             }
           }
+          if (delta==N) break;
         }
         if (is_inverse) { real/=N; imag/=N; }
       } break;
@@ -52436,7 +52439,7 @@ namespace cimg_library {
        \param opacities Image or list of P opacities
        \param render_type Render type (0=Points, 1=Lines, 2=Faces (no light), 3=Faces (flat), 4=Faces(Gouraud)
        \param is_double_sided Indicates whether object faces have two sides or are oriented.
-       \param focale Focale length (0 for parallel projection).
+       \param focal Focal length (0 for parallel projection).
        \param lightx X-coordinate of the light
        \param lighty Y-coordinate of the light
        \param lightz Z-coordinate of the light
@@ -52450,12 +52453,12 @@ namespace cimg_library {
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
                            const CImgList<tc>& colors, const CImg<to>& opacities,
                            const unsigned int render_type=4,
-                           const bool is_double_sided=false, const float focale=700,
+                           const bool is_double_sided=false, const float focal=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
                            const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                            const float g_opacity=1, const bool is_multithreaded_rendering=false) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,opacities,render_type,
-                           is_double_sided,focale,lightx,lighty,lightz,
+                           is_double_sided,focal,lightx,lighty,lightz,
                            specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty(),
                            is_multithreaded_rendering);
     }
@@ -52466,13 +52469,13 @@ namespace cimg_library {
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
                            const CImgList<tc>& colors, const CImg<to>& opacities,
                            const unsigned int render_type,
-                           const bool is_double_sided, const float focale,
+                           const bool is_double_sided, const float focal,
                            const float lightx, const float lighty, const float lightz,
                            const float specular_lightness, const float specular_shininess,
                            const float g_opacity, CImg<tz>& zbuffer,
                            const bool is_multithreaded_rendering=false) {
       return _draw_object3d(zbuffer,x0,y0,z0,vertices,primitives,colors,opacities,
-                            render_type,is_double_sided,focale,lightx,lighty,lightz,
+                            render_type,is_double_sided,focal,lightx,lighty,lightz,
                             specular_lightness,specular_shininess,g_opacity,1,
                             is_multithreaded_rendering);
     }
@@ -52483,12 +52486,12 @@ namespace cimg_library {
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
                            const CImgList<tc>& colors, const CImgList<to>& opacities,
                            const unsigned int render_type=4,
-                           const bool is_double_sided=false, const float focale=700,
+                           const bool is_double_sided=false, const float focal=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
                            const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                            const float g_opacity=1, const bool is_multithreaded_rendering=false) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,opacities,render_type,
-                           is_double_sided,focale,lightx,lighty,lightz,
+                           is_double_sided,focal,lightx,lighty,lightz,
                            specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty(),
                            is_multithreaded_rendering);
     }
@@ -52499,13 +52502,13 @@ namespace cimg_library {
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
                            const CImgList<tc>& colors, const CImgList<to>& opacities,
                            const unsigned int render_type,
-                           const bool is_double_sided, const float focale,
+                           const bool is_double_sided, const float focal,
                            const float lightx, const float lighty, const float lightz,
                            const float specular_lightness, const float specular_shininess,
                            const float g_opacity, CImg<tz>& zbuffer,
                            const bool is_multithreaded_rendering=false) {
       return _draw_object3d(zbuffer,x0,y0,z0,vertices,primitives,colors,opacities,
-                            render_type,is_double_sided,focale,lightx,lighty,lightz,
+                            render_type,is_double_sided,focal,lightx,lighty,lightz,
                             specular_lightness,specular_shininess,g_opacity,1,
                             is_multithreaded_rendering);
     }
@@ -52516,12 +52519,12 @@ namespace cimg_library {
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
                            const CImgList<tc>& colors,
                            const unsigned int render_type=4,
-                           const bool is_double_sided=false, const float focale=700,
+                           const bool is_double_sided=false, const float focal=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
                            const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                            const float g_opacity=1, const bool is_multithreaded_rendering=false) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::const_empty(),
-                           render_type,is_double_sided,focale,lightx,lighty,lightz,
+                           render_type,is_double_sided,focal,lightx,lighty,lightz,
                            specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty(),
                            is_multithreaded_rendering);
     }
@@ -52532,13 +52535,13 @@ namespace cimg_library {
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
                            const CImgList<tc>& colors,
                            const unsigned int render_type,
-                           const bool is_double_sided, const float focale,
+                           const bool is_double_sided, const float focal,
                            const float lightx, const float lighty, const float lightz,
                            const float specular_lightness, const float specular_shininess,
                            const float g_opacity, CImg<tz>& zbuffer,
                            const bool is_multithreaded_rendering=false) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::const_empty(),
-                           render_type,is_double_sided,focale,lightx,lighty,lightz,
+                           render_type,is_double_sided,focal,lightx,lighty,lightz,
                            specular_lightness,specular_shininess,g_opacity,zbuffer,
                            is_multithreaded_rendering);
     }
@@ -52574,21 +52577,21 @@ namespace cimg_library {
                                                  int n0, int n1,
                                                  const CImg<tp>& vertices, const CImg<floatT>& projections,
                                                  const tc *const color, const float opacity,
-                                                 float focale) {
-      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale;
+                                                 float focal) {
+      float z0 = vertices(n0,2) + Z + focal, z1 = vertices(n1,2) + Z + focal;
       if (z0>z1) cimg::swap(n0,n1,z0,z1);
       int
         x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1));
       const float zc = 1; // Clipping plane
-      if (focale && z0<zc) {
+      if (focal && z0<zc) {
         if (z1<zc) return *this; // Two vertices behind camera
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
           fx1 = vertices(n1,0), fy1 = vertices(n1,1),
           fact = (zc - z0)/(z1 - z0), nfx0 = fx0 + fact*(fx1 - fx0), nfy0 = fy0 + fact*(fy1 - fy0);
         z0 = zc;
-        x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
+        x0 = cimg::uiround(X + focal*nfx0/z0); y0 = cimg::uiround(Y + focal*nfy0/z0);
       }
       if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,color,opacity);
       else draw_line(x0,y0,x1,y1,color,opacity);
@@ -52605,9 +52608,9 @@ namespace cimg_library {
                                                   int tx0, int ty0,
                                                   int tx1, int ty1,
                                                   const float opacity,
-                                                  float focale) {
-      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale;
-      if (focale && z0>z1) cimg::swap(n0,n1,z0,z1,tx0,tx1,ty0,ty1);
+                                                  float focal) {
+      float z0 = vertices(n0,2) + Z + focal, z1 = vertices(n1,2) + Z + focal;
+      if (focal && z0>z1) cimg::swap(n0,n1,z0,z1,tx0,tx1,ty0,ty1);
       int
         x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1));
@@ -52618,9 +52621,9 @@ namespace cimg_library {
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
           fx1 = vertices(n1,0), fy1 = vertices(n1,1),
           fact = (zc - z0)/(z1 - z0), nfx0 = fx0 + fact*(fx1 - fx0), nfy0 = fy0 + fact*(fy1 - fy0);
-        if (!focale) focale = zc;
+        if (!focal) focal = zc;
         z0 = zc;
-        x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
+        x0 = cimg::uiround(X + focal*nfx0/z0); y0 = cimg::uiround(Y + focal*nfy0/z0);
         tx0 = cimg::uiround(tx0 + fact*(tx1 - tx0)); ty0 = cimg::uiround(ty0 + fact*(ty1 - ty0));
       }
       if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,texture,tx0,ty0,tx1,ty1,opacity);
@@ -52635,8 +52638,8 @@ namespace cimg_library {
                                                   int n0, int n1, int n2,
                                                   const CImg<tp>& vertices, const CImg<floatT>& projections,
                                                   const tc *const color, const float opacity,
-                                                  const float brightness, float focale) {
-      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale, z2 = vertices(n2,2) + Z + focale;
+                                                  const float brightness, float focal) {
+      float z0 = vertices(n0,2) + Z + focal, z1 = vertices(n1,2) + Z + focal, z2 = vertices(n2,2) + Z + focal;
       if (z0>z2) cimg::swap(n0,n2,z0,z2);
       if (z0>z1) cimg::swap(n0,n1,z0,z1);
       if (z1>z2) cimg::swap(n1,n2,z1,z2);
@@ -52645,7 +52648,7 @@ namespace cimg_library {
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
         x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
-      if (focale && z0<zc) {
+      if (focal && z0<zc) {
         if (z2<zc) return *this;
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -52656,16 +52659,16 @@ namespace cimg_library {
             fact0 = (zc - z0)/(z2 - z0), nfx0 = fx0 + fact0*(fx2 - fx0), nfy0 = fy0 + fact0*(fy2 - fy0),
             fact1 = (zc - z1)/(z2 - z1), nfx1 = fx1 + fact1*(fx2 - fx1), nfy1 = fy1 + fact1*(fy2 - fy1);
           z0 = z1 = zc;
-          x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
-          x1 = cimg::uiround(X + focale*nfx1/z1); y1 = cimg::uiround(Y + focale*nfy1/z1);
+          x0 = cimg::uiround(X + focal*nfx0/z0); y0 = cimg::uiround(Y + focal*nfy0/z0);
+          x1 = cimg::uiround(X + focal*nfx1/z1); y1 = cimg::uiround(Y + focal*nfy1/z1);
         } else { // One vertex behind camera
           const float
             fact0 = (zc - z0)/(z1 - z0), nfx0 = fx0 + fact0*(fx1 - fx0), nfy0 = fy0 + fact0*(fy1 - fy0),
             fact1 = (zc - z0)/(z2 - z0), nfx1 = fx0 + fact1*(fx2 - fx0), nfy1 = fy0 + fact1*(fy2 - fy0),
             nz0 = zc, nz1 = zc;
           const int
-            nx0 = cimg::uiround(X + focale*nfx0/nz0), ny0 = cimg::uiround(Y + focale*nfy0/nz0),
-            nx1 = cimg::uiround(X + focale*nfx1/nz1), ny1 = cimg::uiround(Y + focale*nfy1/nz1);
+            nx0 = cimg::uiround(X + focal*nfx0/nz0), ny0 = cimg::uiround(Y + focal*nfy0/nz0),
+            nx1 = cimg::uiround(X + focal*nfx1/nz1), ny1 = cimg::uiround(Y + focal*nfy1/nz1);
           if (brightness==1) {
             if (zbuffer) draw_triangle(zbuffer,nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,color,opacity).
                            draw_triangle(zbuffer,nx0,ny0,nz0,nx1,ny1,nz1,x2,y2,z2,color,opacity);
@@ -52701,8 +52704,8 @@ namespace cimg_library {
                                                    int tx1, int ty1,
                                                    int tx2, int ty2,
                                                    const float opacity,
-                                                   const float brightness, float focale) {
-      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale, z2 = vertices(n2,2) + Z + focale;
+                                                   const float brightness, float focal) {
+      float z0 = vertices(n0,2) + Z + focal, z1 = vertices(n1,2) + Z + focal, z2 = vertices(n2,2) + Z + focal;
       if (z0>z2) cimg::swap(n0,n2,z0,z2,tx0,tx2,ty0,ty2);
       if (z0>z1) cimg::swap(n0,n1,z0,z1,tx0,tx1,ty0,ty1);
       if (z1>z2) cimg::swap(n1,n2,z1,z2,tx1,tx2,ty1,ty2);
@@ -52711,7 +52714,7 @@ namespace cimg_library {
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
         x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
-      if (focale && z0<zc) {
+      if (focal && z0<zc) {
         if (z2<zc) return *this;
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -52722,8 +52725,8 @@ namespace cimg_library {
             fact0 = (zc - z0)/(z2 - z0), nfx0 = fx0 + fact0*(fx2 - fx0), nfy0 = fy0 + fact0*(fy2 - fy0),
             fact1 = (zc - z1)/(z2 - z1), nfx1 = fx1 + fact1*(fx2 - fx1), nfy1 = fy1 + fact1*(fy2 - fy1);
           z0 = z1 = zc;
-          x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
-          x1 = cimg::uiround(X + focale*nfx1/z1); y1 = cimg::uiround(Y + focale*nfy1/z1);
+          x0 = cimg::uiround(X + focal*nfx0/z0); y0 = cimg::uiround(Y + focal*nfy0/z0);
+          x1 = cimg::uiround(X + focal*nfx1/z1); y1 = cimg::uiround(Y + focal*nfy1/z1);
           tx0 = cimg::uiround(tx0 + fact0*(tx2 - tx0)); ty0 = cimg::uiround(ty0 + fact0*(ty2 - ty0));
           tx1 = cimg::uiround(tx1 + fact1*(tx2 - tx1)); ty1 = cimg::uiround(ty1 + fact1*(ty2 - ty1));
         } else { // One vertex behind camera
@@ -52732,8 +52735,8 @@ namespace cimg_library {
             fact1 = (zc - z0)/(z2 - z0), nfx1 = fx0 + fact1*(fx2 - fx0), nfy1 = fy0 + fact1*(fy2 - fy0),
             nz0 = zc, nz1 = zc;
           const int
-            nx0 = cimg::uiround(X + focale*nfx0/nz0), ny0 = cimg::uiround(Y + focale*nfy0/nz0),
-            nx1 = cimg::uiround(X + focale*nfx1/nz1), ny1 = cimg::uiround(Y + focale*nfy1/nz1),
+            nx0 = cimg::uiround(X + focal*nfx0/nz0), ny0 = cimg::uiround(Y + focal*nfy0/nz0),
+            nx1 = cimg::uiround(X + focal*nfx1/nz1), ny1 = cimg::uiround(Y + focal*nfy1/nz1),
             ntx0 = cimg::uiround(tx0 + fact0*(tx1 - tx0)), nty0 = cimg::uiround(ty0 + fact0*(ty1 - ty0)),
             ntx1 = cimg::uiround(tx0 + fact1*(tx2 - tx0)), nty1 = cimg::uiround(ty0 + fact1*(ty2 - ty0));
           if (zbuffer) draw_triangle(zbuffer,nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,
@@ -52762,8 +52765,8 @@ namespace cimg_library {
                                                      const CImg<tp>& vertices, const CImg<floatT>& projections,
                                                      const tc *const color,
                                                      float bs0, float bs1, float bs2,
-                                                     const float opacity, float focale) {
-      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale, z2 = vertices(n2,2) + Z + focale;
+                                                     const float opacity, float focal) {
+      float z0 = vertices(n0,2) + Z + focal, z1 = vertices(n1,2) + Z + focal, z2 = vertices(n2,2) + Z + focal;
       if (z0>z2) cimg::swap(n0,n2,z0,z2,bs0,bs2);
       if (z0>z1) cimg::swap(n0,n1,z0,z1,bs0,bs1);
       if (z1>z2) cimg::swap(n1,n2,z1,z2,bs1,bs2);
@@ -52772,7 +52775,7 @@ namespace cimg_library {
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
         x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
-      if (focale && z0<zc) {
+      if (focal && z0<zc) {
         if (z2<zc) return *this;
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -52783,8 +52786,8 @@ namespace cimg_library {
             fact0 = (zc - z0)/(z2 - z0), nfx0 = fx0 + fact0*(fx2 - fx0), nfy0 = fy0 + fact0*(fy2 - fy0),
             fact1 = (zc - z1)/(z2 - z1), nfx1 = fx1 + fact1*(fx2 - fx1), nfy1 = fy1 + fact1*(fy2 - fy1);
           z0 = z1 = zc;
-          x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
-          x1 = cimg::uiround(X + focale*nfx1/z1); y1 = cimg::uiround(Y + focale*nfy1/z1);
+          x0 = cimg::uiround(X + focal*nfx0/z0); y0 = cimg::uiround(Y + focal*nfy0/z0);
+          x1 = cimg::uiround(X + focal*nfx1/z1); y1 = cimg::uiround(Y + focal*nfy1/z1);
           bs0 = bs0 + fact0*(bs2 - bs0);
           bs1 = bs1 + fact1*(bs2 - bs1);
         } else { // One vertex behind camera
@@ -52795,8 +52798,8 @@ namespace cimg_library {
             nbs1 = bs0 + fact1*(bs2 - bs0),
             nz0 = zc, nz1 = zc;
           const int
-            nx0 = cimg::uiround(X + focale*nfx0/nz0), ny0 = cimg::uiround(Y + focale*nfy0/nz0),
-            nx1 = cimg::uiround(X + focale*nfx1/nz1), ny1 = cimg::uiround(Y + focale*nfy1/nz1);
+            nx0 = cimg::uiround(X + focal*nfx0/nz0), ny0 = cimg::uiround(Y + focal*nfy0/nz0),
+            nx1 = cimg::uiround(X + focal*nfx1/nz1), ny1 = cimg::uiround(Y + focal*nfy1/nz1);
           if (zbuffer) draw_triangle(zbuffer,nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,color,nbs0,bs1,bs2,opacity).
                          draw_triangle(zbuffer,nx0,ny0,nz0,nx1,ny1,nz1,x2,y2,z2,color,nbs0,nbs1,bs2,opacity);
           else draw_triangle(nx0,ny0,x1,y1,x2,y2,color,nbs0,bs1,bs2,opacity).
@@ -52822,8 +52825,8 @@ namespace cimg_library {
                                                       int tx1, int ty1,
                                                       int tx2, int ty2,
                                                       float bs0, float bs1, float bs2,
-                                                      const float opacity, float focale) {
-      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale, z2 = vertices(n2,2) + Z + focale;
+                                                      const float opacity, float focal) {
+      float z0 = vertices(n0,2) + Z + focal, z1 = vertices(n1,2) + Z + focal, z2 = vertices(n2,2) + Z + focal;
       if (z0>z2) cimg::swap(n0,n2,z0,z2,tx0,tx2,ty0,ty2,bs0,bs2);
       if (z0>z1) cimg::swap(n0,n1,z0,z1,tx0,tx1,ty0,ty1,bs0,bs1);
       if (z1>z2) cimg::swap(n1,n2,z1,z2,tx1,tx2,ty1,ty2,bs1,bs2);
@@ -52832,7 +52835,7 @@ namespace cimg_library {
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
         x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
-      if (focale && z0<zc) {
+      if (focal && z0<zc) {
         if (z2<zc) return *this;
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -52843,8 +52846,8 @@ namespace cimg_library {
             fact0 = (zc - z0)/(z2 - z0), nfx0 = fx0 + fact0*(fx2 - fx0), nfy0 = fy0 + fact0*(fy2 - fy0),
             fact1 = (zc - z1)/(z2 - z1), nfx1 = fx1 + fact1*(fx2 - fx1), nfy1 = fy1 + fact1*(fy2 - fy1);
           z0 = z1 = zc;
-          x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
-          x1 = cimg::uiround(X + focale*nfx1/z1); y1 = cimg::uiround(Y + focale*nfy1/z1);
+          x0 = cimg::uiround(X + focal*nfx0/z0); y0 = cimg::uiround(Y + focal*nfy0/z0);
+          x1 = cimg::uiround(X + focal*nfx1/z1); y1 = cimg::uiround(Y + focal*nfy1/z1);
           tx0 = cimg::uiround(tx0 + fact0*(tx2 - tx0)); ty0 = cimg::uiround(ty0 + fact0*(ty2 - ty0));
           tx1 = cimg::uiround(tx1 + fact1*(tx2 - tx1)); ty1 = cimg::uiround(ty1 + fact1*(ty2 - ty1));
           bs0 = bs0 + fact0*(bs2 - bs0);
@@ -52857,8 +52860,8 @@ namespace cimg_library {
             nbs1 = bs0 + fact1*(bs2 - bs0),
             nz0 = zc, nz1 = zc;
           const int
-            nx0 = cimg::uiround(X + focale*nfx0/nz0), ny0 = cimg::uiround(Y + focale*nfy0/nz0),
-            nx1 = cimg::uiround(X + focale*nfx1/nz1), ny1 = cimg::uiround(Y + focale*nfy1/nz1),
+            nx0 = cimg::uiround(X + focal*nfx0/nz0), ny0 = cimg::uiround(Y + focal*nfy0/nz0),
+            nx1 = cimg::uiround(X + focal*nfx1/nz1), ny1 = cimg::uiround(Y + focal*nfy1/nz1),
             ntx0 = cimg::uiround(tx0 + fact0*(tx1 - tx0)), nty0 = cimg::uiround(ty0 + fact0*(ty1 - ty0)),
             ntx1 = cimg::uiround(tx0 + fact1*(tx2 - tx0)), nty1 = cimg::uiround(ty0 + fact1*(ty2 - ty0));
           if (zbuffer) draw_triangle(zbuffer,nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,
@@ -52889,8 +52892,8 @@ namespace cimg_library {
                                                    int lx0, int ly0,
                                                    int lx1, int ly1,
                                                    int lx2, int ly2,
-                                                   const float opacity, float focale) {
-      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale, z2 = vertices(n2,2) + Z + focale;
+                                                   const float opacity, float focal) {
+      float z0 = vertices(n0,2) + Z + focal, z1 = vertices(n1,2) + Z + focal, z2 = vertices(n2,2) + Z + focal;
       if (z0>z2) cimg::swap(n0,n2,z0,z2,lx0,lx2,ly0,ly2);
       if (z0>z1) cimg::swap(n0,n1,z0,z1,lx0,lx1,ly0,ly1);
       if (z1>z2) cimg::swap(n1,n2,z1,z2,lx1,lx2,ly1,ly2);
@@ -52899,7 +52902,7 @@ namespace cimg_library {
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
         x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
-      if (focale && z0<zc) {
+      if (focal && z0<zc) {
         if (z2<zc) return *this;
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -52910,8 +52913,8 @@ namespace cimg_library {
             fact0 = (zc - z0)/(z2 - z0), nfx0 = fx0 + fact0*(fx2 - fx0), nfy0 = fy0 + fact0*(fy2 - fy0),
             fact1 = (zc - z1)/(z2 - z1), nfx1 = fx1 + fact1*(fx2 - fx1), nfy1 = fy1 + fact1*(fy2 - fy1);
           z0 = z1 = zc;
-          x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
-          x1 = cimg::uiround(X + focale*nfx1/z1); y1 = cimg::uiround(Y + focale*nfy1/z1);
+          x0 = cimg::uiround(X + focal*nfx0/z0); y0 = cimg::uiround(Y + focal*nfy0/z0);
+          x1 = cimg::uiround(X + focal*nfx1/z1); y1 = cimg::uiround(Y + focal*nfy1/z1);
           lx0 = cimg::uiround(lx0 + fact0*(lx2 - lx0)); ly0 = cimg::uiround(ly0 + fact0*(ly2 - ly0));
           lx1 = cimg::uiround(lx1 + fact1*(lx2 - lx1)); ly1 = cimg::uiround(ly1 + fact1*(ly2 - ly1));
         } else { // One vertex behind camera
@@ -52920,8 +52923,8 @@ namespace cimg_library {
             fact1 = (zc - z0)/(z2 - z0), nfx1 = fx0 + fact1*(fx2 - fx0), nfy1 = fy0 + fact1*(fy2 - fy0),
             nz0 = zc, nz1 = zc;
           const int
-            nx0 = cimg::uiround(X + focale*nfx0/nz0), ny0 = cimg::uiround(Y + focale*nfy0/nz0),
-            nx1 = cimg::uiround(X + focale*nfx1/nz1), ny1 = cimg::uiround(Y + focale*nfy1/nz1),
+            nx0 = cimg::uiround(X + focal*nfx0/nz0), ny0 = cimg::uiround(Y + focal*nfy0/nz0),
+            nx1 = cimg::uiround(X + focal*nfx1/nz1), ny1 = cimg::uiround(Y + focal*nfy1/nz1),
             nlx0 = cimg::uiround(lx0 + fact0*(lx1 - lx0)), nly0 = cimg::uiround(ly0 + fact0*(ly1 - ly0)),
             nlx1 = cimg::uiround(lx0 + fact1*(lx2 - lx0)), nly1 = cimg::uiround(ly0 + fact1*(ly2 - ly0));
           if (zbuffer) draw_triangle(zbuffer,nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,color,
@@ -52952,8 +52955,8 @@ namespace cimg_library {
                                                     int tx0, int ty0, int tx1, int ty1, int tx2, int ty2,
                                                     const CImg<floatT>& light_texture,
                                                     int lx0, int ly0, int lx1, int ly1, int lx2, int ly2,
-                                                    const float opacity, float focale) {
-      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale, z2 = vertices(n2,2) + Z + focale;
+                                                    const float opacity, float focal) {
+      float z0 = vertices(n0,2) + Z + focal, z1 = vertices(n1,2) + Z + focal, z2 = vertices(n2,2) + Z + focal;
       if (z0>z2) cimg::swap(n0,n2,z0,z2,tx0,tx2,ty0,ty2,lx0,lx2,ly0,ly2);
       if (z0>z1) cimg::swap(n0,n1,z0,z1,tx0,tx1,ty0,ty1,lx0,lx1,ly0,ly1);
       if (z1>z2) cimg::swap(n1,n2,z1,z2,tx1,tx2,ty1,ty2,lx1,lx2,ly1,ly2);
@@ -52962,7 +52965,7 @@ namespace cimg_library {
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
         x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
-      if (focale && z0<zc) {
+      if (focal && z0<zc) {
         if (z2<zc) return *this;
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -52973,8 +52976,8 @@ namespace cimg_library {
             fact0 = (zc - z0)/(z2 - z0), nfx0 = fx0 + fact0*(fx2 - fx0), nfy0 = fy0 + fact0*(fy2 - fy0),
             fact1 = (zc - z1)/(z2 - z1), nfx1 = fx1 + fact1*(fx2 - fx1), nfy1 = fy1 + fact1*(fy2 - fy1);
           z0 = z1 = zc;
-          x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
-          x1 = cimg::uiround(X + focale*nfx1/z1); y1 = cimg::uiround(Y + focale*nfy1/z1);
+          x0 = cimg::uiround(X + focal*nfx0/z0); y0 = cimg::uiround(Y + focal*nfy0/z0);
+          x1 = cimg::uiround(X + focal*nfx1/z1); y1 = cimg::uiround(Y + focal*nfy1/z1);
           tx0 = cimg::uiround(tx0 + fact0*(tx2 - tx0)); ty0 = cimg::uiround(ty0 + fact0*(ty2 - ty0));
           tx1 = cimg::uiround(tx1 + fact1*(tx2 - tx1)); ty1 = cimg::uiround(ty1 + fact1*(ty2 - ty1));
           lx0 = cimg::uiround(lx0 + fact0*(lx2 - lx0)); ly0 = cimg::uiround(ly0 + fact0*(ly2 - ly0));
@@ -52985,8 +52988,8 @@ namespace cimg_library {
             fact1 = (zc - z0)/(z2 - z0), nfx1 = fx0 + fact1*(fx2 - fx0), nfy1 = fy0 + fact1*(fy2 - fy0),
             nz0 = zc, nz1 = zc;
           const int
-            nx0 = cimg::uiround(X + focale*nfx0/nz0), ny0 = cimg::uiround(Y + focale*nfy0/nz0),
-            nx1 = cimg::uiround(X + focale*nfx1/nz1), ny1 = cimg::uiround(Y + focale*nfy1/nz1),
+            nx0 = cimg::uiround(X + focal*nfx0/nz0), ny0 = cimg::uiround(Y + focal*nfy0/nz0),
+            nx1 = cimg::uiround(X + focal*nfx1/nz1), ny1 = cimg::uiround(Y + focal*nfy1/nz1),
             ntx0 = cimg::uiround(tx0 + fact0*(tx1 - tx0)), nty0 = cimg::uiround(ty0 + fact0*(ty1 - ty0)),
             ntx1 = cimg::uiround(tx0 + fact1*(tx2 - tx0)), nty1 = cimg::uiround(ty0 + fact1*(ty2 - ty0)),
             nlx0 = cimg::uiround(lx0 + fact0*(lx1 - lx0)), nly0 = cimg::uiround(ly0 + fact0*(ly1 - ly0)),
@@ -53023,7 +53026,7 @@ namespace cimg_library {
                             const CImgList<tc>& colors,
                             const to& opacities,
                             const unsigned int render_type,
-                            const bool is_double_sided, const float focale,
+                            const bool is_double_sided, const float focal,
                             const float lightx, const float lighty, const float lightz,
                             const float specular_lightness, const float specular_shininess,
                             const float g_opacity, const float sprite_scale,
@@ -53039,7 +53042,7 @@ namespace cimg_library {
       if (render_type==5) cimg::mutex(10); // Static variable used in this case, breaks thread-safety
 
       const float
-        _focale = focale?cimg::abs(focale):1e8f, // Parallel projection -> very large focale
+        _focal = focal?cimg::abs(focal):1e8f, // Parallel projection -> very large focal length
         nspec = 1 - cimg::cut(specular_shininess,0.0f,1.0f),
         nspec2 = 1 + std::max(specular_lightness,0.0f),
         nsl1 = (nspec2 - 1)/cimg::sqr(nspec - 1),
@@ -53228,15 +53231,15 @@ namespace cimg_library {
 
       // Compute 3D to 2D projection.
       CImg<floatT> projections(vertices._width,2);
-      if (focale) {
+      if (focal) {
         cimg_pragma_openmp(parallel for cimg_openmp_if(is_multithreaded_rendering &&
                                                        projections.size()>=cimg_openmp_sizefactor*4096))
         cimg_forX(projections,l) { // Perspective projection
           const float
             x = (float)vertices(l,0), y = (float)vertices(l,1), z = (float)vertices(l,2),
-            z_denom = z + Z + _focale;
-          projections(l,1) = Y + _focale*y/z_denom;
-          projections(l,0) = X + _focale*x/z_denom;
+            z_denom = z + Z + _focal;
+          projections(l,1) = Y + _focal*y/z_denom;
+          projections(l,0) = X + _focal*x/z_denom;
         }
       } else {
         cimg_pragma_openmp(parallel for cimg_openmp_if(is_multithreaded_rendering &&
@@ -53254,7 +53257,7 @@ namespace cimg_library {
       // Compute visible primitives.
       CImg<uintT> visibles(primitives._width,1,1,1,~0U);
       CImg<floatT> zrange(primitives._width);
-      const float zmin = focale?1 - _focale:cimg::type<float>::min();
+      const float zmin = focal?1 - _focal:cimg::type<float>::min();
       bool is_forward = zbuffer?true:false;
       cimg_pragma_openmp(parallel for cimg_openmp_if(is_multithreaded_rendering &&
                                                      primitives.size()>=cimg_openmp_sizefactor*4096))
@@ -53281,12 +53284,12 @@ namespace cimg_library {
             Yc = 0.5f*((float)vertices(i0,1) + (float)vertices(i1,1)),
             Zc = 0.5f*((float)vertices(i0,2) + (float)vertices(i1,2)),
             _zc = Z + Zc,
-            zc = _zc + _focale,
-            xc = X + Xc*(focale?_focale/zc:1),
-            yc = Y + Yc*(focale?_focale/zc:1),
+            zc = _zc + _focal,
+            xc = X + Xc*(focal?_focal/zc:1),
+            yc = Y + Yc*(focal?_focal/zc:1),
             radius = 0.5f*cimg::hypot(vertices(i1,0) - vertices(i0,0),
                                       vertices(i1,1) - vertices(i0,1),
-                                      vertices(i1,2) - vertices(i0,2))*(focale?_focale/zc:1),
+                                      vertices(i1,2) - vertices(i0,2))*(focal?_focal/zc:1),
             xm = xc - radius,
             ym = yc - radius,
             xM = xc + radius,
@@ -53324,11 +53327,11 @@ namespace cimg_library {
             x2 = projections(i2,0), y2 = projections(i2,1), z2 = Z + (float)vertices(i2,2);
           float dot = -1;
           if (p_normals) {
-            if (focale) {
+            if (focal) {
               const float
                 cam2obj_x = p_centers(l,0) - X,
                 cam2obj_y = p_centers(l,1) - Y,
-                cam2obj_z = p_centers(l,2) + _focale;
+                cam2obj_z = p_centers(l,2) + _focal;
               dot = cam2obj_x*p_normals(l,0) + cam2obj_y*p_normals(l,1) + cam2obj_z*p_normals(l,2);
             } else dot = p_normals(l,2);
           }
@@ -53361,11 +53364,11 @@ namespace cimg_library {
             x3 = projections(i3,0), y3 = projections(i3,1), z3 = Z + (float)vertices(i3,2);
           float dot = -1;
           if (p_normals) {
-            if (focale) {
+            if (focal) {
               const float
                 cam2obj_x = p_centers(l,0) - X,
                 cam2obj_y = p_centers(l,1) - Y,
-                cam2obj_z = p_centers(l,2) + _focale;
+                cam2obj_z = p_centers(l,2) + _focal;
               dot = cam2obj_x*p_normals(l,0) + cam2obj_y*p_normals(l,1) + cam2obj_z*p_normals(l,2);
             } else dot = p_normals(l,2);
           }
@@ -53508,7 +53511,7 @@ namespace cimg_library {
             else { // Sprite
               const float
                 z = Z + (float)vertices(n0,2),
-                factor = focale<0?1:sprite_scale*(focale?_focale/(z + _focale):1);
+                factor = focal<0?1:sprite_scale*(focal?_focal/(z + _focal):1);
               const unsigned int
                 _sw = (unsigned int)(color._width*factor),
                 _sh = (unsigned int)(color._height*factor),
@@ -53526,7 +53529,7 @@ namespace cimg_library {
           } else { // Opacity mask
             const float
               z = Z + (float)vertices(n0,2),
-              factor = focale<0?1:sprite_scale*(focale?_focale/(z + _focale):1);
+              factor = focal<0?1:sprite_scale*(focal?_focal/(z + _focal):1);
             const unsigned int
               _sw = (unsigned int)(std::max(color._width,_opacity._width)*factor),
               _sh = (unsigned int)(std::max(color._height,_opacity._height)*factor),
@@ -53551,7 +53554,7 @@ namespace cimg_library {
             n0 = (unsigned int)primitive[0],
             n1 = (unsigned int)primitive[1];
           if (render_type)
-            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,pcolor,opacity,_focale);
+            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,pcolor,opacity,_focal);
           else {
             const int
               x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
@@ -53582,8 +53585,8 @@ namespace cimg_library {
                                       vertices(n1,2) - vertices(n0,2));
           }
           const float
-            zc = Z + Zc + _focale,
-            af = focale?_focale/zc:1,
+            zc = Z + Zc + _focal,
+            af = focal?_focal/zc:1,
             xc = X + Xc*af,
             yc = Y + Yc*af;
           radius*=af;
@@ -53616,7 +53619,7 @@ namespace cimg_library {
             tx1 = (int)primitive[4], ty1 = (int)primitive[5];
           if (render_type)
             _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,
-                                                 color,tx0,ty0,tx1,ty1,opacity,_focale);
+                                                 color,tx0,ty0,tx1,ty1,opacity,_focal);
           else {
             const int
               x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
@@ -53641,21 +53644,21 @@ namespace cimg_library {
             draw_point(x0,y0,pcolor,opacity).draw_point(x1,y1,pcolor,opacity).draw_point(x2,y2,pcolor,opacity);
           } break;
           case 1 :
-            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,pcolor,opacity,_focale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,pcolor,opacity,_focale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n2,n0,vertices,projections,pcolor,opacity,_focale);
+            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,pcolor,opacity,_focal).
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,pcolor,opacity,_focal).
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n2,n0,vertices,projections,pcolor,opacity,_focal);
             break;
           case 2 :
-            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,pcolor,opacity,1,_focale);
+            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,pcolor,opacity,1,_focal);
             break;
           case 3 :
             _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,pcolor,opacity,
-                                                 lightprops(l),_focale);
+                                                 lightprops(l),_focal);
             break;
           case 4 :
             _draw_object3d_gouraud_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                     pcolor,lightprops(n0),lightprops(n1),lightprops(n2),opacity,
-                                                    _focale);
+                                                    _focal);
             break;
           case 5 : {
             const int
@@ -53663,7 +53666,7 @@ namespace cimg_library {
               lx1 = cimg::uiround(lightprops(n1,0)), ly1 = cimg::uiround(lightprops(n1,1)),
               lx2 = cimg::uiround(lightprops(n2,0)), ly2 = cimg::uiround(lightprops(n2,1));
             _draw_object3d_phong_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                  pcolor,light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focale);
+                                                  pcolor,light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focal);
           } break;
           }
         } break;
@@ -53684,29 +53687,29 @@ namespace cimg_library {
               draw_point(x2,y2,pcolor,opacity).draw_point(x3,y3,pcolor,opacity);
           } break;
           case 1 :
-            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,pcolor,opacity,_focale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,pcolor,opacity,_focale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n2,n3,vertices,projections,pcolor,opacity,_focale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n3,n0,vertices,projections,pcolor,opacity,_focale);
+            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,pcolor,opacity,_focal).
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,pcolor,opacity,_focal).
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n2,n3,vertices,projections,pcolor,opacity,_focal).
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n3,n0,vertices,projections,pcolor,opacity,_focal);
             break;
           case 2 :
-            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,pcolor,opacity,1,_focale).
+            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,pcolor,opacity,1,_focal).
               _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,pcolor,opacity,1,
-                                                   _focale);
+                                                   _focal);
             break;
           case 3 :
             _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,pcolor,opacity,
-                                                 lightprops(l),_focale).
+                                                 lightprops(l),_focal).
               _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,pcolor,opacity,
-                                                   lightprops(l),_focale);
+                                                   lightprops(l),_focal);
             break;
           case 4 :
             _draw_object3d_gouraud_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                     pcolor,lightprops(n0),lightprops(n1),lightprops(n2),opacity,
-                                                    _focale).
+                                                    _focal).
               _draw_object3d_gouraud_colored_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
                                                       pcolor,lightprops(n0),lightprops(n2),lightprops(n3),opacity,
-                                                      _focale);
+                                                      _focal);
             break;
           case 5 : {
             const int
@@ -53715,9 +53718,9 @@ namespace cimg_library {
               lx2 = cimg::uiround(lightprops(n2,0)), ly2 = cimg::uiround(lightprops(n2,1)),
               lx3 = cimg::uiround(lightprops(n3,0)), ly3 = cimg::uiround(lightprops(n3,1));
             _draw_object3d_phong_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                  pcolor,light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focale).
+                                                  pcolor,light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focal).
               _draw_object3d_phong_colored_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
-                                                    pcolor,light_texture,lx0,ly0,lx2,ly2,lx3,ly3,opacity,_focale);
+                                                    pcolor,light_texture,lx0,ly0,lx2,ly2,lx3,ly3,opacity,_focal);
           } break;
           }
         } break;
@@ -53751,24 +53754,24 @@ namespace cimg_library {
           } break;
           case 1 :
             _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,
-                                                 color,tx0,ty0,tx1,ty1,opacity,_focale).
+                                                 color,tx0,ty0,tx1,ty1,opacity,_focal).
               _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,
-                                                   color,tx1,ty1,tx2,ty2,opacity,_focale).
+                                                   color,tx1,ty1,tx2,ty2,opacity,_focal).
               _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n2,n0,vertices,projections,
-                                                   color,tx2,ty2,tx0,ty0,opacity,_focale);
+                                                   color,tx2,ty2,tx0,ty0,opacity,_focal);
             break;
           case 2 :
             _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,1,_focale);
+                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,1,_focal);
             break;
           case 3 :
             _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l),_focale);
+                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l),_focal);
             break;
           case 4 :
             _draw_object3d_gouraud_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                      color,tx0,ty0,tx1,ty1,tx2,ty2,
-                                                     lightprops(n0),lightprops(n1),lightprops(n2),opacity,_focale);
+                                                     lightprops(n0),lightprops(n1),lightprops(n2),opacity,_focal);
             break;
           case 5 :
             const int
@@ -53777,7 +53780,7 @@ namespace cimg_library {
               lx2 = cimg::uiround(lightprops(n2,0)), ly2 = cimg::uiround(lightprops(n2,1));
             _draw_object3d_phong_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                    color,tx0,ty0,tx1,ty1,tx2,ty2,
-                                                   light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focale);
+                                                   light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focal);
             break;
           }
         } break;
@@ -53816,33 +53819,33 @@ namespace cimg_library {
           } break;
           case 1 :
             _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,
-                                                 color,tx0,ty0,tx1,ty1,opacity,_focale).
+                                                 color,tx0,ty0,tx1,ty1,opacity,_focal).
               _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,
-                                                   color,tx1,ty1,tx2,ty2,opacity,_focale).
+                                                   color,tx1,ty1,tx2,ty2,opacity,_focal).
               _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n2,n3,vertices,projections,
-                                                   color,tx2,ty2,tx3,ty3,opacity,_focale).
+                                                   color,tx2,ty2,tx3,ty3,opacity,_focal).
               _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n3,n0,vertices,projections,
-                                                   color,tx3,ty3,tx0,ty0,opacity,_focale);
+                                                   color,tx3,ty3,tx0,ty0,opacity,_focal);
             break;
           case 2 :
             _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,1,_focale).
+                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,1,_focal).
               _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
-                                                    color,tx0,ty0,tx2,ty2,tx3,ty3,opacity,1,_focale);
+                                                    color,tx0,ty0,tx2,ty2,tx3,ty3,opacity,1,_focal);
             break;
           case 3 :
             _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l),_focale).
+                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l),_focal).
               _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
-                                                    color,tx0,ty0,tx2,ty2,tx3,ty3,opacity,lightprops(l),_focale);
+                                                    color,tx0,ty0,tx2,ty2,tx3,ty3,opacity,lightprops(l),_focal);
             break;
           case 4 :
             _draw_object3d_gouraud_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                      color,tx0,ty0,tx1,ty1,tx2,ty2,
-                                                     lightprops(n0),lightprops(n1),lightprops(n2),opacity,_focale).
+                                                     lightprops(n0),lightprops(n1),lightprops(n2),opacity,_focal).
               _draw_object3d_gouraud_textured_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
                                                        color,tx0,ty0,tx2,ty2,tx3,ty3,
-                                                       lightprops(n0),lightprops(n2),lightprops(n3),opacity,_focale);
+                                                       lightprops(n0),lightprops(n2),lightprops(n3),opacity,_focal);
             break;
           case 5 : {
             const int
@@ -53852,10 +53855,10 @@ namespace cimg_library {
               lx3 = cimg::uiround(lightprops(n3,0)), ly3 = cimg::uiround(lightprops(n3,1));
             _draw_object3d_phong_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                    color,tx0,ty0,tx1,ty1,tx2,ty2,
-                                                   light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focale).
+                                                   light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focal).
               _draw_object3d_phong_textured_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
                                                      color,tx0,ty0,tx2,ty2,tx3,ty3,
-                                                     light_texture,lx0,ly0,lx2,ly2,lx3,ly3,opacity,_focale);
+                                                     light_texture,lx0,ly0,lx2,ly2,lx3,ly3,opacity,_focal);
           } break;
           }
         } break;
@@ -58997,7 +59000,7 @@ namespace cimg_library {
        \param render_static Rendering mode.
        \param render_motion Rendering mode when the 3D object is in motion.
        \param is_double_sided Indicates whether the object primitives are double-sided.
-       \param focale Focale length (0 for parallel projection).
+       \param focal Focal length (0 for parallel projection).
        \param light_x X-coordinate of the light source.
        \param light_y Y-coordinate of the light source.
        \param light_z Z-coordinate of the light source.
@@ -59015,13 +59018,13 @@ namespace cimg_library {
                                     const to& opacities,
                                     const bool centering=true,
                                     const int render_static=4, const int render_motion=1,
-                                    const bool is_double_sided=false, const float focale=700,
+                                    const bool is_double_sided=false, const float focal=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return _display_object3d(disp,0,vertices,primitives,colors,opacities,centering,render_static,
-                               render_motion,is_double_sided,focale,
+                               render_motion,is_double_sided,focal,
                                light_x,light_y,light_z,specular_lightness,specular_shininess,
                                display_axes,pose_matrix,exit_on_anykey);
     }
@@ -59035,14 +59038,14 @@ namespace cimg_library {
                                     const to& opacities,
                                     const bool centering=true,
                                     const int render_static=4, const int render_motion=1,
-                                    const bool is_double_sided=false, const float focale=700,
+                                    const bool is_double_sided=false, const float focal=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       CImgDisplay disp;
       return _display_object3d(disp,title,vertices,primitives,colors,opacities,centering,render_static,
-                               render_motion,is_double_sided,focale,
+                               render_motion,is_double_sided,focal,
                                light_x,light_y,light_z,specular_lightness,specular_shininess,
                                display_axes,pose_matrix,exit_on_anykey);
     }
@@ -59055,13 +59058,13 @@ namespace cimg_library {
                                     const CImgList<tc>& colors,
                                     const bool centering=true,
                                     const int render_static=4, const int render_motion=1,
-                                    const bool is_double_sided=false, const float focale=700,
+                                    const bool is_double_sided=false, const float focal=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return display_object3d(disp,vertices,primitives,colors,CImgList<floatT>(),centering,
-                              render_static,render_motion,is_double_sided,focale,
+                              render_static,render_motion,is_double_sided,focal,
                               light_x,light_y,light_z,specular_lightness,specular_shininess,
                               display_axes,pose_matrix,exit_on_anykey);
     }
@@ -59074,13 +59077,13 @@ namespace cimg_library {
                                     const CImgList<tc>& colors,
                                     const bool centering=true,
                                     const int render_static=4, const int render_motion=1,
-                                    const bool is_double_sided=false, const float focale=700,
+                                    const bool is_double_sided=false, const float focal=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return display_object3d(title,vertices,primitives,colors,CImgList<floatT>(),centering,
-                              render_static,render_motion,is_double_sided,focale,
+                              render_static,render_motion,is_double_sided,focal,
                               light_x,light_y,light_z,specular_lightness,specular_shininess,
                               display_axes,pose_matrix,exit_on_anykey);
     }
@@ -59092,13 +59095,13 @@ namespace cimg_library {
                                     const CImgList<tf>& primitives,
                                     const bool centering=true,
                                     const int render_static=4, const int render_motion=1,
-                                    const bool is_double_sided=false, const float focale=700,
+                                    const bool is_double_sided=false, const float focal=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return display_object3d(disp,vertices,primitives,CImgList<T>(),centering,
-                              render_static,render_motion,is_double_sided,focale,
+                              render_static,render_motion,is_double_sided,focal,
                               light_x,light_y,light_z,specular_lightness,specular_shininess,
                               display_axes,pose_matrix,exit_on_anykey);
     }
@@ -59111,13 +59114,13 @@ namespace cimg_library {
                                     const CImgList<tf>& primitives,
                                     const bool centering=true,
                                     const int render_static=4, const int render_motion=1,
-                                    const bool is_double_sided=false, const float focale=700,
+                                    const bool is_double_sided=false, const float focal=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return display_object3d(title,vertices,primitives,CImgList<T>(),centering,
-                              render_static,render_motion,is_double_sided,focale,
+                              render_static,render_motion,is_double_sided,focal,
                               light_x,light_y,light_z,specular_lightness,specular_shininess,
                               display_axes,pose_matrix,exit_on_anykey);
     }
@@ -59128,13 +59131,13 @@ namespace cimg_library {
                                     const CImg<tp>& vertices,
                                     const bool centering=true,
                                     const int render_static=4, const int render_motion=1,
-                                    const bool is_double_sided=false, const float focale=700,
+                                    const bool is_double_sided=false, const float focal=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return display_object3d(disp,vertices,CImgList<uintT>(),centering,
-                              render_static,render_motion,is_double_sided,focale,
+                              render_static,render_motion,is_double_sided,focal,
                               light_x,light_y,light_z,specular_lightness,specular_shininess,
                               display_axes,pose_matrix,exit_on_anykey);
     }
@@ -59145,13 +59148,13 @@ namespace cimg_library {
                                     const CImg<tp>& vertices,
                                     const bool centering=true,
                                     const int render_static=4, const int render_motion=1,
-                                    const bool is_double_sided=false, const float focale=700,
+                                    const bool is_double_sided=false, const float focal=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return display_object3d(title,vertices,CImgList<uintT>(),centering,
-                              render_static,render_motion,is_double_sided,focale,
+                              render_static,render_motion,is_double_sided,focal,
                               light_x,light_y,light_z,specular_lightness,specular_shininess,
                               display_axes,pose_matrix,exit_on_anykey);
     }
@@ -59164,7 +59167,7 @@ namespace cimg_library {
                                      const to& opacities,
                                      const bool centering,
                                      const int render_static, const int render_motion,
-                                     const bool is_double_sided, const float focale,
+                                     const bool is_double_sided, const float focal,
                                      const float light_x, const float light_y, const float light_z,
                                      const float specular_lightness, const float specular_shininess,
                                      const bool display_axes, float *const pose_matrix,
@@ -59178,7 +59181,7 @@ namespace cimg_library {
         else background.resize(cimg_fitscreen(CImgDisplay::screen_width()/2,
                                               CImgDisplay::screen_height()/2,1),1,-100,3);
         background._display_object3d(disp,title,vertices,primitives,colors,opacities,centering,
-                                     render_static,render_motion,is_double_sided,focale,
+                                     render_static,render_motion,is_double_sided,focal,
                                      light_x,light_y,light_z,specular_lightness,specular_shininess,
                                      display_axes,pose_matrix,exit_on_anykey);
         return *this;
@@ -59192,7 +59195,7 @@ namespace cimg_library {
         CImgList<tf> nprimitives(vertices._width,1,1,1,1);
         cimglist_for(nprimitives,l) nprimitives(l,0) = (tf)l;
         return _display_object3d(disp,title,vertices,nprimitives,colors,opacities,centering,
-                                 render_static,render_motion,is_double_sided,focale,
+                                 render_static,render_motion,is_double_sided,focal,
                                  light_x,light_y,light_z,specular_lightness,specular_shininess,
                                  display_axes,pose_matrix,exit_on_anykey);
       }
@@ -59307,15 +59310,15 @@ namespace cimg_library {
           visu = visu0;
           if ((clicked && nrender_motion<0) || (!clicked && nrender_static<0))
             visu.draw_object3d(Xoff + visu._width/2.f,Yoff + visu._height/2.f,Zoff,
-                               rotated_bbox_vertices,bbox_primitives,bbox_colors,bbox_opacities,2,false,focale).
+                               rotated_bbox_vertices,bbox_primitives,bbox_colors,bbox_opacities,2,false,focal).
               draw_object3d(Xoff + visu._width/2.f,Yoff + visu._height/2.f,Zoff,
-                            rotated_bbox_vertices,bbox_primitives,bbox_colors2,1,false,focale);
+                            rotated_bbox_vertices,bbox_primitives,bbox_colors2,1,false,focal);
           else visu._draw_object3d(render_with_zbuffer?zbuffer.fill(0):CImg<floatT>::empty(),
                                    Xoff + visu._width/2.f,Yoff + visu._height/2.f,Zoff,
                                    rotated_vertices,reverse_primitives?reverse_primitives:primitives,
                                    colors,opacities,
                                    clicked?nrender_motion:nrender_static,
-                                   _is_double_sided==1,focale,
+                                   _is_double_sided==1,focal,
                                    width()/2.f + light_x,height()/2.f + light_y,light_z + Zoff,
                                    specular_lightness,specular_shininess,1,sprite_scale,
                                    clicked);
@@ -59340,7 +59343,7 @@ namespace cimg_library {
             axes_opacities(1,0) = (rotated_axes_vertices(2,2)>0)?0.5f:1.f;
             axes_opacities(2,0) = (rotated_axes_vertices(3,2)>0)?0.5f:1.f;
             visu.draw_object3d(Xaxes,Yaxes,0,rotated_axes_vertices,axes_primitives,
-                               axes_colors,axes_opacities,1,false,focale).
+                               axes_colors,axes_opacities,1,false,focal).
               draw_text((int)(Xaxes + rotated_axes_vertices(4,0)),
                         (int)(Yaxes + rotated_axes_vertices(4,1)),
                         "X",axes_colors[0]._data,0,axes_opacities(0,0),13).
@@ -59387,12 +59390,12 @@ namespace cimg_library {
             x0 = x1; y0 = y1;
           }
           if (disp.button()&2 && !is_keyCTRL) {
-            if (focale>0) Zoff-=(y0 - y1)*focale/400;
+            if (focal>0) Zoff-=(y0 - y1)*focal/400;
             else { const float s = std::exp((y0 - y1)/400.f); pose*=s; sprite_scale*=s; }
             x0 = x1; y0 = y1;
           }
           if (disp.wheel()) {
-            if (focale>0) Zoff-=disp.wheel()*focale/20;
+            if (focal>0) Zoff-=disp.wheel()*focal/20;
             else { const float s = std::exp(disp.wheel()/20.f); pose*=s; sprite_scale*=s; }
             disp.set_wheel();
           }

@@ -40426,8 +40426,8 @@ namespace cimg_library {
     //! Append two images along specified axis.
     /**
        \param img Image to append with instance image.
-       \param axis Appending axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-       \param align Append alignment in \c [0,1].
+       \param axis Concatenation axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+       \param align Concatenation alignment in \c [0,1].
     **/
     template<typename t>
     CImg<T>& append(const CImg<t>& img, const char axis='x', const float align=0) {
@@ -56978,8 +56978,8 @@ namespace cimg_library {
     //! Load image from a .cimg[z] file.
     /**
       \param filename Filename, as a C-string.
-      \param axis Appending axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-      \param align Appending alignment.
+      \param axis Concatenation axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+      \param align Concatenation alignment.
     **/
     CImg<T>& load_cimg(const char *const filename, const char axis='z', const float align=0) {
       CImgList<T> list;
@@ -57019,8 +57019,8 @@ namespace cimg_library {
       \param y1 Y-coordinate of the ending sub-image vertex (~0U for max).
       \param z1 Z-coordinate of the ending sub-image vertex (~0U for max).
       \param c1 C-coordinate of the ending sub-image vertex (~0U for max).
-      \param axis Appending axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-      \param align Appending alignment.
+      \param axis Concatenation axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+      \param align Concatenation alignment.
     **/
     CImg<T>& load_cimg(const char *const filename,
                        const unsigned int n0, const unsigned int n1,
@@ -57464,8 +57464,8 @@ namespace cimg_library {
     //! Load image from a PAR-REC (Philips) file.
     /**
       \param filename Filename, as a C-string.
-      \param axis Appending axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-      \param align Appending alignment.
+      \param axis Concatenation axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+      \param align Concatenation alignment.
     **/
     CImg<T>& load_parrec(const char *const filename, const char axis='c', const float align=0) {
       CImgList<T> list;
@@ -57593,7 +57593,7 @@ namespace cimg_library {
       \param last_frame Index of the last frame to read.
       \param step_frame Step value for frame reading.
       \param yuv2rgb Indicates whether the YUV to RGB transform must be applied.
-      \param axis Appending axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+      \param axis Concatenation axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
     **/
     CImg<T>& load_yuv(const char *const filename,
                       const unsigned int size_x, const unsigned int size_y=1,
@@ -57869,7 +57869,7 @@ namespace cimg_library {
       \param last_frame Index of the last frame to read.
       \param step_frame Step value for frame reading.
       \param axis Alignment axis.
-      \param align Appending alignment.
+      \param align Concatenation alignment.
     **/
     CImg<T>& load_video(const char *const filename,
                         const unsigned int first_frame=0, const unsigned int last_frame=~0U,
@@ -57889,8 +57889,8 @@ namespace cimg_library {
     //! Load image sequence using FFMPEG's external tool 'ffmpeg'.
     /**
       \param filename Filename, as a C-string.
-      \param axis Appending axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-      \param align Appending alignment.
+      \param axis Concatenation axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+      \param align Concatenation alignment.
     **/
     CImg<T>& load_ffmpeg_external(const char *const filename, const char axis='z', const float align=0) {
       return get_load_ffmpeg_external(filename,axis,align).move_to(*this);
@@ -57904,8 +57904,8 @@ namespace cimg_library {
     //! Load gif file, using Imagemagick or GraphicsMagicks's external tools.
     /**
       \param filename Filename, as a C-string.
-      \param axis Appending axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-      \param align Appending alignment.
+      \param axis Concatenation axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+      \param align Concatenation alignment.
     **/
     CImg<T>& load_gif_external(const char *const filename,
                                const char axis='z', const float align=0) {
@@ -63213,9 +63213,9 @@ namespace cimg_library {
       return (+*this).insert(list);
     }
 
-    //! Return the image corresponding to the appending of all images of the instance list along specified axis.
+    //! Return the image corresponding to the concatenation of all images of the instance list along specified axis.
     /**
-      \param axis Appending axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+      \param axis Concatenation axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
       \note <tt>list>'x'</tt> is equivalent to <tt>list.get_append('x')</tt>.
     **/
     CImg<T> operator>(const char axis) const {
@@ -64466,10 +64466,10 @@ namespace cimg_library {
       return res;
     }
 
-    //! Return a single image which is the appending of all images of the current CImgList instance.
+    //! Return a single image which is the concatenation of all images of the current CImgList instance.
     /**
-       \param axis Appending axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-       \param align Appending alignment.
+       \param axis Concatenation axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+       \param align Concatenation alignment.
     **/
     CImg<T> get_append(const char axis, const float align=0) const {
       if (is_empty()) return CImg<T>();
@@ -66133,8 +66133,8 @@ namespace cimg_library {
     //! Display the current CImgList instance in an existing CImgDisplay window (by reference).
     /**
        \param disp Reference to an existing CImgDisplay instance, where the current image list will be displayed.
-       \param axis Appending axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-       \param align Appending alignment.
+       \param axis Concatenation axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+       \param align Concatenation alignment.
        \note This function displays the list images of the current CImgList instance into an existing
          CImgDisplay window.
        Images of the list are appended in a single temporary image for visualization purposes.
@@ -66150,7 +66150,7 @@ namespace cimg_library {
         \param disp Display window.
         \param display_info Indicates whether image information is displayed on the standard output.
         \param axis Alignment axis for images viewing.
-        \param align Appending alignment.
+        \param align Concatenation alignment.
         \param[in,out] XYZ Contains the XYZ coordinates at start / exit of the function.
         \param exit_on_anykey Exit function when any key is pressed.
         \note This function opens a new window with a specific title and displays the list images of the
@@ -66169,8 +66169,8 @@ namespace cimg_library {
     /**
       \param title Title of the opening display window.
       \param display_info Indicates whether list information must be written on standard output.
-      \param axis Appending axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-      \param align Appending alignment.
+      \param axis Concatenation axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+      \param align Concatenation alignment.
       \param[in,out] XYZ Contains the XYZ coordinates at start / exit of the function.
       \param exit_on_anykey Exit function when any key is pressed.
     **/

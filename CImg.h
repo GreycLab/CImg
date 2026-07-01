@@ -52451,7 +52451,7 @@ namespace cimg_library {
        \param opacities Image or list of P opacities
        \param render_type Render type (0=Points, 1=Lines, 2=Faces (no light), 3=Faces (flat), 4=Faces(Gouraud)
        \param is_double_sided Indicates whether object faces have two sides or are oriented.
-       \param focale length of the focale (0 for parallel projection)
+       \param focale Focale length (0 for parallel projection).
        \param lightx X-coordinate of the light
        \param lighty Y-coordinate of the light
        \param lightz Z-coordinate of the light
@@ -59001,18 +59001,18 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Display object 3D in an interactive window.
+    //! Display a 3D object in an interactive window.
     /**
        \param disp Display window.
        \param vertices Vertices data of the 3D object.
        \param primitives Primitives data of the 3D object.
        \param colors Colors data of the 3D object.
        \param opacities Opacities data of the 3D object.
-       \param centering Indicates whether the 3D object must be centered for the display.
+       \param centering Indicates whether the 3D object should be centered for display.
        \param render_static Rendering mode.
-       \param render_motion Rendering mode, when the 3D object is moved.
+       \param render_motion Rendering mode when the 3D object is in motion.
        \param is_double_sided Indicates whether the object primitives are double-sided.
-       \param focale Focale
+       \param focale Focale length (0 for parallel projection).
        \param light_x X-coordinate of the light source.
        \param light_y Y-coordinate of the light source.
        \param light_z Z-coordinate of the light source.
@@ -59041,7 +59041,7 @@ namespace cimg_library {
                                display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display object 3D in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \simplification.
     template<typename tp, typename tf, typename tc, typename to>
     const CImg<T>& display_object3d(const char *const title,
                                     const CImg<tp>& vertices,
@@ -59062,7 +59062,7 @@ namespace cimg_library {
                                display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display object 3D in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \simplification.
     template<typename tp, typename tf, typename tc>
     const CImg<T>& display_object3d(CImgDisplay &disp,
                                     const CImg<tp>& vertices,
@@ -59081,7 +59081,7 @@ namespace cimg_library {
                               display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display object 3D in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \simplification.
     template<typename tp, typename tf, typename tc>
     const CImg<T>& display_object3d(const char *const title,
                                     const CImg<tp>& vertices,
@@ -59100,7 +59100,7 @@ namespace cimg_library {
                               display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display object 3D in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \simplification.
     template<typename tp, typename tf>
     const CImg<T>& display_object3d(CImgDisplay &disp,
                                     const CImg<tp>& vertices,
@@ -59119,7 +59119,7 @@ namespace cimg_library {
     }
 
 
-    //! Display object 3D in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \simplification.
     template<typename tp, typename tf>
     const CImg<T>& display_object3d(const char *const title,
                                     const CImg<tp>& vertices,
@@ -59137,7 +59137,7 @@ namespace cimg_library {
                               display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display object 3D in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \simplification.
     template<typename tp>
     const CImg<T>& display_object3d(CImgDisplay &disp,
                                     const CImg<tp>& vertices,
@@ -59154,7 +59154,7 @@ namespace cimg_library {
                               display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display object 3D in an interactive window \simplification.
+    //! Display a 3D object in an interactive window \simplification.
     template<typename tp>
     const CImg<T>& display_object3d(const char *const title,
                                     const CImg<tp>& vertices,
@@ -59192,10 +59192,11 @@ namespace cimg_library {
         if (disp) background.resize(disp.width(),disp.height(),1,-100,3);
         else background.resize(cimg_fitscreen(CImgDisplay::screen_width()/2,
                                               CImgDisplay::screen_height()/2,1),1,-100,3);
-        return background._display_object3d(disp,title,vertices,primitives,colors,opacities,centering,
-                                            render_static,render_motion,is_double_sided,focale,
-                                            light_x,light_y,light_z,specular_lightness,specular_shininess,
-                                            display_axes,pose_matrix,exit_on_anykey);
+        background._display_object3d(disp,title,vertices,primitives,colors,opacities,centering,
+                                     render_static,render_motion,is_double_sided,focale,
+                                     light_x,light_y,light_z,specular_lightness,specular_shininess,
+                                     display_axes,pose_matrix,exit_on_anykey);
+        return *this;
       } else { if (disp) disp.resize(*this,false); }
       CImg<charT> error_message(1024);
       if (!vertices.is_object3d(primitives,colors,opacities,true,error_message))

@@ -16251,7 +16251,7 @@ namespace cimg_library {
         CImg<charT> variable_name;
         CImgList<ulongT> l_opcode;
 
-        // Look for a single value or a pre-defined variable.
+        // Look for a single value or a predefined variable.
         int nb = 0;
         is_sth = *ss=='-';
         s = ss + (*ss=='+' || is_sth?1:0);
@@ -30790,10 +30790,10 @@ namespace cimg_library {
     //! Evaluate math formula.
     /**
        \param expression Math formula, as a C-string.
-       \param x Value of the pre-defined variable \c x.
-       \param y Value of the pre-defined variable \c y.
-       \param z Value of the pre-defined variable \c z.
-       \param c Value of the pre-defined variable \c c.
+       \param x Value of the predefined variable \c x.
+       \param y Value of the predefined variable \c y.
+       \param z Value of the predefined variable \c z.
+       \param c Value of the predefined variable \c c.
        \param list_images A list of images attached to the specified math formula.
     **/
     double eval(const char *const expression,
@@ -30928,10 +30928,10 @@ namespace cimg_library {
        \param[out] output Contains values of output vector returned by the evaluated expression
          (or is empty if the returned type is scalar).
        \param expression Math formula, as a C-string.
-       \param x Value of the pre-defined variable \c x.
-       \param y Value of the pre-defined variable \c y.
-       \param z Value of the pre-defined variable \c z.
-       \param c Value of the pre-defined variable \c c.
+       \param x Value of the predefined variable \c x.
+       \param y Value of the predefined variable \c y.
+       \param z Value of the predefined variable \c z.
+       \param c Value of the predefined variable \c c.
        \param list_images A list of input images attached to the specified math formula.
     **/
     template<typename t>
@@ -66750,7 +66750,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Insert the image instance into an existing .cimg file, at specified coordinates.
+    //! Insert the image list instance into an existing .cimg file, at specified coordinates.
     /**
       \param filename Filename to write data to.
       \param n0 Starting index of images to write.
@@ -66766,7 +66766,7 @@ namespace cimg_library {
       return _save_cimg(0,filename,n0,x0,y0,z0,c0);
     }
 
-    //! Insert the image instance into an existing .cimg file, at specified coordinates.
+    //! Insert the image list instance into an existing .cimg file, at specified coordinates.
     /**
       \param file File to write data to.
       \param n0 Starting index of images to write.
@@ -66832,8 +66832,8 @@ namespace cimg_library {
     /**
       \param filename Filename to write data to.
       \param compression_type Compression mode used to write data.
-      \param voxel_size Voxel size, to be stored in the filename.
-      \param description Description, to be stored in the filename.
+      \param voxel_size Voxel size, to be stored in the file metadata.
+      \param description Description, to be stored in the file metadata.
       \param use_bigtiff Indicates whether the file is saved as BigTIFF (>4 GB) or not.
     **/
     const CImgList<T>& save_tiff(const char *const filename, const unsigned int compression_type=0,
@@ -67303,10 +67303,10 @@ namespace cimg_library {
     //@{
     //----------------------------------
 
-    //! Return a pre-defined CImg font with the requested height.
+    //! Return a predefined CImg font with the requested height.
     /**
        \param requested_height Height of the desired font (exact match for 13,23,53,103).
-       \param is_variable_width Decide if the font has a variable (\c true) or fixed (\c false) width.
+       \param is_variable_width Decides if the font has a variable (\c true) or fixed (\c false) width.
        \note Beware, the returned reference is valid only until the next call to this function!
     **/
     static const CImgList<ucharT>& font(const unsigned int requested_height, const bool is_variable_width=true) {
@@ -67484,7 +67484,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Reverse primitives orientations of a 3D object \newinstance.
+    //! Reverse the orientations of a 3D object's primitives \newinstance.
     CImgList<T> get_reverse_object3d() const {
       return (+*this).reverse_object3d();
     }
@@ -67733,6 +67733,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(MAX_PATH);
         *s_path = 0;
@@ -67740,7 +67741,10 @@ namespace cimg_library {
 #if !defined(__INTEL_COMPILER)
         if (!SHGetSpecialFolderPathA(0,s_path,0x0026,false)) {
           const char *const pfPath = std::getenv("PROGRAMFILES");
-          if (pfPath) std::strncpy(s_path,pfPath,MAX_PATH - 1);
+          if (pfPath) {
+            std::strncpy(s_path,pfPath,MAX_PATH - 1);
+            s_path.back() = 0;
+          }
           else std::strcpy(s_path,"C:\\PROGRA~1");
         }
 #else
@@ -67765,6 +67769,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -67801,6 +67806,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -67837,6 +67843,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -67873,6 +67880,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -67982,6 +67990,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -68018,6 +68027,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -68054,6 +68064,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -68182,6 +68193,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -68237,6 +68249,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -68262,6 +68275,7 @@ namespace cimg_library {
         if (!path_found) {
           *s_path = 0;
           std::strncpy(tmp,filename_tmp,tmp._width - 1);
+          tmp.back() = 0;
           if ((file=cimg::std_fopen(tmp,"wb"))!=0) { cimg::fclose(file); std::remove(tmp); path_found = true; }
         }
         if (!path_found) {
@@ -68286,6 +68300,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -68323,6 +68338,7 @@ namespace cimg_library {
       if (user_path) {
         if (!s_path) s_path.assign(1024);
         std::strncpy(s_path,user_path,1023);
+        s_path.back() = 0;
       } else if (!s_path) {
         s_path.assign(1024);
         bool path_found = false;
@@ -69019,10 +69035,10 @@ namespace cimg_library {
     //! Evaluate math expression.
     /**
        \param expression C-string describing the formula to evaluate.
-       \param x Value of the pre-defined variable \c x.
-       \param y Value of the pre-defined variable \c y.
-       \param z Value of the pre-defined variable \c z.
-       \param c Value of the pre-defined variable \c c.
+       \param x Value of the predefined variable \c x.
+       \param y Value of the predefined variable \c y.
+       \param z Value of the predefined variable \c z.
+       \param c Value of the predefined variable \c c.
        \return Result of the formula evaluation.
        \note Set \c expression to \c 0 to keep evaluating the last specified \c expression.
        \par Example

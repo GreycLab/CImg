@@ -67660,7 +67660,7 @@ namespace cimg_library {
       if (file_len>NAME_MAX) return false;
       size_t path_total_len = strnlen(path,PATH_MAX - 1) + 1;
 
-      char *buf = new char[path_total_len + file_len + 1];
+      CImg<char> buf(path_total_len + file_len + 1);
       const char *p = path, *z = 0;
       while (true) {
         z = std::strchr(p,':');
@@ -67669,14 +67669,13 @@ namespace cimg_library {
           if (!*z++) break;
           continue;
         }
-        std::memcpy(buf,p,z - p);
+        std::memcpy(buf._data,p,z - p);
         buf[z - p] = '/';
-        std::memcpy(buf + (z - p) + (z>p),file,file_len + 1);
-        if (cimg::is_file(buf) && faccessat(AT_FDCWD,buf,X_OK,AT_EACCESS)==0) { delete[] buf; return true; }
+        std::memcpy(buf._data + (z - p) + (z>p),file,file_len + 1);
+        if (cimg::is_file(buf) && faccessat(AT_FDCWD,buf._data,X_OK,AT_EACCESS)==0) return true;
         if (!*z++) break;
         p = z;
       }
-      delete[] buf;
       return false;
     }
 #endif

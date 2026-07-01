@@ -348,7 +348,7 @@ enum {FALSE_WIN = 0};
 // A typical signal handler can be defined in your own source like this:
 // #define cimg_abort_test if (is_abort) throw CImgAbortException("")
 //
-// where 'is_abort' is a boolean variable defined somewhere in your code and reachable in the method.
+// where 'is_abort' is a boolean variable defined somewhere in your code and reachable in the function.
 // 'cimg_abort_test2' does the same but is called more often (in inner loops).
 #if defined(cimg_abort_test) && cimg_use_openmp!=0
 
@@ -460,7 +460,7 @@ enum {FALSE_WIN = 0};
 // Define 'cimg_use_opencv' to enable OpenCV support.
 //
 // OpenCV library may be used to access images from cameras.
-// (see method 'CImg<T>::load_camera()').
+// (see function 'CImg<T>::load_camera()').
 #ifdef cimg_use_opencv
 #ifdef True
 #undef True
@@ -495,7 +495,7 @@ enum {FALSE_WIN = 0};
 // Define 'cimg_use_png' to enable LibPNG support.
 //
 // PNG library may be used to get native support for '.png' files.
-// (see methods 'CImg<T>::{load,save}_png()'.
+// (see functions 'CImg<T>::{load,save}_png()'.
 #ifdef cimg_use_png
 extern "C" {
 #include "png.h"
@@ -508,7 +508,7 @@ extern "C" {
 // Define 'cimg_use_jpeg' to enable LibJPEG support.
 //
 // JPEG library may be used to get native support for '.jpg' files.
-// (see methods 'CImg<T>::{load,save}_jpeg()').
+// (see functions 'CImg<T>::{load,save}_jpeg()').
 #ifdef cimg_use_jpeg
 extern "C" {
 #include "jpeglib.h"
@@ -522,7 +522,7 @@ extern "C" {
 // Define 'cimg_use_jxl' to enable JPEG XL support.
 //
 // Libjxl may be used to get native support for '.jxl' files.
-// (see methods 'CImg<T>::{load,save}_jxl()').
+// (see functions 'CImg<T>::{load,save}_jxl()').
 #ifdef cimg_use_jxl
 #include <jxl/decode.h>
 #include <jxl/encode.h>
@@ -534,7 +534,7 @@ extern "C" {
 // Define 'cimg_use_tiff' to enable LibTIFF support.
 //
 // TIFF library may be used to get native support for '.tif' files.
-// (see methods 'CImg[List]<T>::{load,save}_tiff()').
+// (see functions 'CImg[List]<T>::{load,save}_tiff()').
 #ifdef cimg_use_tiff
 extern "C" {
 #define uint64 uint64_hack_
@@ -551,7 +551,7 @@ extern "C" {
 // Define 'cimg_use_heif' to enable HEIF support.
 //
 // HEIF library may be used to get native support for '.heic' and '.avif' files.
-// (see method 'CImg<T>::load_heif()').
+// (see function 'CImg<T>::load_heif()').
 #ifdef cimg_use_heif
 #include <libheif/heif_cxx.h>
 #endif
@@ -562,7 +562,7 @@ extern "C" {
 // Define 'cimg_use_webp' to enable WebP support.
 //
 // WebP library may be used to get native support for '.webp' files.
-// (see method 'CImg<T>::{load,save}_webp()').
+// (see function 'CImg<T>::{load,save}_webp()').
 #ifdef cimg_use_webp
 #include <webp/decode.h>
 #include <webp/encode.h>
@@ -574,7 +574,7 @@ extern "C" {
 // Define 'cimg_use_minc2' to enable LibMINC2 support.
 //
 // MINC2 library may be used to get native support for '.mnc' files.
-// (see methods 'CImg<T>::{load,save}_minc2()').
+// (see functions 'CImg<T>::{load,save}_minc2()').
 #ifdef cimg_use_minc2
 #include "minc_io_simple_volume.h"
 #include "minc_1_simple.h"
@@ -587,7 +587,7 @@ extern "C" {
 // Define 'cimg_use_zlib' to enable Zlib support.
 //
 // Zlib library may be used to allow compressed data in '.cimgz' files.
-// (see methods 'CImg[List]<T>::{load,save}_cimg()').
+// (see functions 'CImg[List]<T>::{load,save}_cimg()').
 #ifdef cimg_use_zlib
 extern "C" {
 #include "zlib.h"
@@ -600,7 +600,7 @@ extern "C" {
 // Define 'cimg_use_curl' to enable libcurl support.
 //
 // Libcurl may be used to get native support for files downloaded from the network.
-// (see method 'cimg::load_network()'.)
+// (see function 'cimg::load_network()'.)
 #ifdef cimg_use_curl
 #include "curl/curl.h"
 #endif
@@ -611,7 +611,7 @@ extern "C" {
 // Define 'cimg_use_magick' to enable Magick++ support.
 //
 // Magick++ library may be used to get native support for various image file formats.
-// (see methods 'CImg<T>::{load,save}()').
+// (see functions 'CImg<T>::{load,save}()').
 #ifdef cimg_use_magick
 #include "Magick++.h"
 #endif
@@ -623,7 +623,7 @@ extern "C" {
 //
 // FFTW3 library may be used to efficiently compute the Fast Fourier Transform.
 // of image data, without restriction on the image size.
-// (see method 'CImg[List]<T>::FFT()').
+// (see function 'CImg[List]<T>::FFT()').
 #ifdef cimg_use_fftw3
 extern "C" {
 #include "fftw3.h"
@@ -636,7 +636,7 @@ extern "C" {
 // Define 'cimg_use_openexr' to enable OpenEXR support.
 //
 // OpenEXR library may be used to get native support for '.exr' files.
-// (see methods 'CImg<T>::{load,save}_exr()').
+// (see functions 'CImg<T>::{load,save}_exr()').
 #ifdef cimg_use_openexr
 #if __GNUC__>=5
 #pragma GCC diagnostic push
@@ -2437,7 +2437,7 @@ namespace cimg_library {
 
     //! Set current \CImg openmp mode.
     /**
-       The way openmp-based methods are handled by \CImg can be changed dynamically, using this function.
+       The way openmp-based functions are handled by \CImg can be changed dynamically, using this function.
        \param mode Desired openmp mode. Possible values are:
        - \c 0: Never parallelize.
        - \c 1: Always parallelize.
@@ -2593,7 +2593,7 @@ namespace cimg_library {
 
       - \b CImgDisplayException: Thrown when something went wrong during the display of images in CImgDisplay instances.
 
-      - \b CImgInstanceException: Thrown when an instance associated to a called \CImg method does not fit
+      - \b CImgInstanceException: Thrown when an instance associated to a called \CImg function does not fit
       the function requirements. For instance, the following example throws a \c CImgInstanceException:
       \code
       const CImg<float> img; // Define an empty image
@@ -4777,7 +4777,7 @@ namespace cimg_library {
     // - If a>0, 'round_div(a/b) = ceil(a/b)'.
     // - If a<0, 'round_div(a.b) = floor(a/b)'.
     // (so, this is **not** a classical rounding behavior!).
-    // This function is used by drawing methods, to get coherent rounded primitive coordinates.
+    // This function is used by drawing functions, to get coherent rounded primitive coordinates.
     // Beware, 'b' must be strictly positive!
     template<typename T, typename t>
     t inline round_div(const T a, const t b, const t hb) {
@@ -6551,11 +6551,11 @@ namespace cimg_library {
    ----------------------------------*/
   //! Allow the creation of windows, display images on them and manage user events (keyboard, mouse and windows events).
   /**
-     CImgDisplay methods rely on a low-level graphic library to perform: it can be either \b X-Window
+     CImgDisplay functions rely on a low-level graphic library to perform: it can be either \b X-Window
      (X11, for Unix-based systems) or \b GDI32 (for Windows-based systems).
      If both libraries are missing, CImgDisplay will not be able to display images on screen, and will enter
      a minimal mode where warning messages will be outputted each time the program is trying to call one of the
-     CImgDisplay method.
+     CImgDisplay function.
 
      The configuration variable \c cimg_display indicates the graphic library used.
      It is set automatically by \CImg when one of these graphic libraries has been detected.
@@ -6963,7 +6963,7 @@ namespace cimg_library {
 
     //! Return \c true if any key is being pressed on the associated window, \c false otherwise.
     /**
-       \note The methods below do the same only for specific keys.
+       \note The functions below do the same only for specific keys.
     **/
     bool is_key() const {
       return _is_keyESC || _is_keyF1 || _is_keyF2 || _is_keyF3 ||
@@ -7129,7 +7129,7 @@ namespace cimg_library {
 
     //! Return \c true if the \c ESC key is being pressed on the associated window, \c false otherwise.
     /**
-       \note Similar methods exist for all keys managed by \CImg (see cimg::keyESC).
+       \note Similar functions exist for all keys managed by \CImg (see cimg::keyESC).
     **/
     _cimg_iskey_def(ESC); _cimg_iskey_def(F1); _cimg_iskey_def(F2); _cimg_iskey_def(F3);
     _cimg_iskey_def(F4); _cimg_iskey_def(F5); _cimg_iskey_def(F6); _cimg_iskey_def(F7);
@@ -7471,7 +7471,7 @@ namespace cimg_library {
     //! Display image on associated window.
     /**
        \param img Input image to display.
-       \note This method returns immediately.
+       \note This function returns immediately.
     **/
     template<typename T>
     CImgDisplay& display(const CImg<T>& img) {
@@ -7486,7 +7486,7 @@ namespace cimg_library {
        \param axis Axis used to append the images along, for the visualization (can be \c x, \c y, \c z or \c c).
        \param align Relative position of aligned images when displaying lists with images of different sizes
        (\c 0 for upper-left, \c 0.5 for centering and \c 1 for lower-right).
-       \note This method returns immediately.
+       \note This function returns immediately.
     **/
     template<typename T>
     CImgDisplay& display(const CImgList<T>& list, const char axis='x', const float align=0) {
@@ -7535,7 +7535,7 @@ namespace cimg_library {
     /**
        \param pos_x X-coordinate of the new window location.
        \param pos_y Y-coordinate of the new window location.
-       \note Depending on the window manager behavior, this method may not succeed (no exceptions are thrown
+       \note Depending on the window manager behavior, this function may not succeed (no exceptions are thrown
        nevertheless).
     **/
     CImgDisplay& move(const int pos_x, const int pos_y) {
@@ -7548,7 +7548,7 @@ namespace cimg_library {
     /**
        \param force_redraw Indicates whether the previous window content must be updated and refreshed as well.
        \note
-       - Calling this method ensures that width() and window_width() become equal, as well as height() and
+       - Calling this function ensures that width() and window_width() become equal, as well as height() and
        window_height().
        - The associated window is also resized to specified dimensions.
     **/
@@ -7577,7 +7577,7 @@ namespace cimg_library {
        \param img Input image to take size from.
        \param force_redraw Indicates whether the previous window content must be resized and updated as well.
        \note
-       - Calling this method ensures that width() and <tt>img.width()</tt> become equal, as well as height() and
+       - Calling this function ensures that width() and <tt>img.width()</tt> become equal, as well as height() and
        <tt>img.height()</tt>.
        - The associated window is also resized to specified dimensions.
     **/
@@ -7591,7 +7591,7 @@ namespace cimg_library {
        \param disp Input display to take size from.
        \param force_redraw Indicates whether the previous window content must be resized and updated as well.
        \note
-       - Calling this method ensures that width() and <tt>disp.width()</tt> become equal, as well as height() and
+       - Calling this function ensures that width() and <tt>disp.width()</tt> become equal, as well as height() and
        <tt>disp.height()</tt>.
        - The associated window is also resized to specified dimensions.
     **/
@@ -7698,7 +7698,7 @@ namespace cimg_library {
 
     //! Show mouse pointer.
     /**
-       \note Depending on the window manager behavior, this method may not succeed
+       \note Depending on the window manager behavior, this function may not succeed
        (no exceptions are thrown nevertheless).
     **/
     CImgDisplay& show_mouse() {
@@ -7707,7 +7707,7 @@ namespace cimg_library {
 
     //! Hide mouse pointer.
     /**
-       \note Depending on the window manager behavior, this method may not succeed
+       \note Depending on the window manager behavior, this function may not succeed
        (no exceptions are thrown nevertheless).
     **/
     CImgDisplay& hide_mouse() {
@@ -7716,7 +7716,7 @@ namespace cimg_library {
 
     //! Move mouse pointer to a specified location.
     /**
-       \note Depending on the window manager behavior, this method may not succeed
+       \note Depending on the window manager behavior, this function may not succeed
        (no exceptions are thrown nevertheless).
     **/
     CImgDisplay& set_mouse(const int pos_x, const int pos_y) {
@@ -10848,13 +10848,13 @@ namespace cimg_library {
        \note
        - The \c CImg<T>::iterator type is defined to be a <tt>T*</tt>.
        - You will seldom have to use iterators in %CImg, most classical operations
-         being achieved (often in a faster way) using methods of \c CImg<T>.
+         being achieved (often in a faster way) using functions of \c CImg<T>.
        \par Example
        \code
        CImg<float> img("reference.jpg"); // Load image from file
        // Set all pixels to '0', with a CImg iterator.
        for (CImg<float>::iterator it = img.begin(); it<img.end(); ++it) *it = 0;
-       img.fill(0); // Do the same with a built-in method
+       img.fill(0); // Do the same with a built-in function
        \endcode
    **/
     typedef T* iterator;
@@ -10864,14 +10864,14 @@ namespace cimg_library {
        \note
        - The \c CImg<T>::const_iterator type is defined to be a \c const \c T*.
        - You will seldom have to use iterators in %CImg, most classical operations
-         being achieved (often in a faster way) using methods of \c CImg<T>.
+         being achieved (often in a faster way) using functions of \c CImg<T>.
        \par Example
        \code
        const CImg<float> img("reference.jpg"); // Load image from file
        float sum = 0;
        // Compute sum of all pixel values, with a CImg iterator.
        for (CImg<float>::const_iterator it = img.begin(); it<img.end(); ++it) sum+=*it;
-       const float sum2 = img.sum(); // Do the same with a built-in method
+       const float sum2 = img.sum(); // Do the same with a built-in function
        \endcode
     **/
     typedef const T* const_iterator;
@@ -10881,7 +10881,7 @@ namespace cimg_library {
        Refer to the type of the pixel values of an image instance.
        \note
        - The \c CImg<T>::value_type type of a \c CImg<T> is defined to be a \c T.
-       - \c CImg<T>::value_type is actually not used in %CImg methods. It has been mainly defined for
+       - \c CImg<T>::value_type is actually not used in %CImg functions. It has been mainly defined for
          compatibility with STL naming conventions.
     **/
     typedef T value_type;
@@ -10997,7 +10997,7 @@ namespace cimg_library {
        - An empty image has no pixel data and all of its dimensions width(), height(), depth(), spectrum()
          are set to \c 0, as well as its pixel buffer pointer data().
        - An empty image may be re-assigned afterwards, e.g. with the family of
-         assign(unsigned int,unsigned int,unsigned int,unsigned int) methods,
+         assign(unsigned int,unsigned int,unsigned int,unsigned int) functions,
          or by operator=(const CImg<t>&). In all cases, the type of pixels stays \c T.
        - An empty image is never shared.
        \par Example
@@ -11641,7 +11641,7 @@ namespace cimg_library {
     }
 
     // Constructor and assignment operator for rvalue references (c++11).
-    // This avoids an additional image copy for methods returning new images. Can save RAM for big images!
+    // This avoids an additional image copy for functions returning new images. Can save RAM for big images!
 #if cimg_use_cpp11==1
     CImg(CImg<T>&& img):_width(0),_height(0),_depth(0),_spectrum(0),_is_shared(false),_data(0) {
       swap(img);
@@ -11971,7 +11971,7 @@ namespace cimg_library {
     /**
        Return a reference to a located pixel value of the image instance,
        being possibly \e const, whether the image instance is \e const or not.
-       This is the standard method to get/set pixel values in \c CImg<T> images.
+       This is the standard function to get/set pixel values in \c CImg<T> images.
        \param x X-coordinate of the pixel value.
        \param y Y-coordinate of the pixel value.
        \param z Z-coordinate of the pixel value.
@@ -13489,7 +13489,7 @@ namespace cimg_library {
        \param z Z-coordinate of the pixel value.
        \param c C-coordinate of the pixel value.
        \note
-       - Writing \c img.data(x,y,z,c) is equivalent to <tt>&(img(x,y,z,c))</tt>. Thus, this method has the same
+       - Writing \c img.data(x,y,z,c) is equivalent to <tt>&(img(x,y,z,c))</tt>. Thus, this function has the same
          properties as operator()(unsigned int,unsigned int,unsigned int,unsigned int).
      **/
 #if cimg_verbosity>=3
@@ -13525,7 +13525,7 @@ namespace cimg_library {
        \param c C-coordinate of the pixel value.
        \note
        - Writing \c img.data(x,y,z,c) is equivalent to <tt>&(img(x,y,z,c)) - img.data()</tt>.
-         Thus, this method has the same properties as operator()(unsigned int,unsigned int,unsigned int,unsigned int).
+         Thus, this function has the same properties as operator()(unsigned int,unsigned int,unsigned int,unsigned int).
        \par Example
        \code
        const CImg<float> img(100,100,1,3); // Define a 100x100 RGB-color image
@@ -13619,7 +13619,7 @@ namespace cimg_library {
        - Writing \c img.at(offset,out_value) is similar to <tt>img[offset]</tt>, except that if \c offset
          is outside bounds (e.g. \c offset<0 or \c offset>=img.size()), a reference to a value \c out_value
          is safely returned instead.
-       - Due to the additional boundary checking operation, this method is slower than operator()(). Use it when
+       - Due to the additional boundary checking operation, this function is slower than operator()(). Use it when
          you are \e not sure about the validity of the specified pixel offset.
     **/
     T& at(const int offset, const T& out_value) {
@@ -13641,9 +13641,9 @@ namespace cimg_library {
          nearest pixel in the image instance, regarding the specified offset, i.e.
          - If \c offset<0, then \c img[0] is returned.
          - If \c offset>=img.size(), then \c img[img.size() - 1] is returned.
-       - Due to the additional boundary checking operation, this method is slower than operator()(). Use it when
+       - Due to the additional boundary checking operation, this function is slower than operator()(). Use it when
          you are \e not sure about the validity of the specified pixel offset.
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method \c _at(int).
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function \c _at(int).
      **/
     T& at(const int offset) {
       if (is_empty())
@@ -13684,7 +13684,7 @@ namespace cimg_library {
        \note
        - Similar to operator()(), except that an out-of-bounds access along the X-axis returns the specified value
          \c out_value.
-       - Due to the additional boundary checking operation, this method is slower than operator()(). Use it when
+       - Due to the additional boundary checking operation, this function is slower than operator()(). Use it when
          you are \e not sure about the validity of the specified pixel coordinates.
        \warning
        - There is \e no boundary checking performed for the Y,Z and C-coordinates, so they must be inside image bounds.
@@ -13709,9 +13709,9 @@ namespace cimg_library {
        \note
        - Similar to at(int,int,int,int,const T), except that an out-of-bounds access returns the value of the
          nearest pixel in the image instance, regarding the specified X-coordinate.
-       - Due to the additional boundary checking operation, this method is slower than operator()(). Use it when
+       - Due to the additional boundary checking operation, this function is slower than operator()(). Use it when
          you are \e not sure about the validity of the specified pixel coordinates.
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _at(int,int,int,int).
        \warning
        - There is \e no boundary checking performed for the Y,Z and C-coordinates, so they must be inside image bounds.
@@ -13758,7 +13758,7 @@ namespace cimg_library {
     /**
        Similar to atX(int,int,int,int), except that boundary checking is performed both on X and Y-coordinates.
        \note
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _atXY(int,int,int,int).
      **/
     T& atXY(const int x, const int y, const int z=0, const int c=0) {
@@ -13807,7 +13807,7 @@ namespace cimg_library {
     /**
        Similar to atX(int,int,int,int), except that boundary checking is performed both on X,Y and Z-coordinates.
        \note
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _atXYZ(int,int,int,int).
     **/
     T& atXYZ(const int x, const int y, const int z, const int c=0) {
@@ -13859,7 +13859,7 @@ namespace cimg_library {
     /**
        Similar to atX(int,int,int,int), except that boundary checking is performed on all X,Y,Z and C-coordinates.
        \note
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _atXYZC(int,int,int,int).
     **/
     T& atXYZC(const int x, const int y, const int z, const int c) {
@@ -13931,7 +13931,7 @@ namespace cimg_library {
        \note
        - Similar to linear_atX(float,int,int,int,const T) const, except that an out-of-bounds access returns
          the value of the nearest pixel in the image instance, regarding the specified X-coordinate.
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _linear_atX(float,int,int,int).
        \warning
        - There is \e no boundary checking performed for the Y,Z and C-coordinates, so they must be inside image bounds.
@@ -14006,7 +14006,7 @@ namespace cimg_library {
        Similar to linear_atX(float,int,int,int) const, except that the linear interpolation and the boundary checking
        are achieved both for X and Y-coordinates.
        \note
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _linear_atXY(float,float,int,int).
     **/
     Tfloat linear_atXY(const float fx, const float fy, const int z=0, const int c=0) const {
@@ -14100,7 +14100,7 @@ namespace cimg_library {
        Similar to linear_atX(float,int,int,int) const, except that the linear interpolation and the boundary checking
        are achieved both for X,Y and Z-coordinates.
        \note
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _linear_atXYZ(float,float,float,int).
     **/
     Tfloat linear_atXYZ(const float fx, const float fy=0, const float fz=0, const int c=0) const {
@@ -14235,7 +14235,7 @@ namespace cimg_library {
        Similar to linear_atX(float,int,int,int) const, except that the linear interpolation and the boundary checking
        are achieved for all X,Y,Z and C-coordinates.
        \note
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _linear_atXYZC(float,float,float,float).
     **/
     Tfloat linear_atXYZC(const float fx, const float fy=0, const float fz=0, const float fc=0) const {
@@ -14404,7 +14404,7 @@ namespace cimg_library {
        \note
        - Similar to cubic_atX(float,int,int,int,const T) const, except that the returned pixel value is
          approximated by a cubic interpolation along the X-axis.
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _cubic_atX(float,int,int,int).
        \warning
        - There is \e no boundary checking performed for the Y,Z and C-coordinates, so they must be inside image bounds.
@@ -14517,7 +14517,7 @@ namespace cimg_library {
        Similar to cubic_atX(float,int,int,int) const, except that the cubic interpolation and boundary checking
        are achieved for both X and Y-coordinates.
        \note
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
        \c _cubic_atXY(float,float,int,int).
     **/
     Tfloat cubic_atXY(const float fx, const float fy, const int z=0, const int c=0) const {
@@ -14709,7 +14709,7 @@ namespace cimg_library {
        Similar to cubic_atX(float,int,int,int) const, except that the cubic interpolation and boundary checking
        are achieved both for X,Y and Z-coordinates.
        \note
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _cubic_atXYZ(float,float,float,int).
     **/
     Tfloat cubic_atXYZ(const float fx, const float fy, const float fz, const int c=0) const {
@@ -14825,7 +14825,7 @@ namespace cimg_library {
        Similar to cubic_atX(float,int,int,int) const, except that the cubic interpolation and boundary checking
        are achieved both for X,Y and Z-coordinates.
        \note
-       - If you know your image instance is \e not empty, you may rather use the slightly faster method
+       - If you know your image instance is \e not empty, you may rather use the slightly faster function
          \c _cubic_atXYZ(float,float,float,int).
     **/
     Tfloat cubic_atXYZ_p(const float fx, const float fy, const float fz, const int c=0) const {
@@ -14944,7 +14944,7 @@ namespace cimg_library {
          the current image pixel(s).
        \return A reference to the current image instance.
        \note
-       - Calling this method with out-of-bounds coordinates does nothing.
+       - Calling this function with out-of-bounds coordinates does nothing.
     **/
     CImg<T>& set_linear_atX(const T& value, const float fx, const int y=0, const int z=0, const int c=0,
                             const bool is_added=false) {
@@ -15118,7 +15118,7 @@ namespace cimg_library {
        \note
        - A shared image does not own its pixel buffer data() and will not deallocate it on destruction.
        - Most of the time, a \c CImg<T> image instance will \e not be shared.
-       - A shared image can only be obtained by a limited set of constructors and methods (see list below).
+       - A shared image can only be obtained by a limited set of constructors and functions (see list below).
     **/
     bool is_shared() const {
       return _is_shared;
@@ -29531,7 +29531,7 @@ namespace cimg_library {
     /**
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its square value \f$I_{(x,y,z,c)}^2\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
        \par Example
        \code
@@ -29546,7 +29546,7 @@ namespace cimg_library {
     /**
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its square root \f$\sqrt{I_{(x,y,z,c)}}\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
        \par Example
        \code
@@ -29561,7 +29561,7 @@ namespace cimg_library {
     /**
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its exponential \f$e^{I_{(x,y,z,c)}}\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(exp,std::exp,4096)
@@ -29570,7 +29570,7 @@ namespace cimg_library {
     /**
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its error function.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
 #if cimg_use_cpp11==1
@@ -29582,7 +29582,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its logarithm
        \f$\mathrm{log}_{e}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(log,std::log,262144)
@@ -29592,7 +29592,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its base-2 logarithm
        \f$\mathrm{log}_{2}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(log2,cimg::log2,4096)
@@ -29602,7 +29602,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its base-10 logarithm
        \f$\mathrm{log}_{10}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(log10,std::log10,4096)
@@ -29611,7 +29611,7 @@ namespace cimg_library {
     /**
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its absolute value \f$|I_{(x,y,z,c)}|\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(abs,cimg::abs,524288)
@@ -29625,7 +29625,7 @@ namespace cimg_library {
          - \c 1 if pixel value is strictly positive.
          - \c -1 if pixel value is strictly negative.
          - \c 0 if pixel value is equal to \c 0.
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(sign,cimg::sign,32768)
@@ -29635,7 +29635,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its cosine \f$\cos(I_{(x,y,z,c)})\f$.
        \note
        - Pixel values are regarded as being in \e radians.
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(cos,std::cos,8192)
@@ -29645,7 +29645,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its sine \f$\sin(I_{(x,y,z,c)})\f$.
        \note
        - Pixel values are regarded as being in \e radians.
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(sin,std::sin,8192)
@@ -29656,7 +29656,7 @@ namespace cimg_library {
        \f$\mathrm{sinc}(I_{(x,y,z,c)})\f$.
        \note
        - Pixel values are regarded as being in \e radians.
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(sinc,cimg::sinc,2048)
@@ -29666,7 +29666,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its tangent \f$\tan(I_{(x,y,z,c)})\f$.
        \note
        - Pixel values are regarded as being in \e radians.
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(tan,std::tan,2048)
@@ -29676,7 +29676,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its hyperbolic cosine
        \f$\mathrm{cosh}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(cosh,std::cosh,2048)
@@ -29686,7 +29686,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its hyperbolic sine
        \f$\mathrm{sinh}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(sinh,std::sinh,2048)
@@ -29696,7 +29696,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its hyperbolic tangent
        \f$\mathrm{tanh}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(tanh,std::tanh,2048)
@@ -29706,7 +29706,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its arccosine
        \f$\mathrm{acos}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(acos,std::acos,8192)
@@ -29716,7 +29716,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its arcsine
        \f$\mathrm{asin}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(asin,std::asin,8192)
@@ -29726,7 +29726,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its arctangent
        \f$\mathrm{atan}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(atan,std::atan,8192)
@@ -29737,7 +29737,7 @@ namespace cimg_library {
        \f$\mathrm{atan2}(I_{(x,y,z,c)})\f$.
        \param img Image whose pixel values specify the second argument of the \c atan2() function.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
        \par Example
        \code
@@ -29773,7 +29773,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its arccosineh
        \f$\mathrm{acosh}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(acosh,cimg::acosh,8192)
@@ -29783,7 +29783,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its hyperbolic arcsine
        \f$\mathrm{asinh}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(asinh,cimg::asinh,8192)
@@ -29793,7 +29793,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its hyperbolic arctangent
        \f$\mathrm{atanh}(I_{(x,y,z,c)})\f$.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(atanh,cimg::atanh,8192)
@@ -29864,7 +29864,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its power \f$I_{(x,y,z,c)}^p\f$.
        \param p Exponent value.
        \note
-       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
        \par Example
        \code
@@ -31425,10 +31425,10 @@ namespace cimg_library {
       return get_solve((*this)*get_transpose()).transpose();
     }
 
-//! Solve a (possibly over- or under-determined) linear system using QR decomposition.
+    //! Solve a (possibly over- or under-determined) linear system using QR decomposition.
     /**
        \brief Solve the matrix equation \f$ A\,X = B \f$, where the current instance \c *this represents \f$ B \f$,
-       and the argument \c A is the system matrix. This method supports both over-determined and
+       and the argument \c A is the system matrix. This function supports both over-determined and
        under-determined systems by internally performing a QR decomposition with column pivoting,
        which improves numerical stability and correctly handles rank-deficient matrices.
 
@@ -33779,7 +33779,7 @@ namespace cimg_library {
     /**
        \param values Sequence of values to discard.
        \param axis Axis along which the values are discarded. If set to \c 0 (default value)
-         the method does it for all the buffer values and returns a one-column vector.
+         the function does it for all the buffer values and returns a one-column vector.
        \note Discarded values will change the image geometry, so the resulting image
          is returned as a one-column vector.
     **/
@@ -43253,7 +43253,7 @@ namespace cimg_library {
        \param radius Spatial radius. If negative, it is expressed as a percentage of the largest image size.
        \param regularization Regularization parameter.
                              If negative, it is expressed as a percentage of the guide value range.
-       \note This method implements the filtering algorithm described in:
+       \note This function implements the filtering algorithm described in:
        He, Kaiming; Sun, Jian; Tang, Xiaoou, "Guided Image Filtering," Pattern Analysis and Machine Intelligence,
        IEEE Transactions on , vol.35, no.6, pp.1397,1409, June 2013
     **/
@@ -51699,7 +51699,7 @@ namespace cimg_library {
                        const float round_x=0, const float round_y=0) {
       if (is_empty()) return *this;
       const CImg<tx> nvalues_x(values_x._data,values_x.size(),1,1,1,true);
-      const int sizx = (int)values_x.size() - 1, wm1 = width() - 1;
+      const int sizx = (int)values_x.size() - 1, wm1 = std::max(1,width() - 1);
       if (sizx>=0) {
         float ox = (float)*nvalues_x;
         for (unsigned int x = sizx?1U:0U; x<_width; ++x) {
@@ -51836,7 +51836,7 @@ namespace cimg_library {
                         const tc *const color, const float opacity=1,
                         const unsigned int plot_type=1, const int vertex_type=1,
                         const double ymin=0, const double ymax=0, const unsigned int pattern=~0U) {
-      if (is_empty() || _height<=1) return *this;
+      if (is_empty() || _height<=1 || !data || !opacity) return *this;
       if (!color)
         throw CImgArgumentException(_cimg_instance
                                     "draw_graph(): Specified color is (null).",
@@ -55785,9 +55785,9 @@ namespace cimg_library {
       return CImg<T>().load_magick(filename);
     }
 
-    //! Loads an image from a PNG file.
+    //! Load an image from a PNG file.
     /**
-       This method reads a PNG file and loads its content into the current CImg<T> instance.
+       This function reads a PNG file and loads its content into the current CImg<T> instance.
 
        \param filename Path to the PNG file to load, as a C-string.
        \param[out] bits_per_value Number of bits used to store a scalar value in the image file.
@@ -56625,20 +56625,24 @@ namespace cimg_library {
       if (voxel_size) {
         const char *s_description = 0;
         float vx = 0, vy = 0, vz = 0;
+        bool parsed_from_description = false;
         if (TIFFGetField(tif,TIFFTAG_IMAGEDESCRIPTION,&s_description) && s_description) {
           const char *s_desc = std::strstr(s_description,"VX=");
           if (s_desc && cimg_sscanf(s_desc,"VX=%f VY=%f VZ=%f",&vx,&vy,&vz)==3) { // CImg format
             voxel_size[0] = vx; voxel_size[1] = vy; voxel_size[2] = vz;
+            parsed_from_description = true;
           }
           s_desc = std::strstr(s_description,"spacing=");
           if (s_desc && cimg_sscanf(s_desc,"spacing=%f",&vz)==1) { // Fiji format
             voxel_size[2] = vz;
           }
         }
-        TIFFGetField(tif,TIFFTAG_XRESOLUTION,voxel_size);
-        TIFFGetField(tif,TIFFTAG_YRESOLUTION,voxel_size + 1);
-        voxel_size[0] = 1.f/voxel_size[0];
-        voxel_size[1] = 1.f/voxel_size[1];
+        if (!parsed_from_description) {
+          TIFFGetField(tif,TIFFTAG_XRESOLUTION,voxel_size);
+          TIFFGetField(tif,TIFFTAG_YRESOLUTION,voxel_size + 1);
+          voxel_size[0] = 1.f/voxel_size[0];
+          voxel_size[1] = 1.f/voxel_size[1];
+        }
       }
       if (description) {
         const char *s_description = 0;
@@ -58519,14 +58523,14 @@ namespace cimg_library {
 
     //! Captures an image from a connected camera device (requires OpenCV).
     /**
-       This method allows you to directly acquire an image from a camera device (e.g., webcam)
+       This function allows you to directly acquire an image from a camera device (e.g., webcam)
        connected to the system. The captured image is stored in the current CImg<T> instance.
 
        \param camera_index Index of the camera to capture images from (from 0 to 63).
        \param capture_width Width of the desired image ('0' stands for default value).
        \param capture_height Height of the desired image ('0' stands for default value).
        \param skip_frames Number of frames to skip before the capture.
-       \param release_camera Indicates whether the camera resource must be released at the end of the method.
+       \param release_camera Indicates whether the camera resource must be released at the end of the function.
        \return Reference to the current image instance, now containing the captured camera frame.
 
        \code
@@ -61492,7 +61496,7 @@ namespace cimg_library {
         \param dc Number of channels of the image.
         \note
         - All pixel values of the saved image are set to \c 0.
-        - Use this method to save large images without having to instantiate and allocate them.
+        - Use this function to save large images without having to instantiate and allocate them.
     **/
     static void save_empty_cimg(const char *const filename,
                                 const unsigned int dx, const unsigned int dy=1,
@@ -62102,9 +62106,9 @@ namespace cimg_library {
        \param bitrate Video bitrate.
        \note
        - Each slice of the instance image is considered to be a single frame of the output video file.
-       - This method uses \c ffmpeg, an external executable binary provided by
+       - This function uses \c ffmpeg, an external executable binary provided by
          <a href="http://www.ffmpeg.org">FFmpeg</a>.
-       It must be installed for the method to succeed.
+       It must be installed for the function to succeed.
     **/
     const CImg<T>& save_ffmpeg_external(const char *const filename, const unsigned int fps=25,
                                         const char *const codec=0, const unsigned int bitrate=2048) const {
@@ -62123,9 +62127,9 @@ namespace cimg_library {
     //! Save image using gzip external binary.
     /**
        \param filename Filename, as a C-string.
-       \note This method uses \c gzip, an external executable binary provided by
+       \note This function uses \c gzip, an external executable binary provided by
          <a href="//http://www.gzip.org">gzip</a>.
-       It must be installed for the method to succeed.
+       It must be installed for the function to succeed.
     **/
     const CImg<T>& save_gzip_external(const char *const filename) const {
       if (!filename)
@@ -62175,9 +62179,9 @@ namespace cimg_library {
     /**
        \param filename Filename, as a C-string.
        \param quality Image quality (expressed in percent), when the file format supports it.
-       \note This method uses \c gm, an external executable binary provided by
+       \note This function uses \c gm, an external executable binary provided by
          <a href="http://www.graphicsmagick.org">GraphicsMagick</a>.
-       It must be installed for the method to succeed.
+       It must be installed for the function to succeed.
     **/
     const CImg<T>& save_graphicsmagick_external(const char *const filename, const unsigned int quality=100) const {
       if (!filename)
@@ -62233,9 +62237,9 @@ namespace cimg_library {
     /**
        \param filename Filename, as a C-string.
        \param quality Image quality (expressed in percent), when the file format supports it.
-       \note This method uses \c convert, an external executable binary provided by
+       \note This function uses \c convert, an external executable binary provided by
        <a href="http://www.imagemagick.org">ImageMagick</a>.
-       It must be installed for the method to succeed.
+       It must be installed for the function to succeed.
     **/
     const CImg<T>& save_imagemagick_external(const char *const filename, const unsigned int quality=100) const {
       if (!filename)
@@ -62291,9 +62295,9 @@ namespace cimg_library {
     //! Save image as a Dicom file.
     /**
        \param filename Filename, as a C-string.
-       \note This method uses \c medcon, an external executable binary provided by
+       \note This function uses \c medcon, an external executable binary provided by
          <a href="http://xmedcon.sourceforge.net">(X)Medcon</a>.
-       It must be installed for the method to succeed.
+       It must be installed for the function to succeed.
     **/
     const CImg<T>& save_medcon_external(const char *const filename) const {
       if (!filename)
@@ -62341,11 +62345,11 @@ namespace cimg_library {
        \param quality Image quality (expressed in percent), when the file format supports it.
        \note
        - The filename extension indicates the desired file format.
-       - This method tries to save the instance image as a file, using external tools from
+       - This function tries to save the instance image as a file, using external tools from
        <a href="http://www.imagemagick.org">ImageMagick</a> or
        <a href="http://www.graphicsmagick.org">GraphicsMagick</a>.
-         At least one of these tool must be installed for the method to succeed.
-       - It is recommended to use the generic method save(const char*, int) const instead,
+         At least one of these tool must be installed for the function to succeed.
+       - It is recommended to use the generic function save(const char*, int) const instead,
          as it can handle some file formats natively.
     **/
     const CImg<T>& save_other(const char *const filename, const unsigned int quality=100) const {
@@ -62455,7 +62459,7 @@ namespace cimg_library {
        \note
        - The \c CImgList<T>::value_type type of a \c CImgList<T> is defined to be a \c T.
          It is then similar to CImg<T>::value_type.
-       - \c CImgList<T>::value_type is actually not used in %CImg methods. It has been mainly defined for
+       - \c CImgList<T>::value_type is actually not used in %CImg functions. It has been mainly defined for
          compatibility with STL naming conventions.
     **/
     typedef T value_type;
@@ -62544,7 +62548,7 @@ namespace cimg_library {
        \note
        - An empty list has no pixel data and its dimension width() is set to \c 0, as well as its
          image buffer pointer data().
-       - An empty list may be reassigned afterwards, with the family of the assign() methods.
+       - An empty list may be reassigned afterwards, with the family of the assign() functions.
          In all cases, the type of pixels stays \c T.
      **/
     CImgList():
@@ -67631,7 +67635,7 @@ namespace cimg_library {
         std::memcpy(buf,p,z - p);
         buf[z - p] = '/';
         std::memcpy(buf + (z - p) + (z>p),file,file_len + 1);
-        if (cimg::is_file(buf) && faccessat(AT_FDCWD, buf, X_OK, AT_EACCESS)==0) { delete[] buf; return true; }
+        if (cimg::is_file(buf) && faccessat(AT_FDCWD,buf,X_OK,AT_EACCESS)==0) { delete[] buf; return true; }
         if (!*z++) break;
         p = z;
       }

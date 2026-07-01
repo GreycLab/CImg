@@ -67577,9 +67577,9 @@ namespace cimg_library {
 #endif
       // Fallback, used for non-POSIX systems or if fstat failed (pipes or sockets).
       const cimg_long pos = cimg::ftell(file);
-      cimg::fseek(file, 0, SEEK_END);
+      cimg::fseek(file,0,SEEK_END);
       const cimg_int64 siz = (cimg_int64)cimg::ftell(file);
-      cimg::fseek(file, pos, SEEK_SET);
+      cimg::fseek(file,pos,SEEK_SET);
       return siz;
     }
 

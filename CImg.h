@@ -7432,7 +7432,7 @@ namespace cimg_library {
       return _fps_fps;
     }
 
-    // Moves the current display window such that its content remains within the current screen.
+    // Move the current display window such that its content remains within the current screen.
     CImgDisplay& move_inside_screen() {
       if (is_empty()) return *this;
       const int
@@ -7588,7 +7588,7 @@ namespace cimg_library {
       return resize(disp.width(),disp.height(),force_redraw);
     }
 
-    // [internal] Render pixel buffer with size (wd,hd) from source buffer of size (ws,hs).
+    // [internal] Render a pixel buffer of size (wd,hd) from a source buffer of size (ws,hs).
     template<typename t, typename T>
     static void _render_resize(const T *ptrs, const unsigned int ws, const unsigned int hs,
                                t *ptrd, const unsigned int wd, const unsigned int hd) {
@@ -12246,7 +12246,7 @@ namespace cimg_library {
        \note
        - The size of the image instance is never modified.
        - It is not mandatory that input image \c img has the same size as the image instance.
-         If less values are available in \c img, then the values are added periodically. For instance, adding one
+         If fewer values are available in \c img, then the values are added periodically. For instance, adding one
          WxH scalar image (spectrum() equal to \c 1) to one WxH color image (spectrum() equal to \c 3)
          means each color channel will be incremented with the same values at the same locations.
        \par Example
@@ -15115,7 +15115,7 @@ namespace cimg_library {
 
     //! Test if image instance is empty.
     /**
-       Return \c true, if image instance is empty, i.e. does \e not contain any pixel values, has dimensions
+       Return \c true if image instance is empty, i.e. does \e not contain any pixel values, has dimensions
        \c 0 x \c 0 x \c 0 x \c 0 and a pixel buffer pointer set to \c 0 (null pointer), and \c false otherwise.
     **/
     bool is_empty() const {
@@ -15124,7 +15124,7 @@ namespace cimg_library {
 
     //! Test if image instance contains a 'inf' value.
     /**
-       Return \c true, if image instance contains a 'inf' value, and \c false otherwise.
+       Return \c true if image instance contains a 'inf' value, and \c false otherwise.
     **/
     bool is_inf() const {
       if (cimg::type<T>::is_float()) cimg_for(*this,p,T) if (cimg::type<T>::is_inf((double)*p)) return true;
@@ -15133,7 +15133,7 @@ namespace cimg_library {
 
     //! Test if image instance contains a NaN value.
     /**
-       Return \c true, if image instance contains a NaN value, and \c false otherwise.
+       Return \c true if image instance contains a NaN value, and \c false otherwise.
     **/
     bool is_nan() const {
       if (cimg::type<T>::is_float()) cimg_for(*this,p,T) if (cimg::type<T>::is_nan((double)*p)) return true;
@@ -15413,7 +15413,7 @@ namespace cimg_library {
 
     //! Test if pixel value is inside image bounds and get its X,Y,Z and C-coordinates.
     /**
-       Return \c true, if specified reference refers to a pixel value inside bounds of the image instance,
+       Return \c true if specified reference refers to a pixel value inside bounds of the image instance,
        and \c false otherwise.
        \param pixel Reference to pixel value to test.
        \param[out] x X-coordinate of the pixel value, if test succeeds.
@@ -15502,7 +15502,7 @@ namespace cimg_library {
 
     //! Test if pixel buffers of instance and input images overlap.
     /**
-       Return \c true, if pixel buffers attached to image instance and input image \c img overlap,
+       Return \c true if pixel buffers attached to image instance and input image \c img overlap,
        and \c false otherwise.
        \param img Input image to compare with.
        \note
@@ -15548,7 +15548,7 @@ namespace cimg_library {
                      char *const error_message=0) const {
       if (error_message) *error_message = 0;
 
-      // Check consistency for the particular case of an empty 3D object.
+      // Check the consistency for the particular case of an empty 3D object.
       if (is_empty()) {
         if (primitives || colors || opacities) {
           if (error_message) cimg_snprintf(error_message,256,
@@ -15561,7 +15561,7 @@ namespace cimg_library {
         return true;
       }
 
-      // Check consistency of vertices.
+      // Check the consistency of vertices.
       if (_height!=3 || _depth>1 || _spectrum>1) { // Check vertices dimensions
         if (error_message) cimg_snprintf(error_message,256,
                                         "3D object (%u,%u) has invalid vertex dimensions (%u,%u,%u,%u)",
@@ -15582,7 +15582,7 @@ namespace cimg_library {
       }
       if (!full_check) return true;
 
-      // Check consistency of primitives.
+      // Check the consistency of primitives.
       cimglist_for(primitives,l) {
         const CImg<tp>& primitive = primitives[l];
         const unsigned int psiz = (unsigned int)primitive.size();
@@ -15656,7 +15656,7 @@ namespace cimg_library {
         }
       }
 
-      // Check consistency of colors.
+      // Check the consistency of colors.
       cimglist_for(colors,c) {
         const CImg<tc>& color = colors[c];
         if (!color) {
@@ -15667,7 +15667,7 @@ namespace cimg_library {
         }
       }
 
-      // Check consistency of light texture.
+      // Check the consistency of light texture.
       if (colors._width>primitives._width) {
         const CImg<tc> &light = colors.back();
         if (!light || light._depth>1) {
@@ -15720,7 +15720,7 @@ namespace cimg_library {
         nb_points = cimg::float2uint(*(ptrs++)),
         nb_primitives = cimg::float2uint(*(ptrs++));
 
-      // Check consistency of number of vertices / primitives.
+      // Check the consistency of number of vertices / primitives.
       if (!full_check) {
         const ulongT minimal_size = 8UL + 3*nb_points + 6*nb_primitives;
         if (_data + minimal_size>ptre) {
@@ -15732,7 +15732,7 @@ namespace cimg_library {
         }
       }
 
-      // Check consistency of vertex data.
+      // Check the consistency of vertex data.
       if (!nb_points) {
         if (nb_primitives) {
           if (error_message) cimg_snprintf(error_message,256,
@@ -15757,7 +15757,7 @@ namespace cimg_library {
       }
       ptrs+=3*nb_points;
 
-      // Check consistency of primitive data.
+      // Check the consistency of primitive data.
       if (ptrs==ptre) {
         if (error_message) cimg_snprintf(error_message,256,
                                          "CImg3d (%u,%u) defines %u vertices but no primitive",
@@ -15849,7 +15849,7 @@ namespace cimg_library {
         }
       }
 
-      // Check consistency of color data.
+      // Check the consistency of color data.
       if (ptrs==ptre) {
         if (error_message) cimg_snprintf(error_message,256,
                                          "CImg3d (%u,%u) defines no color/texture data",
@@ -15882,7 +15882,7 @@ namespace cimg_library {
         }
       }
 
-      // Check consistency of opacity data.
+      // Check the consistency of opacity data.
       if (ptrs==ptre) {
         if (error_message) cimg_snprintf(error_message,256,
                                          "CImg3d (%u,%u) defines no opacity data",
@@ -16856,7 +16856,7 @@ namespace cimg_library {
               _cimg_mp_return(arg1);
             }
 
-            // Assign lvalue (variable name was not valid for a direct assignment).
+            // Assign lvalue (the variable name was not valid for a direct assignment).
             arg1 = ~0U;
             is_sth = (bool)std::strchr(variable_name,'?'); // Contains_ternary_operator?
             if (is_sth) break; // Do nothing and make ternary operator priority over assignment
@@ -67707,14 +67707,15 @@ namespace cimg_library {
     }
 
     inline BOOL win_getfileattributesEx(const char* const path, WIN32_FILE_ATTRIBUTE_DATA* attr) {
-        BOOL res = GetFileAttributesExA(path, GetFileExInfoStandard, attr);
+        BOOL res = GetFileAttributesExA(path,GetFileExInfoStandard,attr);
         if (!res) {
-            // Try alternative method, with wide-character string.
-            int err = MultiByteToWideChar(CP_UTF8, 0, path, -1, 0, 0);
-            if (err) {
-                CImg<wchar_t> wpath((unsigned int)err);
-                if (MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, err)) res = GetFileAttributesExW(wpath, GetFileExInfoStandard, attr);
-            }
+          // Try alternative method, with wide-character string.
+          int err = MultiByteToWideChar(CP_UTF8,0,path,-1,0,0);
+          if (err) {
+            CImg<wchar_t> wpath((unsigned int)err);
+            if (MultiByteToWideChar(CP_UTF8,0,path,-1,wpath,err))
+              res = GetFileAttributesExW(wpath,GetFileExInfoStandard,attr);
+          }
         }
         return res;
     }

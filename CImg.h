@@ -4508,13 +4508,14 @@ namespace cimg_library {
       return std::abs(a);
     }
     inline cimg_int64 abs(const cimg_uint64 a) {
-      return (cimg_int64)a;
+      const cimg_uint64 max_signed = (cimg_uint64)cimg::type<cimg_int64>::max();
+      return a<max_signed?(cimg_int64)a:cimg::type<cimg_int64>::max();
     }
     inline double abs(const double a) {
       return std::fabs(a);
     }
     inline float abs(const float a) {
-      return (float)std::fabs((double)a);
+      return std::fabs(a);
     }
 
     //! Return fractional part of a value.
@@ -4692,7 +4693,8 @@ namespace cimg_library {
     template<typename T>
     inline cimg_uint64 nearest_pow2(const T& x) {
       cimg_uint64 i = 1;
-      while (x>i) i<<=1;
+      const cimg_uint64 max_pow2 = (cimg_uint64)1<<(sizeof(cimg_uint64)*8 - 1);
+      while (x>i && i<max_pow2) i<<=1;
       return i;
     }
 

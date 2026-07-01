@@ -22008,7 +22008,7 @@ namespace cimg_library {
               _cimg_mp_return(scalar3(*ss8=='a'?mp_softargmax:mp_softargmin,arg1,p1,arg2));
             }
 
-            if (!std::strncmp(ss,"softmax(",8) || !std::strncmp(ss,"softmin(",8)) { // Softmax & softmin
+            if (!std::strncmp(ss,"softmax(",8) || !std::strncmp(ss,"softmin(",8)) { // Softmax & Softmin
               _cimg_mp_op(*ss5=='a'?"Function 'softmax()'":"Function 'softmin()'");
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss8,s1,depth1,0,block_flags);
@@ -32125,7 +32125,7 @@ namespace cimg_library {
     //! Compute the projection of the instance matrix onto the specified dictionary.
     /**
        Find the best-matching projection of the selected matrix onto the span of an over-complete dictionary D,
-       using the orthogonal projection or (opt. Orthogonal) Matching Pursuit algorithm.
+       using the orthogonal projection or (optionally Orthogonal) Matching Pursuit algorithm.
        The instance image must be a 2D matrix in which each column represents a signal to project.
        \param dictionary A matrix in which each column is an element of the dictionary D.
        \param method Specifies which projection method is applied. It can be:
@@ -32237,7 +32237,7 @@ namespace cimg_library {
         if (method>=2 && !is_orthoproj) {
           unsigned int nb_weights = 0;
           cimg_forY(weights,atom) if (weights(signal,atom)) ++nb_weights;
-          if (nb_weights) { // Avoid degenerated case where 0 coefs are used
+          if (nb_weights) { // Avoid degenerateds case where 0 coefficients are used
             CImg<Tfloat> sub_dictionary(nb_weights,dictionary._height);
             CImg<uintT> sub_atoms(nb_weights);
             int ind = 0;
@@ -36129,7 +36129,7 @@ namespace cimg_library {
       return CImg<Tfloat>(*this,false).XYZtoxyY();
     }
 
-    //! Convert pixel values from xyY pixels to XYZ color spaces.
+    //! Convert pixel values from xyY to XYZ color spaces.
     CImg<T>& xyYtoXYZ() {
       if (_spectrum!=3)
         throw CImgInstanceException(_cimg_instance
@@ -36152,7 +36152,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Convert pixel values from xyY pixels to XYZ color spaces \newinstance.
+    //! Convert pixel values from xyY to XYZ color spaces \newinstance.
     CImg<Tfloat> get_xyYtoXYZ() const {
       return CImg<Tfloat>(*this,false).xyYtoXYZ();
     }

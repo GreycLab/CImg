@@ -4300,8 +4300,10 @@ namespace cimg_library {
     }
 
     inline unsigned int _rand(cimg_uint64 *const p_rng) {
-      *p_rng = *p_rng*1103515245 + 12345U;
-      return (unsigned int)*p_rng;
+      cimg_uint64 x = *p_rng;
+      x^=x<<13; x^=x>>7; x^=x<<17;
+      *p_rng = x?x:1;
+      return (unsigned int)((x*(cimg_uint64)0x9E3779B9U)>>32);
     }
 
     inline unsigned int _rand() {

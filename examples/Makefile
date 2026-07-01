@@ -64,7 +64,6 @@ FILES = CImg_demo \
 	pde_heatflow2d \
 	pde_TschumperleDeriche2d \
 	plotter1d \
-	radon_transform2d \
 	scene3d \
 	spherical_function3d \
 	tetris \

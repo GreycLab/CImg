@@ -495,7 +495,7 @@ enum {FALSE_WIN = 0};
 // Define 'cimg_use_png' to enable LibPNG support.
 //
 // PNG library may be used to get native support for '.png' files.
-// (see functions 'CImg<T>::{load,save}_png()'.
+// (see functions 'CImg<T>::{load,save}_png()').
 #ifdef cimg_use_png
 extern "C" {
 #include "png.h"
@@ -600,7 +600,7 @@ extern "C" {
 // Define 'cimg_use_curl' to enable libcurl support.
 //
 // Libcurl may be used to get native support for files downloaded from the network.
-// (see function 'cimg::load_network()'.)
+// (see function 'cimg::load_network()').
 #ifdef cimg_use_curl
 #include "curl/curl.h"
 #endif
@@ -621,7 +621,7 @@ extern "C" {
 //
 // Define 'cimg_use_fftw3' to enable libFFTW3 support.
 //
-// FFTW3 library may be used to efficiently compute the Fast Fourier Transform.
+// FFTW3 library may be used to efficiently compute the Fast Fourier Transform
 // of image data, without restriction on the image size.
 // (see function 'CImg[List]<T>::FFT()').
 #ifdef cimg_use_fftw3
@@ -2319,9 +2319,9 @@ extern "C" {
  -------------------------------------------------*/
 //! Contains <i>all classes and functions</i> of the \CImg library.
 /**
-   This namespace is defined to avoid functions and class names collisions
-   that could happen with the inclusion of other C++ header files.
-   Anyway, it should not happen often and you should reasonably start most of your
+   This namespace is defined to avoid function and class names collisions
+   that should occur with the inclusion of other C++ header files.
+   Regardless, collisions are rare, and you should typically start most of your
    \CImg-based programs with
    \code
    #include "CImg.h"
@@ -2372,7 +2372,7 @@ namespace cimg_library {
     inline std::FILE* output(std::FILE *file=0);
     inline void info();
 
-    //! Avoid warning messages due to unused parameters. Do nothing actually.
+    //! Avoid warning messages due to unused parameters. This function intentionally does nothing.
     template<typename T>
     inline void unused(const T&) {}
 
@@ -2593,8 +2593,8 @@ namespace cimg_library {
 
       - \b CImgDisplayException: Thrown when something went wrong during the display of images in CImgDisplay instances.
 
-      - \b CImgInstanceException: Thrown when an instance associated to a called \CImg function does not fit
-      the function requirements. For instance, the following example throws a \c CImgInstanceException:
+      - \b CImgInstanceException: Thrown when an instance associated with a called \CImg function does not meet
+      the function's requirements. For instance, the following example throws a \c CImgInstanceException:
       \code
       const CImg<float> img; // Define an empty image
       const float value = img.at(0); // Try to read first pixel value (does not exist)
@@ -2666,7 +2666,7 @@ namespace cimg_library {
     }
     ~CImgException() { delete[] _message; }
     CImgException& operator=(const CImgException& e) {
-      if (this!=&e) { // Protect against self-assignement
+      if (this!=&e) { // Protect against self-assignment
         char *new_message = 0;
         if (e._message) {
           const size_t size = std::strlen(e._message);
@@ -2679,7 +2679,7 @@ namespace cimg_library {
       }
       return *this;
     }
-    //! Return a C-string containing the error message associated to the thrown exception.
+    //! Return a C-string containing the error message associated with the thrown exception.
     const char *what() const cimg_noexcept { return _message; }
   }; // struct CImgException { ...
 
@@ -2697,7 +2697,7 @@ namespace cimg_library {
     }
     ~CImgAbortException() { delete[] _message; }
     CImgAbortException& operator=(const CImgAbortException& e) {
-      if (this!=&e) { // Protect against self-assignement
+      if (this!=&e) { // Protect against self-assignment
         char *new_message = 0;
         if (e._message) {
           const size_t size = std::strlen(e._message);
@@ -2710,7 +2710,7 @@ namespace cimg_library {
       }
       return *this;
     }
-    //! Return a C-string containing the error message associated to the thrown exception.
+    //! Return a C-string containing the error message associated with the thrown exception.
     const char *what() const cimg_noexcept { return _message; }
   }; // struct CImgAbortException { ...
 
@@ -2749,7 +2749,7 @@ namespace cimg_library {
     # Define cimg:: namespace
     #
     -----------------------------------*/
-  //! Contains \a low-level functions and variables of the \CImg Library.
+  //! Contains low-level functions and variables of the \CImg Library.
   /**
      Most of the functions and variables within this namespace are used by the \CImg library for low-level operations.
      You may use them to access specific const values or environment variables internally used by \CImg.
@@ -7167,7 +7167,7 @@ namespace cimg_library {
 
     //! Return display width.
     /**
-       \note The width of the display (i.e. the width of the pixel data buffer associated to the CImgDisplay instance)
+       \note The width of the display (i.e. the width of the pixel data buffer associated with the CImgDisplay instance)
        may be different from the actual width of the associated window.
     **/
     int width() const {
@@ -7176,7 +7176,7 @@ namespace cimg_library {
 
     //! Return display height.
     /**
-       \note The height of the display (i.e. the height of the pixel data buffer associated to the CImgDisplay instance)
+       \note The height of the display (i.e. the height of the pixel data buffer associated with the CImgDisplay instance)
        may be different from the actual height of the associated window.
     **/
     int height() const {
@@ -7221,7 +7221,7 @@ namespace cimg_library {
 
     //! Return width of the associated window.
     /**
-       \note The width of the display (i.e. the width of the pixel data buffer associated to the CImgDisplay instance)
+       \note The width of the display (i.e. the width of the pixel data buffer associated with the CImgDisplay instance)
        may be different from the actual width of the associated window.
     **/
     int window_width() const {
@@ -7230,7 +7230,7 @@ namespace cimg_library {
 
     //! Return height of the associated window.
     /**
-       \note The height of the display (i.e. the height of the pixel data buffer associated to the CImgDisplay instance)
+       \note The height of the display (i.e. the height of the pixel data buffer associated with the CImgDisplay instance)
        may be different from the actual height of the associated window.
     **/
     int window_height() const {
@@ -7723,7 +7723,7 @@ namespace cimg_library {
 
     //! Simulate a mouse button press or release event.
     /**
-       \param button Buttons event code, where each button is associated to a single bit.
+       \param button Buttons event code, where each button is associated with a single bit.
        \param is_pressed Indicates whether the mouse button is considered as pressed or released.
     **/
     CImgDisplay& set_button(const unsigned int button, const bool is_pressed=true) {
@@ -8240,7 +8240,7 @@ namespace cimg_library {
                                                   ExposureMask | StructureNotifyMask | ButtonPressMask |
                                                   KeyPressMask | PointerMotionMask | EnterWindowMask |
                                                   LeaveWindowMask | ButtonReleaseMask | KeyReleaseMask,&event);
-        if (is_event) { // Find CImgDisplay associated to event
+        if (is_event) { // Find CImgDisplay associated with event
           for (unsigned int k = 0; k<X11_attr.nb_cimg_displays; ++k)
             if (event.xany.window==X11_attr.cimg_displays[k]->_window) {
               if (!X11_attr.cimg_displays[k]->_is_closed && X11_attr.events_thread_running)
@@ -10311,7 +10311,7 @@ namespace cimg_library {
             }
           } else {
             SDL_Window *const window = SDL_GetWindowFromID(event.window.windowID);
-            if (window) // Find CImgDisplay associated to event
+            if (window) // Find CImgDisplay associated with event
               for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k) {
                 CImgDisplay &disp = *SDL3_attr.cimg_displays[k];
                 if (window==disp._window) {
@@ -10728,12 +10728,12 @@ namespace cimg_library {
 
   //! Class representing an image (up to 4 dimensions wide), where each pixel is of type \c T.
   /**
-     This is the main class of the %CImg Library. It declares and constructs
+     This is the main class of the \CImg Library. It declares and constructs
      an image, allows access to its pixel values, and is able to perform various image operations.
 
      \par Image representation
 
-     A %CImg image is defined as an instance of the container \c CImg<T>, which contains a regular grid of pixels,
+     A \CImg image is defined as an instance of the container \c CImg<T>, which contains a regular grid of pixels,
      each pixel value being of type \c T. The image grid can have up to 4 dimensions: width, height, depth
      and number of channels.
      Usually, the first three dimensions are used to describe spatial coordinates <tt>(x,y,z)</tt>,
@@ -10828,7 +10828,7 @@ namespace cimg_library {
     /**
        \note
        - The \c CImg<T>::iterator type is defined to be a <tt>T*</tt>.
-       - You will seldom have to use iterators in %CImg, most classical operations
+       - You will seldom have to use iterators in \CImg, most classical operations
          being achieved (often in a faster way) using functions of \c CImg<T>.
        \par Example
        \code
@@ -10844,7 +10844,7 @@ namespace cimg_library {
     /**
        \note
        - The \c CImg<T>::const_iterator type is defined to be a \c const \c T*.
-       - You will seldom have to use iterators in %CImg, most classical operations
+       - You will seldom have to use iterators in \CImg, most classical operations
          being achieved (often in a faster way) using functions of \c CImg<T>.
        \par Example
        \code
@@ -10862,7 +10862,7 @@ namespace cimg_library {
        Refer to the type of the pixel values of an image instance.
        \note
        - The \c CImg<T>::value_type type of a \c CImg<T> is defined to be a \c T.
-       - \c CImg<T>::value_type is actually not used in %CImg functions. It has been mainly defined for
+       - \c CImg<T>::value_type is actually not used in \CImg functions. It has been mainly defined for
          compatibility with STL naming conventions.
     **/
     typedef T value_type;
@@ -11429,7 +11429,7 @@ namespace cimg_library {
        \note
        - Similar to CImg(unsigned int,unsigned int,unsigned int,unsigned int), but it reads the image
          dimensions and pixel values from the specified image file.
-       - The recognition of the image file format by %CImg higlhy depends on the tools installed on your system
+       - The recognition of the image file format by \CImg higlhy depends on the tools installed on your system
          and on the external libraries you used to link your code against.
        - Considered pixel type \c T should better fit the file format specification, or data loss may occur during
          file load (e.g. constructing a \c CImg<unsigned char> from a float-valued image file).
@@ -11960,7 +11960,7 @@ namespace cimg_library {
        \note
        - Range of pixel coordinates start from <tt>(0,0,0,0)</tt> to
          <tt>(width() - 1,height() - 1,depth() - 1,spectrum() - 1)</tt>.
-       - Due to the particular arrangement of the pixel buffers defined in %CImg, you can omit one coordinate if the
+       - Due to the particular arrangement of the pixel buffers defined in \CImg, you can omit one coordinate if the
          corresponding dimension is equal to \c 1.
          For instance, pixels of a 2D image (depth() equal to \c 1) can be accessed by <tt>img(x,y,c)</tt> instead of
          <tt>img(x,y,0,c)</tt>.
@@ -62068,7 +62068,7 @@ namespace cimg_library {
       \param filename Filename to write data to.
       \param fps Number of frames per second.
       \param codec Type of compression (See http://www.fourcc.org/codecs.php to see available codecs).
-      \param keep_open Indicates whether the video writer associated to the specified filename
+      \param keep_open Indicates whether the video writer associated with the specified filename
         must be kept open (to allow frames to be added in the same file afterwards).
     **/
     const CImg<T>& save_video(const char *const filename, const unsigned int fps=25,
@@ -62441,7 +62441,7 @@ namespace cimg_library {
        \note
        - The \c CImgList<T>::value_type type of a \c CImgList<T> is defined to be a \c T.
          It is then similar to CImg<T>::value_type.
-       - \c CImgList<T>::value_type is actually not used in %CImg functions. It has been mainly defined for
+       - \c CImgList<T>::value_type is actually not used in \CImg functions. It has been mainly defined for
          compatibility with STL naming conventions.
     **/
     typedef T value_type;
@@ -66931,7 +66931,7 @@ namespace cimg_library {
        \param filename Filename to write data to.
        \param fps Number of frames per second.
        \param codec Type of compression (See http://www.fourcc.org/codecs.php to see available codecs).
-       \param keep_open Indicates whether the video writer associated to the specified filename
+       \param keep_open Indicates whether the video writer associated with the specified filename
        must be kept open (to allow frames to be added in the same file afterwards).
     **/
     const CImgList<T>& save_video(const char *const filename, const unsigned int fps=25,

@@ -5795,20 +5795,51 @@ namespace cimg_library {
     **/
     inline cimg_int64 fsize(std::FILE *const file) {
       if (!file) return (cimg_int64)-1;
-      const cimg_long pos = std::ftell(file);
-      cimg::fseek(file,0,SEEK_END);
-      const cimg_int64 siz = (cimg_int64)std::ftell(file);
-      cimg::fseek(file,pos,SEEK_SET);
+
+#if cimg_OS==1 // Optimized for POSIX Environements (Linux, macOS, BSD, etc.)
+      const int fd = fileno(file);
+      struct stat st;
+      if (fd>=0 && !fstat(fd,&st)) return (cimg_int64)st.st_size;
+#elif cimg_OS==2 // Optimized for Windows Environements (MSVC, MinGW)
+      const int fd = _fileno(file);
+      struct _stati64 st;
+      if (fd>=0 && !_fstati64(fd,&st)) return (cimg_int64)st.st_size;
+#endif
+
+      // Fallback, used for non-POSIX systems or if fstat failed (pipes or sockets).
+      const cimg_long pos = cimg::ftell(file);
+      cimg::fseek(file, 0, SEEK_END);
+      const cimg_int64 siz = (cimg_int64)cimg::ftell(file);
+      cimg::fseek(file, pos, SEEK_SET);
       return siz;
     }
 
+    //! Get file size from filename.
     inline cimg_int64 fsize(const char *const filename) {
-      std::FILE *const file = cimg::std_fopen(filename,"rb");
+      if (!filename || !*filename) return (cimg_int64)-1;
+
+#if cimg_OS==1 // Optimized for POSIX Environements (Linux, macOS, BSD, etc.)
+      struct stat st;
+      if (!stat(filename,&st)) return (cimg_int64)st.st_size;
+#elif cimg_OS==2 // Optimized for Windows Environements (MSVC, MinGW)
+      // Convert UTF-8 path to wchar_t.
+      int len = MultiByteToWideChar(CP_UTF8,0,filename,-1,0,0);
+      if (len>0) {
+        CImg<wchar_t> wfilename((unsigned int)len);
+        if (MultiByteToWideChar(CP_UTF8,0,filename,-1,wfilename,len)) {
+          struct _stati64 st;
+          if (!_wstati64(wfilename,&st)) return (cimg_int64)st.st_size;
+        }
+      }
+#endif
+
+      // Fallback.
+      std::FILE *const file = cimg::fopen(filename, "rb");
+      if (!file) return (cimg_int64)-1;
       const cimg_int64 siz = fsize(file);
       cimg::fclose(file);
       return siz;
     }
-
 
     // Thread-safe version of std::localtime().
     inline struct tm* localtime(const time_t *const time_ptr, struct tm *const result) {
@@ -65308,7 +65339,7 @@ namespace cimg_library {
                       (Ts2 && !cimg::strcasecmp(Ts2,str_pixeltype)) || \
                       (Ts3 && !cimg::strcasecmp(Ts3,str_pixeltype)))) { \
         for (unsigned int l = 0; l<=nn1; ++l) { \
-          j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0 && j<255) tmp[j++] = (char)i; tmp[j] = 0;
+          j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0 && j<255) tmp[j++] = (char)i; tmp[j] = 0; \
           W = H = D = C = 0; \
           if (cimg_sscanf(tmp._data,"%d %d %d %d",&W,&H,&D,&C)!=4) \
             throw CImgIOException(_cimglist_instance \

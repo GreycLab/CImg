@@ -2577,14 +2577,14 @@ namespace cimg_library {
      \par Overview
 
       CImgException is the base class of all exceptions thrown by \CImg (except \b CImgAbortException).
-      CImgException is never thrown itself. Derived classes that specify the type of error are thrown instead.
+      CImgException is never thrown directly. Derived classes that specify the type of error are thrown instead.
       These classes can be:
 
       - \b CImgAbortException: Thrown when a computationally-intensive function is aborted by an external signal.
         This is the only \c non-derived exception class.
 
       - \b CImgArgumentException: Thrown when one argument of a called \CImg function is invalid.
-      This is probably one of the most thrown exception by \CImg.
+      This is probably one of the most commonly thrown exceptions in \CImg.
       For instance, the following example throws a \c CImgArgumentException:
       \code
       CImg<float> img(100,100,1,3); // Define a 100x100 color image with float-valued pixels
@@ -2610,8 +2610,8 @@ namespace cimg_library {
       - \b CImgWarningException: Thrown only if configuration macro \c cimg_strict_warnings is set, and
       when a \CImg function has to display a warning message (see cimg::warn()).
 
-      It is not recommended to throw CImgException instances by yourself,
-      since they are expected to be thrown only by \CImg.
+      It is not recommended to throw CImgException instances manually, as they are intended to be thrown only
+      by the \CImg library.
       When an error occurs in a library function call, \CImg may display error messages on the screen or on the
       standard output, depending on the current \CImg exception mode.
       The \CImg exception mode can be queried and set by functions cimg::exception_mode() and
@@ -2632,7 +2632,7 @@ namespace cimg_library {
           ... // Here, do what you want to stress CImg
         } catch (CImgException& e) { // You succeeded: something went wrong!
           std::fprintf(stderr,"CImg Library Error: %s",e.what()); // Display your custom error message
-          ... // Do what you want now to save the ship!
+          ... // Perform necessary recovery or cleanup steps here
           }
         }
       \endcode
@@ -6217,7 +6217,7 @@ namespace cimg_library {
                    cimg_verbosity,
                    cimg::t_normal());
 
-      std::fprintf(cimg::output(),"  > Stricts warnings:         %s%-13s%s %s('cimg_strict_warnings' %s)%s\n",
+      std::fprintf(cimg::output(),"  > Strict warnings:          %s%-13s%s %s('cimg_strict_warnings' %s)%s\n",
                    cimg::t_bold(),
 #ifdef cimg_strict_warnings
                    "Yes",cimg::t_normal(),cimg::t_green(),"defined",
@@ -7205,7 +7205,7 @@ namespace cimg_library {
     //! Return normalization type of the display.
     /**
        The normalization type indicates how the values of an input image are normalized by the CImgDisplay to be
-       correctly displayed. The range of values for pixels displayed on screen is <tt>[0,255]</tt>.
+       correctly displayed. The range of values for pixels displayed on the screen is <tt>[0,255]</tt>.
        If the range of values of the data to display is different, a normalization may be required for displaying
        the data in a correct way. The normalization type can be one of:
        - \c 0: Value normalization is disabled. It is then assumed that all input data to be displayed by the
@@ -47609,13 +47609,7 @@ namespace cimg_library {
     template<typename tf>
     static CImg<floatT> box3d(CImgList<tf>& primitives,
                               const float size_x=200, const float size_y=100, const float size_z=100) {
-      primitives.assign(6);
-      CImg<tf>::vector(0,3,2,1).move_to(primitives[0]);
-      CImg<tf>::vector(4,5,6,7).move_to(primitives[1]);
-      CImg<tf>::vector(0,1,5,4).move_to(primitives[2]);
-      CImg<tf>::vector(3,7,6,2).move_to(primitives[3]);
-      CImg<tf>::vector(0,4,7,3).move_to(primitives[4]);
-      CImg<tf>::vector(1,2,6,5).move_to(primitives[5]);
+      CImg<tf>(1,6*4,1,1, 0,3,2,1, 4,5,6,7, 0,1,5,4, 3,7,6,2, 0,4,7,3, 1,2,6,5).get_split('y',6).move_to(primitives);
       return CImg<floatT>(8,3,1,1,
                           0.,size_x,size_x,    0.,    0.,size_x,size_x,    0.,
                           0.,    0.,size_y,size_y,    0.,    0.,size_y,size_y,
@@ -47803,41 +47797,13 @@ namespace cimg_library {
       // Create initial icosahedron.
       primitives.assign();
       const double tmp = (1 + std::sqrt(5.f))/2, a = 1./std::sqrt(1 + tmp*tmp), b = tmp*a;
-      CImgList<floatT> vertices(12);
-      CImg<floatT>::vector(b,a,0.).move_to(vertices[0]);
-      CImg<floatT>::vector(-b,a,0.).move_to(vertices[1]);
-      CImg<floatT>::vector(-b,-a,0.).move_to(vertices[2]);
-      CImg<floatT>::vector(b,-a,0.).move_to(vertices[3]);
-      CImg<floatT>::vector(a,0.,b).move_to(vertices[4]);
-      CImg<floatT>::vector(a,0.,-b).move_to(vertices[5]);
-      CImg<floatT>::vector(-a,0.,-b).move_to(vertices[6]);
-      CImg<floatT>::vector(-a,0.,b).move_to(vertices[7]);
-      CImg<floatT>::vector(0.,b,a).move_to(vertices[8]);
-      CImg<floatT>::vector(0.,-b,a).move_to(vertices[9]);
-      CImg<floatT>::vector(0.,-b,-a).move_to(vertices[10]);
-      CImg<floatT>::vector(0.,b,-a).move_to(vertices[11]);
-
-      primitives.assign(20);
-      CImg<floatT>::vector(4,8,7).move_to(primitives[0]);
-      CImg<floatT>::vector(4,7,9).move_to(primitives[1]);
-      CImg<floatT>::vector(5,6,11).move_to(primitives[2]);
-      CImg<floatT>::vector(5,10,6).move_to(primitives[3]);
-      CImg<floatT>::vector(0,4,3).move_to(primitives[4]);
-      CImg<floatT>::vector(0,3,5).move_to(primitives[5]);
-      CImg<floatT>::vector(2,7,1).move_to(primitives[6]);
-      CImg<floatT>::vector(2,1,6).move_to(primitives[7]);
-      CImg<floatT>::vector(8,0,11).move_to(primitives[8]);
-      CImg<floatT>::vector(8,11,1).move_to(primitives[9]);
-      CImg<floatT>::vector(9,10,3).move_to(primitives[10]);
-      CImg<floatT>::vector(9,2,10).move_to(primitives[11]);
-      CImg<floatT>::vector(8,4,0).move_to(primitives[12]);
-      CImg<floatT>::vector(11,0,5).move_to(primitives[13]);
-      CImg<floatT>::vector(4,9,3).move_to(primitives[14]);
-      CImg<floatT>::vector(5,3,10).move_to(primitives[15]);
-      CImg<floatT>::vector(7,8,1).move_to(primitives[16]);
-      CImg<floatT>::vector(6,1,11).move_to(primitives[17]);
-      CImg<floatT>::vector(7,2,9).move_to(primitives[18]);
-      CImg<floatT>::vector(6,10,2).move_to(primitives[19]);
+      CImgList<floatT> vertices = CImg<floatT>(1,12*3,1,1,
+                                               b,a,0., -b,a,0., -b,-a,0., b,-a,0., a,0.,b, a,0.,-b,
+                                               -a,0.,-b, -a,0.,b, 0.,b,a, 0.,-b,a, 0.,-b,-a, 0.,b,-a).get_split('y',12);
+      CImg<floatT>(1,20*3,1,1,
+                   4,8,7, 4,7,9, 5,6,11, 5,10,6, 0,4,3, 0,3,5, 2,7,1, 2,1,6, 8,0,11, 8,11,1,
+                   9,10,3, 9,2,10, 8,4,0, 11,0,5, 4,9,3, 5,3,10, 7,8,1, 6,1,11, 7,2,9, 6,10,2).
+        get_split('y',20).move_to(primitives);
 
       // edge - length/2.
       float he = (float)a;
@@ -59268,14 +59234,8 @@ namespace cimg_library {
                                                    xm,xM,xM,xm,xm,xM,xM,xm,
                                                    ym,ym,yM,yM,ym,ym,yM,yM,
                                                    zm,zm,zm,zm,zM,zM,zM,zM);
-      bbox_primitives.assign(6);
-      CImg<uintT>::vector(0,3,2,1).move_to(bbox_primitives[0]);
-      CImg<uintT>::vector(4,5,6,7).move_to(bbox_primitives[1]);
-      CImg<uintT>::vector(1,2,6,5).move_to(bbox_primitives[2]);
-      CImg<uintT>::vector(0,4,7,3).move_to(bbox_primitives[3]);
-      CImg<uintT>::vector(0,1,5,4).move_to(bbox_primitives[4]);
-      CImg<uintT>::vector(2,3,7,6).move_to(bbox_primitives[5]);
-
+      CImg<uintT>(1,6*4,1,1, 0,3,2,1, 4,5,6,7, 1,2,6,5, 0,4,7,3, 0,1,5,4, 2,3,7,6).
+        get_split('y',6).move_to(bbox_primitives);
       bbox_colors.assign(6,_spectrum,1,1,1,background_color[0]);
       bbox_colors2.assign(6,_spectrum,1,1,1,foreground_color[0]);
       bbox_opacities.assign(bbox_colors._width,1,1,1,0.3f);
@@ -59286,10 +59246,7 @@ namespace cimg_library {
                                                    0,0,0,20,0,0,22);
       axes_opacities.assign(3,1,1,1,1);
       axes_colors.assign(3,_spectrum,1,1,1,foreground_color[0]);
-      axes_primitives.assign(3);
-      CImg<uintT>::vector(0,1).move_to(axes_primitives[0]);
-      CImg<uintT>::vector(0,2).move_to(axes_primitives[1]);
-      CImg<uintT>::vector(0,3).move_to(axes_primitives[2]);
+      CImg<uintT>(1,3*2,1,1, 0,1, 0,2, 0,3).get_split('y',3).move_to(axes_primitives);
 
       // Begin user interaction loop.
       CImg<T> visu0(*this,false), visu;

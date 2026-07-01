@@ -51754,7 +51754,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw 2D grid.
+    //! Draw a 2D grid.
     /**
        \param values_x X-coordinates of the vertical lines.
        \param values_y Y-coordinates of the horizontal lines.
@@ -51779,7 +51779,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw 2D grid \simplification.
+    //! Draw a 2D grid \simplification.
     template<typename tc>
     CImg<T>& draw_grid(const float delta_x,  const float delta_y,
                        const float offsetx, const float offsety,
@@ -51811,7 +51811,7 @@ namespace cimg_library {
        \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
        \param opacity Drawing opacity.
 
-       \param plot_type Define the type of the plot:
+       \param plot_type Define the plot type:
                       - 0 = No plot.
                       - 1 = Plot using segments.
                       - 2 = Plot using cubic splines.
@@ -51991,7 +51991,7 @@ namespace cimg_library {
       return diff<=tolerance2;
     }
 
-    //! Draw filled 3D region with the flood fill algorithm.
+    //! Fill a 3D region using the flood-fill algorithm.
     /**
        \param x0 X-coordinate of the starting point of the region to fill.
        \param y0 Y-coordinate of the starting point of the region to fill.

@@ -5659,7 +5659,6 @@ namespace cimg_library {
     // Open a file (similar to std:: fopen(), but with wide character support on Windows).
     inline std::FILE *std_fopen(const char *const path, const char *const mode);
 
-
     //! Open a file.
     /**
        \param path Path of the filename to open.
@@ -5788,58 +5787,9 @@ namespace cimg_library {
 #endif
     }
 
-    //! Get file size.
-    /**
-       \param file Specified file to get size from.
-       \return File size or '-1' if file does not exist.
-    **/
-    inline cimg_int64 fsize(std::FILE *const file) {
-      if (!file) return (cimg_int64)-1;
-
-#if cimg_OS==1 // Optimized for POSIX Environements (Linux, macOS, BSD, etc.)
-      const int fd = fileno(file);
-      struct stat st;
-      if (fd>=0 && !fstat(fd,&st)) return (cimg_int64)st.st_size;
-#elif cimg_OS==2 // Optimized for Windows Environements (MSVC, MinGW)
-      const int fd = _fileno(file);
-      struct _stati64 st;
-      if (fd>=0 && !_fstati64(fd,&st)) return (cimg_int64)st.st_size;
-#endif
-
-      // Fallback, used for non-POSIX systems or if fstat failed (pipes or sockets).
-      const cimg_long pos = cimg::ftell(file);
-      cimg::fseek(file, 0, SEEK_END);
-      const cimg_int64 siz = (cimg_int64)cimg::ftell(file);
-      cimg::fseek(file, pos, SEEK_SET);
-      return siz;
-    }
-
-    //! Get file size from filename.
-    inline cimg_int64 fsize(const char *const filename) {
-      if (!filename || !*filename) return (cimg_int64)-1;
-
-#if cimg_OS==1 // Optimized for POSIX Environements (Linux, macOS, BSD, etc.)
-      struct stat st;
-      if (!stat(filename,&st)) return (cimg_int64)st.st_size;
-#elif cimg_OS==2 // Optimized for Windows Environements (MSVC, MinGW)
-      // Convert UTF-8 path to wchar_t.
-      int len = MultiByteToWideChar(CP_UTF8,0,filename,-1,0,0);
-      if (len>0) {
-        CImg<wchar_t> wfilename((unsigned int)len);
-        if (MultiByteToWideChar(CP_UTF8,0,filename,-1,wfilename,len)) {
-          struct _stati64 st;
-          if (!_wstati64(wfilename,&st)) return (cimg_int64)st.st_size;
-        }
-      }
-#endif
-
-      // Fallback.
-      std::FILE *const file = cimg::fopen(filename, "rb");
-      if (!file) return (cimg_int64)-1;
-      const cimg_int64 siz = fsize(file);
-      cimg::fclose(file);
-      return siz;
-    }
+    // Get file size.
+    inline cimg_int64 fsize(std::FILE *const file);
+    inline cimg_int64 fsize(const char *const filename);
 
     // Thread-safe version of std::localtime().
     inline struct tm* localtime(const time_t *const time_ptr, struct tm *const result) {
@@ -67604,6 +67554,53 @@ namespace cimg_library {
       }
 #endif
       return 0;
+    }
+
+    //! Get file size.
+    /**
+       \param file Specified file to get size from.
+       \return File size or '-1' if file does not exist.
+    **/
+    inline cimg_int64 fsize(std::FILE *const file) {
+      if (!file) return (cimg_int64)-1;
+
+#if cimg_OS==1 // Optimized for POSIX Environements (Linux, macOS, BSD, etc.)
+      const int fd = fileno(file);
+      struct stat st;
+      if (fd>=0 && !fstat(fd,&st)) return (cimg_int64)st.st_size;
+#elif cimg_OS==2 // Optimized for Windows Environements (MSVC, MinGW)
+      const int fd = _fileno(file);
+      if (fd>=0) {
+        const cimg_int64 siz = (cimg_int64)_filelengthi64(fd);
+        if (siz>=0) return siz;
+      }
+#endif
+      // Fallback, used for non-POSIX systems or if fstat failed (pipes or sockets).
+      const cimg_long pos = cimg::ftell(file);
+      cimg::fseek(file, 0, SEEK_END);
+      const cimg_int64 siz = (cimg_int64)cimg::ftell(file);
+      cimg::fseek(file, pos, SEEK_SET);
+      return siz;
+    }
+
+    //! Get file size from filename.
+    /**
+       \param filename Specified filename to get size from.
+       \return File size or '-1' if file does not exist.
+    **/
+    inline cimg_int64 fsize(const char *const filename) {
+      if (!filename || !*filename) return (cimg_int64)-1;
+
+#if cimg_OS==1 // Optimized for POSIX Environements (Linux, macOS, BSD, etc.)
+      struct stat st;
+      if (!stat(filename,&st)) return (cimg_int64)st.st_size;
+#endif
+      // Fallback for other systems.
+      std::FILE *const file = cimg::std_fopen(filename, "rb");
+      if (!file) return (cimg_int64)-1;
+      const cimg_int64 siz = cimg::fsize(file);
+      cimg::fclose(file);
+      return siz;
     }
 
     //! Display a warning message on the default output stream.

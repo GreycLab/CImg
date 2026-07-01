@@ -30567,8 +30567,10 @@ namespace cimg_library {
       case 13 : return cimg::median(_data[0],_data[1],_data[2],_data[3],_data[4],_data[5],_data[6],_data[7],_data[8],
                                     _data[9],_data[10],_data[11],_data[12]);
       }
-      const T res = kth_smallest(s>>1);
-      return (s%2)?res:(T)((res + kth_smallest((s>>1) - 1))/2);
+      const ulongT ind = s>>1;
+      if (s%2) return kth_smallest(ind);
+      const CImg<T> sorted = get_sort();
+      return (T)((sorted[ind] + sorted[ind - 1])/2);
     }
 
     //! Return greatest common diviser of all image values.

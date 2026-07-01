@@ -46517,7 +46517,7 @@ namespace cimg_library {
       return CImg<Tfloat>(*this,false).resize_object3d();
     }
 
-    //! Merge two 3D objects together.
+    //! Merge two 3D objects.
     /**
        \param[in,out] primitives Primitives data of the current 3D object.
        \param obj_vertices Vertices data of the additional 3D object.
@@ -46558,7 +46558,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Texturize primitives of a 3D object.
+    //! Texturize the primitives of a 3D object.
     /**
        \param[in,out] primitives Primitives data of the 3D object.
        \param[in,out] colors Colors data of the 3D object.
@@ -46735,7 +46735,7 @@ namespace cimg_library {
       return points;
     }
 
-    //! Generate an isoline from the instance image, as a 3D object.
+    //! Generate an isoline from the current image instance, as a 3D object.
     /**
        \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
@@ -48282,7 +48282,7 @@ namespace cimg_library {
       return draw_point(x0,y0,0,color,opacity);
     }
 
-    // Draw a points cloud.
+    // Draw a point cloud.
     /**
        \param points Image of vertices coordinates.
        \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
@@ -48316,12 +48316,12 @@ namespace cimg_library {
        \param y1 Y-coordinate of the ending line point.
        \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the line pattern.
+       \param pattern An integer whose bits describe the line stipple pattern.
        \param init_hatch Indicates whether a reinitialization of the hash state must be done.
        \param draw_last_pixel Indicates whether last pixel of the line must be drawn (e.g. can be disabled
        when drawing multi-line curves with transparency).
        \note
-       - Set \p init_hatch = false to draw consecutive hatched segments without breaking the line pattern.
+       - Set \p init_hatch = false to draw consecutive hatched segments without breaking the line stipple pattern.
        \par Example:
        \code
        CImg<unsigned char> img(100,100,1,3,0);
@@ -48381,7 +48381,7 @@ namespace cimg_library {
        \param z1 Z-coordinate of the ending point.
        \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the line pattern.
+       \param pattern An integer whose bits describe the line stipple pattern.
        \param init_hatch Indicates whether a reinitialization of the hash state must be done.
     **/
     template<typename tz, typename tc>
@@ -48460,7 +48460,7 @@ namespace cimg_library {
        \param tx1 X-coordinate of the ending texture point.
        \param ty1 Y-coordinate of the ending texture point.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the line pattern.
+       \param pattern An integer whose bits describe the line stipple pattern.
        \param init_hatch Indicates whether the hash variable must be reinitialized.
        \note
        - Line routine uses the well known Bresenham's algorithm.
@@ -48550,7 +48550,7 @@ namespace cimg_library {
        \param tx1 X-coordinate of the ending texture point.
        \param ty1 Y-coordinate of the ending texture point.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the line pattern.
+       \param pattern An integer whose bits describe the line stipple pattern.
        \param init_hatch Indicates whether the hash variable must be reinitialized.
     **/
     template<typename tc>
@@ -48640,7 +48640,7 @@ namespace cimg_library {
        \param tx1 X-coordinate of the ending texture point.
        \param ty1 Y-coordinate of the ending texture point.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the line pattern.
+       \param pattern An integer whose bits describe the line stipple pattern.
        \param init_hatch Indicates whether the hash variable must be reinitialized.
     **/
     template<typename tz, typename tc>
@@ -48727,12 +48727,12 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Draw a set of consecutive lines.
+    //! Draw a polyline.
     /**
        \param points Coordinates of vertices, stored as a list of vectors.
        \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the line pattern.
+       \param pattern An integer whose bits describe the line stipple pattern.
        \param init_hatch If set to true, init hatch motif.
        \note
        - This function uses several call to the single CImg::draw_line() procedure,
@@ -48778,7 +48778,7 @@ namespace cimg_library {
        \param angle Aperture angle of the arrow head.
        \param length Length of the arrow head. If negative, describes a percentage of the arrow length.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the line pattern.
+       \param pattern An integer whose bits describe the line stipple pattern.
     **/
     template<typename tc>
     CImg<T>& draw_arrow(const int x0, const int y0,
@@ -48816,7 +48816,7 @@ namespace cimg_library {
        \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
        \param precision Curve drawing precision.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the line pattern.
+       \param pattern An integer whose bits describe the line stipple pattern.
        \param init_hatch If \c true, init hatch motif.
        \note
        - The curve is a 2D cubic Bezier spline, from the set of specified starting/ending points
@@ -48886,7 +48886,7 @@ namespace cimg_library {
        \param ty1 Y-coordinate of the ending texture point.
        \param precision Curve drawing precision.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the line pattern.
+       \param pattern An integer whose bits describe the line stipple pattern.
        \param init_hatch if \c true, reinit hatch motif.
     **/
     template<typename t>
@@ -48939,7 +48939,7 @@ namespace cimg_library {
        \param opacity Drawing opacity.
        \param is_closed_set Indicates whether the drawn spline set is closed.
        \param precision Precision of the drawing.
-       \param pattern An integer whose bits describe the line pattern.
+       \param pattern An integer whose bits describe the line stipple pattern.
        \param init_hatch If \c true, init hatch motif.
     **/
     template<typename tp, typename tt, typename tc>
@@ -49127,7 +49127,7 @@ namespace cimg_library {
        \param y2 Y-coordinate of the third vertex.
        \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the outline pattern.
+       \param pattern An integer whose bits describe the outline stipple pattern.
      **/
     template<typename tc>
     CImg<T>& draw_triangle(const int x0, const int y0,
@@ -50773,7 +50773,7 @@ namespace cimg_library {
         CImg<intT> Xsy = Xs.get_shared_points(0,count[y] - 1,y);
         Xsy.sort();
         int px = width();
-        for (unsigned int k = 0; k<Xsy._width; k+=2) {
+        for (unsigned int k = 0; k + 1<Xsy._width; k+=2) {
           int x0 = Xsy[k];
           const int x1 = Xsy[k + 1];
           x0+=x0==px;
@@ -50870,7 +50870,7 @@ namespace cimg_library {
        \param angle Angle of the first radius.
        \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the outline pattern.
+       \param pattern An integer whose bits describe the outline stipple pattern.
     **/
     template<typename tc>
     CImg<T>& draw_ellipse(const int x0, const int y0, const float r1, const float r2, const float angle,
@@ -50886,7 +50886,7 @@ namespace cimg_library {
        \param tensor Diffusion tensor describing the ellipse.
        \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the outline pattern.
+       \param pattern An integer whose bits describe the outline stipple pattern.
     **/
     template<typename t, typename tc>
     CImg<T>& draw_ellipse(const int x0, const int y0, const CImg<t> &tensor,
@@ -51023,7 +51023,7 @@ namespace cimg_library {
        \param radius Circle radius.
        \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
        \param opacity Drawing opacity.
-       \param pattern An integer whose bits describe the outline pattern.
+       \param pattern An integer whose bits describe the outline stipple pattern.
     **/
     template<typename tc>
     CImg<T>& draw_circle(const int x0, const int y0, int radius,
@@ -51421,7 +51421,7 @@ namespace cimg_library {
           }
         }
         if (x!=0 || ch=='\n') { if (x>w) w = x; y+=font[0]._height; }
-        if (is_empty()) assign(x0 + w,y0 + y,1,is_native_font?1:font[0]._spectrum,(T)0);
+        if (is_empty()) assign(std::max(0,x0 + w),std::max(0,y0 + y),1,is_native_font?1:font[0]._spectrum,(T)0);
       }
 
       // Draw font characters on image.
@@ -51515,7 +51515,7 @@ namespace cimg_library {
       return draw_quiver(flow,CImg<t2>(color,_spectrum,1,1,1,true),opacity,sampling,factor,is_arrow,pattern);
     }
 
-    //! Draw a 2D vector field, using a field of colors.
+    //! Draw a 2D vector field using a field of colors.
     /**
        \param flow Image of 2D vectors used as input data.
        \param color Image of spectrum()-D vectors corresponding to the color of each arrow.

@@ -21124,7 +21124,7 @@ namespace cimg_library {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Type of first argument ('%s') "
-                                            "do not match with second argument 'nb_colsS=%u', "
+                                            "does not match the second argument 'nb_colsS=%u', "
                                             "in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s_type(arg1)._data,wS,s0);
@@ -21133,7 +21133,7 @@ namespace cimg_library {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Type of third argument ('%s') "
-                                            "do not match with fourth argument 'nb_colsD=%u', "
+                                            "does not match the fourth argument 'nb_colsD=%u', "
                                             "in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s_type(arg3)._data,wD,s0);
@@ -21142,7 +21142,7 @@ namespace cimg_library {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Type of first argument ('%s') "
-                                            "do not match with third argument ('%s'), "
+                                            "does not match the third argument ('%s'), "
                                             "in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s_type(arg1)._data,s_type(arg3)._data,s0);
@@ -21181,7 +21181,7 @@ namespace cimg_library {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Types of first and second arguments ('%s' and '%s') "
-                                            "do not match with third argument 'nb_colsB=%u', "
+                                            "do not match the third argument 'nb_colsB=%u', "
                                             "in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s_type(arg1)._data,s_type(arg2)._data,p3,s0);
@@ -22053,7 +22053,7 @@ namespace cimg_library {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Types of first and second arguments ('%s' and '%s') "
-                                            "do not match with third argument 'nb_colsB=%u', "
+                                            "do not match the third argument 'nb_colsB=%u', "
                                             "in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s_type(arg1)._data,s_type(arg2)._data,p3,s0);
@@ -22223,7 +22223,7 @@ namespace cimg_library {
               _cimg_mp_op("Function 'string()'");
               CImg<ulongT>::vector((ulongT)mp_string,0,0,0).move_to(l_opcode);
 
-              if (*ss7=='#') { // Output vector size specified, with '#'
+              if (*ss7=='#') { // Output vector size specified with '#'
                 s0 = ss8; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 arg1 = compile(ss8,s0++,depth1,0,block_flags);
                 _cimg_mp_check_const_scalar(arg1,1,3);
@@ -28477,7 +28477,7 @@ namespace cimg_library {
           sizs = (unsigned int)mp.opcode[4];
         std::memset(ptrd,0,sizd*sizeof(double));
         const int nb_digits = (int)_mp_arg(5);
-        CImg<charT> format(8);
+        CImg<charT> format(32);
         switch (nb_digits) {
         case -1 : std::strcpy(format,"%g"); break;
         case 0 : std::strcpy(format,"%.17g"); break;
@@ -29634,7 +29634,7 @@ namespace cimg_library {
     /**
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its cosine \f$\cos(I_{(x,y,z,c)})\f$.
        \note
-       - Pixel values are regarded as being in \e radian.
+       - Pixel values are regarded as being in \e radians.
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
@@ -29644,7 +29644,7 @@ namespace cimg_library {
     /**
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its sine \f$\sin(I_{(x,y,z,c)})\f$.
        \note
-       - Pixel values are regarded as being in \e radian.
+       - Pixel values are regarded as being in \e radians.
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
@@ -29655,7 +29655,7 @@ namespace cimg_library {
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its sinc
        \f$\mathrm{sinc}(I_{(x,y,z,c)})\f$.
        \note
-       - Pixel values are regarded as being exin \e radian.
+       - Pixel values are regarded as being in \e radians.
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
@@ -29665,7 +29665,7 @@ namespace cimg_library {
     /**
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its tangent \f$\tan(I_{(x,y,z,c)})\f$.
        \note
-       - Pixel values are regarded as being exin \e radian.
+       - Pixel values are regarded as being in \e radians.
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
@@ -30451,7 +30451,7 @@ namespace cimg_library {
     void _min_max(const T* &ptr_min, const T* &ptr_max) const {
       T val_min = *_data, val_max = val_min;
       ptr_min = ptr_max = _data;
-      if (cimg_use_openmp && size()>(1LU<<24)*cimg_openmp_sizefactor) {
+      if (cimg_use_openmp && size()>(1LU<<24)*cimg_openmp_sizefactor) { // Parallel version
 #if cimg_use_openmp
         cimg_pragma_openmp(parallel) {
           T l_val_min = *_data, l_val_max = l_val_min;
@@ -30473,13 +30473,12 @@ namespace cimg_library {
           }
         }
 #endif
-      }
-
-      // Single-threaded version.
-      cimg_for(*this,ptrs,T) {
-        const T val = *ptrs;
-        if (val<val_min) { val_min = val; ptr_min = ptrs; }
-        if (val>val_max) { val_max = val; ptr_max = ptrs; }
+      } else { // Single-threaded version.
+        cimg_for(*this,ptrs,T) {
+          const T val = *ptrs;
+          if (val<val_min) { val_min = val; ptr_min = ptrs; }
+          if (val>val_max) { val_max = val; ptr_max = ptrs; }
+        }
       }
     }
 

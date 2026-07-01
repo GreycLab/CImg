@@ -35063,8 +35063,7 @@ namespace cimg_library {
 
     //! Label connected components.
     /**
-       \param is_high_connectivity Boolean that choose between 4(false)- or 8(true)-connectivity
-       in 2D case, and between 6(false)- or 26(true)-connectivity in 3D case.
+       \param is_high_connectivity Indicates whether the algorithm uses low or high connectivity.
        \param tolerance Tolerance used to determine if two neighboring pixels belong to the same region.
        \param is_L2_norm If true, tolerance is compared against L2 difference, otherwise L1 is used.
        \note The algorithm of connected components computation has been primarily done
@@ -37629,7 +37628,7 @@ namespace cimg_library {
     //! Permute axes order.
     /**
        \param axes_order Axes permutations, as a C-string of 4 characters.
-       This function permutes the image content according the specified axes order.
+       This function permutes the image content according to the specified axes order.
     **/
     CImg<T>& permute_axes(const char *const axes_order) {
       if (is_empty() || !axes_order) return *this;
@@ -41895,8 +41894,7 @@ namespace cimg_library {
     //! Compute watershed transform.
     /**
        \param priority Priority map.
-       \param is_high_connectivity Boolean that choose between 4(false)- or 8(true)-connectivity
-       in 2D case, and between 6(false)- or 26(true)-connectivity in 3D case.
+       \param is_high_connectivity Indicates whether the algorithm uses low or high connectivity.
        \note Non-zero values of the instance instance are propagated to zero-valued ones according to
        specified the priority map.
     **/
@@ -48306,7 +48304,7 @@ namespace cimg_library {
        \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
        \param opacity Drawing opacity.
        \param pattern An integer whose bits describe the line stipple pattern.
-       \param init_hatch Indicates whether a reinitialization of the hash state must be done.
+       \param init_hatch Indicates whether the hatch variable must be reinitialized.
        \param draw_last_pixel Indicates whether last pixel of the line must be drawn (e.g. can be disabled
        when drawing multi-line curves with transparency).
        \note
@@ -48371,7 +48369,7 @@ namespace cimg_library {
        \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
        \param opacity Drawing opacity.
        \param pattern An integer whose bits describe the line stipple pattern.
-       \param init_hatch Indicates whether a reinitialization of the hash state must be done.
+       \param init_hatch Indicates whether the hatch variable must be reinitialized.
     **/
     template<typename tz, typename tc>
     CImg<T>& draw_line(CImg<tz>& zbuffer,
@@ -48450,7 +48448,7 @@ namespace cimg_library {
        \param ty1 Y-coordinate of the ending texture point.
        \param opacity Drawing opacity.
        \param pattern An integer whose bits describe the line stipple pattern.
-       \param init_hatch Indicates whether the hash variable must be reinitialized.
+       \param init_hatch Indicates whether the hatch variable must be reinitialized.
        \note
        - Line routine uses the well known Bresenham's algorithm.
        \par Example:
@@ -48540,7 +48538,7 @@ namespace cimg_library {
        \param ty1 Y-coordinate of the ending texture point.
        \param opacity Drawing opacity.
        \param pattern An integer whose bits describe the line stipple pattern.
-       \param init_hatch Indicates whether the hash variable must be reinitialized.
+       \param init_hatch Indicates whether the hatch variable must be reinitialized.
     **/
     template<typename tc>
     CImg<T>& draw_line(int x0, int y0, const float z0,
@@ -48630,7 +48628,7 @@ namespace cimg_library {
        \param ty1 Y-coordinate of the ending texture point.
        \param opacity Drawing opacity.
        \param pattern An integer whose bits describe the line stipple pattern.
-       \param init_hatch Indicates whether the hash variable must be reinitialized.
+       \param init_hatch Indicates whether the hatch variable must be reinitialized.
     **/
     template<typename tz, typename tc>
     CImg<T>& draw_line(CImg<tz>& zbuffer,
@@ -48722,7 +48720,7 @@ namespace cimg_library {
        \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
        \param opacity Drawing opacity.
        \param pattern An integer whose bits describe the line stipple pattern.
-       \param init_hatch If set to true, init hatch motif.
+       \param init_hatch Indicates whether the hatch variable must be reinitialized.
        \note
        - This function uses several call to the single CImg::draw_line() procedure,
        depending on the vectors size in \p points.
@@ -48806,7 +48804,7 @@ namespace cimg_library {
        \param precision Curve drawing precision.
        \param opacity Drawing opacity.
        \param pattern An integer whose bits describe the line stipple pattern.
-       \param init_hatch If \c true, init hatch motif.
+       \param init_hatch Indicates whether the hatch variable must be reinitialized.
        \note
        - The curve is a 2D cubic Bezier spline, from the set of specified starting/ending points
        and corresponding velocity vectors.
@@ -48876,7 +48874,7 @@ namespace cimg_library {
        \param precision Curve drawing precision.
        \param opacity Drawing opacity.
        \param pattern An integer whose bits describe the line stipple pattern.
-       \param init_hatch if \c true, reinit hatch motif.
+       \param init_hatch Indicates whether the hatch variable must be reinitialized.
     **/
     template<typename t>
     CImg<T>& draw_spline(const int x0, const int y0, const float u0, const float v0,
@@ -48929,7 +48927,7 @@ namespace cimg_library {
        \param is_closed_set Indicates whether the drawn spline set is closed.
        \param precision Precision of the drawing.
        \param pattern An integer whose bits describe the line stipple pattern.
-       \param init_hatch If \c true, init hatch motif.
+       \param init_hatch Indicates whether the hatch variable must be reinitialized.
     **/
     template<typename tp, typename tt, typename tc>
     CImg<T>& draw_spline(const CImg<tp>& points, const CImg<tt>& tangents,
@@ -51293,7 +51291,7 @@ namespace cimg_library {
          defining the background color (0 means 'transparent').
        \param opacity Drawing opacity.
        \param font_height Height of the text font (exact match for 13,32,64,128, interpolated otherwise).
-       \note To ensure thread-safety, this function uses mutex lock. For real multi-threading drawing of text,
+       \note To ensure thread-safety, this function uses a mutex lock. For real multi-threaded drawing of text,
        use another version of \c CImg<T>::draw_text() with argument `font`, that must be a copy of what is returned
        by \c CImgList<T>::font().
     **/
@@ -51989,7 +51987,7 @@ namespace cimg_library {
        \param[out] region Image that will contain the mask of the filled region [output].
        \param tolerance Tolerance concerning neighborhood values.
        \param opacity Opacity of the drawing.
-       \param is_high_connectivity Indicates whether 8-connexity must be used.
+       \param is_high_connectivity Indicates whether the algorithm uses low or high connectivity.
        \return \c region is initialized with the binary mask of the filled region.
     **/
     template<typename tc, typename t>
@@ -52126,18 +52124,18 @@ namespace cimg_library {
     template<typename tc>
     CImg<T>& draw_fill(const int x0, const int y0, const int z0,
                        const tc *const color, const float opacity=1,
-                       const float tolerance=0, const bool is_high_connexity=false) {
+                       const float tolerance=0, const bool is_high_connectivity=false) {
       CImg<ucharT> tmp;
-      return draw_fill(x0,y0,z0,color,opacity,tmp,tolerance,is_high_connexity);
+      return draw_fill(x0,y0,z0,color,opacity,tmp,tolerance,is_high_connectivity);
     }
 
     //! Draw filled 2D region with the flood fill algorithm \simplification.
     template<typename tc>
     CImg<T>& draw_fill(const int x0, const int y0,
                        const tc *const color, const float opacity=1,
-                       const float tolerance=0, const bool is_high_connexity=false) {
+                       const float tolerance=0, const bool is_high_connectivity=false) {
       CImg<ucharT> tmp;
-      return draw_fill(x0,y0,0,color,opacity,tmp,tolerance,is_high_connexity);
+      return draw_fill(x0,y0,0,color,opacity,tmp,tolerance,is_high_connectivity);
     }
 
     //! Draw a random plasma texture.

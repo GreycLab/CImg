@@ -59019,7 +59019,7 @@ namespace cimg_library {
        \param specular_lightness Amount of specular light.
        \param specular_shininess Shininess of the object material.
        \param display_axes Indicates whether the 3D axes are displayed.
-       \param pose_matrix Pointer to 12 values, defining a 3D pose (as a 4x3 matrix).
+       \param pose_matrix Pointer to 12 values defining a 3D pose (as a 4x3 matrix).
        \param exit_on_anykey Exit function when any key is pressed.
     **/
     template<typename tp, typename tf, typename tc, typename to>
@@ -65308,7 +65308,7 @@ namespace cimg_library {
                       (Ts2 && !cimg::strcasecmp(Ts2,str_pixeltype)) || \
                       (Ts3 && !cimg::strcasecmp(Ts3,str_pixeltype)))) { \
         for (unsigned int l = 0; l<=nn1; ++l) { \
-          j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0) tmp[j++] = (char)i; tmp[j] = 0; \
+          j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0 && j<255) tmp[j++] = (char)i; tmp[j] = 0;
           W = H = D = C = 0; \
           if (cimg_sscanf(tmp._data,"%d %d %d %d",&W,&H,&D,&C)!=4) \
             throw CImgIOException(_cimglist_instance \
@@ -66302,7 +66302,7 @@ namespace cimg_library {
       return res;
     }
 
-    //! Save list into a file.
+    //! Save the list into a file.
     /**
       \param filename Filename to write data to.
       \param number When positive, represents an index added to the filename. Otherwise, no number is added.
@@ -66484,7 +66484,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save list as a YUV image sequence file.
+    //! Save the list as a YUV image sequence file.
     /**
       \param filename Filename to write data to.
       \param chroma_subsampling Type of chroma subsampling. Can be <tt>{ 420 | 422 | 444 }</tt>.
@@ -66554,7 +66554,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save list into a .cimg file.
+    //! Save the list as a .cimg file.
     /**
        \param filename Filename to write data to.
        \param is_compressed Indicates whether data compression must be enabled.
@@ -66638,7 +66638,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save list into a .cimg file.
+    //! Save the list as a .cimg file.
     /**
        \param file File to write data to.
        \param is_compressed Indicates whether data compression must be enabled.
@@ -66656,7 +66656,7 @@ namespace cimg_library {
                      (Ts2 && !cimg::strcasecmp(Ts2,str_pixeltype)) || \
                      (Ts3 && !cimg::strcasecmp(Ts3,str_pixeltype)))) { \
         for (unsigned int l = 0; l<lmax; ++l) { \
-          j = 0; while ((i=std::fgetc(nfile))!='\n') tmp[j++]=(char)i; tmp[j] = 0; \
+          j = 0; while ((i=std::fgetc(nfile))!='\n' && i!=EOF && j<255) tmp[j++]=(char)i; tmp[j] = 0; \
           W = H = D = C = 0; \
           if (cimg_sscanf(tmp._data,"%u %u %u %u",&W,&H,&D,&C)!=4) \
             throw CImgIOException(_cimglist_instance \
@@ -66762,7 +66762,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Insert the image instance into into an existing .cimg file, at specified coordinates.
+    //! Insert the image instance into an existing .cimg file, at specified coordinates.
     /**
       \param filename Filename to write data to.
       \param n0 Starting index of images to write.
@@ -66778,7 +66778,7 @@ namespace cimg_library {
       return _save_cimg(0,filename,n0,x0,y0,z0,c0);
     }
 
-    //! Insert the image instance into into an existing .cimg file, at specified coordinates.
+    //! Insert the image instance into an existing .cimg file, at specified coordinates.
     /**
       \param file File to write data to.
       \param n0 Starting index of images to write.
@@ -66808,7 +66808,7 @@ namespace cimg_library {
       if (!file) cimg::fclose(nfile);
     }
 
-    //! Save empty (non-compressed) .cimg file with specified dimensions.
+    //! Save an empty (non-compressed) .cimg file with specified dimensions.
     /**
         \param filename Filename to write data to.
         \param nb Number of images to write.
@@ -66824,7 +66824,7 @@ namespace cimg_library {
       return _save_empty_cimg(0,filename,nb,dx,dy,dz,dc);
     }
 
-    //! Save empty .cimg file with specified dimensions.
+    //! Save an empty .cimg file with specified dimensions.
     /**
         \param file File to write data to.
         \param nb Number of images to write.
@@ -66840,7 +66840,7 @@ namespace cimg_library {
       return _save_empty_cimg(file,0,nb,dx,dy,dz,dc);
     }
 
-    //! Save list as a TIFF file.
+    //! Save the list as a TIFF file.
     /**
       \param filename Filename to write data to.
       \param compression_type Compression mode used to write data.
@@ -66890,7 +66890,7 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Save list as a gzipped file, using external tool 'gzip'.
+    //! Save the list as a gzipped file using the external tool 'gzip'.
     /**
       \param filename Filename to write data to.
     **/
@@ -67315,7 +67315,7 @@ namespace cimg_library {
     //@{
     //----------------------------------
 
-    //! Return a CImg pre-defined font with requested height.
+    //! Return a pre-defined CImg font with the requested height.
     /**
        \param requested_height Height of the desired font (exact match for 13,23,53,103).
        \param is_variable_width Decide if the font has a variable (\c true) or fixed (\c false) width.
@@ -67479,7 +67479,7 @@ namespace cimg_library {
       return CImgList<Tfloat>(*this,false).FFT(invert);
     }
 
-    //! Reverse primitives orientations of a 3D object.
+    //! Reverse the orientations of a 3D object's primitives.
     /**
     **/
     CImgList<T>& reverse_object3d() {

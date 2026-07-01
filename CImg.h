@@ -11854,7 +11854,7 @@ namespace cimg_library {
 
     //! Transfer content of an image instance into another one.
     /**
-       Transfer the dimensions and the pixel buffer content of an image instance into another one,
+       Transfers the dimensions and the pixel buffer content of an image instance into another one,
        and replace instance by an empty image. It avoids the copy of the pixel buffer
        when possible.
        \param img Destination image.
@@ -11885,7 +11885,7 @@ namespace cimg_library {
 
     //! Transfer content of an image instance into a new image in an image list.
     /**
-       Transfer the dimensions and the pixel buffer content of an image instance
+       Transfers the dimensions and the pixel buffer content of an image instance
        into a newly inserted image at position \c pos in specified \c CImgList<t> instance.
        \param list Destination list.
        \param pos Position of the newly inserted image in the list.
@@ -51793,7 +51793,7 @@ namespace cimg_library {
       return draw_grid(seqx,seqy,color,opacity,pattern_x,pattern_y);
     }
 
-    //! Draw 1D graph.
+    //! Draw a 1D graph.
     /**
        \param data Image containing the graph values I = f(x).
        \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
@@ -51985,7 +51985,7 @@ namespace cimg_library {
        \param y0 Y-coordinate of the starting point of the region to fill.
        \param z0 Z-coordinate of the starting point of the region to fill.
        \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
-       \param[out] region Image that will contain the mask of the filled region mask, as an output.
+       \param[out] region Image that will contain the mask of the filled region [output].
        \param tolerance Tolerance concerning neighborhood values.
        \param opacity Opacity of the drawing.
        \param is_high_connectivity Indicates whether 8-connexity must be used.
@@ -53875,7 +53875,7 @@ namespace cimg_library {
     //@{
     //---------------------------
 
-    //! Launch simple interface to select a shape from an image.
+    //! Launches a simple interface to select a shape from an image.
     /**
        \param disp Display window to use.
        \param feature_type Type of feature to select. Can be <tt>{ 0=point | 1=line | 2=rectangle | 3=ellipse }</tt>.
@@ -55006,7 +55006,7 @@ namespace cimg_library {
         else is_loaded = false;
       } catch (CImgIOException&) { is_loaded = false; }
 
-      // If nothing loaded, try to guess file format from magic number in file.
+      // If nothing was loaded, try to guess the file format from the magic number in the file.
       if (!is_loaded) {
         std::FILE *file = cimg::std_fopen(filename,"rb");
         if (!file) {
@@ -55038,7 +55038,7 @@ namespace cimg_library {
         } catch (CImgIOException&) { is_loaded = false; }
       }
 
-      // If nothing loaded, try to load file with other means.
+      // If nothing was loaded, try to load the file by other means.
       if (!is_loaded) {
         try {
           load_other(filename);
@@ -55701,8 +55701,7 @@ namespace cimg_library {
     /**
        \param filename Filename, as a C-string.
     **/
-    // Added April/may 2006 by Christoph Hormann <chris_hormann@gmx.de>.
-    // This is experimental code, not much tested, use with care.
+    // Added April/May 2006 by Christoph Hormann <chris_hormann@gmx.de>.
     CImg<T>& load_magick(const char *const filename) {
       if (!filename)
         throw CImgArgumentException(_cimg_instance
@@ -55945,7 +55944,7 @@ namespace cimg_library {
       }
       const bool is_alpha = (color_type==PNG_COLOR_TYPE_RGBA);
       try { assign(W,H,1,(is_gray?1:3) + (is_alpha?1:0)); }
-      catch (...) { if (!file) cimg::fclose(nfile); throw; }
+      catch (...) { delete[] imgData; if (!file) cimg::fclose(nfile); throw; }
       T
         *ptr_r = data(0,0,0,0),
         *ptr_g = is_gray?0:data(0,0,0,1),
@@ -56048,7 +56047,7 @@ namespace cimg_library {
       }
       std::fgetc(nfile);
 
-      if (filename) { // Check that dimensions specified in file does not exceed the buffer dimension
+      if (filename) { // Check that the dimensions specified in file do not exceed the buffer dimensions
         const cimg_int64 siz = cimg::fsize(filename);
         if ((cimg_int64)W*H*D>siz)
           throw CImgIOException(_cimg_instance
@@ -59555,8 +59554,8 @@ namespace cimg_library {
        \param xmin Minimum value along the X-axis.
        \param xmax Maximum value along the X-axis.
        \param labely Title for the vertical axis, as a C-string.
-       \param ymin Minimum value along the X-axis.
-       \param ymax Maximum value along the X-axis.
+       \param ymin Minimum value along the Y-axis.
+       \param ymax Maximum value along the Y-axis.
        \param exit_on_anykey Exit function when any key is pressed.
     **/
     const CImg<T>& display_graph(CImgDisplay &disp,
@@ -62412,7 +62411,7 @@ namespace cimg_library {
    #
    #------------------------------------------
    */
-  //! Represent a list of images CImg<T>.
+  //! Represents a list of images CImg<T>.
   template<typename T>
   struct CImgList {
     unsigned int _width, _allocated_width;
@@ -62546,7 +62545,7 @@ namespace cimg_library {
     //! Construct list containing empty images.
     /**
        \param n Number of empty images.
-       \note Useful when you know by advance the number of images you want to manage, as
+       \note Useful when you know in advance the number of images you want to manage, as
        it will allocate the right amount of memory for the list, without needs for reallocation
        (that may occur when starting from an empty list and inserting several images in it).
     **/
@@ -63005,7 +63004,7 @@ namespace cimg_library {
       return assign(CImg<T>(disp));
     }
 
-    //! Transfer the content of the list instance to another list.
+    //! Transfers the content of the list instance to another list.
     /**
        \param list Destination list.
        \note When returning, the current list instance is empty and the initial content of \c list is destroyed.
@@ -63019,7 +63018,7 @@ namespace cimg_library {
       return list;
     }
 
-    //! Transfer the content of the list instance at a specified position in another list.
+    //! Transfers the content of the list instance at a specified position in another list.
     /**
        \param list Destination list.
        \param pos Index of the insertion in the list.
@@ -64155,8 +64154,9 @@ namespace cimg_library {
                                     cimglist_instance,
                                     img.pixel_type(),img._width,img._height,img._depth,img._spectrum,img._data,npos);
 
-      CImg<T> *const new_data = (++_width>_allocated_width)?new CImg<T>[_allocated_width?(_allocated_width<<=1):
-                                                                        (_allocated_width=16)]:0;
+      const unsigned int n_allocated_width = _allocated_width?(2*_allocated_width):16;
+      CImg<T> *const new_data = (++_width>_allocated_width)?new CImg<T>[n_allocated_width]:0;
+      if (new_data) _allocated_width = n_allocated_width;
       if (!_data) { // Insert new element into empty list
         _data = new_data;
         *_data = img;
@@ -64186,8 +64186,9 @@ namespace cimg_library {
                                     "at position %u.",
                                     cimglist_instance,
                                     img._width,img._height,img._depth,img._spectrum,img._data,npos);
-      CImg<T> *const new_data = (++_width>_allocated_width)?new CImg<T>[_allocated_width?(_allocated_width<<=1):
-                                                                        (_allocated_width=16)]:0;
+      const unsigned int n_allocated_width = _allocated_width?(2*_allocated_width):16;
+      CImg<T> *const new_data = (++_width>_allocated_width)?new CImg<T>[n_allocated_width]:0;
+      if (new_data) _allocated_width = n_allocated_width;
       if (!_data) { // Insert new element into empty list
         _data = new_data;
         if (is_shared && img) {
@@ -65946,13 +65947,13 @@ namespace cimg_library {
       cimg::exception_mode(0);
       assign();
 
-      // Try to read a single frame gif.
+      // Try to read a single-frame GIF.
       cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s.png",filename_tmp._data);
       CImg<T> img;
       try { img.load_png(filename_tmp2); }
       catch (CImgException&) { }
       if (img) { img.move_to(*this); std::remove(filename_tmp2); }
-      else { // Try to read animated gif
+      else { // Try to read an animated GIF
         unsigned int i = 0;
         for (bool stop_flag = false; !stop_flag; ++i) {
           if (use_graphicsmagick) cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s.png.%u",filename_tmp._data,i);

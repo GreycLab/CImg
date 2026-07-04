@@ -10139,16 +10139,7 @@ namespace cimg_library {
                  const bool is_fullscreen=false, const bool closed_flag=false) {
 
       // Destroy previous display window if existing.
-      if (!is_empty()) assign();
-      _data = new unsigned int[_width*_height];
-
-      cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
-      SDL3_attr.lock();
-
-      if (SDL3_attr.nb_cimg_displays>=512) {
-        SDL3_attr.unlock();
-        throw CImgDisplayException("CImgDisplay::assign(): Max number of displays (512) already opened.");
-      }
+      if (!is_empty() || !dimw || !dimh) assign();
 
       // Allocate space for window title.
       const char *const np_title = p_title?p_title:"";
@@ -10157,8 +10148,6 @@ namespace cimg_library {
       if (s) std::memcpy(tmp_title,np_title,s*sizeof(char));
 
       // Set display variables.
-      _width = std::min(dimw,(unsigned int)screen_width());
-      _height = std::min(dimh,(unsigned int)screen_height());
       _normalization = normalization_type<4?normalization_type:3;
       _is_fullscreen = is_fullscreen;
       _window_x = _window_y = cimg::type<int>::min();
@@ -10167,6 +10156,16 @@ namespace cimg_library {
       _paint_request = false;
       _title = tmp_title;
       _thread_id = SDL_GetCurrentThreadID();
+      _width = std::min(dimw,(unsigned int)screen_width());
+      _height = std::min(dimh,(unsigned int)screen_height());
+      _data = new unsigned int[_width*_height];
+
+      cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
+      SDL3_attr.lock();
+      if (SDL3_attr.nb_cimg_displays>=512) {
+        SDL3_attr.unlock();
+        throw CImgDisplayException("CImgDisplay::assign(): Max number of displays (512) already opened.");
+      }
       flush();
 
       // Create window and renderer.

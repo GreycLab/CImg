@@ -8076,6 +8076,7 @@ namespace cimg_library {
 
       // Destroy previous display window if existing.
       if (!is_empty()) assign(false);
+      if (!dimw || !dimh) return;
 
       // Open X11 display and retrieve graphical properties.
       cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
@@ -9440,6 +9441,7 @@ namespace cimg_library {
 
       // Destroy previous window if existing.
       if (!is_empty()) assign();
+      if (!dimw || !dimh) return;
 
       // Set display variables.
       _width = std::min(dimw,(unsigned int)screen_width());
@@ -10138,14 +10140,15 @@ namespace cimg_library {
                  const unsigned int normalization_type=3,
                  const bool is_fullscreen=false, const bool closed_flag=false) {
 
-      // Destroy previous display window if existing.
-      if (!is_empty() || !dimw || !dimh) assign();
-
       // Allocate space for window title.
       const char *const np_title = p_title?p_title:"";
       const unsigned int s = (unsigned int)std::strlen(np_title) + 1;
       char *const tmp_title = s?new char[s]:0;
       if (s) std::memcpy(tmp_title,np_title,s*sizeof(char));
+
+      // Destroy previous display window if existing.
+      if (!is_empty()) assign();
+      if (!dimw || !dimh) return;
 
       // Set display variables.
       _normalization = normalization_type<4?normalization_type:3;

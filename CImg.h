@@ -9441,7 +9441,7 @@ namespace cimg_library {
 
       // Destroy previous window if existing.
       if (!is_empty()) assign();
-      if (!dimw || !dimh) return;
+      if (!dimw || !dimh) return *this;
 
       // Set display variables.
       _width = std::min(dimw,(unsigned int)screen_width());

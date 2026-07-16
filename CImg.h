@@ -61189,8 +61189,8 @@ namespace cimg_library {
 
         // Copy file content to stdout.
         std::FILE
-          *const file = cimg::fopen(filename,"wb"),
-          *const ftmp = std::fopen(filename_tmp,"rb");
+          *const ftmp = std::fopen(filename_tmp,"rb"),
+          *const file = cimg::fopen(filename,"wb");
         if (!ftmp) {
           std::remove(filename_tmp);
           throw CImgIOException(_cimg_instance "save_tiff(): Failed to reopen temporary file '%s'.",
@@ -61200,6 +61200,7 @@ namespace cimg_library {
         size_t n;
         while ((n=std::fread(buffer,1,sizeof(buffer),ftmp))>0) std::fwrite(buffer,1,n,file);
         std::fclose(ftmp);
+        cimg::fclose(file);
         std::remove(filename_tmp);
         return *this;
       }
@@ -66882,8 +66883,8 @@ namespace cimg_library {
 
         // Copy file content to stdout.
         std::FILE
-          *const file = cimg::fopen(filename,"wb"),
-          *const ftmp = std::fopen(filename_tmp,"rb");
+          *const ftmp = std::fopen(filename_tmp,"rb"),
+          *const file = cimg::fopen(filename,"wb");
         if (!ftmp) {
           std::remove(filename_tmp);
           throw CImgIOException(_cimglist_instance "save_tiff(): Failed to reopen temporary file '%s'.",
@@ -66893,6 +66894,7 @@ namespace cimg_library {
         size_t n;
         while ((n=std::fread(buffer,1,sizeof(buffer),ftmp))>0) std::fwrite(buffer,1,n,file);
         std::fclose(ftmp);
+        cimg::fclose(file);
         std::remove(filename_tmp);
         return *this;
       }

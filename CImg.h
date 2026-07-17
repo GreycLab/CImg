@@ -56432,6 +56432,31 @@ namespace cimg_library {
                                     "load_tiff(): Specified filename is (null).",
                                     cimg_instance);
 
+      if (*filename=='-' && (!filename[1] || filename[1]=='.')) { // Input from stdin
+        CImg<charT> filename_tmp(1024);
+        do {
+          cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.tiff",
+                        cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
+        } while (cimg::path_exists(filename_tmp));
+
+        // Copy stdin content to temporary file.
+        std::FILE
+          *const file = cimg::fopen(filename,"rb"),
+          *const ftmp = std::fopen(filename_tmp,"wb");
+        if (!ftmp) {
+          throw CImgIOException(_cimg_instance
+                                "load_tiff(): Failed to create temporary file '%s'.",
+                                cimg_instance,filename_tmp.data());
+        }
+        CImg<charT> buffer(65536);
+        size_t n;
+        while ((n=std::fread(buffer,1,sizeof(buffer),file))>0) std::fwrite(buffer,1,n,ftmp);
+        std::fclose(ftmp);
+        load_tiff(filename_tmp,first_frame,last_frame,step_frame,bits_per_value,voxel_size,description);
+        std::remove(filename_tmp);
+        return *this;
+      }
+
       const unsigned int
         nfirst_frame = first_frame<last_frame?first_frame:last_frame,
         nstep_frame = step_frame?step_frame:1;
@@ -66066,6 +66091,36 @@ namespace cimg_library {
                            const unsigned int first_frame=0, const unsigned int last_frame=~0U,
                            const unsigned int step_frame=1, unsigned int *const bits_per_value=0,
                            float *const voxel_size=0, CImg<charT> *const description=0) {
+      if (!filename)
+        throw CImgArgumentException(_cimglist_instance
+                                    "load_tiff(): Specified filename is (null).",
+                                    cimglist_instance);
+
+      if (*filename=='-' && (!filename[1] || filename[1]=='.')) { // Input from stdin
+        CImg<charT> filename_tmp(1024);
+        do {
+          cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.tiff",
+                        cimg::temporary_path(),cimg_directory_separator,cimg::filenamerand());
+        } while (cimg::path_exists(filename_tmp));
+
+        // Copy stdin content to temporary file.
+        std::FILE
+          *const file = cimg::fopen(filename,"rb"),
+          *const ftmp = std::fopen(filename_tmp,"wb");
+        if (!ftmp) {
+          throw CImgIOException(_cimglist_instance
+                                "load_tiff(): Failed to create temporary file '%s'.",
+                                cimglist_instance,filename_tmp.data());
+        }
+        CImg<charT> buffer(65536);
+        size_t n;
+        while ((n=std::fread(buffer,1,sizeof(buffer),file))>0) std::fwrite(buffer,1,n,ftmp);
+        std::fclose(ftmp);
+        load_tiff(filename_tmp,first_frame,last_frame,step_frame,bits_per_value,voxel_size,description);
+        std::remove(filename_tmp);
+        return *this;
+      }
+
       const unsigned int
         nfirst_frame = first_frame<last_frame?first_frame:last_frame,
         nstep_frame = step_frame?step_frame:1;
@@ -66075,8 +66130,7 @@ namespace cimg_library {
       if (nfirst_frame || nlast_frame!=~0U || nstep_frame!=1)
         throw CImgArgumentException(_cimglist_instance
                                     "load_tiff(): Unable to load sub-images from file '%s' unless libtiff is enabled.",
-                                    cimglist_instance,
-                                    filename);
+                                    cimglist_instance,filename);
 
       return assign(CImg<T>::get_load_tiff(filename));
 #else

@@ -61219,7 +61219,7 @@ namespace cimg_library {
         if (!ftmp) {
           std::remove(filename_tmp);
           throw CImgIOException(_cimg_instance "save_tiff(): Failed to reopen temporary file '%s'.",
-                                cimg_instance,filename_tmp);
+                                cimg_instance,filename_tmp._data);
         }
         CImg<charT> buffer(65536);
         size_t n;
@@ -66942,7 +66942,7 @@ namespace cimg_library {
         if (!ftmp) {
           std::remove(filename_tmp);
           throw CImgIOException(_cimglist_instance "save_tiff(): Failed to reopen temporary file '%s'.",
-                                cimglist_instance,filename_tmp);
+                                cimglist_instance,filename_tmp._data);
         }
         CImg<charT> buffer(65536);
         size_t n;

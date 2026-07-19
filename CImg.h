@@ -56189,9 +56189,9 @@ namespace cimg_library {
         assign();
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimg_instance
-                              "load_pnm(): PNM type 'P%d' found, but type is not supported.",
+                              "load_pnm(): PNM type 'P%u' found, but type is not supported in file '%s'.",
                               cimg_instance,
-                              filename?filename:"(FILE*)",ppm_type);
+                              ppm_type,filename?filename:"(FILE*)");
       }
       if (!file) cimg::fclose(nfile);
       return *this;

@@ -2468,11 +2468,7 @@ namespace cimg_library {
     }
 
     // Set/Get a global user_agent value.
-    inline const char* user_agent(const char *const str=0) {
-      static const char *value = "CImg";
-      if (str) { cimg::mutex(0); value = str; cimg::mutex(0,0); }
-      return value;
-    }
+    inline const char* user_agent(const char *const str=0);
 
     // Functions to return standard streams 'stdin', 'stdout' and 'stderr'.
     inline FILE* _stdin(const bool throw_exception=true);
@@ -67756,6 +67752,14 @@ namespace cimg_library {
         std::fprintf(cimg::output(),"\n%s[CImg] *** Warning ***%s%s\n",cimg::t_red(),cimg::t_normal(),message._data);
 #endif
       }
+    }
+
+    //! Set/Get a global user_agent value.
+    inline const char* user_agent(const char *const str) {
+      static CImg<char> value;
+      if (!value) { cimg::mutex(0); if (!value) CImg<char>::string(str?str:"CImg").move_to(value); cimg::mutex(0,0); }
+      else if (str) { cimg::mutex(0); CImg<char>::string(str).move_to(value); cimg::mutex(0,0); }
+      return value;
     }
 
     //! Search path of an executable.

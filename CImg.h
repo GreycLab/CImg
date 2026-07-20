@@ -67755,7 +67755,7 @@ namespace cimg_library {
     }
 
     //! Set/Get a global user_agent value.
-    inline const char* user_agent(const char *const str=0) {
+    inline const char* user_agent(const char *const str) {
       static CImg<char> value = CImg<char>::string("CImg");
       if (str) { cimg::mutex(0); CImg<char>::string(str).move_to(value); cimg::mutex(0,0); }
       return value;

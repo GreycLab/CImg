@@ -155,13 +155,12 @@ cd $SRC_DIR
 if [ "$1" == "final" ]; then
     git push --delete origin v.$SVERSION
     git pull
-    git tag -d v.$SVERSION
-    git tag v.$SVERSION
+    git tag -f v.$SVERSION
+    git push origin v.$SVERSION --force
     git commit -m "Final release "${SVERSION} >>$LOG_FILE 2>&1
 else
     git commit -m "Auto-commit for release "${SVERSION}${SUFFIX} >>$LOG_FILE 2>&1
 fi
-git push --tags
 
 # Create ZIP archive
 echo " - Build ZIP archive file '$ZIP_FILE'."

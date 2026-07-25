@@ -67680,7 +67680,7 @@ namespace cimg_library {
       const int fd = fileno(file);
       struct stat st;
       if (!fstat(fd,&st)) siz = (cimg_int64)st.st_size;
-#elif cimg_OS==2 // Optimized for Windows Environements (MSVC, MinGW)
+#elif cimg_OS==2 // Optimized for Windows Environments (MSVC, MinGW)
       const int fd = _fileno(file);
       siz = (cimg_int64)_filelengthi64(fd);
 #endif

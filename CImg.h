@@ -57994,12 +57994,10 @@ namespace cimg_library {
             }
         }
       } catch (const heif::Error& e) {
-        throw CImgInstanceException(_cimg_instance
-                                    "load_heif(): Unable to decode image: %s",
-                                    cimg_instance,
-                                    e.get_message().c_str());
-      } catch (...) {
-        throw;
+        throw CImgIOException(_cimg_instance
+                              "load_heif(): Unable to decode image: %s",
+                              cimg_instance,
+                              e.get_message().c_str());
       }
       return *this;
 #endif
@@ -67680,7 +67678,7 @@ namespace cimg_library {
       const int fd = fileno(file);
       struct stat st;
       if (!fstat(fd,&st)) siz = (cimg_int64)st.st_size;
-#elif cimg_OS==2 // Optimized for Windows Environements (MSVC, MinGW)
+#elif cimg_OS==2 // Optimized for Windows Environments (MSVC, MinGW)
       const int fd = _fileno(file);
       siz = (cimg_int64)_filelengthi64(fd);
 #endif

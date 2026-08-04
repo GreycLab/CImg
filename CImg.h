@@ -56533,7 +56533,7 @@ namespace cimg_library {
             for (unsigned int rr = row; rr<std::min((unsigned int)(row + th),(unsigned int)ny); ++rr)
               for (unsigned int cc = col; cc<std::min((unsigned int)(col + tw),(unsigned int)nx); ++cc)
                 for (unsigned int vv = 0; vv<samplesperpixel; ++vv)
-                  (*this)(cc,rr,vv) = (T)(ptr[(rr - row)*th*samplesperpixel + (cc - col)*samplesperpixel + vv]);
+                  (*this)(cc,rr,vv) = (T)(ptr[(rr - row)*tw*samplesperpixel + (cc - col)*samplesperpixel + vv]);
           }
         _TIFFfree(buf);
       }

@@ -18897,6 +18897,13 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"critical(",9)) { // Critical section (single thread at a time)
               _cimg_mp_op("Function 'critical()'");
+              if (is_inside_critical) {
+                _cimg_mp_strerr;
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Nested calls to 'critical()' are not allowed, "
+                                            "in expression '%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,s0);
+              }
               p1 = code._width;
               arg1 = compile(ss + 9,se1,depth1,p_ref,block_flags | 1);
               CImg<ulongT>::vector((ulongT)mp_critical,arg1,code._width - p1).move_to(code,p1);

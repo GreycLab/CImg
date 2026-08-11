@@ -25105,7 +25105,8 @@ namespace cimg_library {
 
         if (dim1==1) { // Scalar or vector1() elements
           if (nb_elts) {
-            for (unsigned int k = 0; k<nb_elts; ++k) img[pos + k] = (T)_mp_arg(7 + k);
+            if (!dim) for (unsigned int k = 0; k<nb_elts; ++k) img[pos + k] = (T)_mp_arg(7 + k);
+            else for (unsigned int k = 0; k<nb_elts; ++k) img[pos + k] = (T)*(&_mp_arg(7 + k) + 1);
             if (count>1) // Exponentially recopy sequence of scalar elements
               for (unsigned int k = 1; k<count; k<<=1)
                 std::memcpy(&img[pos + k*nb_elts],&img[pos],std::min(k,count - k)*nb_elts*sizeof(T));

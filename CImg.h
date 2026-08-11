@@ -18900,7 +18900,8 @@ namespace cimg_library {
               if (is_inside_critical) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                            "CImg<%s>::%s: %s: Nested calls to 'critical()' are not allowed, "
+                                            "CImg<%s>::%s: %s: Nested calls to 'critical()' are not allowed "
+                                            "as they would cause a deadlock, "
                                             "in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,s0);
               }

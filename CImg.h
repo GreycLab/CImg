@@ -25716,6 +25716,8 @@ namespace cimg_library {
       }
 
       static double mp_find_seq(_cimg_math_parser& mp) {
+        const unsigned int max_iterations = mp.opcode[8]==~0U?~0U:(unsigned int)std::max(0.,_mp_arg(8));
+        if (!max_iterations) return -1;
         const int _step = (int)_mp_arg(7), step = _step?_step:-1;
         const ulongT
           siz1 = (ulongT)mp.opcode[3],
@@ -25733,12 +25735,13 @@ namespace cimg_library {
 
         // Forward search.
         if (step>0) {
+          const double *const nptr1e = max_iterations==~0U?ptr1e:std::min(ptr1e,ptr1 + step*max_iterations);
           do {
             if (cimg::type<double>::is_nan(*ptr2b))
-              while (ptr1<ptr1e && !cimg::type<double>::is_nan(*ptr1)) ptr1+=step;
+              while (ptr1<nptr1e && !cimg::type<double>::is_nan(*ptr1)) ptr1+=step;
             else
-              while (ptr1<ptr1e && *ptr1!=*ptr2b) ptr1+=step;
-            if (ptr1>=ptr1e) return -1.;
+              while (ptr1<nptr1e && *ptr1!=*ptr2b) ptr1+=step;
+            if (ptr1>=nptr1e) return -1.;
             p1 = ptr1 + 1;
             p2 = ptr2b + 1;
             while (p1<ptr1e && p2<ptr2e &&
@@ -25748,12 +25751,13 @@ namespace cimg_library {
         }
 
         // Backward search.
+        const double *const nptr1b = max_iterations==~0U?ptr1b:std::max(ptr1b,ptr1 + step*((longT)max_iterations - 1));
         do {
           if (cimg::type<double>::is_nan(*ptr2b))
-            while (ptr1>=ptr1b && !cimg::type<double>::is_nan(*ptr1)) ptr1+=step;
+            while (ptr1>=nptr1b && !cimg::type<double>::is_nan(*ptr1)) ptr1+=step;
           else
-            while (ptr1>=ptr1b && *ptr1!=*ptr2b) ptr1+=step;
-          if (ptr1<ptr1b) return -1.;
+            while (ptr1>=nptr1b && *ptr1!=*ptr2b) ptr1+=step;
+          if (ptr1<nptr1b) return -1.;
           p1 = ptr1 + 1;
           p2 = ptr2b + 1;
           while (p1<ptr1e && p2<ptr2e &&
@@ -26375,8 +26379,9 @@ namespace cimg_library {
       }
 
       static double mp_image_find_seq(_cimg_math_parser& mp) {
-        const unsigned int
-          indi = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        const unsigned int max_iterations = mp.opcode[7]==~0U?~0U:(unsigned int)std::max(0.,_mp_arg(7));
+        if (!max_iterations) return -1;
+        const unsigned int indi = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         const CImg<T> &img = mp.imglist[indi];
         const int _step = (int)_mp_arg(6), step = _step?_step:-1;
         const ulongT
@@ -26396,12 +26401,13 @@ namespace cimg_library {
 
         // Forward search.
         if (step>0) {
+          const T *const nptr1e = max_iterations==~0U?ptr1e:std::min(ptr1e,ptr1 + step*max_iterations);
           do {
             if (cimg::type<double>::is_nan(*ptr2b))
-              while (ptr1<ptr1e && !cimg::type<double>::is_nan(*ptr1)) ptr1+=step;
+              while (ptr1<nptr1e && !cimg::type<double>::is_nan(*ptr1)) ptr1+=step;
             else
-              while (ptr1<ptr1e && *ptr1!=*ptr2b) ptr1+=step;
-            if (ptr1>=ptr1e) return -1.;
+              while (ptr1<nptr1e && *ptr1!=*ptr2b) ptr1+=step;
+            if (ptr1>=nptr1e) return -1.;
             p1 = ptr1 + 1;
             p2 = ptr2b + 1;
             while (p1<ptr1e && p2<ptr2e &&
@@ -26411,12 +26417,13 @@ namespace cimg_library {
         }
 
         // Backward search.
+        const T *const nptr1b = max_iterations==~0U?ptr1b:std::max(ptr1b,ptr1 + step*((longT)max_iterations - 1));
         do {
           if (cimg::type<double>::is_nan(*ptr2b))
-            while (ptr1>=ptr1b && !cimg::type<double>::is_nan(*ptr1)) ptr1+=step;
+            while (ptr1>=nptr1b && !cimg::type<double>::is_nan(*ptr1)) ptr1+=step;
           else
-            while (ptr1>=ptr1b && *ptr1!=*ptr2b) ptr1+=step;
-          if (ptr1<ptr1b) return -1.;
+            while (ptr1>=nptr1b && *ptr1!=*ptr2b) ptr1+=step;
+          if (ptr1<nptr1b) return -1.;
           p1 = ptr1 + 1;
           p2 = ptr2b + 1;
           while (p1<ptr1e && p2<ptr2e &&

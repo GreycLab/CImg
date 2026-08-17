@@ -20171,7 +20171,7 @@ namespace cimg_library {
                 p1 = ~0U;
               }
 
-              // Second argument: data to find.
+              // Second argument: scalar or vector data to find.
               s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg2 = compile(s0,s1,depth1,0,block_flags);
 
@@ -25691,28 +25691,28 @@ namespace cimg_library {
         longT ind = (longT)(mp.opcode[5]!=_cimg_mp_slot_nan?_mp_arg(5):step>0?0:siz - 1);
         if (ind<0 || ind>=(longT)siz) return -1.;
         const double
-          *ptrb = &_mp_arg(2) + 1,
-          *ptre = ptrb + siz,
+          *const ptrb = &_mp_arg(2) + 1,
+          *const ptre = ptrb + siz,
           val = _mp_arg(4),
           *ptr = ptrb + ind;
 
         // Forward search.
         if (step>0) {
-          if (max_iterations!=~0U) ptre = std::min(ptre,ptr + step*max_iterations);
+          const double *const nptre = max_iterations==~0U?ptre:std::min(ptre,ptr + step*max_iterations);
           if (cimg::type<double>::is_nan(val))
-            while (ptr<ptre && !cimg::type<double>::is_nan(*ptr)) ptr+=step;
+            while (ptr<nptre && !cimg::type<double>::is_nan(*ptr)) ptr+=step;
           else
-            while (ptr<ptre && *ptr!=val) ptr+=step;
-          return ptr>=ptre?-1.:(double)(ptr - ptrb);
+            while (ptr<nptre && *ptr!=val) ptr+=step;
+          return ptr>=nptre?-1.:(double)(ptr - ptrb);
         }
 
         // Backward search.
-        if (max_iterations!=~0U) ptrb = std::max(ptrb,ptr + step*max_iterations);
+        const double *const nptrb = max_iterations==~0U?ptrb:std::max(ptrb,ptr + step*((longT)max_iterations - 1));
         if (cimg::type<double>::is_nan(val))
-          while (ptr>=ptrb && !cimg::type<double>::is_nan(*ptr)) ptr+=step;
+          while (ptr>=nptrb && !cimg::type<double>::is_nan(*ptr)) ptr+=step;
         else
-          while (ptr>=ptrb && *ptr!=val) ptr+=step;
-        return ptr<ptrb?-1.:(double)(ptr - ptrb);
+          while (ptr>=nptrb && *ptr!=val) ptr+=step;
+        return ptr<nptrb?-1.:(double)(ptr - ptrb);
       }
 
       static double mp_find_seq(_cimg_math_parser& mp) {
@@ -26350,28 +26350,28 @@ namespace cimg_library {
         longT ind = (longT)(mp.opcode[4]!=_cimg_mp_slot_nan?_mp_arg(4):step>0?0:siz - 1);
         if (ind<0 || ind>=(longT)siz) return -1.;
         const T
-          *ptrb = img.data(),
-          *ptre = img.end(),
+          *const ptrb = img.data(),
+          *const ptre = img.end(),
           *ptr = ptrb + ind;
         const double val = _mp_arg(3);
 
         // Forward search.
         if (step>0) {
-          if (max_iterations!=~0U) ptre = std::min(ptre,ptr + step*max_iterations);
+          const T *const nptre = max_iterations==~0U?ptre:std::min(ptre,ptr + step*max_iterations);
           if (cimg::type<double>::is_nan(val))
-            while (ptr<ptre && !cimg::type<double>::is_nan(*ptr)) ptr+=step;
+            while (ptr<nptre && !cimg::type<double>::is_nan(*ptr)) ptr+=step;
           else
-            while (ptr<ptre && (double)*ptr!=val) ptr+=step;
-          return ptr>=ptre?-1.:(double)(ptr - ptrb);
+            while (ptr<nptre && (double)*ptr!=val) ptr+=step;
+          return ptr>=nptre?-1.:(double)(ptr - ptrb);
         }
 
         // Backward search.
-        if (max_iterations!=~0U) ptrb = std::max(ptrb,ptr + step*max_iterations);
+        const T *const nptrb = max_iterations==~0U?ptrb:std::max(ptrb,ptr + step*((longT)max_iterations - 1));
         if (cimg::type<double>::is_nan(val))
-          while (ptr>=ptrb && !cimg::type<double>::is_nan(*ptr)) ptr+=step;
+          while (ptr>=nptrb && !cimg::type<double>::is_nan(*ptr)) ptr+=step;
         else
-          while (ptr>=ptrb && (double)*ptr!=val) ptr+=step;
-        return ptr<ptrb?-1.:(double)(ptr - ptrb);
+          while (ptr>=nptrb && (double)*ptr!=val) ptr+=step;
+        return ptr<nptrb?-1.:(double)(ptr - ptrb);
       }
 
       static double mp_image_find_seq(_cimg_math_parser& mp) {

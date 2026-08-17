@@ -15978,6 +15978,7 @@ namespace cimg_library {
 #define _cimg_mp_scalar4(op,i1,i2,i3,i4) _cimg_mp_return(scalar4(mp_##op,i1,i2,i3,i4))
 #define _cimg_mp_scalar5(op,i1,i2,i3,i4,i5) _cimg_mp_return(scalar5(mp_##op,i1,i2,i3,i4,i5))
 #define _cimg_mp_scalar6(op,i1,i2,i3,i4,i5,i6) _cimg_mp_return(scalar6(mp_##op,i1,i2,i3,i4,i5,i6))
+#define _cimg_mp_scalar7(op,i1,i2,i3,i4,i5,i6,i7) _cimg_mp_return(scalar7(mp_##op,i1,i2,i3,i4,i5,i6,i7))
 #define _cimg_mp_scalar8(op,i1,i2,i3,i4,i5,i6,i7,i8) _cimg_mp_return(scalar8(mp_##op,i1,i2,i3,i4,i5,i6,i7,i8))
 #define _cimg_mp_strerr \
   *se = saved_char; \
@@ -20174,25 +20175,32 @@ namespace cimg_library {
               s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg2 = compile(s0,s1,depth1,0,block_flags);
 
-              // Third and fourth arguments: starting index and search direction.
-              arg3 = _cimg_mp_slot_nan; arg4 = 1;
+              // Third, fourth and fifth arguments: starting index, search step and max iterations.
+              arg3 = _cimg_mp_slot_nan; arg4 = 1; arg5 = ~0U;
               if (s1<se1) {
                 s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 arg3 = compile(s1,s0,depth1,0,block_flags);
                 _cimg_mp_check_type(arg3,3,1,0);
                 if (s0<se1) {
-                  arg4 = compile(++s0,se1,depth1,0,block_flags);
+                  s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                  arg4 = compile(s0,s1,depth1,0,block_flags);
                   _cimg_mp_check_type(arg4,4,1,0);
+                  if (s1<se1) {
+                    arg5 = compile(++s1,se1,depth1,0,block_flags);
+                    _cimg_mp_check_type(arg5,5,1,0);
+                  }
                 }
               }
+              if (arg5!=~0U && is_const_scalar(arg5) && mem[arg5]<=0) // max_iterations<=0 -> return -1
+                _cimg_mp_return(11);
               if (p1!=~0U) {
                 if (size(arg2)>1)
-                  _cimg_mp_scalar5(image_find_seq,p1,arg2,size(arg2),arg3,arg4);
-                _cimg_mp_scalar4(image_find,p1,arg2 + (size(arg2)?1:0),arg3,arg4);
+                  _cimg_mp_scalar6(image_find_seq,p1,arg2,size(arg2),arg3,arg4,arg5);
+                _cimg_mp_scalar5(image_find,p1,arg2 + (size(arg2)?1:0),arg3,arg4,arg5);
               }
               if (size(arg2)>1)
-                _cimg_mp_scalar6(find_seq,arg1,size(arg1),arg2,size(arg2),arg3,arg4);
-              _cimg_mp_scalar5(find,arg1,size(arg1),arg2 + (size(arg2)?1:0),arg3,arg4);
+                _cimg_mp_scalar7(find_seq,arg1,size(arg1),arg2,size(arg2),arg3,arg4,arg5);
+              _cimg_mp_scalar6(find,arg1,size(arg1),arg2 + (size(arg2)?1:0),arg3,arg4,arg5);
             }
 
             if (*ss1=='o' && *ss2=='r' && *ss3=='(') { // For loop
@@ -24186,6 +24194,23 @@ namespace cimg_library {
         return pos;
       }
 
+      unsigned int scalar7(const mp_func op,
+                           const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
+                           const unsigned int arg4, const unsigned int arg5, const unsigned int arg6,
+                           const unsigned int arg7) {
+        const unsigned int pos =
+          arg1!=~0U && arg1>_cimg_mp_slot_c && is_comp_scalar(arg1)?arg1:
+          arg2!=~0U && arg2>_cimg_mp_slot_c && is_comp_scalar(arg2)?arg2:
+          arg3!=~0U && arg3>_cimg_mp_slot_c && is_comp_scalar(arg3)?arg3:
+          arg4!=~0U && arg4>_cimg_mp_slot_c && is_comp_scalar(arg4)?arg4:
+          arg5!=~0U && arg5>_cimg_mp_slot_c && is_comp_scalar(arg5)?arg5:
+          arg6!=~0U && arg6>_cimg_mp_slot_c && is_comp_scalar(arg6)?arg6:
+          arg7!=~0U && arg7>_cimg_mp_slot_c && is_comp_scalar(arg7)?arg7:
+          ((return_comp = true), scalar());
+        CImg<ulongT>::vector((ulongT)op,pos,arg1,arg2,arg3,arg4,arg5,arg6,arg7).move_to(code);
+        return pos;
+      }
+
       unsigned int scalar8(const mp_func op,
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
                            const unsigned int arg4, const unsigned int arg5, const unsigned int arg6,
@@ -25659,18 +25684,21 @@ namespace cimg_library {
       }
 
       static double mp_find(_cimg_math_parser& mp) {
+        const unsigned int max_iterations = mp.opcode[7]==~0U?~0U:(unsigned int)std::max(0.,_mp_arg(7));
+        if (!max_iterations) return -1;
         const int _step = (int)_mp_arg(6), step = _step?_step:-1;
         const ulongT siz = (ulongT)mp.opcode[3];
         longT ind = (longT)(mp.opcode[5]!=_cimg_mp_slot_nan?_mp_arg(5):step>0?0:siz - 1);
         if (ind<0 || ind>=(longT)siz) return -1.;
         const double
-          *const ptrb = &_mp_arg(2) + 1,
-          *const ptre = ptrb + siz,
+          *ptrb = &_mp_arg(2) + 1,
+          *ptre = ptrb + siz,
           val = _mp_arg(4),
           *ptr = ptrb + ind;
 
         // Forward search.
         if (step>0) {
+          if (max_iterations!=~0U) ptre = std::min(ptre,ptr + step*max_iterations);
           if (cimg::type<double>::is_nan(val))
             while (ptr<ptre && !cimg::type<double>::is_nan(*ptr)) ptr+=step;
           else
@@ -25679,6 +25707,7 @@ namespace cimg_library {
         }
 
         // Backward search.
+        if (max_iterations!=~0U) ptrb = std::max(ptrb,ptr + step*max_iterations);
         if (cimg::type<double>::is_nan(val))
           while (ptr>=ptrb && !cimg::type<double>::is_nan(*ptr)) ptr+=step;
         else
@@ -26312,21 +26341,23 @@ namespace cimg_library {
       }
 
       static double mp_image_find(_cimg_math_parser& mp) {
-        const unsigned int
-          indi = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        const unsigned int max_iterations = mp.opcode[6]==~0U?~0U:(unsigned int)std::max(0.,_mp_arg(6));
+        if (!max_iterations) return -1;
+        const unsigned int indi = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         const CImg<T> &img = mp.imglist[indi];
         const int _step = (int)_mp_arg(5), step = _step?_step:-1;
         const ulongT siz = (ulongT)img.size();
         longT ind = (longT)(mp.opcode[4]!=_cimg_mp_slot_nan?_mp_arg(4):step>0?0:siz - 1);
         if (ind<0 || ind>=(longT)siz) return -1.;
         const T
-          *const ptrb = img.data(),
-          *const ptre = img.end(),
+          *ptrb = img.data(),
+          *ptre = img.end(),
           *ptr = ptrb + ind;
         const double val = _mp_arg(3);
 
         // Forward search.
         if (step>0) {
+          if (max_iterations!=~0U) ptre = std::min(ptre,ptr + step*max_iterations);
           if (cimg::type<double>::is_nan(val))
             while (ptr<ptre && !cimg::type<double>::is_nan(*ptr)) ptr+=step;
           else
@@ -26335,6 +26366,7 @@ namespace cimg_library {
         }
 
         // Backward search.
+        if (max_iterations!=~0U) ptrb = std::max(ptrb,ptr + step*max_iterations);
         if (cimg::type<double>::is_nan(val))
           while (ptr>=ptrb && !cimg::type<double>::is_nan(*ptr)) ptr+=step;
         else

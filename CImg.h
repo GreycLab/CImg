@@ -33574,8 +33574,10 @@ namespace cimg_library {
                 else if (M2==_height) { _cimg_fill_openmp_vector(XZ,x,z,Y,y,x,0,z,_width) }
                 else { _cimg_fill_openmp_vector(XY,x,y,Z,z,x,y,0,_width*_height) }
 
-                lmp.end_t();
-                cimg_pragma_openmp(barrier) cimg_pragma_openmp(critical) { lmp.merge(mp); }
+                if (!is_error_expr) {
+                  lmp.end_t();
+                  cimg_pragma_openmp(barrier) cimg_pragma_openmp(critical) { lmp.merge(mp); }
+                }
                 if (&lmp!=&mp) delete &lmp;
               }
 #endif
@@ -33624,19 +33626,21 @@ namespace cimg_library {
                 else if (M2==_depth) { _cimg_fill_openmp_scalar(XYC,x,y,c,Z,z,x,y,0,c,_width*_height) }
                 else { _cimg_fill_openmp_scalar(XYZ,x,y,z,C,c,x,y,z,0,_width*_height*_depth) }
 
-                lmp.end_t();
-                cimg_pragma_openmp(barrier) cimg_pragma_openmp(critical) { lmp.merge(mp); }
+                if (!is_error_expr) {
+                  lmp.end_t();
+                  cimg_pragma_openmp(barrier) cimg_pragma_openmp(critical) { lmp.merge(mp); }
+                }
                 if (&lmp!=&mp) delete &lmp;
               }
 #endif
             }
           }
-          mp.end();
-
-          if (result_end && mp.result_end) // Transfer result of the end() block if requested
-            result_end->assign(mp.result_end + (mp.result_end_dim?1:0),std::max(1U,mp.result_end_dim));
-
-          is_done = true;
+          if (!is_error_expr) {
+            mp.end();
+            if (result_end && mp.result_end) // Transfer result of the end() block if requested
+              result_end->assign(mp.result_end + (mp.result_end_dim?1:0),std::max(1U,mp.result_end_dim));
+            is_done = true;
+          }
         } catch (CImgException& e) { CImg<charT>::string(e._message).move_to(is_error_expr); }
       }
 

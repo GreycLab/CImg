@@ -16794,9 +16794,11 @@ namespace cimg_library {
                 if (is_vector(arg1)) { // Vector
                   if (is_vector(arg3)) { // From vector
                     if (arg1!=arg3) {
-                      CImg<ulongT> &pop = code.back();
-                      mp_func fn = (mp_func)pop[0];
-                      if ((fn==mp_cumulate || fn==mp_equalize || fn==mp_mirror || fn==mp_noise || fn==mp_normalize ||
+                      is_sth = code.size()?true:false;
+                      CImg<ulongT> &pop = is_sth?code.back():CImg<ulongT>::empty();
+                      mp_func fn = (mp_func)(pop?pop[0]:0);
+                      if (is_sth &&
+                          (fn==mp_cumulate || fn==mp_equalize || fn==mp_mirror || fn==mp_noise || fn==mp_normalize ||
                            fn==mp_permute || fn==mp_reverse || fn==mp_shift || fn==mp_sort) &&
                           pop[1]==arg3 && pop[2]==arg1) {
                         // Spot cases 'X = func(X)' -> call in-place version of 'func()'.
@@ -16836,10 +16838,12 @@ namespace cimg_library {
                       move_to(code);
                 } else { // Scalar
                   if (arg1!=arg3) {
-                    CImg<ulongT> &pop = code.back();
-                    mp_func fn = (mp_func)pop[0];
-                    is_sth = is_comp_scalar(arg3) && pop[1]==arg3 &&
-                      fn!=mp_set_ijoff && fn!=mp_set_ijxyzc && fn!=mp_set_IJoff_s && fn!=mp_set_IJxyz_s;
+                    is_sth = code.size()?true:false;
+                    CImg<ulongT> &pop = is_sth?code.back():CImg<ulongT>::empty();
+                    mp_func fn = (mp_func)(pop?pop[0]:0);
+                    if (is_sth)
+                      is_sth = is_comp_scalar(arg3) && pop[1]==arg3 &&
+                        fn!=mp_set_ijoff && fn!=mp_set_ijxyzc && fn!=mp_set_IJoff_s && fn!=mp_set_IJxyz_s;
                     if (is_sth)
                       for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg3) { is_sth = false; break; }
                     if (is_sth) {
@@ -16950,9 +16954,11 @@ namespace cimg_library {
                 _cimg_mp_check_type(arg2,2,3,size(arg1));
                 if (is_vector(arg2)) { // From vector
                   if (arg1!=arg2) {
-                    CImg<ulongT> &pop = code.back();
-                    mp_func fn = (mp_func)pop[0];
-                    if ((fn==mp_cumulate || fn==mp_equalize || fn==mp_mirror || fn==mp_noise || fn==mp_normalize ||
+                    is_sth = code.size()?true:false;
+                    CImg<ulongT> &pop = is_sth?code.back():CImg<ulongT>::empty();
+                    mp_func fn = (mp_func)(pop?pop[0]:0);
+                    if (is_sth &&
+                        (fn==mp_cumulate || fn==mp_equalize || fn==mp_mirror || fn==mp_noise || fn==mp_normalize ||
                          fn==mp_permute || fn==mp_reverse || fn==mp_shift || fn==mp_sort) &&
                         pop[1]==arg2 && pop[2]==arg1) {
                       // Spot cases 'X = func(X)' -> call in-place version of 'func()'.
@@ -16997,10 +17003,12 @@ namespace cimg_library {
               if (is_reserved(arg1) && arg1>_cimg_mp_slot_c) { // Scalar variable: (s) = scalar
                 _cimg_mp_check_type(arg2,2,1,0);
                 if (arg1!=arg2) {
-                  CImg<ulongT> &pop = code.back();
-                  mp_func fn = (mp_func)pop[0];
-                  is_sth = is_comp_scalar(arg2) && pop[1]==arg2 &&
-                    fn!=mp_set_ijoff && fn!=mp_set_ijxyzc && fn!=mp_set_IJoff_s && fn!=mp_set_IJxyz_s;
+                  is_sth = code.size()?true:false;
+                  CImg<ulongT> &pop = is_sth?code.back():CImg<ulongT>::empty();
+                  mp_func fn = (mp_func)(pop?pop[0]:0);
+                  if (is_sth)
+                    is_sth = is_comp_scalar(arg2) && pop[1]==arg2 &&
+                      fn!=mp_set_ijoff && fn!=mp_set_ijxyzc && fn!=mp_set_IJoff_s && fn!=mp_set_IJxyz_s;
                   if (is_sth)
                     for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg2) { is_sth = false; break; }
                   if (is_sth) {

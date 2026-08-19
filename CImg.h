@@ -23059,6 +23059,7 @@ namespace cimg_library {
               *ss=='s'?(ss[1]=='t'?mp_std:mp_sum):
               mp_var;
 
+            arg2 = 0;
             is_sth = true; // Indicates that all arguments are constant
             bool is_scalar = true; // Indicates that all arguments are scalars
             CImg<ulongT>::vector((ulongT)op,0,0).move_to(l_opcode);
@@ -23263,7 +23264,7 @@ namespace cimg_library {
             if (!return_comp) set_reserved_vector(pos); // Prevent from being used in further optimization
           } else { // Vector values provided as a list of items
             is_sth = !is_new_variable_assignment; // Can vector be defined once in 'begin()'?
-            arg3 = 0; // Output vector size
+            arg1 = arg3 = 0; // Output vector size
             CImg<ulongT>::vector((ulongT)mp_vector_init,0,0,0).move_to(l_opcode);
             s = ss1; while (*s && cimg::is_blank(*s)) ++s;
             if (s>=se1) _cimg_mp_return(0); // Empty initializer

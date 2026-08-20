@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 404
+#define cimg_version 405
 
 /*-----------------------------------------------------------
  #
@@ -56105,7 +56105,8 @@ namespace cimg_library {
       }
       std::fgetc(nfile);
 
-      if (filename) { // Check that the dimensions specified in file do not exceed the buffer dimensions
+      if (filename && nfile!=cimg::_stdin()) {
+        // Check that the dimensions specified in file do not exceed the buffer dimensions
         const cimg_int64 siz = cimg::fsize(filename);
         if ((cimg_int64)W*H*D>siz)
           throw CImgIOException(_cimg_instance

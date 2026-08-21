@@ -56094,10 +56094,15 @@ namespace cimg_library {
                               filename?filename:"(FILE*)");
       }
       if (ppm_type!=1 && ppm_type!=4) {
-        if (err==2 || (err==3 && (ppm_type==5 || ppm_type==7 || ppm_type==8 || ppm_type==9))) {
+        if (colormax==~0U && ppm_type>=5 && ppm_type<=9) {
           const long pos = std::ftell(nfile); // Potential return point
           while ((err=std::fscanf(nfile," %16383[^\n]",item.data()))!=EOF && (*item=='#' || !err)) std::fgetc(nfile);
           if (cimg_sscanf(item._data,"%u",&colormax)!=1) {
+            if (nfile==cimg::_stdin()) // COLORMAX cannot be undefined for 'stdin' input
+              throw CImgIOException(_cimg_instance
+                                    "load_pnm(): COLORMAX field is undefined in file '%s'.",
+                                    cimg_instance,
+                                    filename?filename:"(FILE*)");
             std::fseek(nfile,pos,SEEK_SET);
             if (D!=~0U) { colormax = D; D = 1; }
             else cimg::warn(_cimg_instance

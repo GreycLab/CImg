@@ -56073,10 +56073,12 @@ namespace cimg_library {
                                     cimg_instance);
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
-      unsigned int ppm_type, W, H, D = 1, colormax = 255;
+      unsigned int ppm_type, W, H, D = ~0U, colormax = ~0U;
       CImg<charT> item(16384,1,1,1,0);
       int err, rval, gval, bval;
       const longT cimg_iobuffer = (longT)24*1024*1024;
+
+      // Read PNM type.
       while ((err=std::fscanf(nfile,"%16383[^\n]",item.data()))!=EOF && (*item=='#' || !err)) std::fgetc(nfile);
       if (cimg_sscanf(item._data," P%u",&ppm_type)!=1) {
         if (!file) cimg::fclose(nfile);
@@ -56085,6 +56087,8 @@ namespace cimg_library {
                               cimg_instance,
                               filename?filename:"(FILE*)");
       }
+
+      // Read image dimensions (and opt. 'colormax', if defined on the same line).
       while ((err=std::fscanf(nfile," %16383[^\n]",item.data()))!=EOF && (*item=='#' || !err)) std::fgetc(nfile);
       if ((err=cimg_sscanf(item._data," %u %u %u %u",&W,&H,&D,&colormax))<2) {
         if (!file) cimg::fclose(nfile);
@@ -56093,17 +56097,34 @@ namespace cimg_library {
                               cimg_instance,
                               filename?filename:"(FILE*)");
       }
-      if (ppm_type!=1 && ppm_type!=4) {
-        if (err==2 || (err==3 && (ppm_type==5 || ppm_type==7 || ppm_type==8 || ppm_type==9))) {
+
+      // If input file is 'stdin', assume it is not a 3D image, but rather that
+      // 'colormax' has been defined on the same line as the image dimensions.
+      if (D!=~0U && colormax==~0U && nfile==cimg::_stdin()) { colormax = D; D = 1; }
+
+      // Read 'colormax' field.
+      if (colormax==~0U && ppm_type!=1 && ppm_type!=4) {
+        if (ppm_type>=5 && ppm_type<=9) {
+          const long pos = std::ftell(nfile); // Potential return point (for non-stdin input)
           while ((err=std::fscanf(nfile," %16383[^\n]",item.data()))!=EOF && (*item=='#' || !err)) std::fgetc(nfile);
-          if (cimg_sscanf(item._data,"%u",&colormax)!=1)
-            cimg::warn(_cimg_instance
-                       "load_pnm(): COLORMAX field is undefined in file '%s'.",
-                       cimg_instance,
-                       filename?filename:"(FILE*)");
+          if (cimg_sscanf(item._data,"%u",&colormax)!=1) {
+            if (nfile==cimg::_stdin()) // COLORMAX cannot be undefined for 'stdin' input
+              throw CImgIOException(_cimg_instance
+                                    "load_pnm(): COLORMAX field is undefined in file '%s'.",
+                                    cimg_instance,
+                                    filename?filename:"(FILE*)");
+            std::fseek(nfile,pos,SEEK_SET);
+            if (D!=~0U) { colormax = D; D = 1; }
+            else cimg::warn(_cimg_instance
+                            "load_pnm(): COLORMAX field is undefined in file '%s'.",
+                            cimg_instance,
+                            filename?filename:"(FILE*)");
+          }
         } else { colormax = D; D = 1; }
       }
       std::fgetc(nfile);
+      if (colormax==~0U) colormax = 255;
+      if (D==~0U) D = 1;
 
       if (filename && nfile!=cimg::_stdin()) {
         // Check that the dimensions specified in file do not exceed the buffer dimensions

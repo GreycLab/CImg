@@ -62150,45 +62150,48 @@ namespace cimg_library {
       cimglist_for(primitives,l) {
         const CImg<tc>& color = l<colors.width()?colors[l]:default_color;
         const unsigned int psiz = primitives[l].size(), csiz = color.size();
-        const float r = color[0]/255.f, g = (csiz>1?color[1]:r)/255.f, b = (csiz>2?color[2]:g)/255.f;
+        const double
+          r = (double)color[0]/255.,
+          g = (csiz>1?(double)color[1]:r)/255.,
+          b = (csiz>2?(double)color[2]:g)/255.;
         switch (psiz) {
-        case 1 : std::fprintf(nfile,"1 %u %f %f %f\n",
+        case 1 : std::fprintf(nfile,"1 %u %lf %lf %lf\n",
                               (unsigned int)primitives(l,0),r,g,b); break;
-        case 2 : std::fprintf(nfile,"2 %u %u %f %f %f\n",
+        case 2 : std::fprintf(nfile,"2 %u %u %lf %lf %lf\n",
                               (unsigned int)primitives(l,0),(unsigned int)primitives(l,1),r,g,b); break;
-        case 3 : std::fprintf(nfile,"3 %u %u %u %f %f %f\n",
+        case 3 : std::fprintf(nfile,"3 %u %u %u %lf %lf %lf\n",
                               (unsigned int)primitives(l,0),(unsigned int)primitives(l,2),
                               (unsigned int)primitives(l,1),r,g,b); break;
-        case 4 : std::fprintf(nfile,"4 %u %u %u %u %f %f %f\n",
+        case 4 : std::fprintf(nfile,"4 %u %u %u %u %lf %lf %lf\n",
                               (unsigned int)primitives(l,0),(unsigned int)primitives(l,3),
                               (unsigned int)primitives(l,2),(unsigned int)primitives(l,1),r,g,b); break;
         case 5 : break;
         case 6 : {
           const unsigned int xt = (unsigned int)primitives(l,2), yt = (unsigned int)primitives(l,3);
-          const float
-            rt = color.atXY(xt,yt,0)/255.f,
-            gt = (csiz>1?color.atXY(xt,yt,1):r)/255.f,
-            bt = (csiz>2?color.atXY(xt,yt,2):g)/255.f;
-          std::fprintf(nfile,"2 %u %u %f %f %f\n",
+          const double
+            rt = (double)color.atXY(xt,yt,0)/255.,
+            gt = (csiz>1?(double)color.atXY(xt,yt,1):r)/255.,
+            bt = (csiz>2?(double)color.atXY(xt,yt,2):g)/255.;
+          std::fprintf(nfile,"2 %u %u %lf %lf %lf\n",
                        (unsigned int)primitives(l,0),(unsigned int)primitives(l,1),rt,gt,bt);
         } break;
         case 9 : {
           const unsigned int xt = (unsigned int)primitives(l,3), yt = (unsigned int)primitives(l,4);
-          const float
-            rt = color.atXY(xt,yt,0)/255.f,
-            gt = (csiz>1?color.atXY(xt,yt,1):r)/255.f,
-            bt = (csiz>2?color.atXY(xt,yt,2):g)/255.f;
-          std::fprintf(nfile,"3 %u %u %u %f %f %f\n",
+          const double
+            rt = (double)color.atXY(xt,yt,0)/255.,
+            gt = (csiz>1?(double)color.atXY(xt,yt,1):r)/255.,
+            bt = (csiz>2?(double)color.atXY(xt,yt,2):g)/255.;
+          std::fprintf(nfile,"3 %u %u %u %lf %lf %lf\n",
                        (unsigned int)primitives(l,0),(unsigned int)primitives(l,2),
                        (unsigned int)primitives(l,1),rt,gt,bt);
         } break;
         case 12 : {
           const unsigned int xt = (unsigned int)primitives(l,4), yt = (unsigned int)primitives(l,5);
-          const float
-            rt = color.atXY(xt,yt,0)/255.f,
-            gt = (csiz>1?color.atXY(xt,yt,1):r)/255.f,
-            bt = (csiz>2?color.atXY(xt,yt,2):g)/255.f;
-          std::fprintf(nfile,"4 %u %u %u %u %f %f %f\n",
+          const double
+            rt = (double)color.atXY(xt,yt,0)/255.,
+            gt = (csiz>1?(double)color.atXY(xt,yt,1):r)/255.,
+            bt = (csiz>2?(double)color.atXY(xt,yt,2):g)/255.;
+          std::fprintf(nfile,"4 %u %u %u %u %lf %lf %lf\n",
                        (unsigned int)primitives(l,0),(unsigned int)primitives(l,3),
                        (unsigned int)primitives(l,2),(unsigned int)primitives(l,1),rt,gt,bt);
         } break;

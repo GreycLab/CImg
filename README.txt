@@ -68,6 +68,7 @@
   - Daniel Kondermann
   - Pierre Kornprobst
   - Jan W. Krieger
+  - Brian J. Lee
   - Orges Leka
   - Francois Lauze
   - Xie Long

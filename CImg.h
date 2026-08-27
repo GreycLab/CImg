@@ -44390,7 +44390,7 @@ namespace cimg_library {
                                   const float smoothness=0.1f, const float precision=7.f,
                                   const unsigned int nb_scales=0, const unsigned int iteration_max=1000,
                                   const bool is_forward=false,
-                                  const CImg<floatT>& guide=CImg<floatT>::const_empty()) const {
+                                  const CImg<Tfloat>& guide=CImg<Tfloat>::const_empty()) const {
       if (is_empty() || !reference) return +*this;
       if (!is_sameXYZC(reference))
         throw CImgArgumentException(_cimg_instance
@@ -44460,7 +44460,7 @@ namespace cimg_library {
         V.assign(sw,sh,sd,U._spectrum); // Allocate V.
         const CImgList<Tfloat> grad = (is_forward?I:R).get_gradient(is_3d?"xyz":"xy",0);
 
-        double prev_energy = cimg::type<float>::max(), dt = 0.5;
+        double prev_energy = cimg::type<double>::max(), dt = 0.5;
 
         const unsigned int nb_iterations = iteration_max==~0U?~0U:(iteration_max*fact);
         cimg_abort_init;
@@ -44614,7 +44614,7 @@ namespace cimg_library {
           // Update displacement field.
           Tfloat Vmin,Vmax = V.max_min(Vmin);
           const double dt_iteration = dt/cimg::max((Tfloat)1e-8,cimg::abs(Vmin),cimg::abs(Vmax));
-          cimg_openmp_for(U,*ptr + dt_iteration*V[ptr - U._data],32768,float);
+          cimg_openmp_for(U,*ptr + dt_iteration*V[ptr - U._data],32768,Tfloat);
 
           // Force guided constraints even a bit more to speed up convergence.
           if (C) U.draw_image(0,0,0,0,Cv,Cm,1,1);
@@ -62150,45 +62150,48 @@ namespace cimg_library {
       cimglist_for(primitives,l) {
         const CImg<tc>& color = l<colors.width()?colors[l]:default_color;
         const unsigned int psiz = primitives[l].size(), csiz = color.size();
-        const float r = color[0]/255.f, g = (csiz>1?color[1]:r)/255.f, b = (csiz>2?color[2]:g)/255.f;
+        const double
+          r = (double)color[0]/255.,
+          g = (csiz>1?(double)color[1]:r)/255.,
+          b = (csiz>2?(double)color[2]:g)/255.;
         switch (psiz) {
-        case 1 : std::fprintf(nfile,"1 %u %f %f %f\n",
+        case 1 : std::fprintf(nfile,"1 %u %lf %lf %lf\n",
                               (unsigned int)primitives(l,0),r,g,b); break;
-        case 2 : std::fprintf(nfile,"2 %u %u %f %f %f\n",
+        case 2 : std::fprintf(nfile,"2 %u %u %lf %lf %lf\n",
                               (unsigned int)primitives(l,0),(unsigned int)primitives(l,1),r,g,b); break;
-        case 3 : std::fprintf(nfile,"3 %u %u %u %f %f %f\n",
+        case 3 : std::fprintf(nfile,"3 %u %u %u %lf %lf %lf\n",
                               (unsigned int)primitives(l,0),(unsigned int)primitives(l,2),
                               (unsigned int)primitives(l,1),r,g,b); break;
-        case 4 : std::fprintf(nfile,"4 %u %u %u %u %f %f %f\n",
+        case 4 : std::fprintf(nfile,"4 %u %u %u %u %lf %lf %lf\n",
                               (unsigned int)primitives(l,0),(unsigned int)primitives(l,3),
                               (unsigned int)primitives(l,2),(unsigned int)primitives(l,1),r,g,b); break;
         case 5 : break;
         case 6 : {
           const unsigned int xt = (unsigned int)primitives(l,2), yt = (unsigned int)primitives(l,3);
-          const float
-            rt = color.atXY(xt,yt,0)/255.f,
-            gt = (csiz>1?color.atXY(xt,yt,1):r)/255.f,
-            bt = (csiz>2?color.atXY(xt,yt,2):g)/255.f;
-          std::fprintf(nfile,"2 %u %u %f %f %f\n",
+          const double
+            rt = (double)color.atXY(xt,yt,0)/255.,
+            gt = (csiz>1?(double)color.atXY(xt,yt,1):r)/255.,
+            bt = (csiz>2?(double)color.atXY(xt,yt,2):g)/255.;
+          std::fprintf(nfile,"2 %u %u %lf %lf %lf\n",
                        (unsigned int)primitives(l,0),(unsigned int)primitives(l,1),rt,gt,bt);
         } break;
         case 9 : {
           const unsigned int xt = (unsigned int)primitives(l,3), yt = (unsigned int)primitives(l,4);
-          const float
-            rt = color.atXY(xt,yt,0)/255.f,
-            gt = (csiz>1?color.atXY(xt,yt,1):r)/255.f,
-            bt = (csiz>2?color.atXY(xt,yt,2):g)/255.f;
-          std::fprintf(nfile,"3 %u %u %u %f %f %f\n",
+          const double
+            rt = (double)color.atXY(xt,yt,0)/255.,
+            gt = (csiz>1?(double)color.atXY(xt,yt,1):r)/255.,
+            bt = (csiz>2?(double)color.atXY(xt,yt,2):g)/255.;
+          std::fprintf(nfile,"3 %u %u %u %lf %lf %lf\n",
                        (unsigned int)primitives(l,0),(unsigned int)primitives(l,2),
                        (unsigned int)primitives(l,1),rt,gt,bt);
         } break;
         case 12 : {
           const unsigned int xt = (unsigned int)primitives(l,4), yt = (unsigned int)primitives(l,5);
-          const float
-            rt = color.atXY(xt,yt,0)/255.f,
-            gt = (csiz>1?color.atXY(xt,yt,1):r)/255.f,
-            bt = (csiz>2?color.atXY(xt,yt,2):g)/255.f;
-          std::fprintf(nfile,"4 %u %u %u %u %f %f %f\n",
+          const double
+            rt = (double)color.atXY(xt,yt,0)/255.,
+            gt = (csiz>1?(double)color.atXY(xt,yt,1):r)/255.,
+            bt = (csiz>2?(double)color.atXY(xt,yt,2):g)/255.;
+          std::fprintf(nfile,"4 %u %u %u %u %lf %lf %lf\n",
                        (unsigned int)primitives(l,0),(unsigned int)primitives(l,3),
                        (unsigned int)primitives(l,2),(unsigned int)primitives(l,1),rt,gt,bt);
         } break;
@@ -68903,18 +68906,20 @@ namespace cimg_library {
       if (!try_fallback) throw CImgIOException("cimg::load_network(): Failed to load file '%s' with libcurl.",url);
 #endif
 
-      CImg<char> command((unsigned int)std::strlen(url) + 1024), s_referer, s_timeout;
+      CImg<char> command((unsigned int)std::strlen(url) + 1024), s_referer, s_timeout,
+        s_url = CImg<char>::string(url)._system_strescape(),
+        s_user_agent = CImg<char>::string(_user_agent)._system_strescape();
       cimg::unused(try_fallback);
 
       // Try with 'curl' first.
       if (timeout) cimg_snprintf(s_timeout.assign(64),64,"-m %u ",timeout);
       else s_timeout.assign(1,1,1,1,0);
-      if (referer) cimg_snprintf(s_referer.assign(1024),1024,"-e %s ",referer);
+      if (referer)
+        cimg_snprintf(s_referer.assign(1024),1024,"-e %s ",CImg<char>::string(referer)._system_strescape()._data);
       else s_referer.assign(1,1,1,1,0);
       cimg_snprintf(command,command._width,
                     "\"%s\" -L --max-redirs 20 %s%s-A \"%s\" -f --silent --compressed -o \"%s\" \"%s\"",
-                    cimg::curl_path(),s_timeout._data,s_referer._data,_user_agent,filename_local,
-                    CImg<char>::string(url)._system_strescape().data());
+                    cimg::curl_path(),s_timeout._data,s_referer._data,s_user_agent._data,filename_local,s_url._data);
       cimg::system(command,cimg::curl_path());
 
 #if cimg_OS==2
@@ -68926,8 +68931,8 @@ namespace cimg_library {
         cimg_snprintf(command,command._width,
                       "\"%s\" -NonInteractive -Command Invoke-WebRequest %s%s-UserAgent \"%s\" -OutFile \"%s\" "
                       "-Uri \"%s\"",
-                      cimg::powershell_path(),s_timeout._data,s_referer._data,_user_agent,filename_local,
-                      CImg<char>::string(url)._system_strescape().data());
+                      cimg::powershell_path(),s_timeout._data,s_referer._data,s_user_agent._data,filename_local,
+                      s_url._data);
         cimg::system(command,cimg::powershell_path());
       }
 #endif
@@ -68939,8 +68944,7 @@ namespace cimg_library {
         else s_referer.assign(1,1,1,1,0);
         cimg_snprintf(command,command._width,
                       "\"%s\" --max-redirect=20 %s%s--user-agent=\"%s\" -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
-                      cimg::wget_path(),s_timeout._data,s_referer._data,_user_agent,filename_local,
-                      CImg<char>::string(url)._system_strescape().data());
+                      cimg::wget_path(),s_timeout._data,s_referer._data,s_user_agent._data,filename_local,s_url._data);
         cimg::system(command,cimg::wget_path());
 
         if (cimg::fsize(filename_local)<=0)

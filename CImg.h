@@ -68915,7 +68915,7 @@ namespace cimg_library {
       if (timeout) cimg_snprintf(s_timeout.assign(64),64,"-m %u ",timeout);
       else s_timeout.assign(1,1,1,1,0);
       if (referer)
-        cimg_snprintf(s_referer.assign(1024),1024,"-e %s ",CImg<char>::string(referer)._system_strescape()._data);
+        cimg_snprintf(s_referer.assign(1024),1024,"-e \"%s\" ",CImg<char>::string(referer)._system_strescape()._data);
       else s_referer.assign(1,1,1,1,0);
       cimg_snprintf(command,command._width,
                     "\"%s\" -L --max-redirs 20 %s%s-A \"%s\" -f --silent --compressed -o \"%s\" \"%s\"",

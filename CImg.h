@@ -44390,7 +44390,7 @@ namespace cimg_library {
                                   const float smoothness=0.1f, const float precision=7.f,
                                   const unsigned int nb_scales=0, const unsigned int iteration_max=1000,
                                   const bool is_forward=false,
-                                  const CImg<floatT>& guide=CImg<floatT>::const_empty()) const {
+                                  const CImg<Tfloat>& guide=CImg<Tfloat>::const_empty()) const {
       if (is_empty() || !reference) return +*this;
       if (!is_sameXYZC(reference))
         throw CImgArgumentException(_cimg_instance
@@ -44460,7 +44460,7 @@ namespace cimg_library {
         V.assign(sw,sh,sd,U._spectrum); // Allocate V.
         const CImgList<Tfloat> grad = (is_forward?I:R).get_gradient(is_3d?"xyz":"xy",0);
 
-        double prev_energy = cimg::type<float>::max(), dt = 0.5;
+        double prev_energy = cimg::type<double>::max(), dt = 0.5;
 
         const unsigned int nb_iterations = iteration_max==~0U?~0U:(iteration_max*fact);
         cimg_abort_init;
@@ -44614,7 +44614,7 @@ namespace cimg_library {
           // Update displacement field.
           Tfloat Vmin,Vmax = V.max_min(Vmin);
           const double dt_iteration = dt/cimg::max((Tfloat)1e-8,cimg::abs(Vmin),cimg::abs(Vmax));
-          cimg_openmp_for(U,*ptr + dt_iteration*V[ptr - U._data],32768,float);
+          cimg_openmp_for(U,*ptr + dt_iteration*V[ptr - U._data],32768,Tfloat);
 
           // Force guided constraints even a bit more to speed up convergence.
           if (C) U.draw_image(0,0,0,0,Cv,Cm,1,1);

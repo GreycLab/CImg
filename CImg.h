@@ -68931,7 +68931,8 @@ namespace cimg_library {
         cimg_snprintf(command,command._width,
                       "\"%s\" -NonInteractive -Command Invoke-WebRequest %s%s-UserAgent \"%s\" -OutFile \"%s\" "
                       "-Uri \"%s\"",
-                      cimg::powershell_path(),s_timeout._data,s_referer._data,s_user_agent._data,filename_local,s_url._data);
+                      cimg::powershell_path(),s_timeout._data,s_referer._data,s_user_agent._data,filename_local,
+                      s_url._data);
         cimg::system(command,cimg::powershell_path());
       }
 #endif

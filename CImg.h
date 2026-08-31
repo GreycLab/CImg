@@ -16268,7 +16268,18 @@ namespace cimg_library {
           variable_name.assign();
         }
         if (is_sth && nb) val = -val;
-        else if (!nb) nb = cimg_sscanf(ss,"%lf%c%c",&val,&(sep=0),&(end=0));
+        else if (!nb) { // Equivalent (but faster) to 'nb = cimg_sscanf(ss,"%lf%c%c",&val,&(sep=0),&(end=0))'
+          char *nptr = 0;
+          sep = 0; end = 0;
+          val = std::strtod(ss,&nptr);
+          if (nptr==ss) nb = 0; // No valid number found
+          else if (!*nptr) nb = 1; // Number alone, nothing following
+          else {
+            sep = *nptr;
+            if (!*(nptr + 1)) nb = 2; // One character following the number
+            else { end = *(nptr + 1); nb = 3; } // Two characters following the number
+          }
+        }
         if (nb==1) _cimg_mp_const_scalar(val);
         if (nb==2 && sep=='%') _cimg_mp_const_scalar(val/100);
 
@@ -30943,6 +30954,8 @@ namespace cimg_library {
 
       bool is_not = false; // Detect preceding '!' operator
       if (*ptr=='!') { is_not = true; ++ptr; while (*ptr && cimg::is_blank(*ptr)) ++ptr; }
+
+      // Special case for the reserved letters 'w','h','d','s','r'.
       if (*ptr=='w' || *ptr=='h' || *ptr=='d' || *ptr=='s' || *ptr=='r') {
         switch (*ptr) {
         case 'w': value = (double)_width; break;
@@ -30955,6 +30968,8 @@ namespace cimg_library {
         if (is_not) value = (double)!value;
         return true;
       }
+
+      // General case: read a double value with strtod (no allocation, no exception).
       char *end = 0;
       value = std::strtod(ptr,&end);
       if (end==ptr) return false;

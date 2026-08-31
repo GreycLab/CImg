@@ -30939,27 +30939,28 @@ namespace cimg_library {
 
     // Return 'true' is a single 'value' or '!value' has been successfully read ('value' being a double or { w,h,d,s }).
     bool __eval_get(const char* &ptr, double &value) const {
-      int n = 0;
       while (*ptr && cimg::is_blank(*ptr)) ++ptr;
 
       bool is_not = false; // Detect preceding '!' operator
       if (*ptr=='!') { is_not = true; ++ptr; while (*ptr && cimg::is_blank(*ptr)) ++ptr; }
-
-      if ((*ptr=='w' || *ptr=='h' || *ptr=='d' || *ptr=='s' || *ptr=='r') || cimg_sscanf(ptr,"%lf %n",&value,&n)==1) {
-        if (!n) {
-          switch (*ptr) {
-          case 'w': value = (double)_width; break;
-          case 'h': value = (double)_height; break;
-          case 'd': value = (double)_depth; break;
-          case 's': value = (double)_spectrum; break;
-          case 'r': value = (double)_is_shared; break;
-          }
-          ++ptr; while (*ptr && cimg::is_blank(*ptr)) ++ptr;
-        } else ptr+=n;
+      if (*ptr=='w' || *ptr=='h' || *ptr=='d' || *ptr=='s' || *ptr=='r') {
+        switch (*ptr) {
+        case 'w': value = (double)_width; break;
+        case 'h': value = (double)_height; break;
+        case 'd': value = (double)_depth; break;
+        case 's': value = (double)_spectrum; break;
+        case 'r': value = (double)_is_shared; break;
+        }
+        ++ptr; while (*ptr && cimg::is_blank(*ptr)) ++ptr;
         if (is_not) value = (double)!value;
         return true;
       }
-      return false;
+      char *end = 0;
+      value = std::strtod(ptr,&end);
+      if (end==ptr) return false;
+      ptr = end; while (*ptr && cimg::is_blank(*ptr)) ++ptr;
+      if (is_not) value = (double)!value;
+      return true;
     }
 
     double _eval(CImg<T> *const img_output, const char *const expression,

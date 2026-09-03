@@ -365,7 +365,7 @@ clean:
 custom:
 	@$(MAKE) --no-print-directory $(MAKEFLAGS) \
 "CONF_CFLAGS = $(CXX11_CFLAGS) $(VT100_CFLAGS) $(TIFF_CFLAGS) $(HEIF_CFLAGS) $(X11_CFLAGS) $(XSHM_CFLAGS)" \
-"CONF_LIBS = $(X11_LIBS) $(TIFF_LIBS) $(HEIF_LIBS) $(XSHM_LIBS)" \
+"CONF_LIBS = $(X11_LIBS) $(TIFF_LIBS) $(HEIF_LIBS) $(XSHM_LIBS) -ltiffxx -ljpeg" \
 all $(EXTRA_FILES)
 
 # Linux/BSD/Mac OSX targets, with X11 display.

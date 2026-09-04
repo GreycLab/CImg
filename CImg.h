@@ -70360,7 +70360,7 @@ namespace cimg_library {
         cimg::mutex(0);
         const size_t s0 = std::strlen(chunk0), s1 = std::strlen(chunk1);
         if (!value) {
-          value.assign(s0 + s1 + 1);
+          value.assign((unsigned int)(s0 + s1 + 1));
           std::memcpy(value._data,chunk0,s0);
           std::memcpy(value._data + s0,chunk1,s1 + 1);
         }
@@ -71362,7 +71362,7 @@ namespace cimg_library {
         cimg::mutex(0);
         const size_t s0 = std::strlen(chunk0), s1 = std::strlen(chunk1);
         if (!value) {
-          value.assign(s0 + s1 + 1);
+          value.assign((unsigned int)(s0 + s1 + 1));
           std::memcpy(value._data,chunk0,s0);
           std::memcpy(value._data + s0,chunk1,s1 + 1);
         }

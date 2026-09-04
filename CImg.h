@@ -57053,34 +57053,34 @@ namespace cimg_library {
       const size_t pdim = (size_t)dimx*dimy*dimz*dimv;
       switch (datatype) {
       case 2 : {
-        CImg<ucharT> _buffer(pdim);
+        CImg<ucharT> _buffer((unsigned int)pdim);
         unsigned char *const buffer = _buffer._data;
         cimg::fread(buffer,pdim,nfile);
         cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
       } break;
       case 4 : {
-        CImg<shortT> _buffer(pdim);
+        CImg<shortT> _buffer((unsigned int)pdim);
         short *const buffer = _buffer._data;
         cimg::fread(buffer,pdim,nfile);
         if (endian) cimg::invert_endianness(buffer,pdim);
         cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
       } break;
       case 8 : {
-        CImg<intT> _buffer(pdim);
+        CImg<intT> _buffer((unsigned int)pdim);
         int *const buffer = _buffer._data;
         cimg::fread(buffer,pdim,nfile);
         if (endian) cimg::invert_endianness(buffer,pdim);
         cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
       } break;
       case 16 : {
-        CImg<floatT> _buffer(pdim);
+        CImg<floatT> _buffer((unsigned int)pdim);
         float *const buffer = _buffer._data;
         cimg::fread(buffer,pdim,nfile);
         if (endian) cimg::invert_endianness(buffer,pdim);
         cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
       } break;
       case 64 : {
-        CImg<doubleT> _buffer(pdim);
+        CImg<doubleT> _buffer((unsigned int)pdim);
         double *const buffer = _buffer._data;
         cimg::fread(buffer,pdim,nfile);
         if (endian) cimg::invert_endianness(buffer,pdim);

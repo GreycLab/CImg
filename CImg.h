@@ -667,7 +667,7 @@ extern "C" {
 #include "tinyexr.h"
 #endif
 
-// Define cimg_float16.
+// Define 'cimg_float16'.
 #if defined(_HALF_H_) || defined(cimg_use_openexr)
 #define cimg_float16 half
 #define cimg_is_float16 1
@@ -675,11 +675,17 @@ extern "C" {
 #define cimg_is_float16 0
 #endif
 
-// Define cimg_use_pthread
+// Define 'cimg_use_pthread'.
+#if defined(cimg_use_pthread)
+#if cimg_use_pthread==1 && !defined(PTHREAD_H) && !defined(_PTHREAD_H)
+#include <pthread.h>
+#endif
+#else
 #if defined(PTHREAD_H) || defined(_PTHREAD_H)
 #define cimg_use_pthread 1
 #else
 #define cimg_use_pthread 0
+#endif
 #endif
 
 // Check if min/max/PI macros are defined.

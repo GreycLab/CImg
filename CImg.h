@@ -38740,6 +38740,7 @@ namespace cimg_library {
 
       } else if (p_warp._spectrum==2) { // 2D warping
         if (mode>=3) { // Forward-relative warp
+          CImg<uintT> accu(res._width,res._height,res._depth,1,0);
           res.fill((T)0);
           if (interpolation>=1) // Linear interpolation
             cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
@@ -38749,13 +38750,24 @@ namespace cimg_library {
             }
           else // Nearest-neighbor interpolation
             cimg_forYZC(res,y,z,c) {
-              const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); const T *ptrs = data(0,y,z,c);
+              const t *const ptrs0 = p_warp.data(0,y,z,0), *const ptrs1 = p_warp.data(0,y,z,1);
+              const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
-                const int X = x + (int)cimg::round(*(ptrs0++)), Y = y + (int)cimg::round(*(ptrs1++));
-                if (X>=0 && X<width() && Y>=0 && Y<height()) res(X,Y,z,c) = *(ptrs++);
+                const int X = x + (int)cimg::round(ptrs0[x]), Y = y + (int)cimg::round(ptrs1[x]);
+                if (X>=0 && X<width() && Y>=0 && Y<height()) { res(X,Y,z,c)+=ptrs[x]; ++accu(X,Y,z,c); }
               }
             }
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
+          cimg_forYZC(res,y,z,c) { // Normalize by accumulation
+            T *const ptrd = res.data(0,y,z,c);
+            const unsigned int *const ptra = accu.data(0,y,z);
+            cimg_forX(res,x) {
+              const unsigned int sum = ptra[x];
+              if (sum) ptrd[x]/=sum;
+            }
+          }
         } else if (mode==2) { // Forward-absolute warp
+          CImg<uintT> accu(res._width,res._height,res._depth,1,0);
           res.fill((T)0);
           if (interpolation>=1) // Linear interpolation
             cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
@@ -38765,12 +38777,22 @@ namespace cimg_library {
             }
           else // Nearest-neighbor interpolation
             cimg_forYZC(res,y,z,c) {
-              const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); const T *ptrs = data(0,y,z,c);
+              const t *const ptrs0 = p_warp.data(0,y,z,0), *const ptrs1 = p_warp.data(0,y,z,1);
+              const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
-                const int X = (int)cimg::round(*(ptrs0++)), Y = (int)cimg::round(*(ptrs1++));
-                if (X>=0 && X<width() && Y>=0 && Y<height()) res(X,Y,z,c) = *(ptrs++);
+                const int X = (int)cimg::round(ptrs0[x]), Y = (int)cimg::round(ptrs1[x]);
+                if (X>=0 && X<width() && Y>=0 && Y<height()) { res(X,Y,z,c)+=ptrs[x]; ++accu(X,Y,z,c); }
               }
             }
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
+          cimg_forYZC(res,y,z,c) { // Normalize by accumulation
+            T *const ptrd = res.data(0,y,z,c);
+            const unsigned int *const ptra = accu.data(0,y,z);
+            cimg_forX(res,x) {
+              const unsigned int sum = ptra[x];
+              if (sum) ptrd[x]/=sum;
+            }
+          }
         } else if (mode==1) { // Backward-relative warp
           if (interpolation==2) // Cubic interpolation
             switch (boundary_conditions) {

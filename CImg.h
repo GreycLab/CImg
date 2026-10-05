@@ -14958,25 +14958,6 @@ namespace cimg_library {
       return *this;
     }
 
-    CImg<T>& _add_linear_atX(const T& value, const float fx, const int y=0, const int z=0, const int c=0,
-                             const bool is_added=false) {
-      const int
-        x = (int)fx - (fx>=0?0:1), nx = x + 1;
-      const float
-        dx = fx - x;
-      if (y>=0 && y<height() && z>=0 && z<depth() && c>=0 && c<spectrum()) {
-        if (x>=0 && x<width()) {
-          const float w1 = 1 - dx, w2 = is_added?1:(1 - w1);
-          (*this)(x,y,z,c)+=(T)(w1*value + w2*(*this)(x,y,z,c));
-        }
-        if (nx>=0 && nx<width()) {
-          const float w1 = dx, w2 = is_added?1:(1 - w1);
-          (*this)(nx,y,z,c)+=(T)(w1*value + w2*(*this)(nx,y,z,c));
-        }
-      }
-      return *this;
-    }
-
     //! Set pixel value, using linear interpolation for the X and Y-coordinates.
     /**
        Similar to set_linear_atX(const T&,float,int,int,int,bool), except that the linear interpolation
@@ -15009,39 +14990,6 @@ namespace cimg_library {
           if (nx>=0 && nx<width()) {
             const float w1 = dx*dy, w2 = is_added?1:(1 - w1);
             (*this)(nx,ny,z,c) = (T)(w1*value + w2*(*this)(nx,ny,z,c));
-          }
-        }
-      }
-      return *this;
-    }
-
-    CImg<T>& _add_linear_atXY(const T& value, const float fx, const float fy=0, const int z=0, const int c=0,
-                              const bool is_added=false) {
-      const int
-        x = (int)fx - (fx>=0?0:1), nx = x + 1,
-        y = (int)fy - (fy>=0?0:1), ny = y + 1;
-      const float
-        dx = fx - x,
-        dy = fy - y;
-      if (z>=0 && z<depth() && c>=0 && c<spectrum()) {
-        if (y>=0 && y<height()) {
-          if (x>=0 && x<width()) {
-            const float w1 = (1 - dx)*(1 - dy), w2 = is_added?1:(1 - w1);
-            (*this)(x,y,z,c)+=(T)(w1*value + w2*(*this)(x,y,z,c));
-          }
-          if (nx>=0 && nx<width()) {
-            const float w1 = dx*(1 - dy), w2 = is_added?1:(1 - w1);
-            (*this)(nx,y,z,c)+=(T)(w1*value + w2*(*this)(nx,y,z,c));
-          }
-        }
-        if (ny>=0 && ny<height()) {
-          if (x>=0 && x<width()) {
-            const float w1 = (1 - dx)*dy, w2 = is_added?1:(1 - w1);
-            (*this)(x,ny,z,c)+=(T)(w1*value + w2*(*this)(x,ny,z,c));
-          }
-          if (nx>=0 && nx<width()) {
-            const float w1 = dx*dy, w2 = is_added?1:(1 - w1);
-            (*this)(nx,ny,z,c)+=(T)(w1*value + w2*(*this)(nx,ny,z,c));
           }
         }
       }
@@ -15105,65 +15053,6 @@ namespace cimg_library {
             if (nx>=0 && nx<width()) {
               const float w1 = dx*dy*dz, w2 = is_added?1:(1 - w1);
               (*this)(nx,ny,nz,c) = (T)(w1*value + w2*(*this)(nx,ny,nz,c));
-            }
-          }
-        }
-      }
-      return *this;
-    }
-
-    CImg<T>& _add_linear_atXYZ(const T& value, const float fx, const float fy=0, const float fz=0, const int c=0,
-                               const bool is_added=false) {
-      const int
-        x = (int)fx - (fx>=0?0:1), nx = x + 1,
-        y = (int)fy - (fy>=0?0:1), ny = y + 1,
-        z = (int)fz - (fz>=0?0:1), nz = z + 1;
-      const float
-        dx = fx - x,
-        dy = fy - y,
-        dz = fz - z;
-      if (c>=0 && c<spectrum()) {
-        if (z>=0 && z<depth()) {
-          if (y>=0 && y<height()) {
-            if (x>=0 && x<width()) {
-              const float w1 = (1 - dx)*(1 - dy)*(1 - dz), w2 = is_added?1:(1 - w1);
-              (*this)(x,y,z,c)+=(T)(w1*value + w2*(*this)(x,y,z,c));
-            }
-            if (nx>=0 && nx<width()) {
-              const float w1 = dx*(1 - dy)*(1 - dz), w2 = is_added?1:(1 - w1);
-              (*this)(nx,y,z,c)+=(T)(w1*value + w2*(*this)(nx,y,z,c));
-            }
-          }
-          if (ny>=0 && ny<height()) {
-            if (x>=0 && x<width()) {
-              const float w1 = (1 - dx)*dy*(1 - dz), w2 = is_added?1:(1 - w1);
-              (*this)(x,ny,z,c)+=(T)(w1*value + w2*(*this)(x,ny,z,c));
-            }
-            if (nx>=0 && nx<width()) {
-              const float w1 = dx*dy*(1 - dz), w2 = is_added?1:(1 - w1);
-              (*this)(nx,ny,z,c)+=(T)(w1*value + w2*(*this)(nx,ny,z,c));
-            }
-          }
-        }
-        if (nz>=0 && nz<depth()) {
-          if (y>=0 && y<height()) {
-            if (x>=0 && x<width()) {
-              const float w1 = (1 - dx)*(1 - dy)*dz, w2 = is_added?1:(1 - w1);
-              (*this)(x,y,nz,c)+=(T)(w1*value + w2*(*this)(x,y,nz,c));
-            }
-            if (nx>=0 && nx<width()) {
-              const float w1 = dx*(1 - dy)*dz, w2 = is_added?1:(1 - w1);
-              (*this)(nx,y,nz,c)+=(T)(w1*value + w2*(*this)(nx,y,nz,c));
-            }
-          }
-          if (ny>=0 && ny<height()) {
-            if (x>=0 && x<width()) {
-              const float w1 = (1 - dx)*dy*dz, w2 = is_added?1:(1 - w1);
-              (*this)(x,ny,nz,c)+=(T)(w1*value + w2*(*this)(x,ny,nz,c));
-            }
-            if (nx>=0 && nx<width()) {
-              const float w1 = dx*dy*dz, w2 = is_added?1:(1 - w1);
-              (*this)(nx,ny,nz,c)+=(T)(w1*value + w2*(*this)(nx,ny,nz,c));
             }
           }
         }
@@ -38624,8 +38513,8 @@ namespace cimg_library {
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
                 const float X = x + (float)ptr0[x];
-                res._add_linear_atX(ptrs[x],X,y,z,c);
-                accu._add_linear_atX(1,X,y,z,c);
+                res.set_linear_atX(ptrs[x],X,y,z,c,true);
+                if (!c) accu.set_linear_atX(1,X,y,z,0,true);
               }
             }
           else // Nearest-neighbor interpolation
@@ -38634,7 +38523,7 @@ namespace cimg_library {
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
                 const int X = x + (int)cimg::round(ptr0[x]);
-                if (X>=0 && X<width()) { res(X,y,z,c) = ptrs[x]; ++accu(X,y,z); }
+                if (X>=0 && X<width()) { res(X,y,z,c)+=ptrs[x]; if (!c) ++accu(X,y,z); }
               }
             }
         } else if (mode==2) { // Forward-absolute warp
@@ -38646,8 +38535,8 @@ namespace cimg_library {
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
                 const float X = (float)ptr0[x];
-                res._add_linear_atX(ptrs[x],X,y,z,c);
-                accu._add_linear_atX(1,X,y,z,c);
+                res.set_linear_atX(ptrs[x],X,y,z,c,true);
+                if (!c) accu.set_linear_atX(1,X,y,z,0,true);
               }
             }
           else // Nearest-neighbor interpolation
@@ -38656,7 +38545,7 @@ namespace cimg_library {
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
                 const int X = (int)cimg::round(ptr0[x]);
-                if (X>=0 && X<width()) { res(X,y,z,c) = ptrs[x]; ++accu(X,y,z); }
+                if (X>=0 && X<width()) { res(X,y,z,c)+=ptrs[x]; if (!c) ++accu(X,y,z); }
               }
             }
         } else if (mode==1) { // Backward-relative warp
@@ -38896,8 +38785,8 @@ namespace cimg_library {
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
                 const float X = x + (float)ptr0[x], Y = y + (float)ptr1[x];
-                res._add_linear_atXY(ptrs[x],X,Y,z,c);
-                accu._add_linear_atXY(1,X,Y,z,c);
+                res.set_linear_atXY(ptrs[x],X,Y,z,c,true);
+                if (!c) accu.set_linear_atXY(1,X,Y,z,0,true);
               }
             }
           else // Nearest-neighbor interpolation
@@ -38906,7 +38795,7 @@ namespace cimg_library {
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
                 const int X = x + (int)cimg::round(ptr0[x]), Y = y + (int)cimg::round(ptr1[x]);
-                if (X>=0 && X<width() && Y>=0 && Y<height()) { res(X,Y,z,c)+=ptrs[x]; ++accu(X,Y,z); }
+                if (X>=0 && X<width() && Y>=0 && Y<height()) { res(X,Y,z,c)+=ptrs[x]; if (!c) ++accu(X,Y,z); }
               }
             }
         } else if (mode==2) { // Forward-absolute warp
@@ -38918,8 +38807,8 @@ namespace cimg_library {
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
                 const float X = (float)ptr0[x], Y = (float)ptr1[x];
-                res._add_linear_atXY(ptrs[x],X,Y,z,c);
-                accu._add_linear_atXY(1,X,Y,z,c);
+                res.set_linear_atXY(ptrs[x],X,Y,z,c,true);
+                if (!c) accu.set_linear_atXY(1,X,Y,z,0,true);
               }
             }
           else // Nearest-neighbor interpolation
@@ -38928,7 +38817,7 @@ namespace cimg_library {
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
                 const int X = (int)cimg::round(ptr0[x]), Y = (int)cimg::round(ptr1[x]);
-                if (X>=0 && X<width() && Y>=0 && Y<height()) { res(X,Y,z,c)+=ptrs[x]; ++accu(X,Y,z); }
+                if (X>=0 && X<width() && Y>=0 && Y<height()) { res(X,Y,z,c)+=ptrs[x]; if (!c) ++accu(X,Y,z); }
               }
             }
         } else if (mode==1) { // Backward-relative warp
@@ -39184,8 +39073,8 @@ namespace cimg_library {
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
                 const float X = x + (float)ptr0[x], Y = y + (float)ptr1[x], Z = z + (float)ptr2[x];
-                res._add_linear_atXYZ(ptrs[x],X,Y,Z,c);
-                accu._add_linear_atXYZ(1,X,Y,Z,c);
+                res.set_linear_atXYZ(ptrs[x],X,Y,Z,c,true);
+                if (!c) accu.set_linear_atXYZ(1,X,Y,Z,0,true);
               }
             }
           else // Nearest-neighbor interpolation
@@ -39201,7 +39090,7 @@ namespace cimg_library {
                   Y = y + (int)cimg::round(ptr1[x]),
                   Z = z + (int)cimg::round(ptr2[x]);
                 if (X>=0 && X<width() && Y>=0 && Y<height() && Z>=0 && Z<depth()) {
-                  res(X,Y,Z,c) = ptrs[x]; ++accu(X,Y,Z);
+                  res(X,Y,Z,c)+=ptrs[x]; if (!c) ++accu(X,Y,Z);
                 }
               }
             }
@@ -39216,7 +39105,8 @@ namespace cimg_library {
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
                 const float X = (float)ptr0[x], Y = (float)ptr1[x], Z = (float)ptr2[x];
-                res._add_linear_atXYZ(ptrs[x],X,Y,Z,c);
+                res.set_linear_atXYZ(ptrs[x],X,Y,Z,c,true);
+                if (!c) accu.set_linear_atXYZ(1,X,Y,Z,0,true);
               }
             }
           else // Nearest-neighbor interpolation
@@ -39232,7 +39122,7 @@ namespace cimg_library {
                   Y = (int)cimg::round(ptr1[x]),
                   Z = (int)cimg::round(ptr2[x]);
                 if (X>=0 && X<width() && Y>=0 && Y<height() && Z>=0 && Z<depth()) {
-                  res(X,Y,Z,c) = ptrs[x]; ++accu(X,Y,Z);
+                  res(X,Y,Z,c)+=ptrs[x]; if (!c) ++accu(X,Y,Z);
                 }
               }
             }
@@ -39583,13 +39473,11 @@ namespace cimg_library {
       // Normalize result by accumulated values if mode is 'forward'.
       if (accu) {
         cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
-        cimg_forYZC(res,y,z,c) {
-          T *const ptrd = res.data(0,y,z,c);
-          const unsigned int *const ptra = accu.data(0,y,z);
-          cimg_forX(res,x) {
-            const unsigned int sum = ptra[x];
-            if (sum) ptrd[x]/=sum;
-          }
+        cimg_forXYZ(res,x,y,z) {
+          T *ptrd = res.data(x,y,z);
+          const ulongT whd = (ulongT)res._width*res._height*res._depth;
+          const unsigned int sum = accu(x,y,z);
+          if (sum) cimg_forC(res,c) { *ptrd/=sum; ptrd+=whd; }
         }
       }
       return res;

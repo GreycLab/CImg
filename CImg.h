@@ -38641,6 +38641,7 @@ namespace cimg_library {
               }
             } break;
             case 2 : // Periodic
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z);
                 const T *const ptrs = data(0,y,z,c);
@@ -38649,6 +38650,7 @@ namespace cimg_library {
               }
               break;
             case 1 : // Neumann
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
@@ -38656,6 +38658,7 @@ namespace cimg_library {
               }
               break;
             default : // Dirichlet
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
@@ -38756,6 +38759,7 @@ namespace cimg_library {
               }
             } break;
             case 2 : // Periodic
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z);
                 const T *const ptrs = data(0,0,0,c);
@@ -38764,6 +38768,7 @@ namespace cimg_library {
               }
               break;
             case 1 : // Neumann
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
@@ -38771,6 +38776,7 @@ namespace cimg_library {
               }
               break;
             default : // Dirichlet
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
@@ -38924,6 +38930,7 @@ namespace cimg_library {
               }
             } break;
             case 2 : // Periodic
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
                 const T *const ptrs = data(0,0,z,c);
@@ -38934,6 +38941,7 @@ namespace cimg_library {
               }
               break;
             case 1 : // Neumann
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
                 T *const ptrd = res.data(0,y,z,c);
@@ -38941,6 +38949,7 @@ namespace cimg_library {
               }
               break;
             default : // Dirichlet
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
                 T *const ptrd = res.data(0,y,z,c);
@@ -39047,6 +39056,7 @@ namespace cimg_library {
               }
             } break;
             case 2 : // Periodic
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
                 const T *const ptrs = data(0,0,0,c);
@@ -39057,6 +39067,7 @@ namespace cimg_library {
               }
               break;
             case 1 : // Neumann
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
                 T *const ptrd = res.data(0,y,z,c);
@@ -39064,6 +39075,7 @@ namespace cimg_library {
               }
               break;
             default : // Dirichlet
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
                 T *const ptrd = res.data(0,y,z,c);
@@ -39281,6 +39293,7 @@ namespace cimg_library {
               }
             } break;
             case 2 : // Periodic
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t
                   *const ptr0 = p_warp.data(0,y,z,0),
@@ -39295,6 +39308,7 @@ namespace cimg_library {
               }
               break;
             case 1 : // Neumann
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t
                   *const ptr0 = p_warp.data(0,y,z,0),
@@ -39307,6 +39321,7 @@ namespace cimg_library {
               }
               break;
             default : // Dirichlet
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t
                   *const ptr0 = p_warp.data(0,y,z,0),
@@ -39454,6 +39469,7 @@ namespace cimg_library {
               }
             } break;
             case 2 : // Periodic
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t
                   *const ptr0 = p_warp.data(0,y,z,0),
@@ -39468,6 +39484,7 @@ namespace cimg_library {
               }
               break;
             case 1 : // Neumann
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t
                   *const ptr0 = p_warp.data(0,y,z,0),
@@ -39480,6 +39497,7 @@ namespace cimg_library {
               }
               break;
             default : // Dirichlet
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t
                   *const ptr0 = p_warp.data(0,y,z,0),

@@ -38632,18 +38632,20 @@ namespace cimg_library {
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z);
+                const T *const ptrs = data(0,y,z,c);
                 T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const int mx = cimg::mod(x - (int)cimg::round(ptr0[x]),w2);
-                  ptrd[x] = (*this)(mx<width()?mx:w2 - mx - 1,y,z,c);
+                  ptrd[x] = ptrs[mx<width()?mx:w2 - mx - 1];
                 }
               }
             } break;
             case 2 : // Periodic
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z);
+                const T *const ptrs = data(0,y,z,c);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = (*this)(cimg::mod(x - (int)cimg::round(ptr0[x]),width()),y,z,c);
+                cimg_forX(res,x) ptrd[x] = ptrs[cimg::mod(x - (int)cimg::round(ptr0[x]),width())];
               }
               break;
             case 1 : // Neumann
@@ -38745,18 +38747,20 @@ namespace cimg_library {
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z);
+                const T *const ptrs = data(0,0,0,c);
                 T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const int mx = cimg::mod((int)cimg::round(ptr0[x]),w2);
-                  ptrd[x] = (*this)(mx<width()?mx:w2 - mx - 1,0,0,c);
+                  ptrd[x] = ptrs[mx<width()?mx:w2 - mx - 1];
                 }
               }
             } break;
             case 2 : // Periodic
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z);
+                const T *const ptrs = data(0,0,0,c);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = (*this)(cimg::mod((int)cimg::round(ptr0[x]),width()),0,0,c);
+                cimg_forX(res,x) ptrd[x] = ptrs[cimg::mod((int)cimg::round(ptr0[x]),width())];
               }
               break;
             case 1 : // Neumann

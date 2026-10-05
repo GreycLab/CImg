@@ -4129,8 +4129,8 @@ namespace cimg_library {
             m4 = m0<<32, m5 = m0<<40, m6 = m0<<48, m7 = m0<<56;
           for (cimg_uint64 *ptr = (cimg_uint64*)buffer + size; ptr>(cimg_uint64*)buffer; ) {
             const cimg_uint64 val = *(--ptr);
-            *ptr =  (((val&m7)>>56) | ((val&m6)>>40) | ((val&m5)>>24) | ((val&m4)>>8) |
-                     ((val&m3)<<8) |((val&m2)<<24) | ((val&m1)<<40) | ((val&m0)<<56));
+            *ptr = (((val&m7)>>56) | ((val&m6)>>40) | ((val&m5)>>24) | ((val&m4)>>8) |
+                    ((val&m3)<<8) |((val&m2)<<24) | ((val&m1)<<40) | ((val&m0)<<56));
           }
         } break;
         default : {
@@ -4809,7 +4809,7 @@ namespace cimg_library {
         case 1 : return (T)std::ceil((_cimg_Tfloat)x);
         default : return (T)std::floor((_cimg_Tfloat)x);
         }
-      const double sx = (double)x/y, floor = std::floor(sx), delta =  sx - floor;
+      const double sx = (double)x/y, floor = std::floor(sx), delta = sx - floor;
       return (T)(y*(rounding_type<0?floor:rounding_type>0?std::ceil(sx):delta<0.5?floor:std::ceil(sx)));
     }
 
@@ -23426,7 +23426,7 @@ namespace cimg_library {
             pos = vector(arg3);
             (l_opcode>'y').move_to(opcode);
             opcode[1] = pos;
-            opcode[2]=  arg3;
+            opcode[2] = arg3;
             opcode[3] = (opcode._height - 4)/2;
             opcode.move_to(!is_sth || is_inside_begin || is_new_variable_assignment?code:code_begin);
             return_comp = !is_sth && is_new_variable_assignment;
@@ -24834,7 +24834,7 @@ namespace cimg_library {
         double *ptrd = &_mp_arg(1) + 1;
         const double denom = r2*r2 + i2*i2;
         *(ptrd++) = r1*r2/denom;
-        *ptrd =  -r1*i2/denom;
+        *ptrd = -r1*i2/denom;
         return cimg::type<double>::nan();
       }
 
@@ -38620,20 +38620,20 @@ namespace cimg_library {
           res.fill((T)0);
           if (interpolation>=1) // Linear interpolation
             cimg_forYZC(res,y,z,c) {
-              const t *const ptrs0 = p_warp.data(0,y,z);
+              const t *const ptr0 = p_warp.data(0,y,z);
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
-                const float X = x + (float)ptrs0[x];
+                const float X = x + (float)ptr0[x];
                 res._add_linear_atX(ptrs[x],X,y,z,c);
                 accu._add_linear_atX(1,X,y,z,c);
               }
             }
           else // Nearest-neighbor interpolation
             cimg_forYZC(res,y,z,c) {
-              const t *const ptrs0 = p_warp.data(0,y,z);
+              const t *const ptr0 = p_warp.data(0,y,z);
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
-                const int X = x + (int)cimg::round(ptrs0[x]);
+                const int X = x + (int)cimg::round(ptr0[x]);
                 if (X>=0 && X<width()) { res(X,y,z,c) = ptrs[x]; ++accu(X,y,z); }
               }
             }
@@ -38642,20 +38642,20 @@ namespace cimg_library {
           res.fill((T)0);
           if (interpolation>=1) // Linear interpolation
             cimg_forYZC(res,y,z,c) {
-              const t *const ptrs0 = p_warp.data(0,y,z);
+              const t *const ptr0 = p_warp.data(0,y,z);
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
-                const float X = (float)ptrs0[x];
+                const float X = (float)ptr0[x];
                 res._add_linear_atX(ptrs[x],X,y,z,c);
                 accu._add_linear_atX(1,X,y,z,c);
               }
             }
           else // Nearest-neighbor interpolation
             cimg_forYZC(res,y,z,c) {
-              const t *const ptrs0 = p_warp.data(0,y,z);
+              const t *const ptr0 = p_warp.data(0,y,z);
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
-                const int X = (int)cimg::round(ptrs0[x]);
+                const int X = (int)cimg::round(ptr0[x]);
                 if (X>=0 && X<width()) { res(X,y,z,c) = ptrs[x]; ++accu(X,y,z); }
               }
             }
@@ -38666,10 +38666,10 @@ namespace cimg_library {
               const float w2 = 2.f*width();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
-                  const float mx = cimg::mod(x - (float)ptrs0[x],w2);
+                  const float mx = cimg::mod(x - (float)ptr0[x],w2);
                   ptrd[x] = _cubic_atX_c(mx<width()?mx:w2 - mx - 1,y,z,c);
                 }
               }
@@ -38677,25 +38677,25 @@ namespace cimg_library {
             case 2 : // Periodic
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = _cubic_atX_pc(x - (float)ptrs0[x],y,z,c);
+                cimg_forX(res,x) ptrd[x] = _cubic_atX_pc(x - (float)ptr0[x],y,z,c);
               }
               break;
             case 1 : // Neumann
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = _cubic_atX_c(x - (float)ptrs0[x],y,z,c);
+                cimg_forX(res,x) ptrd[x] = _cubic_atX_c(x - (float)ptr0[x],y,z,c);
               }
               break;
             default : // Dirichlet
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = cubic_atX_c(x - (float)ptrs0[x],y,z,c,(T)0);
+                cimg_forX(res,x) ptrd[x] = cubic_atX_c(x - (float)ptr0[x],y,z,c,(T)0);
               }
             }
           else if (interpolation==1) // Linear interpolation
@@ -38704,10 +38704,10 @@ namespace cimg_library {
               const float w2 = 2.f*width();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
-                  const float mx = cimg::mod(x - (float)ptrs0[x],w2);
+                  const float mx = cimg::mod(x - (float)ptr0[x],w2);
                   ptrd[x] = (T)_linear_atX(mx<width()?mx:w2 - mx - 1,y,z,c);
                 }
               }
@@ -38715,25 +38715,25 @@ namespace cimg_library {
             case 2 : // Periodic
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1048576))
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = (T)_linear_atX_p(x - (float)ptrs0[x],y,z,c);
+                cimg_forX(res,x) ptrd[x] = (T)_linear_atX_p(x - (float)ptr0[x],y,z,c);
               }
               break;
             case 1 : // Neumann
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1048576))
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = (T)_linear_atX(x - (float)ptrs0[x],y,z,c);
+                cimg_forX(res,x) ptrd[x] = (T)_linear_atX(x - (float)ptr0[x],y,z,c);
               }
               break;
             default : // Dirichlet
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1048576))
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = (T)linear_atX(x - (float)ptrs0[x],y,z,c,(T)0);
+                cimg_forX(res,x) ptrd[x] = (T)linear_atX(x - (float)ptr0[x],y,z,c,(T)0);
               }
             }
           else // Nearest-neighbor interpolation
@@ -38742,33 +38742,33 @@ namespace cimg_library {
               const int w2 = 2*width();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
-                  const int mx = cimg::mod(x - (int)cimg::round(ptrs0[x]),w2);
+                  const int mx = cimg::mod(x - (int)cimg::round(ptr0[x]),w2);
                   ptrd[x] = (*this)(mx<width()?mx:w2 - mx - 1,y,z,c);
                 }
               }
             } break;
             case 2 : // Periodic
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = (*this)(cimg::mod(x - (int)cimg::round(ptrs0[x]),width()),y,z,c);
+                cimg_forX(res,x) ptrd[x] = (*this)(cimg::mod(x - (int)cimg::round(ptr0[x]),width()),y,z,c);
               }
               break;
             case 1 : // Neumann
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = _atX(x - (int)cimg::round(ptrs0[x]),y,z,c);
+                cimg_forX(res,x) ptrd[x] = _atX(x - (int)cimg::round(ptr0[x]),y,z,c);
               }
               break;
             default : // Dirichlet
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = atX(x - (int)cimg::round(ptrs0[x]),y,z,c,(T)0);
+                cimg_forX(res,x) ptrd[x] = atX(x - (int)cimg::round(ptr0[x]),y,z,c,(T)0);
               }
             }
         }
@@ -38779,10 +38779,10 @@ namespace cimg_library {
               const float w2 = 2.f*width();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
-                  const float mx = cimg::mod((float)ptrs0[x],w2);
+                  const float mx = cimg::mod((float)ptr0[x],w2);
                   ptrd[x] = _cubic_atX_c(mx<width()?mx:w2 - mx - 1,0,0,c);
                 }
               }
@@ -38790,25 +38790,25 @@ namespace cimg_library {
             case 2 : // Periodic
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = _cubic_atX_pc((float)ptrs0[x],0,0,c);
+                cimg_forX(res,x) ptrd[x] = _cubic_atX_pc((float)ptr0[x],0,0,c);
               }
               break;
             case 1 : // Neumann
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = _cubic_atX_c((float)ptrs0[x],0,0,c);
+                cimg_forX(res,x) ptrd[x] = _cubic_atX_c((float)ptr0[x],0,0,c);
               }
               break;
             default : // Dirichlet
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = cubic_atX_c((float)ptrs0[x],0,0,c,(T)0);
+                cimg_forX(res,x) ptrd[x] = cubic_atX_c((float)ptr0[x],0,0,c,(T)0);
               }
             }
           else if (interpolation==1) // Linear interpolation
@@ -38817,10 +38817,10 @@ namespace cimg_library {
               const float w2 = 2.f*width();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
-                  const float mx = cimg::mod((float)ptrs0[x],w2);
+                  const float mx = cimg::mod((float)ptr0[x],w2);
                   ptrd[x] = (T)_linear_atX(mx<width()?mx:w2 - mx - 1,0,0,c);
                 }
               }
@@ -38828,25 +38828,25 @@ namespace cimg_library {
             case 2 : // Periodic
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1048576))
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = (T)_linear_atX_p((float)ptrs0[x],0,0,c);
+                cimg_forX(res,x) ptrd[x] = (T)_linear_atX_p((float)ptr0[x],0,0,c);
               }
               break;
             case 1 : // Neumann
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1048576))
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = (T)_linear_atX((float)ptrs0[x],0,0,c);
+                cimg_forX(res,x) ptrd[x] = (T)_linear_atX((float)ptr0[x],0,0,c);
               }
               break;
             default : // Dirichlet
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1048576))
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = (T)linear_atX((float)ptrs0[x],0,0,c,(T)0);
+                cimg_forX(res,x) ptrd[x] = (T)linear_atX((float)ptr0[x],0,0,c,(T)0);
               }
             }
           else // Nearest-neighbor interpolation
@@ -38855,33 +38855,33 @@ namespace cimg_library {
               const int w2 = 2*width();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
-                  const int mx = cimg::mod((int)cimg::round(ptrs0[x]),w2);
+                  const int mx = cimg::mod((int)cimg::round(ptr0[x]),w2);
                   ptrd[x] = (*this)(mx<width()?mx:w2 - mx - 1,0,0,c);
                 }
               }
             } break;
             case 2 : // Periodic
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = (*this)(cimg::mod((int)cimg::round(ptrs0[x]),width()),0,0,c);
+                cimg_forX(res,x) ptrd[x] = (*this)(cimg::mod((int)cimg::round(ptr0[x]),width()),0,0,c);
               }
               break;
             case 1 : // Neumann
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = _atX((int)cimg::round(ptrs0[x]),0,0,c);
+                cimg_forX(res,x) ptrd[x] = _atX((int)cimg::round(ptr0[x]),0,0,c);
               }
               break;
             default : // Dirichlet
               cimg_forYZC(res,y,z,c) {
-                const t *const ptrs0 = p_warp.data(0,y,z);
+                const t *const ptr0 = p_warp.data(0,y,z);
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = atX((int)cimg::round(ptrs0[x]),0,0,c,(T)0);
+                cimg_forX(res,x) ptrd[x] = atX((int)cimg::round(ptr0[x]),0,0,c,(T)0);
               }
             }
         }
@@ -38892,20 +38892,20 @@ namespace cimg_library {
           res.fill((T)0);
           if (interpolation>=1) // Linear interpolation
             cimg_forYZC(res,y,z,c) {
-              const t *const ptrs0 = p_warp.data(0,y,z,0), *const ptrs1 = p_warp.data(0,y,z,1);
+              const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
-                const float X = x + (float)ptrs0[x], Y = y + (float)ptrs1[x];
+                const float X = x + (float)ptr0[x], Y = y + (float)ptr1[x];
                 res._add_linear_atXY(ptrs[x],X,Y,z,c);
                 accu._add_linear_atXY(1,X,Y,z,c);
               }
             }
           else // Nearest-neighbor interpolation
             cimg_forYZC(res,y,z,c) {
-              const t *const ptrs0 = p_warp.data(0,y,z,0), *const ptrs1 = p_warp.data(0,y,z,1);
+              const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
-                const int X = x + (int)cimg::round(ptrs0[x]), Y = y + (int)cimg::round(ptrs1[x]);
+                const int X = x + (int)cimg::round(ptr0[x]), Y = y + (int)cimg::round(ptr1[x]);
                 if (X>=0 && X<width() && Y>=0 && Y<height()) { res(X,Y,z,c)+=ptrs[x]; ++accu(X,Y,z); }
               }
             }
@@ -38914,20 +38914,20 @@ namespace cimg_library {
           res.fill((T)0);
           if (interpolation>=1) // Linear interpolation
             cimg_forYZC(res,y,z,c) {
-              const t *const ptrs0 = p_warp.data(0,y,z,0), *const ptrs1 = p_warp.data(0,y,z,1);
+              const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
-                const float X = (float)ptrs0[x], Y = (float)ptrs1[x];
+                const float X = (float)ptr0[x], Y = (float)ptr1[x];
                 res._add_linear_atXY(ptrs[x],X,Y,z,c);
                 accu._add_linear_atXY(1,X,Y,z,c);
               }
             }
           else // Nearest-neighbor interpolation
             cimg_forYZC(res,y,z,c) {
-              const t *const ptrs0 = p_warp.data(0,y,z,0), *const ptrs1 = p_warp.data(0,y,z,1);
+              const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
-                const int X = (int)cimg::round(ptrs0[x]), Y = (int)cimg::round(ptrs1[x]);
+                const int X = (int)cimg::round(ptr0[x]), Y = (int)cimg::round(ptr1[x]);
                 if (X>=0 && X<width() && Y>=0 && Y<height()) { res(X,Y,z,c)+=ptrs[x]; ++accu(X,Y,z); }
               }
             }
@@ -38938,34 +38938,38 @@ namespace cimg_library {
               const float w2 = 2.f*width(), h2 = 2.f*height();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const float
-                    mx = cimg::mod(x - (float)*(ptrs0++),w2),
-                    my = cimg::mod(y - (float)*(ptrs1++),h2);
-                  *(ptrd++) = _cubic_atXY_c(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,z,c);
+                    mx = cimg::mod(x - (float)ptr0[x],w2),
+                    my = cimg::mod(y - (float)ptr1[x],h2);
+                  ptrd[x] = _cubic_atXY_c(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,z,c);
                 }
               }
             } break;
             case 2 : // Periodic
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = _cubic_atXY_pc(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z,c);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = _cubic_atXY_pc(x - (float)ptr0[x],y - (float)ptr1[x],z,c);
               }
               break;
             case 1 : // Neumann
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = _cubic_atXY_c(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z,c);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = _cubic_atXY_c(x - (float)ptr0[x],y - (float)ptr1[x],z,c);
               }
               break;
             default : // Dirichlet
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = cubic_atXY_c(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z,c,(T)0);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = cubic_atXY_c(x - (float)ptr0[x],y - (float)ptr1[x],z,c,(T)0);
               }
             }
           else if (interpolation==1) // Linear interpolation
@@ -38974,34 +38978,38 @@ namespace cimg_library {
               const float w2 = 2.f*width(), h2 = 2.f*height();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const float
-                    mx = cimg::mod(x - (float)*(ptrs0++),w2),
-                    my = cimg::mod(y - (float)*(ptrs1++),h2);
-                  *(ptrd++) = (T)_linear_atXY(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,z,c);
+                    mx = cimg::mod(x - (float)ptr0[x],w2),
+                    my = cimg::mod(y - (float)ptr1[x],h2);
+                  ptrd[x] = (T)_linear_atXY(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,z,c);
                 }
               }
             } break;
             case 2 : // Periodic
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1048576))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)_linear_atXY_p(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z,c);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = (T)_linear_atXY_p(x - (float)ptr0[x],y - (float)ptr1[x],z,c);
               }
               break;
             case 1 : // Neumann
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1048576))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)_linear_atXY(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z,c);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = (T)_linear_atXY(x - (float)ptr0[x],y - (float)ptr1[x],z,c);
               }
               break;
             default : // Dirichlet
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1048576))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)linear_atXY(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z,c,(T)0);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = (T)linear_atXY(x - (float)ptr0[x],y - (float)ptr1[x],z,c,(T)0);
               }
             }
           else // Nearest-neighbor interpolation
@@ -39010,34 +39018,36 @@ namespace cimg_library {
               const int w2 = 2*width(), h2 = 2*height();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const int
-                    mx = cimg::mod(x - (int)cimg::round(*(ptrs0++)),w2),
-                    my = cimg::mod(y - (int)cimg::round(*(ptrs1++)),h2);
-                  *(ptrd++) = (*this)(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,z,c);
+                    mx = cimg::mod(x - (int)cimg::round(ptr0[x]),w2),
+                    my = cimg::mod(y - (int)cimg::round(ptr1[x]),h2);
+                  ptrd[x] = (*this)(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,z,c);
                 }
               }
             } break;
             case 2 : // Periodic
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod(x - (int)cimg::round(*(ptrs0++)),width()),
-                                                     cimg::mod(y - (int)cimg::round(*(ptrs1++)),height()),z,c);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = (*this)(cimg::mod(x - (int)cimg::round(ptr0[x]),width()),
+                                                   cimg::mod(y - (int)cimg::round(ptr1[x]),height()),z,c);
               }
               break;
             case 1 : // Neumann
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = _atXY(x - (int)cimg::round(*(ptrs0++)),
-                                                   y - (int)cimg::round(*(ptrs1++)),z,c);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = _atXY(x - (int)cimg::round(ptr0[x]),y - (int)cimg::round(ptr1[x]),z,c);
               }
               break;
             default : // Dirichlet
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = atXY(x - (int)cimg::round(*(ptrs0++)),
-                                                  y - (int)cimg::round(*(ptrs1++)),z,c,(T)0);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = atXY(x - (int)cimg::round(ptr0[x]),y - (int)cimg::round(ptr1[x]),z,c,(T)0);
               }
             }
         } else { // Backward-absolute warp
@@ -39047,34 +39057,38 @@ namespace cimg_library {
               const float w2 = 2.f*width(), h2 = 2.f*height();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const float
-                    mx = cimg::mod((float)*(ptrs0++),w2),
-                    my = cimg::mod((float)*(ptrs1++),h2);
-                  *(ptrd++) = _cubic_atXY_c(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,0,c);
+                    mx = cimg::mod((float)ptr0[x],w2),
+                    my = cimg::mod((float)ptr1[x],h2);
+                  ptrd[x] = _cubic_atXY_c(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,0,c);
                 }
               }
             } break;
             case 2 : // Periodic
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = _cubic_atXY_pc((float)*(ptrs0++),(float)*(ptrs1++),0,c);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = _cubic_atXY_pc((float)ptr0[x],(float)ptr1[x],0,c);
               }
               break;
             case 1 : // Neumann
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = _cubic_atXY_c((float)*(ptrs0++),(float)*(ptrs1++),0,c);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = _cubic_atXY_c((float)ptr0[x],(float)ptr1[x],0,c);
               }
               break;
             default : // Dirichlet
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = cubic_atXY_c((float)*(ptrs0++),(float)*(ptrs1++),0,c,(T)0);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = cubic_atXY_c((float)ptr0[x],(float)ptr1[x],0,c,(T)0);
               }
             }
           else if (interpolation==1) // Linear interpolation
@@ -39083,34 +39097,38 @@ namespace cimg_library {
               const float w2 = 2.f*width(), h2 = 2.f*height();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const float
-                    mx = cimg::mod((float)*(ptrs0++),w2),
-                    my = cimg::mod((float)*(ptrs1++),h2);
-                  *(ptrd++) = (T)_linear_atXY(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,0,c);
+                    mx = cimg::mod((float)ptr0[x],w2),
+                    my = cimg::mod((float)ptr1[x],h2);
+                  ptrd[x] = (T)_linear_atXY(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,0,c);
                 }
               }
             } break;
             case 2 : // Periodic
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1048576))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)_linear_atXY_p((float)*(ptrs0++),(float)*(ptrs1++),0,c);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = (T)_linear_atXY_p((float)ptr0[x],(float)ptr1[x],0,c);
               }
               break;
             case 1 : // Neumann
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1048576))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)_linear_atXY((float)*(ptrs0++),(float)*(ptrs1++),0,c);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = (T)_linear_atXY((float)ptr0[x],(float)ptr1[x],0,c);
               }
               break;
             default : // Dirichlet
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1048576))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)linear_atXY((float)*(ptrs0++),(float)*(ptrs1++),0,c,(T)0);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = (T)linear_atXY((float)ptr0[x],(float)ptr1[x],0,c,(T)0);
               }
             }
           else // Nearest-neighbor interpolation
@@ -39119,34 +39137,36 @@ namespace cimg_library {
               const int w2 = 2*width(), h2 = 2*height();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const int
-                    mx = cimg::mod((int)cimg::round(*(ptrs0++)),w2),
-                    my = cimg::mod((int)cimg::round(*(ptrs1++)),h2);
-                  *(ptrd++) = (*this)(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,0,c);
+                    mx = cimg::mod((int)cimg::round(ptr0[x]),w2),
+                    my = cimg::mod((int)cimg::round(ptr1[x]),h2);
+                  ptrd[x] = (*this)(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,0,c);
                 }
               }
             } break;
             case 2 : // Periodic
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod((int)cimg::round(*(ptrs0++)),width()),
-                                                     cimg::mod((int)cimg::round(*(ptrs1++)),height()),0,c);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = (*this)(cimg::mod((int)cimg::round(ptr0[x]),width()),
+                                                   cimg::mod((int)cimg::round(ptr1[x]),height()),0,c);
               }
               break;
             case 1 : // Neumann
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = _atXY((int)cimg::round(*(ptrs0++)),
-                                                   (int)cimg::round(*(ptrs1++)),0,c);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = _atXY((int)cimg::round(ptr0[x]),(int)cimg::round(ptr1[x]),0,c);
               }
               break;
             default : // Dirichlet
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = atXY((int)cimg::round(*(ptrs0++)),
-                                                  (int)cimg::round(*(ptrs1++)),0,c,(T)0);
+                const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = atXY((int)cimg::round(ptr0[x]),(int)cimg::round(ptr1[x]),0,c,(T)0);
               }
             }
         }
@@ -39158,12 +39178,12 @@ namespace cimg_library {
           if (interpolation>=1) // Linear interpolation
             cimg_forYZC(res,y,z,c) {
               const t
-                *const ptrs0 = p_warp.data(0,y,z,0),
-                *const ptrs1 = p_warp.data(0,y,z,1),
-                *const ptrs2 = p_warp.data(0,y,z,2);
+                *const ptr0 = p_warp.data(0,y,z,0),
+                *const ptr1 = p_warp.data(0,y,z,1),
+                *const ptr2 = p_warp.data(0,y,z,2);
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
-                const float X = x + (float)ptrs0[x], Y = y + (float)ptrs1[x], Z = z + (float)ptrs2[x];
+                const float X = x + (float)ptr0[x], Y = y + (float)ptr1[x], Z = z + (float)ptr2[x];
                 res._add_linear_atXYZ(ptrs[x],X,Y,Z,c);
                 accu._add_linear_atXYZ(1,X,Y,Z,c);
               }
@@ -39171,15 +39191,15 @@ namespace cimg_library {
           else // Nearest-neighbor interpolation
             cimg_forYZC(res,y,z,c) {
               const t
-                *const ptrs0 = p_warp.data(0,y,z,0),
-                *const ptrs1 = p_warp.data(0,y,z,1),
-                *const ptrs2 = p_warp.data(0,y,z,2);
+                *const ptr0 = p_warp.data(0,y,z,0),
+                *const ptr1 = p_warp.data(0,y,z,1),
+                *const ptr2 = p_warp.data(0,y,z,2);
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
                 const int
-                  X = x + (int)cimg::round(ptrs0[x]),
-                  Y = y + (int)cimg::round(ptrs1[x]),
-                  Z = z + (int)cimg::round(ptrs2[x]);
+                  X = x + (int)cimg::round(ptr0[x]),
+                  Y = y + (int)cimg::round(ptr1[x]),
+                  Z = z + (int)cimg::round(ptr2[x]);
                 if (X>=0 && X<width() && Y>=0 && Y<height() && Z>=0 && Z<depth()) {
                   res(X,Y,Z,c) = ptrs[x]; ++accu(X,Y,Z);
                 }
@@ -39190,27 +39210,27 @@ namespace cimg_library {
           if (interpolation>=1) // Linear interpolation
             cimg_forYZC(res,y,z,c) {
               const t
-                *const ptrs0 = p_warp.data(0,y,z,0),
-                *const ptrs1 = p_warp.data(0,y,z,1),
-                *const ptrs2 = p_warp.data(0,y,z,2);
+                *const ptr0 = p_warp.data(0,y,z,0),
+                *const ptr1 = p_warp.data(0,y,z,1),
+                *const ptr2 = p_warp.data(0,y,z,2);
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
-                const float X = (float)ptrs0[x], Y = (float)ptrs1[x], Z = (float)ptrs2[x];
+                const float X = (float)ptr0[x], Y = (float)ptr1[x], Z = (float)ptr2[x];
                 res._add_linear_atXYZ(ptrs[x],X,Y,Z,c);
               }
             }
           else // Nearest-neighbor interpolation
             cimg_forYZC(res,y,z,c) {
               const t
-                *const ptrs0 = p_warp.data(0,y,z,0),
-                *const ptrs1 = p_warp.data(0,y,z,1),
-                *const ptrs2 = p_warp.data(0,y,z,2);
+                *const ptr0 = p_warp.data(0,y,z,0),
+                *const ptr1 = p_warp.data(0,y,z,1),
+                *const ptr2 = p_warp.data(0,y,z,2);
               const T *const ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
                 const int
-                  X = (int)cimg::round(ptrs0[x]),
-                  Y = (int)cimg::round(ptrs1[x]),
-                  Z = (int)cimg::round(ptrs2[x]);
+                  X = (int)cimg::round(ptr0[x]),
+                  Y = (int)cimg::round(ptr1[x]),
+                  Z = (int)cimg::round(ptr2[x]);
                 if (X>=0 && X<width() && Y>=0 && Y<height() && Z>=0 && Z<depth()) {
                   res(X,Y,Z,c) = ptrs[x]; ++accu(X,Y,Z);
                 }
@@ -39223,44 +39243,56 @@ namespace cimg_library {
               const float w2 = 2.f*width(), h2 = 2.f*height(), d2 = 2.f*depth();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const float
-                    mx = cimg::mod(x - (float)*(ptrs0++),w2),
-                    my = cimg::mod(y - (float)*(ptrs1++),h2),
-                    mz = cimg::mod(z - (float)*(ptrs2++),d2);
-                  *(ptrd++) = _cubic_atXYZ_c(mx<width()?mx:w2 - mx - 1,
-                                             my<height()?my:h2 - my - 1,
-                                             mz<depth()?mz:d2 - mz - 1,c);
+                    mx = cimg::mod(x - (float)ptr0[x],w2),
+                    my = cimg::mod(y - (float)ptr1[x],h2),
+                    mz = cimg::mod(z - (float)ptr2[x],d2);
+                  ptrd[x] = _cubic_atXYZ_c(mx<width()?mx:w2 - mx - 1,
+                                           my<height()?my:h2 - my - 1,
+                                           mz<depth()?mz:d2 - mz - 1,c);
                 }
               }
             } break;
             case 2 : // Periodic
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x)
-                  *(ptrd++) = _cubic_atXYZ_pc(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z - (float)*(ptrs2++),c);
+                  ptrd[x] = _cubic_atXYZ_pc(x - (float)ptr0[x],y - (float)ptr1[x],z - (float)ptr2[x],c);
               }
               break;
             case 1 : // Neumann
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x)
-                  *(ptrd++) = _cubic_atXYZ_c(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z - (float)*(ptrs2++),c);
+                  ptrd[x] = _cubic_atXYZ_c(x - (float)ptr0[x],y - (float)ptr1[x],z - (float)ptr2[x],c);
               }
               break;
             default : // Dirichlet
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x)
-                  *(ptrd++) = cubic_atXYZ_c(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z - (float)*(ptrs2++),c,(T)0);
+                  ptrd[x] = cubic_atXYZ_c(x - (float)ptr0[x],y - (float)ptr1[x],z - (float)ptr2[x],c,(T)0);
               }
             }
           else if (interpolation==1) // Linear interpolation
@@ -39269,44 +39301,57 @@ namespace cimg_library {
               const float w2 = 2.f*width(), h2 = 2.f*height(), d2 = 2.f*depth();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const float
-                    mx = cimg::mod(x - (float)*(ptrs0++),w2),
-                    my = cimg::mod(y - (float)*(ptrs1++),h2),
-                    mz = cimg::mod(z - (float)*(ptrs2++),d2);
-                  *(ptrd++) = (T)_linear_atXYZ(mx<width()?mx:w2 - mx - 1,
-                                               my<height()?my:h2 - my - 1,
-                                               mz<depth()?mz:d2 - mz - 1,c);
+                    mx = cimg::mod(x - (float)ptr0[x],w2),
+                    my = cimg::mod(y - (float)ptr1[x],h2),
+                    mz = cimg::mod(z - (float)ptr2[x],d2);
+                  ptrd[x] = (T)_linear_atXYZ(mx<width()?mx:w2 - mx - 1,
+                                             my<height()?my:h2 - my - 1,
+                                             mz<depth()?mz:d2 - mz - 1,c);
                 }
               }
             } break;
             case 2 : // Periodic
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1048576))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)_linear_atXYZ_p(x - (float)*(ptrs0++),y - (float)*(ptrs1++),
-                                                                z - (float)*(ptrs2++),c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = (T)_linear_atXYZ_p(x - (float)ptr0[x],
+                                                              y - (float)ptr1[x],
+                                                              z - (float)ptr2[x],c);
               }
               break;
             case 1 : // Neumann
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1048576))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x)
-                  *(ptrd++) = (T)_linear_atXYZ(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z - (float)*(ptrs2++),c);
+                  ptrd[x] = (T)_linear_atXYZ(x - (float)ptr0[x],y - (float)ptr1[x],z - (float)ptr2[x],c);
               }
               break;
             default : // Dirichlet
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1048576))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x)
-                  *(ptrd++) = (T)linear_atXYZ(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z - (float)*(ptrs2++),c,(T)0);
+                  ptrd[x] = (T)linear_atXYZ(x - (float)ptr0[x],y - (float)ptr1[x],z - (float)ptr2[x],c,(T)0);
               }
             }
           else // Nearest neighbor interpolation
@@ -39315,44 +39360,54 @@ namespace cimg_library {
               const int w2 = 2*width(), h2 = 2*height(), d2 = 2*depth();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const int
-                    mx = cimg::mod(x - (int)cimg::round(*(ptrs0++)),w2),
-                    my = cimg::mod(y - (int)cimg::round(*(ptrs1++)),h2),
-                    mz = cimg::mod(z - (int)cimg::round(*(ptrs2++)),d2);
-                  *(ptrd++) = (*this)(mx<width()?mx:w2 - mx - 1,
-                                      my<height()?my:h2 - my - 1,
-                                      mz<depth()?mz:d2 - mz - 1,c);
+                    mx = cimg::mod(x - (int)cimg::round(ptr0[x]),w2),
+                    my = cimg::mod(y - (int)cimg::round(ptr1[x]),h2),
+                    mz = cimg::mod(z - (int)cimg::round(ptr2[x]),d2);
+                  ptrd[x] = (*this)(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,mz<depth()?mz:d2 - mz - 1,c);
                 }
               }
             } break;
             case 2 : // Periodic
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod(x - (int)cimg::round(*(ptrs0++)),width()),
-                                                     cimg::mod(y - (int)cimg::round(*(ptrs1++)),height()),
-                                                     cimg::mod(z - (int)cimg::round(*(ptrs2++)),depth()),c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = (*this)(cimg::mod(x - (int)cimg::round(ptr0[x]),width()),
+                                                   cimg::mod(y - (int)cimg::round(ptr1[x]),height()),
+                                                   cimg::mod(z - (int)cimg::round(ptr2[x]),depth()),c);
               }
               break;
             case 1 : // Neumann
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = _atXYZ(x - (int)cimg::round(*(ptrs0++)),
-                                                    y - (int)cimg::round(*(ptrs1++)),
-                                                    z - (int)cimg::round(*(ptrs2++)),c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = _atXYZ(x - (int)cimg::round(ptr0[x]),
+                                                  y - (int)cimg::round(ptr1[x]),
+                                                  z - (int)cimg::round(ptr2[x]),c);
               }
               break;
             default : // Dirichlet
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = atXYZ(x - (int)cimg::round(*(ptrs0++)),
-                                                   y - (int)cimg::round(*(ptrs1++)),
-                                                   z - (int)cimg::round(*(ptrs2++)),c,(T)0);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = atXYZ(x - (int)cimg::round(ptr0[x]),
+                                                 y - (int)cimg::round(ptr1[x]),
+                                                 z - (int)cimg::round(ptr2[x]),c,(T)0);
               }
             }
         } else { // Backward-absolute warp
@@ -39362,42 +39417,53 @@ namespace cimg_library {
               const float w2 = 2.f*width(), h2 = 2.f*height(), d2 = 2.f*depth();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const float
-                    mx = cimg::mod((float)*(ptrs0++),w2),
-                    my = cimg::mod((float)*(ptrs1++),h2),
-                    mz = cimg::mod((float)*(ptrs2++),d2);
-                  *(ptrd++) = _cubic_atXYZ_c(mx<width()?mx:w2 - mx - 1,
-                                             my<height()?my:h2 - my - 1,
-                                             mz<depth()?mz:d2 - mz - 1,c);
+                    mx = cimg::mod((float)ptr0[x],w2),
+                    my = cimg::mod((float)ptr1[x],h2),
+                    mz = cimg::mod((float)ptr2[x],d2);
+                  ptrd[x] = _cubic_atXYZ_c(mx<width()?mx:w2 - mx - 1,
+                                           my<height()?my:h2 - my - 1,
+                                           mz<depth()?mz:d2 - mz - 1,c);
                 }
               }
             } break;
             case 2 : // Periodic
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = _cubic_atXYZ_pc((float)*(ptrs0++),(float)*(ptrs1++),(float)*(ptrs2++),c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = _cubic_atXYZ_pc((float)ptr0[x],(float)ptr1[x],(float)ptr2[x],c);
               }
               break;
             case 1 : // Neumann
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = _cubic_atXYZ_c((float)*(ptrs0++),(float)*(ptrs1++),(float)*(ptrs2++),c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = _cubic_atXYZ_c((float)ptr0[x],(float)ptr1[x],(float)ptr2[x],c);
               }
               break;
             default : // Dirichlet
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = cubic_atXYZ_c((float)*(ptrs0++),(float)*(ptrs1++),(float)*(ptrs2++),
-                                                           c,(T)0);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = cubic_atXYZ_c((float)ptr0[x],(float)ptr1[x],(float)ptr2[x],c,(T)0);
               }
             }
           else if (interpolation==1) // Linear interpolation
@@ -39406,43 +39472,53 @@ namespace cimg_library {
               const float w2 = 2.f*width(), h2 = 2.f*height(), d2 = 2.f*depth();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const float
-                    mx = cimg::mod((float)*(ptrs0++),w2),
-                    my = cimg::mod((float)*(ptrs1++),h2),
-                    mz = cimg::mod((float)*(ptrs2++),d2);
-                  *(ptrd++) = (T)_linear_atXYZ(mx<width()?mx:w2 - mx - 1,
-                                               my<height()?my:h2 - my - 1,
-                                               mz<depth()?mz:d2 - mz - 1,c);
+                    mx = cimg::mod((float)ptr0[x],w2),
+                    my = cimg::mod((float)ptr1[x],h2),
+                    mz = cimg::mod((float)ptr2[x],d2);
+                  ptrd[x] = (T)_linear_atXYZ(mx<width()?mx:w2 - mx - 1,
+                                             my<height()?my:h2 - my - 1,
+                                             mz<depth()?mz:d2 - mz - 1,c);
                 }
               }
             } break;
             case 2 :// Periodic
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1048576))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)_linear_atXYZ_p((float)*(ptrs0++),(float)*(ptrs1++),
-                                                                (float)*(ptrs2++),c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = (T)_linear_atXYZ_p((float)ptr0[x],(float)ptr1[x],(float)ptr2[x],c);
               }
               break;
             case 1 : // Neumann
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1048576))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)_linear_atXYZ((float)*(ptrs0++),(float)*(ptrs1++),(float)*(ptrs2++),c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = (T)_linear_atXYZ((float)ptr0[x],(float)ptr1[x],(float)ptr2[x],c);
               }
               break;
             default : // Dirichlet
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),1048576))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)linear_atXYZ((float)*(ptrs0++),(float)*(ptrs1++),(float)*(ptrs2++),
-                                                             c,(T)0);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = (T)linear_atXYZ((float)ptr0[x],(float)ptr1[x],(float)ptr2[x],c,(T)0);
               }
             }
           else // Nearest-neighbor interpolation
@@ -39451,44 +39527,54 @@ namespace cimg_library {
               const int w2 = 2*width(), h2 = 2*height(), d2 = 2*depth();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const int
-                    mx = cimg::mod((int)cimg::round(*(ptrs0++)),w2),
-                    my = cimg::mod((int)cimg::round(*(ptrs1++)),h2),
-                    mz = cimg::mod((int)cimg::round(*(ptrs2++)),d2);
-                  *(ptrd++) = (*this)(mx<width()?mx:w2 - mx - 1,
-                                      my<height()?my:h2 - my - 1,
-                                      mz<depth()?mz:d2 - mz - 1,c);
+                    mx = cimg::mod((int)cimg::round(ptr0[x]),w2),
+                    my = cimg::mod((int)cimg::round(ptr1[x]),h2),
+                    mz = cimg::mod((int)cimg::round(ptr2[x]),d2);
+                  ptrd[x] = (*this)(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,mz<depth()?mz:d2 - mz - 1,c);
                 }
               }
             } break;
             case 2 : // Periodic
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod((int)cimg::round(*(ptrs0++)),width()),
-                                                     cimg::mod((int)cimg::round(*(ptrs1++)),height()),
-                                                     cimg::mod((int)cimg::round(*(ptrs2++)),depth()),c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = (*this)(cimg::mod((int)cimg::round(ptr0[x]),width()),
+                                                   cimg::mod((int)cimg::round(ptr1[x]),height()),
+                                                   cimg::mod((int)cimg::round(ptr2[x]),depth()),c);
               }
               break;
             case 1 : // Neumann
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = _atXYZ((int)cimg::round(*(ptrs0++)),
-                                                    (int)cimg::round(*(ptrs1++)),
-                                                    (int)cimg::round(*(ptrs2++)),c);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = _atXYZ((int)cimg::round(ptr0[x]),
+                                                  (int)cimg::round(ptr1[x]),
+                                                  (int)cimg::round(ptr2[x]),c);
               }
               break;
             default : // Dirichlet
               cimg_forYZC(res,y,z,c) {
-                const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
-                T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = atXYZ((int)cimg::round(*(ptrs0++)),
-                                                   (int)cimg::round(*(ptrs1++)),
-                                                   (int)cimg::round(*(ptrs2++)),c,(T)0);
+                const t
+                  *const ptr0 = p_warp.data(0,y,z,0),
+                  *const ptr1 = p_warp.data(0,y,z,1),
+                  *const ptr2 = p_warp.data(0,y,z,2);
+                T *const ptrd = res.data(0,y,z,c);
+                cimg_forX(res,x) ptrd[x] = atXYZ((int)cimg::round(ptr0[x]),
+                                                 (int)cimg::round(ptr1[x]),
+                                                 (int)cimg::round(ptr2[x]),c,(T)0);
               }
             }
         }

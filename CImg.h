@@ -38912,21 +38912,25 @@ namespace cimg_library {
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                const T *const ptrs = data(0,0,z,c);
+                const ulongT w = (ulongT)_width;
                 T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const int
                     mx = cimg::mod(x - (int)cimg::round(ptr0[x]),w2),
                     my = cimg::mod(y - (int)cimg::round(ptr1[x]),h2);
-                  ptrd[x] = (*this)(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,z,c);
+                  ptrd[x] = ptrs[(mx<width()?mx:w2 - mx - 1) + w*(my<height()?my:h2 - my - 1)];
                 }
               }
             } break;
             case 2 : // Periodic
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                const T *const ptrs = data(0,0,z,c);
+                const ulongT w = (ulongT)_width;
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = (*this)(cimg::mod(x - (int)cimg::round(ptr0[x]),width()),
-                                                   cimg::mod(y - (int)cimg::round(ptr1[x]),height()),z,c);
+                cimg_forX(res,x) ptrd[x] = ptrs[cimg::mod(x - (int)cimg::round(ptr0[x]),width()) +
+                                                w*cimg::mod(y - (int)cimg::round(ptr1[x]),height())];
               }
               break;
             case 1 : // Neumann
@@ -39031,21 +39035,25 @@ namespace cimg_library {
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                const T *const ptrs = data(0,0,0,c);
+                const ulongT w = (ulongT)_width;
                 T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const int
                     mx = cimg::mod((int)cimg::round(ptr0[x]),w2),
                     my = cimg::mod((int)cimg::round(ptr1[x]),h2);
-                  ptrd[x] = (*this)(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,0,c);
+                  ptrd[x] = ptrs[(mx<width()?mx:w2 - mx - 1) + w*(my<height()?my:h2 - my - 1)];
                 }
               }
             } break;
             case 2 : // Periodic
               cimg_forYZC(res,y,z,c) {
                 const t *const ptr0 = p_warp.data(0,y,z,0), *const ptr1 = p_warp.data(0,y,z,1);
+                const T *const ptrs = data(0,0,0,c);
+                const ulongT w = (ulongT)_width;
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = (*this)(cimg::mod((int)cimg::round(ptr0[x]),width()),
-                                                   cimg::mod((int)cimg::round(ptr1[x]),height()),0,c);
+                cimg_forX(res,x) ptrd[x] = ptrs[cimg::mod((int)cimg::round(ptr0[x]),width()) +
+                                                w*cimg::mod((int)cimg::round(ptr1[x]),height())];
               }
               break;
             case 1 : // Neumann
@@ -39258,13 +39266,17 @@ namespace cimg_library {
                   *const ptr0 = p_warp.data(0,y,z,0),
                   *const ptr1 = p_warp.data(0,y,z,1),
                   *const ptr2 = p_warp.data(0,y,z,2);
+                const T *const ptrs = data(0,0,0,c);
+                const ulongT w = (ulongT)_width, wh = (ulongT)_width*_height;
                 T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const int
                     mx = cimg::mod(x - (int)cimg::round(ptr0[x]),w2),
                     my = cimg::mod(y - (int)cimg::round(ptr1[x]),h2),
                     mz = cimg::mod(z - (int)cimg::round(ptr2[x]),d2);
-                  ptrd[x] = (*this)(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,mz<depth()?mz:d2 - mz - 1,c);
+                  ptrd[x] = ptrs[(mx<width()?mx:w2 - mx - 1) +
+                                 w*(my<height()?my:h2 - my - 1) +
+                                 wh*(mz<depth()?mz:d2 - mz - 1)];
                 }
               }
             } break;
@@ -39274,10 +39286,12 @@ namespace cimg_library {
                   *const ptr0 = p_warp.data(0,y,z,0),
                   *const ptr1 = p_warp.data(0,y,z,1),
                   *const ptr2 = p_warp.data(0,y,z,2);
+                const T *const ptrs = data(0,0,0,c);
+                const ulongT w = (ulongT)_width, wh = (ulongT)_width*_height;
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = (*this)(cimg::mod(x - (int)cimg::round(ptr0[x]),width()),
-                                                   cimg::mod(y - (int)cimg::round(ptr1[x]),height()),
-                                                   cimg::mod(z - (int)cimg::round(ptr2[x]),depth()),c);
+                cimg_forX(res,x) ptrd[x] = ptrs[cimg::mod(x - (int)cimg::round(ptr0[x]),width()) +
+                                                w*cimg::mod(y - (int)cimg::round(ptr1[x]),height()) +
+                                                wh*cimg::mod(z - (int)cimg::round(ptr2[x]),depth())];
               }
               break;
             case 1 : // Neumann
@@ -39425,13 +39439,17 @@ namespace cimg_library {
                   *const ptr0 = p_warp.data(0,y,z,0),
                   *const ptr1 = p_warp.data(0,y,z,1),
                   *const ptr2 = p_warp.data(0,y,z,2);
+                const T *const ptrs = data(0,0,0,c);
+                const ulongT w = (ulongT)_width, wh = (ulongT)_width*_height;
                 T *const ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const int
                     mx = cimg::mod((int)cimg::round(ptr0[x]),w2),
                     my = cimg::mod((int)cimg::round(ptr1[x]),h2),
                     mz = cimg::mod((int)cimg::round(ptr2[x]),d2);
-                  ptrd[x] = (*this)(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,mz<depth()?mz:d2 - mz - 1,c);
+                  ptrd[x] = ptrs[(mx<width()?mx:w2 - mx - 1) +
+                                 w*(my<height()?my:h2 - my - 1) +
+                                 wh*(mz<depth()?mz:d2 - mz - 1)];
                 }
               }
             } break;
@@ -39441,10 +39459,12 @@ namespace cimg_library {
                   *const ptr0 = p_warp.data(0,y,z,0),
                   *const ptr1 = p_warp.data(0,y,z,1),
                   *const ptr2 = p_warp.data(0,y,z,2);
+                const T *const ptrs = data(0,0,0,c);
+                const ulongT w = (ulongT)_width, wh = (ulongT)_width*_height;
                 T *const ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) ptrd[x] = (*this)(cimg::mod((int)cimg::round(ptr0[x]),width()),
-                                                   cimg::mod((int)cimg::round(ptr1[x]),height()),
-                                                   cimg::mod((int)cimg::round(ptr2[x]),depth()),c);
+                cimg_forX(res,x) ptrd[x] = ptrs[cimg::mod((int)cimg::round(ptr0[x]),width()) +
+                                                w*cimg::mod((int)cimg::round(ptr1[x]),height()) +
+                                                wh*cimg::mod((int)cimg::round(ptr2[x]),depth())];
               }
               break;
             case 1 : // Neumann

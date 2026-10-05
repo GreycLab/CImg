@@ -16734,14 +16734,14 @@ namespace cimg_library {
                           macro_body[0]._width-=p2;
                         } else if (is_variadic) { // Replace variadic argument
                           *(ps++) = (char)p1;
-                          std::memmove(ps,ps + p2 - 1,macro_body[0].end() - ps - p2 + 1);
-                          macro_body[0]._width-=p2 - 1;
+                          std::memset(ps,' ',p2 - 1);
+                          ps+=p2 - 1;
                         } else { // Not near a number sign
                           if (p2>=3) { // Enough space, no reallocation
                             *(ps++) = '(';
                             *(ps++) = (char)p1;
                             *(ps++) = ')';
-                            std::memset(ps,' ',p2 - 3);
+                            if (p2>3) std::memset(ps,' ',p2 - 3);
                             ps+=p2 - 3;
                           } else { // Not enough space, need reallocation
                             ps-=(ulongT)macro_body[0]._data;

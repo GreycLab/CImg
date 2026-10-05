@@ -16737,15 +16737,21 @@ namespace cimg_library {
                           std::memmove(ps,ps + p2 - 1,macro_body[0].end() - ps - p2 + 1);
                           macro_body[0]._width-=p2 - 1;
                         } else { // Not near a number sign
-                          if (p2<3) {
+                          if (p2>=3) { // Enough space, no reallocation
+                            *(ps++) = '(';
+                            *(ps++) = (char)p1;
+                            *(ps++) = ')';
+                            std::memset(ps,' ',p2 - 3);
+                            ps+=p2 - 3;
+                          } else { // Not enough space, need reallocation
                             ps-=(ulongT)macro_body[0]._data;
                             macro_body[0].resize(macro_body[0]._width - p2 + 3,1,1,1,0);
                             ps+=(ulongT)macro_body[0]._data;
-                          } else macro_body[0]._width-=p2 - 3;
-                          std::memmove(ps + 3,ps + p2,macro_body[0].end() - ps - 3);
-                          *(ps++) = '(';
-                          *(ps++) = (char)p1;
-                          *(ps++) = ')';
+                            std::memmove(ps + 3,ps + p2,macro_body[0].end() - ps - 3);
+                            *(ps++) = '(';
+                            *(ps++) = (char)p1;
+                            *(ps++) = ')';
+                          }
                         }
                       } else ++ps;
                     }

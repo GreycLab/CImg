@@ -16734,10 +16734,20 @@ namespace cimg_library {
                           macro_body[0]._width-=p2;
                         } else if (is_variadic) { // Replace variadic argument
                           *(ps++) = (char)p1;
-                          std::memset(ps,' ',p2 - 1);
+                          if (p2>1) std::memset(ps,' ',p2 - 1);
                           ps+=p2 - 1;
                         } else { // Not near a number sign
-                          if (p2>=3) { // Enough space, no reallocation
+                          const char *pb = ps - 1, *pa = ps + p2;
+                          while (pb>=macro_body[0]._data && cimg::is_blank(*pb)) --pb;
+                          while (cimg::is_blank(*pa)) ++pa;
+                          const bool
+                            is_safe_before = pb>=macro_body[0]._data && (*pb=='(' || *pb==','),
+                            is_safe_after = *pa==')' || *pa==',';
+                          if (is_safe_before && is_safe_after) { // No need for enclosing parentheses
+                            *(ps++) = (char)p1;
+                            if (p2>1) std::memset(ps,' ',p2 - 1);
+                            ps+=p2 - 1;
+                          } else if (p2>=3) { // Enough space, no reallocation
                             *(ps++) = '(';
                             *(ps++) = (char)p1;
                             *(ps++) = ')';

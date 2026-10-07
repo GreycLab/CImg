@@ -21572,7 +21572,7 @@ namespace cimg_library {
               _cimg_mp_return(pos);
             }
 
-            if (!std::strncmp(ss,"ref(",4)) { // Variable declaration
+            if (!std::strncmp(ss,"ref(",4)) { // Reference existing variable
               _cimg_mp_op("Function 'ref()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               if (s1>=se1 || !*s1) compile(s1,s1,depth1,0,block_flags); // Will throw missing argument error
@@ -21592,9 +21592,9 @@ namespace cimg_library {
                                             variable_name._data,s0);
               }
               get_variable_pos(variable_name,arg1,arg2);
-              if (arg2!=~0U) reserved_label[arg2] = arg3;
-              else if (arg1!=~0U) variable_pos[arg1] = arg3;
-              else { // New variable
+              if (arg2!=~0U) reserved_label[arg2] = arg3; // Existing reserved variable name
+              else if (arg1!=~0U) variable_pos[arg1] = arg3; // Existing non-reserved variable name
+              else { // New variable name
                 if (variable_def._width>=variable_pos._width) variable_pos.resize(-200,1,1,1,0);
                 variable_pos[variable_def._width] = arg3;
                 variable_name.move_to(variable_def);

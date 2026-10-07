@@ -16718,14 +16718,11 @@ namespace cimg_library {
                     *s3 = 0;
                     p2 = (unsigned int)(s3 - s2); // Argument length
                     for (ps = std::strstr(macro_body[0],s2); ps; ps = std::strstr(ps,s2)) { // Replace by arg number
-                      if (!((ps>macro_body[0]._data && cimg::is_varchar(*(ps - 1))) ||
-                            (ps + p2<macro_body[0].end() && cimg::is_varchar(*(ps + p2))))) {
+                      if (!((ps>macro_body[0]._data && cimg::is_varchar(*(ps - 1))) || cimg::is_varchar(*(ps + p2)))) {
                         if (ps>macro_body[0]._data && *(ps - 1)=='#') { // Remove pre-number sign
                           *(ps - 1) = (char)p1; std::memset(ps,cvoid,p2); ps+=p2; need_cleaning = true;
-                          if (ps<macro_body[0].end() && *ps=='#') { // Had pre & post number signs
-                            *(ps++) = cvoid; need_cleaning = true;
-                          }
-                        } else if (ps + p2<macro_body[0].end() && *(ps + p2)=='#') { // Remove post-number sign
+                          if (*ps=='#') { *(ps++) = cvoid; need_cleaning = true; } // Had pre & post number signs
+                        } else if (*(ps + p2)=='#') { // Remove post-number sign
                           *(ps++) = (char)p1; std::memset(ps,cvoid,p2); ps+=p2; need_cleaning = true;
                         } else if (is_variadic) { // Replace variadic argument
                           *(ps++) = (char)p1;

@@ -16658,7 +16658,8 @@ namespace cimg_library {
                 s1 = variable_name._data + l_variable_name - 1; // Pointer to closing parenthesis
                 CImg<charT>(variable_name._data,(unsigned int)(s0 - variable_name._data + 1)).move_to(macro_def,0);
                 ++s; while (*s && cimg::is_blank(*s)) ++s;
-                CImg<charT>(s,(unsigned int)(se - s + 1)).move_to(macro_body,0);
+                unsigned int mlen = (unsigned int)(se - s  + 1);
+                CImg<charT>(s,mlen).move_to(macro_body,0);
                 bool is_variadic = false, need_cleaning = false;
                 const char cvoid = 25;
 
@@ -16741,17 +16742,20 @@ namespace cimg_library {
                             p3 = p2 - 1;
                             if (p2>1) { std::memset(ps,cvoid,p3); need_cleaning = true; }
                             ps+=p3;
-                          } else if (p2>=3) { // Enough space, no reallocation
+                          } else if (p2>=3) { // Enough space to insert parentheses
                             *(ps++) = '('; *(ps++) = (char)p1; *(ps++) = ')';
                             p3 = p2 - 3;
                             if (p2>3) { std::memset(ps,cvoid,p3); need_cleaning = true; }
                             ps+=p3;
-                          } else { // Not enough space, need reallocation
-                            ps-=(ulongT)macro_body[0]._data;
-                            macro_body[0].resize(macro_body[0]._width - p2 + 3,1,1,1,0);
-                            ps+=(ulongT)macro_body[0]._data;
-                            std::memmove(ps + 3,ps + p2,macro_body[0].end() - ps - 3);
+                          } else { // Possibly not enough space to insert parentheses
+                            if (mlen + 3 - p2>macro_body[0]._width) { // Not enough space -> reallocation
+                              const ulongT off = (ulongT)(ps - macro_body[0]._data);
+                              macro_body[0].resize(3*mlen/2 + 3 - p2,1,1,1,0);
+                              ps = macro_body[0]._data + off;
+                            }
+                            std::memmove(ps + 3,ps + p2,macro_body[0]._data + mlen - ps - p2);
                             *(ps++) = '('; *(ps++) = (char)p1; *(ps++) = ')';
+                            mlen+=3 - p2;
                           }
                         }
                       } else ++ps;
@@ -16762,9 +16766,10 @@ namespace cimg_library {
                 // If necessary, remove void characters from substituted string.
                 if (need_cleaning) {
                   char *mpd = macro_body[0]._data;
-                  cimg_for(macro_body[0],mps,char) { const char c = *mps; if (c!=cvoid) *(mpd++) = c; }
+                  const char *mps = mpd;
+                  for (unsigned int l = 0; l<mlen; ++l) { const char c = *(mps++); if (c!=cvoid) *(mpd++) = c; }
                   macro_body[0]._width = (unsigned int)(mpd - macro_body[0]._data);
-                }
+                } else macro_body[0]._width = mlen;
 
                 // Store number of arguments.
                 macro_def[0].resize(macro_def[0]._width + 1,1,1,1,0).back() = is_variadic?(char)-1:(char)(p1 - 1);

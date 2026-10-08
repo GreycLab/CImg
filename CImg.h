@@ -4689,7 +4689,7 @@ namespace cimg_library {
     template<typename T>
     inline T abscut(const T& val, const T& val_min, const T& val_max, const T& offset) {
       typedef typename cimg::superset<T,int>::type Tint;
-      const T sgn = cimg::sign(val);
+      const T sgn = val>=0?1:-1; // Do not use 'cimg::sign(val)', we never want 'sgn==0'
       return (T)cimg::cut((Tint)(val*sgn + offset),(Tint)val_min,(Tint)val_max)*sgn;
     }
 

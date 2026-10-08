@@ -41011,15 +41011,24 @@ namespace cimg_library {
                   px = x - xdilation>0?x - xdilation:0, nx = x + xdilation<w1?x + xdilation:w1,
                   py = y - ydilation>0?y - ydilation:0, ny = y + ydilation<h1?y + ydilation:h1,
                   pz = z - zdilation>0?z - zdilation:0, nz = z + zdilation<d1?z + zdilation:d1;
-                const Ttfloat N = M2*(cimg::sqr(I(px,py,pz)) + cimg::sqr(I(x,py,pz)) + cimg::sqr(I(nx,py,pz)) +
-                                      cimg::sqr(I(px,y,pz)) + cimg::sqr(I(x,y,pz)) + cimg::sqr(I(nx,y,pz)) +
-                                      cimg::sqr(I(px,ny,pz)) + cimg::sqr(I(x,ny,pz)) + cimg::sqr(I(nx,ny,pz)) +
-                                      cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) + cimg::sqr(I(nx,py,z)) +
-                                      cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) + cimg::sqr(I(nx,y,z)) +
-                                      cimg::sqr(I(px,ny,z)) + cimg::sqr(I(x,ny,z)) + cimg::sqr(I(nx,ny,z)) +
-                                      cimg::sqr(I(px,py,nz)) + cimg::sqr(I(x,py,nz)) + cimg::sqr(I(nx,py,nz)) +
-                                      cimg::sqr(I(px,y,nz)) + cimg::sqr(I(x,y,nz)) + cimg::sqr(I(nx,y,nz)) +
-                                      cimg::sqr(I(px,ny,nz)) + cimg::sqr(I(x,ny,nz)) + cimg::sqr(I(nx,ny,nz)));
+                const Ttfloat N = M2*(cimg::sqr((Ttfloat)I(px,py,pz)) + cimg::sqr((Ttfloat)I(x,py,pz)) +
+                                      cimg::sqr((Ttfloat)I(nx,py,pz)) +
+                                      cimg::sqr((Ttfloat)I(px,y,pz)) + cimg::sqr((Ttfloat)I(x,y,pz)) +
+                                      cimg::sqr((Ttfloat)I(nx,y,pz)) +
+                                      cimg::sqr((Ttfloat)I(px,ny,pz)) + cimg::sqr((Ttfloat)I(x,ny,pz)) +
+                                      cimg::sqr((Ttfloat)I(nx,ny,pz)) +
+                                      cimg::sqr((Ttfloat)I(px,py,z)) + cimg::sqr((Ttfloat)I(x,py,z)) +
+                                      cimg::sqr((Ttfloat)I(nx,py,z)) +
+                                      cimg::sqr((Ttfloat)I(px,y,z)) + cimg::sqr((Ttfloat)I(x,y,z)) +
+                                      cimg::sqr((Ttfloat)I(nx,y,z)) +
+                                      cimg::sqr((Ttfloat)I(px,ny,z)) + cimg::sqr((Ttfloat)I(x,ny,z)) +
+                                      cimg::sqr((Ttfloat)I(nx,ny,z)) +
+                                      cimg::sqr((Ttfloat)I(px,py,nz)) + cimg::sqr((Ttfloat)I(x,py,nz)) +
+                                      cimg::sqr((Ttfloat)I(nx,py,nz)) +
+                                      cimg::sqr((Ttfloat)I(px,y,nz)) + cimg::sqr((Ttfloat)I(x,y,nz)) +
+                                      cimg::sqr((Ttfloat)I(nx,y,nz)) +
+                                      cimg::sqr((Ttfloat)I(px,ny,nz)) + cimg::sqr((Ttfloat)I(x,ny,nz)) +
+                                      cimg::sqr((Ttfloat)I(nx,ny,nz)));
                 _resu(X,Y,Z) = (Ttfloat)(N?(K[0]*I(px,py,pz) + K[1]*I(x,py,pz) + K[2]*I(nx,py,pz) +
                                             K[3]*I(px,y,pz) + K[4]*I(x,y,pz) + K[5]*I(nx,y,pz) +
                                             K[6]*I(px,ny,pz) + K[7]*I(x,ny,pz) + K[8]*I(nx,ny,pz) +
@@ -41077,16 +41086,21 @@ namespace cimg_library {
                     nx = x + xdilation<w1?x + xdilation:w1, ax = nx + xdilation<w1?nx + xdilation:w1,
                     py = y - ydilation>0?y - ydilation:0, by = py - ydilation>0?py - ydilation:0,
                     ny = y + ydilation<h1?y + ydilation:h1, ay = ny + ydilation<h1?ny + ydilation:h1;
-                  const Ttfloat N = M2*(cimg::sqr(I(bx,by,z)) + cimg::sqr(I(px,by,z)) + cimg::sqr(I(x,by,z)) +
-                                        cimg::sqr(I(nx,by,z)) + cimg::sqr(I(ax,by,z)) +
-                                        cimg::sqr(I(bx,py,z)) + cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) +
-                                        cimg::sqr(I(nx,py,z)) + cimg::sqr(I(ax,py,z)) +
-                                        cimg::sqr(I(bx,y,z)) + cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) +
-                                        cimg::sqr(I(nx,y,z)) + cimg::sqr(I(ax,y,z)) +
-                                        cimg::sqr(I(bx,ny,z)) + cimg::sqr(I(px,ny,z)) + cimg::sqr(I(x,ny,z)) +
-                                        cimg::sqr(I(nx,ny,z)) + cimg::sqr(I(ax,ny,z)) +
-                                        cimg::sqr(I(bx,ay,z)) + cimg::sqr(I(px,ay,z)) + cimg::sqr(I(x,ay,z)) +
-                                        cimg::sqr(I(nx,ay,z)) + cimg::sqr(I(ax,ay,z)));
+                  const Ttfloat N = M2*(cimg::sqr((Ttfloat)I(bx,by,z)) + cimg::sqr((Ttfloat)I(px,by,z)) +
+                                        cimg::sqr((Ttfloat)I(x,by,z)) +
+                                        cimg::sqr((Ttfloat)I(nx,by,z)) + cimg::sqr((Ttfloat)I(ax,by,z)) +
+                                        cimg::sqr((Ttfloat)I(bx,py,z)) + cimg::sqr((Ttfloat)I(px,py,z)) +
+                                        cimg::sqr((Ttfloat)I(x,py,z)) +
+                                        cimg::sqr((Ttfloat)I(nx,py,z)) + cimg::sqr((Ttfloat)I(ax,py,z)) +
+                                        cimg::sqr((Ttfloat)I(bx,y,z)) + cimg::sqr((Ttfloat)I(px,y,z)) +
+                                        cimg::sqr((Ttfloat)I(x,y,z)) +
+                                        cimg::sqr((Ttfloat)I(nx,y,z)) + cimg::sqr((Ttfloat)I(ax,y,z)) +
+                                        cimg::sqr((Ttfloat)I(bx,ny,z)) + cimg::sqr((Ttfloat)I(px,ny,z)) +
+                                        cimg::sqr((Ttfloat)I(x,ny,z)) +
+                                        cimg::sqr((Ttfloat)I(nx,ny,z)) + cimg::sqr((Ttfloat)I(ax,ny,z)) +
+                                        cimg::sqr((Ttfloat)I(bx,ay,z)) + cimg::sqr((Ttfloat)I(px,ay,z)) +
+                                        cimg::sqr((Ttfloat)I(x,ay,z)) +
+                                        cimg::sqr((Ttfloat)I(nx,ay,z)) + cimg::sqr((Ttfloat)I(ax,ay,z)));
                   _resu(X,Y,z) = (Ttfloat)(N?(K[0]*I(bx,by,z) + K[1]*I(px,by,z) + K[2]*I(x,by,z) +
                                               K[3]*I(nx,by,z) + K[4]*I(ax,by,z) +
                                               K[5]*I(bx,py,z) + K[6]*I(px,py,z) + K[7]*I(x,py,z) +
@@ -41142,9 +41156,12 @@ namespace cimg_library {
                     x = xoffset + X, y = yoffset + Y,
                     px = x - xdilation>0?x - xdilation:0, nx = x + xdilation<w1?x + xdilation:w1,
                     py = y - ydilation>0?y - ydilation:0, ny = y + ydilation<h1?y + ydilation:h1;
-                  const Ttfloat N = M2*(cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) + cimg::sqr(I(nx,py,z)) +
-                                        cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) + cimg::sqr(I(nx,y,z)) +
-                                        cimg::sqr(I(px,ny,z)) + cimg::sqr(I(x,ny,z)) + cimg::sqr(I(nx,ny,z)));
+                  const Ttfloat N = M2*(cimg::sqr((Ttfloat)I(px,py,z)) + cimg::sqr((Ttfloat)I(x,py,z)) +
+                                        cimg::sqr((Ttfloat)I(nx,py,z)) +
+                                        cimg::sqr((Ttfloat)I(px,y,z)) + cimg::sqr((Ttfloat)I(x,y,z)) +
+                                        cimg::sqr((Ttfloat)I(nx,y,z)) +
+                                        cimg::sqr((Ttfloat)I(px,ny,z)) + cimg::sqr((Ttfloat)I(x,ny,z)) +
+                                        cimg::sqr((Ttfloat)I(nx,ny,z)));
                   _resu(X,Y,z) = (Ttfloat)(N?(K[0]*I(px,py,z) + K[1]*I(x,py,z) + K[2]*I(nx,py,z) +
                                               K[3]*I(px,y,z) + K[4]*I(x,y,z) + K[5]*I(nx,y,z) +
                                               K[6]*I(px,ny,z) + K[7]*I(x,ny,z) + K[8]*I(nx,ny,z))/std::sqrt(N):0);

@@ -28991,7 +28991,7 @@ namespace cimg_library {
         if (index<0 || index>=(int)siz) {
           std::fprintf(cimg::output(),"\n%s[CImg] *** Warning *** "
                        "CImg<%s>::_cimg_math_parser::mp_vector_off(): "
-                       "Invalid vector read at index [%d] (vector size is %u).%s",
+                       "Invalid vector read at index [%d] (vector size is %u).%s\n",
                        cimg::t_red(),cimg::type<T>::string(),index,siz,cimg::t_normal());
           return cimg::type<double>::nan();
         }
@@ -29111,7 +29111,7 @@ namespace cimg_library {
         if (index<0 || index>=(int)siz) {
           std::fprintf(cimg::output(),"\n%s[CImg] *** Warning *** "
                        "CImg<%s>::_cimg_math_parser::mp_vector_set_off(): "
-                       "Invalid vector write at index [%d] (vector size is %u).%s",
+                       "Invalid vector write at index [%d] (vector size is %u).%s\n",
                        cimg::t_red(),cimg::type<T>::string(),index,siz,cimg::t_normal());
         } else mp.mem[ptr + index] = _mp_arg(1);
         return _mp_arg(1);

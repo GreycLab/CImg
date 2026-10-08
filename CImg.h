@@ -40935,7 +40935,8 @@ namespace cimg_library {
 
       CImg<t> _kernel;
       if (is_convolve) { // If convolution, determine corresponding correlation
-        if (kernel.size()/kernel.spectrum()<=27) {
+        const unsigned int ksiz = (unsigned int)(kernel.size()/kernel._spectrum);
+        if (ksiz==2*2 || ksiz==3*3 || ksiz==4*4 || ksiz==5*5 || ksiz==3*3*3) {
           _kernel = CImg<t>(kernel._data,kernel.size()/kernel._spectrum,1,1,kernel._spectrum,true).
             get_mirror('x').resize(kernel,-1);
           _xcenter = kernel.width() - 1 - _xcenter;

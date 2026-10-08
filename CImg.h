@@ -40980,7 +40980,7 @@ namespace cimg_library {
          (_kernel._depth<=3 && _kernel._width<=3 && _kernel._height<=3)) &&
         _xcenter==_kernel.width()/2 && _ycenter==_kernel.height()/2 && _zcenter==_kernel.depth()/2 &&
         xstride==1 && ystride==1 && zstride==1 &&
-        xoffset>=0 && yoffset>=0 && zoffset>=0 &&
+        xoffset>=0 && yoffset>=0 && (_kernel._depth>1?zoffset>=0:!zoffset) &&
         xoffset + _xsize<=_width && yoffset + _ysize<=_height && zoffset + _zsize<=_depth;
 
       if (is_optimized_loop) {

@@ -18837,7 +18837,6 @@ namespace cimg_library {
                                             wK,hK,dK,sK,wK*hK*dK*sK,size(opcode[7]),
                                             s0);
               }
-
               arg2 = !channel_mode?sI*sK:channel_mode==1?std::max(sI,sK):
                 channel_mode==2?std::max(sI,sK)/std::min(sI,sK):1U;
 
@@ -40926,7 +40925,6 @@ namespace cimg_library {
         res_wh = (ulongT)_xsize*_ysize,
         res_whd = (ulongT)_xsize*_ysize*_zsize;
       if (!xsize || !ysize || !zsize) return CImg<Ttfloat>();
-
       int
         _xcenter = xcenter==(int)(~0U>>1)?(kernel.width()/2 + (is_convolve?0:(kernel.width()%2) - 1)):xcenter,
         _ycenter = ycenter==(int)(~0U>>1)?(kernel.height()/2 + (is_convolve?0:(kernel.height()%2) - 1)):ycenter,

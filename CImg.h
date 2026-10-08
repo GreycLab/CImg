@@ -40928,13 +40928,13 @@ namespace cimg_library {
       if (!xsize || !ysize || !zsize) return CImg<Ttfloat>();
 
       int
-        _xcenter = xcenter==(int)(~0U>>1)?kernel.width()/2 - 1 + (kernel.width()%2):xcenter,
-        _ycenter = ycenter==(int)(~0U>>1)?kernel.height()/2 - 1 + (kernel.height()%2):ycenter,
-        _zcenter = zcenter==(int)(~0U>>1)?kernel.depth()/2 - 1 + (kernel.depth()%2):zcenter,
+        _xcenter = xcenter==(int)(~0U>>1)?(kernel.width()/2 + (is_convolve?0:(kernel.width()%2) - 1)):xcenter,
+        _ycenter = ycenter==(int)(~0U>>1)?(kernel.height()/2 + (is_convolve?0:(kernel.height()%2) - 1)):ycenter,
+        _zcenter = zcenter==(int)(~0U>>1)?(kernel.depth()/2 + (is_convolve?0:(kernel.depth()%2) - 1)):zcenter,
         _xdilation = xdilation, _ydilation = ydilation, _zdilation = zdilation;
 
       CImg<t> _kernel;
-      if (is_convolve) { // If convolution, go back to correlation
+      if (is_convolve) { // If convolution, determine corresponding correlation
         if (kernel.size()/kernel.spectrum()<=27) {
           _kernel = CImg<t>(kernel._data,kernel.size()/kernel._spectrum,1,1,kernel._spectrum,true).
             get_mirror('x').resize(kernel,-1);
@@ -40988,7 +40988,7 @@ namespace cimg_library {
         if (_kernel._depth>1) _zcenter = (int)M/2;
       }
 
-      // Optimized version for a few particular cases (3x3, 5x5 and 3x3x3 kernels, with a few other conditions).
+      // Optimized version for a few particular cases (1x1, 3x3, 5x5 and 3x3x3 kernels, under a few conditions).
       if (boundary_conditions==1 &&
           _kernel._width==_kernel._height &&
           ((_kernel._depth==1 && (_kernel._width==3 || _kernel._width==5)) ||

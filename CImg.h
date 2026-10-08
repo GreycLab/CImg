@@ -40972,30 +40972,24 @@ namespace cimg_library {
         w2 = 2*w, h2 = 2*h, d2 = 2*d;
       const ulongT wh = (ulongT)w*h, whd = wh*d;
 
-      // Reshape kernel to enable optimizations for a few cases.
-      if (boundary_conditions==1 &&
-          _kernel._width>1 && _kernel._height>1 &&
-          ((_kernel._depth==1 && _kernel._width<=5 && _kernel._height<=5) ||
-           (_kernel._depth<=3 && _kernel._width<=3 && _kernel._height<=3)) &&
-          xstride==1 && ystride==1 && zstride==1 &&
-          xoffset>=0 && yoffset>=0 && zoffset>=0 &&
-          xoffset + _xsize<=_width && yoffset + _ysize<=_height && zoffset + _zsize<=_depth) {
-        const unsigned int M = cimg::max(_kernel._width,_kernel._height,_kernel._depth);
-        _kernel.assign(_kernel.get_resize(M + 1 - (M%2),M + 1 - (M%2),_kernel._depth>1?M + 1 - (M%2):1,-100,
-                                          0,0,1,1,1),false);
-        _xcenter = _ycenter = (int)M/2;
-        if (_kernel._depth>1) _zcenter = (int)M/2;
-      }
-
       // Optimized version for a few particular cases (1x1, 3x3, 5x5 and 3x3x3 kernels, under a few conditions).
-      if (boundary_conditions==1 &&
-          _kernel._width==_kernel._height &&
-          ((_kernel._depth==1 && (_kernel._width==3 || _kernel._width==5)) ||
-           (_kernel._depth==_kernel._width && _kernel._width==3)) &&
-          _xcenter==_kernel.width()/2 && _ycenter==_kernel.height()/2 && _zcenter==_kernel.depth()/2 &&
-          xstride==1 && ystride==1 && zstride==1 &&
-          xoffset>=0 && yoffset>=0 && zoffset>=0 &&
-          xoffset + _xsize<=_width && yoffset + _ysize<=_height && zoffset + _zsize<=_depth) {
+      const bool is_optimized_loop =
+        boundary_conditions==1 &&
+        _kernel._width>1 && _kernel._height>1 &&
+        ((_kernel._depth==1 && _kernel._width<=5 && _kernel._height<=5) ||
+         (_kernel._depth<=3 && _kernel._width<=3 && _kernel._height<=3)) &&
+        _xcenter==_kernel.width()/2 && _ycenter==_kernel.height()/2 && _zcenter==_kernel.depth()/2 &&
+        xstride==1 && ystride==1 && zstride==1 &&
+        xoffset>=0 && yoffset>=0 && zoffset>=0 &&
+        xoffset + _xsize<=_width && yoffset + _ysize<=_height && zoffset + _zsize<=_depth;
+
+      if (is_optimized_loop) {
+        // Make sure kernel has odd dimensions.
+        const unsigned int kM = cimg::max(_kernel._width,_kernel._height,_kernel._depth);
+        _kernel.assign(_kernel.get_resize(kM + 1 - (kM%2),kM + 1 - (kM%2),_kernel._depth>1?kM + 1 - (kM%2):1,-100,
+                                          0,0,1,1,1),false);
+        _xcenter = _ycenter = (int)kM/2;
+        _zcenter = _kernel._depth>1?(int)kM/2:0;
 
         switch (_kernel._depth) {
         case 3 : { // 3x3x3 centered kernel

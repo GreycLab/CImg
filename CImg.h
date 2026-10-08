@@ -18815,9 +18815,9 @@ namespace cimg_library {
                 xstride = (int)mem[opcode[18]],
                 ystride = (int)mem[opcode[19]],
                 zstride = (int)mem[opcode[20]],
-                xsize = opcode[27]==~0U?(wI + xstride - 1)/xstride:(unsigned int)mem[opcode[27]],
-                ysize = opcode[28]==~0U?(hI + ystride - 1)/ystride:(unsigned int)mem[opcode[28]],
-                zsize = opcode[29]==~0U?(dI + zstride - 1)/zstride:(unsigned int)mem[opcode[29]];
+                xsize = opcode[27]==~0U?(wI - 1)/xstride + 1:(unsigned int)mem[opcode[27]],
+                ysize = opcode[28]==~0U?(hI - 1)/ystride + 1:(unsigned int)mem[opcode[28]],
+                zsize = opcode[29]==~0U?(dI - 1)/zstride + 1:(unsigned int)mem[opcode[29]];
 
               if (wI*hI*dI*sI!=size(opcode[2])) {
                 _cimg_mp_strerr;
@@ -40918,9 +40918,9 @@ namespace cimg_library {
       typedef _cimg_Ttfloat Ttfloat;
       CImg<Ttfloat> res;
       const unsigned int
-        _xsize = xsize==~0U?(_width + xstride - 1)/xstride:xsize,
-        _ysize = ysize==~0U?(_height + ystride - 1)/ystride:ysize,
-        _zsize = zsize==~0U?(_depth + zstride - 1)/zstride:zsize;
+        _xsize = xsize==~0U?(_width - 1)/xstride + 1:xsize,
+        _ysize = ysize==~0U?(_height - 1)/ystride + 1:ysize,
+        _zsize = zsize==~0U?(_depth - 1)/zstride + 1:zsize;
       const ulongT
         res_wh = (ulongT)_xsize*_ysize,
         res_whd = (ulongT)_xsize*_ysize*_zsize;

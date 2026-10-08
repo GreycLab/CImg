@@ -40960,7 +40960,7 @@ namespace cimg_library {
         w2 = 2*w, h2 = 2*h, d2 = 2*d;
       const ulongT wh = (ulongT)w*h, whd = wh*d;
 
-      // Optimized version for a few particular cases.
+      // Determing if an optimized loop can be used for this set of parameters.
       const bool is_optimized_loop =
         boundary_conditions==1 &&
         kernel._width>1 && kernel._height>1 &&
@@ -40986,10 +40986,15 @@ namespace cimg_library {
           _zcenter = _kernel.depth() - 1 - _zcenter;
         } else _kernel = kernel.get_shared();
 
-        // Make sure kernel gets odd dimensions.
-        const unsigned int kM = cimg::max(_kernel._width,_kernel._height,_kernel._depth);
-        _kernel.assign(_kernel.get_resize(kM + 1 - (kM%2),kM + 1 - (kM%2),_kernel._depth>1?kM + 1 - (kM%2):1,-100,
-                                          0,0,1,1,1),false);
+        // Make kernel size become 3x3, 5x5 or 3x3x3.
+        const unsigned int
+          kM = cimg::max(_kernel._width,_kernel._height,_kernel._depth),
+          kN = kM + 1 - (kM%2);
+        const int kN2 = (int)kN/2;
+        const bool is_3d = _kernel._depth>1;
+        CImg<t> __kernel(kN,kN,is_3d?kN:1,_kernel._spectrum,0);
+        __kernel.draw_image(kN2 - _xcenter,kN2 - _ycenter,is_3d?kN2 - _zcenter:0,_kernel);
+        _kernel.assign(__kernel,false);
         _xcenter = _ycenter = (int)kM/2;
         _zcenter = _kernel._depth>1?(int)kM/2:0;
 

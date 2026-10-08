@@ -18815,9 +18815,9 @@ namespace cimg_library {
                 xstride = (int)mem[opcode[18]],
                 ystride = (int)mem[opcode[19]],
                 zstride = (int)mem[opcode[20]],
-                xsize = opcode[27]==~0U?wI/xstride:(unsigned int)mem[opcode[27]],
-                ysize = opcode[28]==~0U?hI/ystride:(unsigned int)mem[opcode[28]],
-                zsize = opcode[29]==~0U?dI/zstride:(unsigned int)mem[opcode[29]];
+                xsize = opcode[27]==~0U?(wI + xstride - 1)/xstride:(unsigned int)mem[opcode[27]],
+                ysize = opcode[28]==~0U?(hI + ystride - 1)/ystride:(unsigned int)mem[opcode[28]],
+                zsize = opcode[29]==~0U?(dI + zstride - 1)/zstride:(unsigned int)mem[opcode[29]];
 
               if (wI*hI*dI*sI!=size(opcode[2])) {
                 _cimg_mp_strerr;
@@ -40838,9 +40838,9 @@ namespace cimg_library {
        \param xoffset X-offset.
        \param yoffset Y-offset.
        \param zoffset Z-offset.
-       \param xsize Width of the resulting image (~0U means 'instance_width/xstride').
-       \param ysize Height of the resulting image (~0U means 'instance_height/ystride').
-       \param zsize Depth of the resulting image (~0U means 'instance_depth/zstride').
+       \param xsize Width of the resulting image (~0U means 'ceil(instance_width/xstride)').
+       \param ysize Height of the resulting image (~0U means 'ceil(instance_height/ystride)').
+       \param zsize Depth of the resulting image (~0U means 'ceil(instance_depth/zstride)').
        \note
        - The correlation of the image instance \p *this by the kernel \p kernel is defined to be:
        \f$ res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x + \beta_x\;(i - c_x),\alpha_y\;y + \beta_y\;(j -
@@ -40918,9 +40918,9 @@ namespace cimg_library {
       typedef _cimg_Ttfloat Ttfloat;
       CImg<Ttfloat> res;
       const unsigned int
-        _xsize = xsize==~0U?_width/xstride:xsize,
-        _ysize = ysize==~0U?_height/ystride:ysize,
-        _zsize = zsize==~0U?_depth/zstride:zsize;
+        _xsize = xsize==~0U?(_width + xstride - 1)/xstride:xsize,
+        _ysize = ysize==~0U?(_height + ystride - 1)/ystride:ysize,
+        _zsize = zsize==~0U?(_depth + zstride - 1)/zstride:zsize;
       const ulongT
         res_wh = (ulongT)_xsize*_ysize,
         res_whd = (ulongT)_xsize*_ysize*_zsize;
@@ -41376,9 +41376,9 @@ namespace cimg_library {
        \param xoffset X-offset.
        \param yoffset Y-offset.
        \param zoffset Z-offset.
-       \param xsize Width of the resulting image (~0U means 'instance_width/xstride').
-       \param ysize Height of the resulting image (~0U means 'instance_height/ystride').
-       \param zsize Depth of the resulting image (~0U means 'instance_depth/zstride').
+       \param xsize Width of the resulting image (~0U means 'ceil(instance_width/xstride)').
+       \param ysize Height of the resulting image (~0U means 'ceil(instance_height/ystride)').
+       \param zsize Depth of the resulting image (~0U means 'ceil(instance_depth/zstride)').
        \note
        - The convolution of the image instance \p *this by the kernel \p kernel is defined to be:
        \f$ res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x - \beta_x\;(i - c_x),\alpha_y\;y

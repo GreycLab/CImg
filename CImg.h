@@ -30964,7 +30964,7 @@ namespace cimg_library {
         case '>' : if (ptr[1]=='=') { ++ptr; __eval_op(val1>=val2); } else { __eval_op(val1>val2); }
         case '<' : if (ptr[1]=='=') { ++ptr; __eval_op(val1<=val2); } else { __eval_op(val1<val2); }
         case ';' : __eval_op(val2);
-        case '^' : __eval_op(std::pow(val1,val2));
+        case '^' : if (val1<0) { __eval_op(-std::pow(-val1,val2)); } else { __eval_op(std::pow(val1,val2)); }
         case '=' : if (*++ptr=='=') { __eval_op(val1==val2); } else return false;
         case '!' : if (*++ptr=='=') { __eval_op(val1!=val2); } else return false;
         }

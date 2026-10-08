@@ -40870,6 +40870,7 @@ namespace cimg_library {
                            xoffset,yoffset,zoffset,xsize,ysize,zsize).move_to(*this);
     }
 
+    //! Correlate the image with a kernel \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> get_correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                                       const bool is_normalized=false, const unsigned int channel_mode=1,
@@ -40893,7 +40894,6 @@ namespace cimg_library {
                         xoffset,yoffset,zoffset,xsize,ysize,zsize,false);
     }
 
-    //! Correlate the image with a kernel \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> _correlate(const CImg<t>& kernel, const unsigned int boundary_conditions,
                                    const bool is_normalized, const unsigned int channel_mode,
@@ -40924,7 +40924,7 @@ namespace cimg_library {
       const ulongT
         res_wh = (ulongT)_xsize*_ysize,
         res_whd = (ulongT)_xsize*_ysize*_zsize;
-      if (!xsize || !ysize || !zsize) return CImg<Ttfloat>();
+      if (!_xsize || !_ysize || !_zsize) return CImg<Ttfloat>();
       int
         _xcenter = xcenter==(int)(~0U>>1)?(kernel.width()/2 + (is_convolve?0:(kernel.width()%2) - 1)):xcenter,
         _ycenter = ycenter==(int)(~0U>>1)?(kernel.height()/2 + (is_convolve?0:(kernel.height()%2) - 1)):ycenter,
@@ -41167,7 +41167,7 @@ namespace cimg_library {
                                               (Ttfloat)K[24]*I(ax,ay,z))/std::sqrt(N):0);
                 }
               } else {
-                cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
+                cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
                 cimg_forXYZ(res,X,Y,z) {
                   const int
                     x = xoffset + X, y = yoffset + Y,
@@ -41229,7 +41229,7 @@ namespace cimg_library {
                                               (Ttfloat)K[8]*I(nx,ny,z))/std::sqrt(N):0);
                 }
               } else {
-                cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
+                cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
                 cimg_forXYZ(res,X,Y,z) {
                   const int
                     x = xoffset + X, y = yoffset + Y,
@@ -41291,7 +41291,7 @@ namespace cimg_library {
             cimg_forZ(kernel,r) { _cimg_correlate_z; _cimg_correlate_z_##boundary; \
               cimg_forY(kernel,q) { _cimg_correlate_y; _cimg_correlate_y_##boundary; \
                 cimg_forX(kernel,p) { _cimg_correlate_x; _cimg_correlate_x_##boundary; \
-                  val+=*(pK++)*(access); \
+                  val+=(Ttfloat)*(pK++)*(access); \
                 } \
               } \
             } \

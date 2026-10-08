@@ -40966,6 +40966,8 @@ namespace cimg_library {
         kernel._width>1 && kernel._height>1 &&
         ((kernel._depth==1 && kernel._width<=5 && kernel._height<=5) ||
          (kernel._depth<=3 && kernel._width<=3 && kernel._height<=3)) &&
+        (!is_normalized || (kernel._width%2 && kernel._width==kernel._height &&
+                            (kernel._depth==1 || kernel._depth==kernel._width))) &&
         _xcenter==kernel.width()/2 + (is_convolve?0:(kernel.width()%2) - 1) &&
         _ycenter==kernel.height()/2 + (is_convolve?0:(kernel.height()%2) - 1) &&
         _zcenter==kernel.depth()/2 + (is_convolve?0:(kernel.depth()%2) -1) &&
@@ -40995,8 +40997,6 @@ namespace cimg_library {
         CImg<t> __kernel(kN,kN,is_3d?kN:1,_kernel._spectrum,0);
         __kernel.draw_image(kN2 - _xcenter,kN2 - _ycenter,is_3d?kN2 - _zcenter:0,_kernel);
         _kernel.assign(__kernel,false);
-        _xcenter = _ycenter = (int)kM/2;
-        _zcenter = _kernel._depth>1?(int)kM/2:0;
 
         switch (_kernel._depth) {
         case 3 : { // 3x3x3 centered kernel
@@ -41201,8 +41201,8 @@ namespace cimg_library {
         cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
         for (int c = 0; c<cend; ++c) {
           const t valK = kernel[!channel_mode?c/_spectrum:c%kernel._spectrum];
-          CImg<T> I = get_crop(xoffset,yoffset,zoffset,c%_spectrum,
-                               xoffset + _xsize - 1,yoffset + _ysize - 1,zoffset + _zsize - 1,c%_spectrum);
+          CImg<Ttfloat> I = get_crop(xoffset,yoffset,zoffset,c%_spectrum,
+                                     xoffset + _xsize - 1,yoffset + _ysize - 1,zoffset + _zsize - 1,c%_spectrum);
           if (valK!=1) I*=valK;
           if (is_normalized) I.sign();
           switch (channel_mode) {

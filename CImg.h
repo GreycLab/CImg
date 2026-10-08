@@ -4689,7 +4689,7 @@ namespace cimg_library {
     template<typename T>
     inline T abscut(const T& val, const T& val_min, const T& val_max, const T& offset) {
       typedef typename cimg::superset<T,int>::type Tint;
-      const T sgn = cimg::sign(val);
+      const T sgn = val>=0?1:-1; // Do not use 'cimg::sign(val)', we never want 'sgn==0'
       return (T)cimg::cut((Tint)(val*sgn + offset),(Tint)val_min,(Tint)val_max)*sgn;
     }
 
@@ -18837,7 +18837,6 @@ namespace cimg_library {
                                             wK,hK,dK,sK,wK*hK*dK*sK,size(opcode[7]),
                                             s0);
               }
-
               arg2 = !channel_mode?sI*sK:channel_mode==1?std::max(sI,sK):
                 channel_mode==2?std::max(sI,sK)/std::min(sI,sK):1U;
 
@@ -40912,12 +40911,12 @@ namespace cimg_library {
                                    const unsigned int ysize,
                                    const unsigned int zsize,
                                    const bool is_convolve) const {
-      typedef _cimg_Ttfloat Ttfloat;
-      CImg<Ttfloat> res;
       _cimg_abort_init_openmp;
       cimg_abort_init;
       if (is_empty() || !kernel) return *this;
 
+      typedef _cimg_Ttfloat Ttfloat;
+      CImg<Ttfloat> res;
       const unsigned int
         _xsize = xsize==~0U?_width/xstride:xsize,
         _ysize = ysize==~0U?_height/ystride:ysize,
@@ -40926,31 +40925,19 @@ namespace cimg_library {
         res_wh = (ulongT)_xsize*_ysize,
         res_whd = (ulongT)_xsize*_ysize*_zsize;
       if (!xsize || !ysize || !zsize) return CImg<Ttfloat>();
-
       int
-        _xcenter = xcenter==(int)(~0U>>1)?kernel.width()/2 - 1 + (kernel.width()%2):xcenter,
-        _ycenter = ycenter==(int)(~0U>>1)?kernel.height()/2 - 1 + (kernel.height()%2):ycenter,
-        _zcenter = zcenter==(int)(~0U>>1)?kernel.depth()/2 - 1 + (kernel.depth()%2):zcenter,
+        _xcenter = xcenter==(int)(~0U>>1)?(kernel.width()/2 + (is_convolve?0:(kernel.width()%2) - 1)):xcenter,
+        _ycenter = ycenter==(int)(~0U>>1)?(kernel.height()/2 + (is_convolve?0:(kernel.height()%2) - 1)):ycenter,
+        _zcenter = zcenter==(int)(~0U>>1)?(kernel.depth()/2 + (is_convolve?0:(kernel.depth()%2) - 1)):zcenter,
         _xdilation = xdilation, _ydilation = ydilation, _zdilation = zdilation;
 
-      CImg<t> _kernel;
-      if (is_convolve) { // If convolution, go back to correlation
-        if (kernel.size()/kernel.spectrum()<=27) {
-          _kernel = CImg<t>(kernel._data,kernel.size()/kernel._spectrum,1,1,kernel._spectrum,true).
-            get_mirror('x').resize(kernel,-1);
-          _xcenter = kernel.width() - 1 - _xcenter;
-          _ycenter = kernel.height() - 1 - _ycenter;
-          _zcenter = kernel.depth() - 1 - _zcenter;
-        } else { _kernel = kernel.get_shared(); _xdilation*=-1; _ydilation*=-1; _zdilation*=-1; }
-      } else _kernel = kernel.get_shared();
-
       const int
-        smin = std::min(spectrum(),_kernel.spectrum()),
-        smax = std::max(spectrum(),_kernel.spectrum()),
-        cend = !channel_mode?spectrum()*_kernel.spectrum():smax;
+        smin = std::min(spectrum(),kernel.spectrum()),
+        smax = std::max(spectrum(),kernel.spectrum()),
+        cend = !channel_mode?spectrum()*kernel.spectrum():smax;
 
       res.assign(_xsize,_ysize,_zsize,
-                 !channel_mode?_spectrum*_kernel._spectrum:
+                 !channel_mode?_spectrum*kernel._spectrum:
                  channel_mode==1?smax:
                  channel_mode==2?(int)std::ceil((float)smax/smin):1);
       const ulongT res_siz = res_whd*res._spectrum;
@@ -40973,30 +40960,69 @@ namespace cimg_library {
         w2 = 2*w, h2 = 2*h, d2 = 2*d;
       const ulongT wh = (ulongT)w*h, whd = wh*d;
 
-      // Reshape kernel to enable optimizations for a few cases.
-      if (boundary_conditions==1 &&
-          _kernel._width>1 && _kernel._height>1 &&
-          ((_kernel._depth==1 && _kernel._width<=5 && _kernel._height<=5) ||
-           (_kernel._depth<=3 && _kernel._width<=3 && _kernel._height<=3)) &&
+      // Determing if an optimized loop can be used for this set of parameters.
+      const bool
+        is_centered =
+          _xcenter==kernel.width()/2 + (is_convolve?0:(kernel.width()%2) - 1) &&
+          _ycenter==kernel.height()/2 + (is_convolve?0:(kernel.height()%2) - 1) &&
+          _zcenter==kernel.depth()/2 + (is_convolve?0:(kernel.depth()%2) - 1),
+        is_unit_stride_in_bounds =
           xstride==1 && ystride==1 && zstride==1 &&
           xoffset>=0 && yoffset>=0 && zoffset>=0 &&
-          xoffset + _xsize<=_width && yoffset + _ysize<=_height && zoffset + _zsize<=_depth) {
-        const unsigned int M = cimg::max(_kernel._width,_kernel._height,_kernel._depth);
-        _kernel.assign(_kernel.get_resize(M + 1 - (M%2),M + 1 - (M%2),_kernel._depth>1?M + 1 - (M%2):1,-100,
-                                          0,0,1,1,1),false);
-        _xcenter = _ycenter = (int)M/2;
-        if (_kernel._depth>1) _zcenter = (int)M/2;
-      }
+          xoffset + _xsize<=_width && yoffset + _ysize<=_height && zoffset + _zsize<=_depth,
+        is_1x1 = kernel._width==1 && kernel._height==1 && kernel._depth==1 && is_centered && is_unit_stride_in_bounds,
+        is_optimized_loop = !is_1x1 && boundary_conditions==1 &&
+          kernel._width>1 && kernel._height>1 &&
+          ((kernel._depth==1 && kernel._width<=5 && kernel._height<=5) ||
+           (kernel._depth<=3 && kernel._width<=3 && kernel._height<=3)) &&
+          (!is_normalized || (kernel._width%2 && kernel._width==kernel._height &&
+                              (kernel._depth==1 || kernel._depth==kernel._width))) &&
+          is_centered && is_unit_stride_in_bounds &&
+          xdilation>=0 && ydilation>=0 && (kernel._depth==1 || zdilation>=0) &&
+          (kernel._depth>1 || !zoffset);
 
-      // Optimized version for a few particular cases (3x3, 5x5 and 3x3x3 kernels, with a few other conditions).
-      if (boundary_conditions==1 &&
-          _kernel._width==_kernel._height &&
-          ((_kernel._depth==1 && (_kernel._width==3 || _kernel._width==5)) ||
-           (_kernel._depth==_kernel._width && _kernel._width==3)) &&
-          _xcenter==_kernel.width()/2 && _ycenter==_kernel.height()/2 && _zcenter==_kernel.depth()/2 &&
-          xstride==1 && ystride==1 && zstride==1 &&
-          xoffset>=0 && yoffset>=0 && zoffset>=0 &&
-          xoffset + _xsize<=_width && yoffset + _ysize<=_height && zoffset + _zsize<=_depth) {
+      if (is_1x1) { // Special optimization for 1x1 kernel
+        cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
+        for (int c = 0; c<cend; ++c) {
+          const t valK = kernel[!channel_mode?c/_spectrum:c%kernel._spectrum];
+          CImg<Ttfloat> I = get_crop(xoffset,yoffset,zoffset,c%_spectrum,
+                                     xoffset + _xsize - 1,yoffset + _ysize - 1,zoffset + _zsize - 1,c%_spectrum);
+          if (valK!=1) I*=valK;
+          if (is_normalized) I.sign();
+          switch (channel_mode) {
+          case 0 : // All
+          case 1 : // One for one
+            res.get_shared_channel(c) = I;
+            break;
+          case 2 : // Partial sum
+            cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(c/smin)+=I;
+            break;
+          case 3 : // Full sum
+            cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(0)+=I;
+            break;
+          }
+        }
+      } else if (is_optimized_loop) { // Other case of an optimized loop
+        CImg<t> _kernel;
+
+        // Explicitely mirror kernel for optimized convolution.
+        if (is_convolve) {
+          CImg<t>(kernel._data,kernel.size()/kernel._spectrum,1,1,kernel._spectrum,true).
+            get_mirror('x').resize(kernel,-1).move_to(_kernel);
+          _xcenter = _kernel.width() - 1 - _xcenter;
+          _ycenter = _kernel.height() - 1 - _ycenter;
+          _zcenter = _kernel.depth() - 1 - _zcenter;
+        } else _kernel = kernel.get_shared();
+
+        // Make kernel size become 3x3, 5x5 or 3x3x3.
+        const unsigned int
+          kM = cimg::max(_kernel._width,_kernel._height,_kernel._depth),
+          kN = kM + 1 - (kM%2);
+        const int kN2 = (int)kN/2;
+        const bool is_3d = _kernel._depth>1;
+        CImg<t> tmp_kernel(kN,kN,is_3d?kN:1,_kernel._spectrum,0);
+        tmp_kernel.draw_image(kN2 - _xcenter,kN2 - _ycenter,is_3d?kN2 - _zcenter:0,_kernel);
+        _kernel.assign(tmp_kernel,false);
 
         switch (_kernel._depth) {
         case 3 : { // 3x3x3 centered kernel
@@ -41016,24 +41042,42 @@ namespace cimg_library {
                   px = x - xdilation>0?x - xdilation:0, nx = x + xdilation<w1?x + xdilation:w1,
                   py = y - ydilation>0?y - ydilation:0, ny = y + ydilation<h1?y + ydilation:h1,
                   pz = z - zdilation>0?z - zdilation:0, nz = z + zdilation<d1?z + zdilation:d1;
-                const Ttfloat N = M2*(cimg::sqr(I(px,py,pz)) + cimg::sqr(I(x,py,pz)) + cimg::sqr(I(nx,py,pz)) +
-                                      cimg::sqr(I(px,y,pz)) + cimg::sqr(I(x,y,pz)) + cimg::sqr(I(nx,y,pz)) +
-                                      cimg::sqr(I(px,ny,pz)) + cimg::sqr(I(x,ny,pz)) + cimg::sqr(I(nx,ny,pz)) +
-                                      cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) + cimg::sqr(I(nx,py,z)) +
-                                      cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) + cimg::sqr(I(nx,y,z)) +
-                                      cimg::sqr(I(px,ny,z)) + cimg::sqr(I(x,ny,z)) + cimg::sqr(I(nx,ny,z)) +
-                                      cimg::sqr(I(px,py,nz)) + cimg::sqr(I(x,py,nz)) + cimg::sqr(I(nx,py,nz)) +
-                                      cimg::sqr(I(px,y,nz)) + cimg::sqr(I(x,y,nz)) + cimg::sqr(I(nx,y,nz)) +
-                                      cimg::sqr(I(px,ny,nz)) + cimg::sqr(I(x,ny,nz)) + cimg::sqr(I(nx,ny,nz)));
-                _resu(X,Y,Z) = (Ttfloat)(N?(K[0]*I(px,py,pz) + K[1]*I(x,py,pz) + K[2]*I(nx,py,pz) +
-                                            K[3]*I(px,y,pz) + K[4]*I(x,y,pz) + K[5]*I(nx,y,pz) +
-                                            K[6]*I(px,ny,pz) + K[7]*I(x,ny,pz) + K[8]*I(nx,ny,pz) +
-                                            K[9]*I(px,py,z) + K[10]*I(x,py,z) + K[11]*I(nx,py,z) +
-                                            K[12]*I(px,y,z) + K[13]*I(x,y,z) + K[14]*I(nx,y,z) +
-                                            K[15]*I(px,ny,z) + K[16]*I(x,ny,z) + K[17]*I(nx,ny,z) +
-                                            K[18]*I(px,py,nz) + K[19]*I(x,py,nz) + K[20]*I(nx,py,nz) +
-                                            K[21]*I(px,y,nz) + K[22]*I(x,y,nz) + K[23]*I(nx,y,nz) +
-                                            K[24]*I(px,ny,nz) + K[25]*I(x,ny,nz) + K[26]*I(nx,ny,nz))/std::sqrt(N):0);
+                const Ttfloat N = M2*(cimg::sqr((Ttfloat)I(px,py,pz)) + cimg::sqr((Ttfloat)I(x,py,pz)) +
+                                      cimg::sqr((Ttfloat)I(nx,py,pz)) +
+                                      cimg::sqr((Ttfloat)I(px,y,pz)) + cimg::sqr((Ttfloat)I(x,y,pz)) +
+                                      cimg::sqr((Ttfloat)I(nx,y,pz)) +
+                                      cimg::sqr((Ttfloat)I(px,ny,pz)) + cimg::sqr((Ttfloat)I(x,ny,pz)) +
+                                      cimg::sqr((Ttfloat)I(nx,ny,pz)) +
+                                      cimg::sqr((Ttfloat)I(px,py,z)) + cimg::sqr((Ttfloat)I(x,py,z)) +
+                                      cimg::sqr((Ttfloat)I(nx,py,z)) +
+                                      cimg::sqr((Ttfloat)I(px,y,z)) + cimg::sqr((Ttfloat)I(x,y,z)) +
+                                      cimg::sqr((Ttfloat)I(nx,y,z)) +
+                                      cimg::sqr((Ttfloat)I(px,ny,z)) + cimg::sqr((Ttfloat)I(x,ny,z)) +
+                                      cimg::sqr((Ttfloat)I(nx,ny,z)) +
+                                      cimg::sqr((Ttfloat)I(px,py,nz)) + cimg::sqr((Ttfloat)I(x,py,nz)) +
+                                      cimg::sqr((Ttfloat)I(nx,py,nz)) +
+                                      cimg::sqr((Ttfloat)I(px,y,nz)) + cimg::sqr((Ttfloat)I(x,y,nz)) +
+                                      cimg::sqr((Ttfloat)I(nx,y,nz)) +
+                                      cimg::sqr((Ttfloat)I(px,ny,nz)) + cimg::sqr((Ttfloat)I(x,ny,nz)) +
+                                      cimg::sqr((Ttfloat)I(nx,ny,nz)));
+                _resu(X,Y,Z) = (Ttfloat)(N?((Ttfloat)K[0]*I(px,py,pz) + (Ttfloat)K[1]*I(x,py,pz) +
+                                            (Ttfloat)K[2]*I(nx,py,pz) +
+                                            (Ttfloat)K[3]*I(px,y,pz) + (Ttfloat)K[4]*I(x,y,pz) +
+                                            (Ttfloat)K[5]*I(nx,y,pz) +
+                                            (Ttfloat)K[6]*I(px,ny,pz) + (Ttfloat)K[7]*I(x,ny,pz) +
+                                            (Ttfloat)K[8]*I(nx,ny,pz) +
+                                            (Ttfloat)K[9]*I(px,py,z) + (Ttfloat)K[10]*I(x,py,z) +
+                                            (Ttfloat)K[11]*I(nx,py,z) +
+                                            (Ttfloat)K[12]*I(px,y,z) + (Ttfloat)K[13]*I(x,y,z) +
+                                            (Ttfloat)K[14]*I(nx,y,z) +
+                                            (Ttfloat)K[15]*I(px,ny,z) + (Ttfloat)K[16]*I(x,ny,z) +
+                                            (Ttfloat)K[17]*I(nx,ny,z) +
+                                            (Ttfloat)K[18]*I(px,py,nz) + (Ttfloat)K[19]*I(x,py,nz) +
+                                            (Ttfloat)K[20]*I(nx,py,nz) +
+                                            (Ttfloat)K[21]*I(px,y,nz) + (Ttfloat)K[22]*I(x,y,nz) +
+                                            (Ttfloat)K[23]*I(nx,y,nz) +
+                                            (Ttfloat)K[24]*I(px,ny,nz) + (Ttfloat)K[25]*I(x,ny,nz) +
+                                            (Ttfloat)K[26]*I(nx,ny,nz))/std::sqrt(N):0);
               }
             } else {
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
@@ -41043,15 +41087,24 @@ namespace cimg_library {
                   px = x - xdilation>0?x - xdilation:0, nx = x + xdilation<w1?x + xdilation:w1,
                   py = y - ydilation>0?y - ydilation:0, ny = y + ydilation<h1?y + ydilation:h1,
                   pz = z - zdilation>0?z - zdilation:0, nz = z + zdilation<d1?z + zdilation:d1;
-                _resu(X,Y,Z) = (Ttfloat)(K[0]*I(px,py,pz) + K[1]*I(x,py,pz) + K[2]*I(nx,py,pz) +
-                                         K[3]*I(px,y,pz) + K[4]*I(x,y,pz) + K[5]*I(nx,y,pz) +
-                                         K[6]*I(px,ny,pz) + K[7]*I(x,ny,pz) + K[8]*I(nx,ny,pz) +
-                                         K[9]*I(px,py,z) + K[10]*I(x,py,z) + K[11]*I(nx,py,z) +
-                                         K[12]*I(px,y,z) + K[13]*I(x,y,z) + K[14]*I(nx,y,z) +
-                                         K[15]*I(px,ny,z) + K[16]*I(x,ny,z) + K[17]*I(nx,ny,z) +
-                                         K[18]*I(px,py,nz) + K[19]*I(x,py,nz) + K[20]*I(nx,py,nz) +
-                                         K[21]*I(px,y,nz) + K[22]*I(x,y,nz) + K[23]*I(nx,y,nz) +
-                                         K[24]*I(px,ny,nz) + K[25]*I(x,ny,nz) + K[26]*I(nx,ny,nz));
+                _resu(X,Y,Z) = (Ttfloat)((Ttfloat)K[0]*I(px,py,pz) + (Ttfloat)K[1]*I(x,py,pz) +
+                                         (Ttfloat)K[2]*I(nx,py,pz) +
+                                         (Ttfloat)K[3]*I(px,y,pz) + (Ttfloat)K[4]*I(x,y,pz) +
+                                         (Ttfloat)K[5]*I(nx,y,pz) +
+                                         (Ttfloat)K[6]*I(px,ny,pz) + (Ttfloat)K[7]*I(x,ny,pz) +
+                                         (Ttfloat)K[8]*I(nx,ny,pz) +
+                                         (Ttfloat)K[9]*I(px,py,z) + (Ttfloat)K[10]*I(x,py,z) +
+                                         (Ttfloat)K[11]*I(nx,py,z) +
+                                         (Ttfloat)K[12]*I(px,y,z) + (Ttfloat)K[13]*I(x,y,z) +
+                                         (Ttfloat)K[14]*I(nx,y,z) +
+                                         (Ttfloat)K[15]*I(px,ny,z) + (Ttfloat)K[16]*I(x,ny,z) +
+                                         (Ttfloat)K[17]*I(nx,ny,z) +
+                                         (Ttfloat)K[18]*I(px,py,nz) + (Ttfloat)K[19]*I(x,py,nz) +
+                                         (Ttfloat)K[20]*I(nx,py,nz) +
+                                         (Ttfloat)K[21]*I(px,y,nz) + (Ttfloat)K[22]*I(x,y,nz) +
+                                         (Ttfloat)K[23]*I(nx,y,nz) +
+                                         (Ttfloat)K[24]*I(px,ny,nz) + (Ttfloat)K[25]*I(x,ny,nz) +
+                                         (Ttfloat)K[26]*I(nx,ny,nz));
               }
             }
             if (channel_mode==2)
@@ -41082,26 +41135,36 @@ namespace cimg_library {
                     nx = x + xdilation<w1?x + xdilation:w1, ax = nx + xdilation<w1?nx + xdilation:w1,
                     py = y - ydilation>0?y - ydilation:0, by = py - ydilation>0?py - ydilation:0,
                     ny = y + ydilation<h1?y + ydilation:h1, ay = ny + ydilation<h1?ny + ydilation:h1;
-                  const Ttfloat N = M2*(cimg::sqr(I(bx,by,z)) + cimg::sqr(I(px,by,z)) + cimg::sqr(I(x,by,z)) +
-                                        cimg::sqr(I(nx,by,z)) + cimg::sqr(I(ax,by,z)) +
-                                        cimg::sqr(I(bx,py,z)) + cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) +
-                                        cimg::sqr(I(nx,py,z)) + cimg::sqr(I(ax,py,z)) +
-                                        cimg::sqr(I(bx,y,z)) + cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) +
-                                        cimg::sqr(I(nx,y,z)) + cimg::sqr(I(ax,y,z)) +
-                                        cimg::sqr(I(bx,ny,z)) + cimg::sqr(I(px,ny,z)) + cimg::sqr(I(x,ny,z)) +
-                                        cimg::sqr(I(nx,ny,z)) + cimg::sqr(I(ax,ny,z)) +
-                                        cimg::sqr(I(bx,ay,z)) + cimg::sqr(I(px,ay,z)) + cimg::sqr(I(x,ay,z)) +
-                                        cimg::sqr(I(nx,ay,z)) + cimg::sqr(I(ax,ay,z)));
-                  _resu(X,Y,z) = (Ttfloat)(N?(K[0]*I(bx,by,z) + K[1]*I(px,by,z) + K[2]*I(x,by,z) +
-                                              K[3]*I(nx,by,z) + K[4]*I(ax,by,z) +
-                                              K[5]*I(bx,py,z) + K[6]*I(px,py,z) + K[7]*I(x,py,z) +
-                                              K[8]*I(nx,py,z) + K[9]*I(ax,py,z) +
-                                              K[10]*I(bx,y,z) + K[11]*I(px,y,z) + K[12]*I(x,y,z) +
-                                              K[13]*I(nx,y,z) + K[14]*I(ax,y,z) +
-                                              K[15]*I(bx,ny,z) + K[16]*I(px,ny,z) + K[17]*I(x,ny,z) +
-                                              K[18]*I(nx,ny,z) + K[19]*I(ax,ny,z) +
-                                              K[20]*I(bx,ay,z) + K[21]*I(px,ay,z) + K[22]*I(x,ay,z) +
-                                              K[23]*I(nx,ay,z) + K[24]*I(ax,ay,z))/std::sqrt(N):0);
+                  const Ttfloat N = M2*(cimg::sqr((Ttfloat)I(bx,by,z)) + cimg::sqr((Ttfloat)I(px,by,z)) +
+                                        cimg::sqr((Ttfloat)I(x,by,z)) +
+                                        cimg::sqr((Ttfloat)I(nx,by,z)) + cimg::sqr((Ttfloat)I(ax,by,z)) +
+                                        cimg::sqr((Ttfloat)I(bx,py,z)) + cimg::sqr((Ttfloat)I(px,py,z)) +
+                                        cimg::sqr((Ttfloat)I(x,py,z)) +
+                                        cimg::sqr((Ttfloat)I(nx,py,z)) + cimg::sqr((Ttfloat)I(ax,py,z)) +
+                                        cimg::sqr((Ttfloat)I(bx,y,z)) + cimg::sqr((Ttfloat)I(px,y,z)) +
+                                        cimg::sqr((Ttfloat)I(x,y,z)) +
+                                        cimg::sqr((Ttfloat)I(nx,y,z)) + cimg::sqr((Ttfloat)I(ax,y,z)) +
+                                        cimg::sqr((Ttfloat)I(bx,ny,z)) + cimg::sqr((Ttfloat)I(px,ny,z)) +
+                                        cimg::sqr((Ttfloat)I(x,ny,z)) +
+                                        cimg::sqr((Ttfloat)I(nx,ny,z)) + cimg::sqr((Ttfloat)I(ax,ny,z)) +
+                                        cimg::sqr((Ttfloat)I(bx,ay,z)) + cimg::sqr((Ttfloat)I(px,ay,z)) +
+                                        cimg::sqr((Ttfloat)I(x,ay,z)) +
+                                        cimg::sqr((Ttfloat)I(nx,ay,z)) + cimg::sqr((Ttfloat)I(ax,ay,z)));
+                  _resu(X,Y,z) = (Ttfloat)(N?((Ttfloat)K[0]*I(bx,by,z) + (Ttfloat)K[1]*I(px,by,z) +
+                                              (Ttfloat)K[2]*I(x,by,z) +  (Ttfloat)K[3]*I(nx,by,z) +
+                                              (Ttfloat)K[4]*I(ax,by,z) +
+                                              (Ttfloat)K[5]*I(bx,py,z) + (Ttfloat)K[6]*I(px,py,z) +
+                                              (Ttfloat)K[7]*I(x,py,z) +  (Ttfloat)K[8]*I(nx,py,z) +
+                                              (Ttfloat)K[9]*I(ax,py,z) +
+                                              (Ttfloat)K[10]*I(bx,y,z) + (Ttfloat)K[11]*I(px,y,z) +
+                                              (Ttfloat)K[12]*I(x,y,z) +  (Ttfloat)K[13]*I(nx,y,z) +
+                                              (Ttfloat)K[14]*I(ax,y,z) +
+                                              (Ttfloat)K[15]*I(bx,ny,z) + (Ttfloat)K[16]*I(px,ny,z) +
+                                              (Ttfloat)K[17]*I(x,ny,z) + (Ttfloat)K[18]*I(nx,ny,z) +
+                                              (Ttfloat)K[19]*I(ax,ny,z) +
+                                              (Ttfloat)K[20]*I(bx,ay,z) + (Ttfloat)K[21]*I(px,ay,z) +
+                                              (Ttfloat)K[22]*I(x,ay,z) + (Ttfloat)K[23]*I(nx,ay,z) +
+                                              (Ttfloat)K[24]*I(ax,ay,z))/std::sqrt(N):0);
                 }
               } else {
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
@@ -41112,16 +41175,21 @@ namespace cimg_library {
                     nx = x + xdilation<w1?x + xdilation:w1, ax = nx + xdilation<w1?nx + xdilation:w1,
                     py = y - ydilation>0?y - ydilation:0, by = py - ydilation>0?py - ydilation:0,
                     ny = y + ydilation<h1?y + ydilation:h1, ay = ny + ydilation<h1?ny + ydilation:h1;
-                  _resu(X,Y,z) = (Ttfloat)(K[0]*I(bx,by,z) + K[1]*I(px,by,z) + K[2]*I(x,by,z) +
-                                           K[3]*I(nx,by,z) + K[4]*I(ax,by,z) +
-                                           K[5]*I(bx,py,z) + K[6]*I(px,py,z) + K[7]*I(x,py,z) +
-                                           K[8]*I(nx,py,z) + K[9]*I(ax,py,z) +
-                                           K[10]*I(bx,y,z) + K[11]*I(px,y,z) + K[12]*I(x,y,z) +
-                                           K[13]*I(nx,y,z) + K[14]*I(ax,y,z) +
-                                           K[15]*I(bx,ny,z) + K[16]*I(px,ny,z) + K[17]*I(x,ny,z) +
-                                           K[18]*I(nx,ny,z) + K[19]*I(ax,ny,z) +
-                                           K[20]*I(bx,ay,z) + K[21]*I(px,ay,z) + K[22]*I(x,ay,z) +
-                                           K[23]*I(nx,ay,z) + K[24]*I(ax,ay,z));
+                  _resu(X,Y,z) = (Ttfloat)((Ttfloat)K[0]*I(bx,by,z) + (Ttfloat)K[1]*I(px,by,z) +
+                                           (Ttfloat)K[2]*I(x,by,z) +  (Ttfloat)K[3]*I(nx,by,z) +
+                                           (Ttfloat)K[4]*I(ax,by,z) +
+                                           (Ttfloat)K[5]*I(bx,py,z) + (Ttfloat)K[6]*I(px,py,z) +
+                                           (Ttfloat)K[7]*I(x,py,z) + (Ttfloat)K[8]*I(nx,py,z) +
+                                           (Ttfloat)K[9]*I(ax,py,z) +
+                                           (Ttfloat)K[10]*I(bx,y,z) + (Ttfloat)K[11]*I(px,y,z) +
+                                           (Ttfloat)K[12]*I(x,y,z) + (Ttfloat)K[13]*I(nx,y,z) +
+                                           (Ttfloat)K[14]*I(ax,y,z) +
+                                           (Ttfloat)K[15]*I(bx,ny,z) + (Ttfloat)K[16]*I(px,ny,z) +
+                                           (Ttfloat)K[17]*I(x,ny,z) + (Ttfloat)K[18]*I(nx,ny,z) +
+                                           (Ttfloat)K[19]*I(ax,ny,z) +
+                                           (Ttfloat)K[20]*I(bx,ay,z) + (Ttfloat)K[21]*I(px,ay,z) +
+                                           (Ttfloat)K[22]*I(x,ay,z) + (Ttfloat)K[23]*I(nx,ay,z) +
+                                           (Ttfloat)K[24]*I(ax,ay,z));
                 }
               }
             if (channel_mode==2)
@@ -41147,12 +41215,18 @@ namespace cimg_library {
                     x = xoffset + X, y = yoffset + Y,
                     px = x - xdilation>0?x - xdilation:0, nx = x + xdilation<w1?x + xdilation:w1,
                     py = y - ydilation>0?y - ydilation:0, ny = y + ydilation<h1?y + ydilation:h1;
-                  const Ttfloat N = M2*(cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) + cimg::sqr(I(nx,py,z)) +
-                                        cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) + cimg::sqr(I(nx,y,z)) +
-                                        cimg::sqr(I(px,ny,z)) + cimg::sqr(I(x,ny,z)) + cimg::sqr(I(nx,ny,z)));
-                  _resu(X,Y,z) = (Ttfloat)(N?(K[0]*I(px,py,z) + K[1]*I(x,py,z) + K[2]*I(nx,py,z) +
-                                              K[3]*I(px,y,z) + K[4]*I(x,y,z) + K[5]*I(nx,y,z) +
-                                              K[6]*I(px,ny,z) + K[7]*I(x,ny,z) + K[8]*I(nx,ny,z))/std::sqrt(N):0);
+                  const Ttfloat N = M2*(cimg::sqr((Ttfloat)I(px,py,z)) + cimg::sqr((Ttfloat)I(x,py,z)) +
+                                        cimg::sqr((Ttfloat)I(nx,py,z)) +
+                                        cimg::sqr((Ttfloat)I(px,y,z)) + cimg::sqr((Ttfloat)I(x,y,z)) +
+                                        cimg::sqr((Ttfloat)I(nx,y,z)) +
+                                        cimg::sqr((Ttfloat)I(px,ny,z)) + cimg::sqr((Ttfloat)I(x,ny,z)) +
+                                        cimg::sqr((Ttfloat)I(nx,ny,z)));
+                  _resu(X,Y,z) = (Ttfloat)(N?((Ttfloat)K[0]*I(px,py,z) + (Ttfloat)K[1]*I(x,py,z) +
+                                              (Ttfloat)K[2]*I(nx,py,z) +
+                                              (Ttfloat)K[3]*I(px,y,z) + (Ttfloat)K[4]*I(x,y,z) +
+                                              (Ttfloat)K[5]*I(nx,y,z) +
+                                              (Ttfloat)K[6]*I(px,ny,z) + (Ttfloat)K[7]*I(x,ny,z) +
+                                              (Ttfloat)K[8]*I(nx,ny,z))/std::sqrt(N):0);
                 }
               } else {
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
@@ -41161,9 +41235,12 @@ namespace cimg_library {
                     x = xoffset + X, y = yoffset + Y,
                     px = x - xdilation>0?x - xdilation:0, nx = x + xdilation<w1?x + xdilation:w1,
                     py = y - ydilation>0?y - ydilation:0, ny = y + ydilation<h1?y + ydilation:h1;
-                  _resu(X,Y,z) = (Ttfloat)(K[0]*I(px,py,z) + K[1]*I(x,py,z) + K[2]*I(nx,py,z) +
-                                           K[3]*I(px,y,z)  + K[4]*I(x,y,z)  + K[5]*I(nx,y,z) +
-                                           K[6]*I(px,ny,z) + K[7]*I(x,ny,z) + K[8]*I(nx,ny,z));
+                  _resu(X,Y,z) = (Ttfloat)((Ttfloat)K[0]*I(px,py,z) + (Ttfloat)K[1]*I(x,py,z) +
+                                           (Ttfloat)K[2]*I(nx,py,z) +
+                                           (Ttfloat)K[3]*I(px,y,z)  + (Ttfloat)K[4]*I(x,y,z)  +
+                                           (Ttfloat)K[5]*I(nx,y,z) +
+                                           (Ttfloat)K[6]*I(px,ny,z) + (Ttfloat)K[7]*I(x,ny,z) +
+                                           (Ttfloat)K[8]*I(nx,ny,z));
                 }
               }
             if (channel_mode==2)
@@ -41174,39 +41251,13 @@ namespace cimg_library {
           } break;
           }
         }
-      } else if (_kernel._width==1 && _kernel._height==1 && _kernel._depth==1 &&
-                 !_xcenter && !_ycenter && !_zcenter &&
-                 xstride==1 && ystride==1 && zstride==1 &&
-                 xoffset>=0 && yoffset>=0 && zoffset>=0 &&
-                 xoffset + _xsize<=_width && yoffset + _ysize<=_height && zoffset + _zsize<=_depth) {
-
-        // Special optimization for 1x1 kernel.
-        cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
-        for (int c = 0; c<cend; ++c) {
-          const t valK = _kernel[!channel_mode?c/_spectrum:c%_kernel._spectrum];
-          CImg<T> I = get_crop(xoffset,yoffset,zoffset,c%_spectrum,
-                               xoffset + _xsize - 1,yoffset + _ysize - 1,zoffset + _zsize - 1,c%_spectrum);
-          if (valK!=1) I*=valK;
-          if (is_normalized) I.sign();
-          switch (channel_mode) {
-          case 0 : // All
-          case 1 : // One for one
-            res.get_shared_channel(c) = I;
-            break;
-          case 2 : // Partial sum
-            cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(c/smin)+=I;
-            break;
-          case 3 : // Full sum
-            cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(0)+=I;
-            break;
-          }
-        }
       } else { // Generic version
+        if (is_convolve) { _xdilation*=-1; _ydilation*=-1; _zdilation*=-1; }
         cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
         for (int c = 0; c<cend; ++c) _cimg_abort_try_openmp2 {
           cimg_abort_test2;
           const CImg<T> I = get_shared_channel(c%_spectrum);
-          const CImg<t> K = _kernel.get_shared_channel(!channel_mode?c/_spectrum:c%_kernel._spectrum);
+          const CImg<t> K = kernel.get_shared_channel(!channel_mode?c/_spectrum:c%kernel._spectrum);
           CImg<Ttfloat> _resu = channel_mode<=1?res.get_shared_channel(c):
             CImg<Ttfloat>(res.width(),res.height(),res.depth(),1);
           Ttfloat M = 0, M2 = 0;
@@ -41237,9 +41288,9 @@ namespace cimg_library {
           cimg_forXYZ(res,x,y,z) { \
             Ttfloat val = 0; \
             const t *pK = K._data; \
-            cimg_forZ(_kernel,r) { _cimg_correlate_z; _cimg_correlate_z_##boundary; \
-              cimg_forY(_kernel,q) { _cimg_correlate_y; _cimg_correlate_y_##boundary; \
-                cimg_forX(_kernel,p) { _cimg_correlate_x; _cimg_correlate_x_##boundary; \
+            cimg_forZ(kernel,r) { _cimg_correlate_z; _cimg_correlate_z_##boundary; \
+              cimg_forY(kernel,q) { _cimg_correlate_y; _cimg_correlate_y_##boundary; \
+                cimg_forX(kernel,p) { _cimg_correlate_x; _cimg_correlate_x_##boundary; \
                   val+=*(pK++)*(access); \
                 } \
               } \
@@ -41252,9 +41303,9 @@ namespace cimg_library {
           cimg_forXYZ(res,x,y,z) { \
             Ttfloat val = 0, N = 0; \
             const t *pK = K._data; \
-            cimg_forZ(_kernel,r) { _cimg_correlate_z; _cimg_correlate_z_##boundary; \
-              cimg_forY(_kernel,q) { _cimg_correlate_y; _cimg_correlate_y_##boundary; \
-                cimg_forX(_kernel,p) { _cimg_correlate_x; _cimg_correlate_x_##boundary; \
+            cimg_forZ(kernel,r) { _cimg_correlate_z; _cimg_correlate_z_##boundary; \
+              cimg_forY(kernel,q) { _cimg_correlate_y; _cimg_correlate_y_##boundary; \
+                cimg_forX(kernel,p) { _cimg_correlate_x; _cimg_correlate_x_##boundary; \
                   Ttfloat _val = access; \
                   val+=*(pK++)*_val; \
                   _val*=_val; N+=_val; \

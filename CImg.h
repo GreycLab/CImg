@@ -40960,7 +40960,7 @@ namespace cimg_library {
         w2 = 2*w, h2 = 2*h, d2 = 2*d;
       const ulongT wh = (ulongT)w*h, whd = wh*d;
 
-      // Optimized version for a few particular cases (1x1, 3x3, 5x5 and 3x3x3 kernels, under a few conditions).
+      // Optimized version for a few particular cases.
       const bool is_optimized_loop =
         boundary_conditions==1 &&
         kernel._width>1 && kernel._height>1 &&

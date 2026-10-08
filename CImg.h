@@ -28987,8 +28987,15 @@ namespace cimg_library {
         const unsigned int
           ptr = (unsigned int)mp.opcode[2] + 1,
           siz = (unsigned int)mp.opcode[3];
-        const int off = (int)_mp_arg(4);
-        return off>=0 && off<(int)siz?mp.mem[ptr + off]:cimg::type<double>::nan();
+        const int index = (int)_mp_arg(4);
+        if (index<0 || index>=(int)siz) {
+          std::fprintf(cimg::output(),"\n%s[CImg] *** Warning *** "
+                       "CImg<%s>::_cimg_math_parser::mp_vector_off(): "
+                       "Invalid vector read at index [%d] (vector size is %u).%s",
+                       cimg::t_red(),cimg::type<T>::string(),index,siz,cimg::t_normal());
+          return cimg::type<double>::nan();
+        }
+        return mp.mem[ptr + index];
       }
 
       static double mp_vector_print(_cimg_math_parser& mp) {
@@ -29100,8 +29107,13 @@ namespace cimg_library {
         const unsigned int
           ptr = (unsigned int)mp.opcode[2] + 1,
           siz = (unsigned int)mp.opcode[3];
-        const int off = (int)_mp_arg(4);
-        if (off>=0 && off<(int)siz) mp.mem[ptr + off] = _mp_arg(1);
+        const int index = (int)_mp_arg(4);
+        if (index<0 || index>=(int)siz) {
+          std::fprintf(cimg::output(),"\n%s[CImg] *** Warning *** "
+                       "CImg<%s>::_cimg_math_parser::mp_vector_set_off(): "
+                       "Invalid vector write at index [%d] (vector size is %u).%s",
+                       cimg::t_red(),cimg::type<T>::string(),index,siz,cimg::t_normal());
+        } else mp.mem[ptr + index] = _mp_arg(1);
         return _mp_arg(1);
       }
 

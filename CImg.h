@@ -40961,22 +40961,48 @@ namespace cimg_library {
       const ulongT wh = (ulongT)w*h, whd = wh*d;
 
       // Determing if an optimized loop can be used for this set of parameters.
-      const bool is_optimized_loop =
-        boundary_conditions==1 &&
-        kernel._width>1 && kernel._height>1 &&
-        ((kernel._depth==1 && kernel._width<=5 && kernel._height<=5) ||
-         (kernel._depth<=3 && kernel._width<=3 && kernel._height<=3)) &&
-        (!is_normalized || (kernel._width%2 && kernel._width==kernel._height &&
-                            (kernel._depth==1 || kernel._depth==kernel._width))) &&
-        _xcenter==kernel.width()/2 + (is_convolve?0:(kernel.width()%2) - 1) &&
-        _ycenter==kernel.height()/2 + (is_convolve?0:(kernel.height()%2) - 1) &&
-        _zcenter==kernel.depth()/2 + (is_convolve?0:(kernel.depth()%2) -1) &&
-        xstride==1 && ystride==1 && zstride==1 &&
-        xdilation>=0 && ydilation>=0 && (kernel._depth==1 || zdilation>=0) &&
-        xoffset>=0 && yoffset>=0 && (kernel._depth>1?zoffset>=0:!zoffset) &&
-        xoffset + _xsize<=_width && yoffset + _ysize<=_height && zoffset + _zsize<=_depth;
+      const bool
+        is_centered =
+          _xcenter==kernel.width()/2 + (is_convolve?0:(kernel.width()%2) - 1) &&
+          _ycenter==kernel.height()/2 + (is_convolve?0:(kernel.height()%2) - 1) &&
+          _zcenter==kernel.depth()/2 + (is_convolve?0:(kernel.depth()%2) - 1),
+        is_unit_stride_in_bounds =
+          xstride==1 && ystride==1 && zstride==1 &&
+          xoffset>=0 && yoffset>=0 && zoffset>=0 &&
+          xoffset + _xsize<=_width && yoffset + _ysize<=_height && zoffset + _zsize<=_depth,
+        is_1x1 = kernel._width==1 && kernel._height==1 && kernel._depth==1 && is_centered && is_unit_stride_in_bounds,
+        is_optimized_loop = !is_1x1 && boundary_conditions==1 &&
+          kernel._width>1 && kernel._height>1 &&
+          ((kernel._depth==1 && kernel._width<=5 && kernel._height<=5) ||
+           (kernel._depth<=3 && kernel._width<=3 && kernel._height<=3)) &&
+          (!is_normalized || (kernel._width%2 && kernel._width==kernel._height &&
+                              (kernel._depth==1 || kernel._depth==kernel._width))) &&
+          is_centered && is_unit_stride_in_bounds &&
+          xdilation>=0 && ydilation>=0 && (kernel._depth==1 || zdilation>=0) &&
+          (kernel._depth>1 || !zoffset);
 
-      if (is_optimized_loop) {
+      if (is_1x1) { // Special optimization for 1x1 kernel
+        cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
+        for (int c = 0; c<cend; ++c) {
+          const t valK = kernel[!channel_mode?c/_spectrum:c%kernel._spectrum];
+          CImg<Ttfloat> I = get_crop(xoffset,yoffset,zoffset,c%_spectrum,
+                                     xoffset + _xsize - 1,yoffset + _ysize - 1,zoffset + _zsize - 1,c%_spectrum);
+          if (valK!=1) I*=valK;
+          if (is_normalized) I.sign();
+          switch (channel_mode) {
+          case 0 : // All
+          case 1 : // One for one
+            res.get_shared_channel(c) = I;
+            break;
+          case 2 : // Partial sum
+            cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(c/smin)+=I;
+            break;
+          case 3 : // Full sum
+            cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(0)+=I;
+            break;
+          }
+        }
+      } else if (is_optimized_loop) { // Other case of an optimized loop
         CImg<t> _kernel;
 
         // Explicitely mirror kernel for optimized convolution.
@@ -41223,33 +41249,6 @@ namespace cimg_library {
               cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(0)+=_resu;
             } _cimg_abort_catch_openmp2
           } break;
-          }
-        }
-      } else if (kernel._width==1 && kernel._height==1 && kernel._depth==1 &&
-                 !_xcenter && !_ycenter && !_zcenter &&
-                 xstride==1 && ystride==1 && zstride==1 &&
-                 xoffset>=0 && yoffset>=0 && zoffset>=0 &&
-                 xoffset + _xsize<=_width && yoffset + _ysize<=_height && zoffset + _zsize<=_depth) {
-
-        // Special optimization for 1x1 kernel.
-        cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
-        for (int c = 0; c<cend; ++c) {
-          const t valK = kernel[!channel_mode?c/_spectrum:c%kernel._spectrum];
-          CImg<Ttfloat> I = get_crop(xoffset,yoffset,zoffset,c%_spectrum,
-                                     xoffset + _xsize - 1,yoffset + _ysize - 1,zoffset + _zsize - 1,c%_spectrum);
-          if (valK!=1) I*=valK;
-          if (is_normalized) I.sign();
-          switch (channel_mode) {
-          case 0 : // All
-          case 1 : // One for one
-            res.get_shared_channel(c) = I;
-            break;
-          case 2 : // Partial sum
-            cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(c/smin)+=I;
-            break;
-          case 3 : // Full sum
-            cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(0)+=I;
-            break;
           }
         }
       } else { // Generic version

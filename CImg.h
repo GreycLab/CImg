@@ -18815,9 +18815,9 @@ namespace cimg_library {
                 xstride = (int)mem[opcode[18]],
                 ystride = (int)mem[opcode[19]],
                 zstride = (int)mem[opcode[20]],
-                xsize = opcode[27]==~0U?wI/xstride:(unsigned int)mem[opcode[27]],
-                ysize = opcode[28]==~0U?hI/ystride:(unsigned int)mem[opcode[28]],
-                zsize = opcode[29]==~0U?dI/zstride:(unsigned int)mem[opcode[29]];
+                xsize = opcode[27]==~0U?(wI - 1)/xstride + 1:(unsigned int)mem[opcode[27]],
+                ysize = opcode[28]==~0U?(hI - 1)/ystride + 1:(unsigned int)mem[opcode[28]],
+                zsize = opcode[29]==~0U?(dI - 1)/zstride + 1:(unsigned int)mem[opcode[29]];
 
               if (wI*hI*dI*sI!=size(opcode[2])) {
                 _cimg_mp_strerr;
@@ -28987,8 +28987,17 @@ namespace cimg_library {
         const unsigned int
           ptr = (unsigned int)mp.opcode[2] + 1,
           siz = (unsigned int)mp.opcode[3];
-        const int off = (int)_mp_arg(4);
-        return off>=0 && off<(int)siz?mp.mem[ptr + off]:cimg::type<double>::nan();
+        const int index = (int)_mp_arg(4);
+        if (index<0 || index>=(int)siz) {
+#if cimg_verbosity>=3
+          std::fprintf(cimg::output(),"\n%s[CImg] *** Warning *** "
+                       "CImg<%s>::_cimg_math_parser::mp_vector_off(): "
+                       "Invalid vector read at index [%d] (vector size is %u).%s\n",
+                       cimg::t_red(),cimg::type<T>::string(),index,siz,cimg::t_normal());
+          return cimg::type<double>::nan();
+#endif
+        }
+        return mp.mem[ptr + index];
       }
 
       static double mp_vector_print(_cimg_math_parser& mp) {
@@ -29100,8 +29109,15 @@ namespace cimg_library {
         const unsigned int
           ptr = (unsigned int)mp.opcode[2] + 1,
           siz = (unsigned int)mp.opcode[3];
-        const int off = (int)_mp_arg(4);
-        if (off>=0 && off<(int)siz) mp.mem[ptr + off] = _mp_arg(1);
+        const int index = (int)_mp_arg(4);
+        if (index<0 || index>=(int)siz) {
+#if cimg_verbosity>=3
+          std::fprintf(cimg::output(),"\n%s[CImg] *** Warning *** "
+                       "CImg<%s>::_cimg_math_parser::mp_vector_set_off(): "
+                       "Invalid vector write at index [%d] (vector size is %u).%s\n",
+                       cimg::t_red(),cimg::type<T>::string(),index,siz,cimg::t_normal());
+#endif
+        } else mp.mem[ptr + index] = _mp_arg(1);
         return _mp_arg(1);
       }
 
@@ -30964,7 +30980,7 @@ namespace cimg_library {
         case '>' : if (ptr[1]=='=') { ++ptr; __eval_op(val1>=val2); } else { __eval_op(val1>val2); }
         case '<' : if (ptr[1]=='=') { ++ptr; __eval_op(val1<=val2); } else { __eval_op(val1<val2); }
         case ';' : __eval_op(val2);
-        case '^' : __eval_op(std::pow(val1,val2));
+        case '^' : if (val1<0) { __eval_op(-std::pow(-val1,val2)); } else { __eval_op(std::pow(val1,val2)); }
         case '=' : if (*++ptr=='=') { __eval_op(val1==val2); } else return false;
         case '!' : if (*++ptr=='=') { __eval_op(val1!=val2); } else return false;
         }
@@ -40838,9 +40854,9 @@ namespace cimg_library {
        \param xoffset X-offset.
        \param yoffset Y-offset.
        \param zoffset Z-offset.
-       \param xsize Width of the resulting image (~0U means 'instance_width/xstride').
-       \param ysize Height of the resulting image (~0U means 'instance_height/ystride').
-       \param zsize Depth of the resulting image (~0U means 'instance_depth/zstride').
+       \param xsize Width of the resulting image (~0U means 'ceil(instance_width/xstride)').
+       \param ysize Height of the resulting image (~0U means 'ceil(instance_height/ystride)').
+       \param zsize Depth of the resulting image (~0U means 'ceil(instance_depth/zstride)').
        \note
        - The correlation of the image instance \p *this by the kernel \p kernel is defined to be:
        \f$ res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x + \beta_x\;(i - c_x),\alpha_y\;y + \beta_y\;(j -
@@ -40870,6 +40886,7 @@ namespace cimg_library {
                            xoffset,yoffset,zoffset,xsize,ysize,zsize).move_to(*this);
     }
 
+    //! Correlate the image with a kernel \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> get_correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                                       const bool is_normalized=false, const unsigned int channel_mode=1,
@@ -40893,7 +40910,6 @@ namespace cimg_library {
                         xoffset,yoffset,zoffset,xsize,ysize,zsize,false);
     }
 
-    //! Correlate the image with a kernel \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> _correlate(const CImg<t>& kernel, const unsigned int boundary_conditions,
                                    const bool is_normalized, const unsigned int channel_mode,
@@ -40918,13 +40934,13 @@ namespace cimg_library {
       typedef _cimg_Ttfloat Ttfloat;
       CImg<Ttfloat> res;
       const unsigned int
-        _xsize = xsize==~0U?_width/xstride:xsize,
-        _ysize = ysize==~0U?_height/ystride:ysize,
-        _zsize = zsize==~0U?_depth/zstride:zsize;
+        _xsize = xsize==~0U?(_width - 1)/xstride + 1:xsize,
+        _ysize = ysize==~0U?(_height - 1)/ystride + 1:ysize,
+        _zsize = zsize==~0U?(_depth - 1)/zstride + 1:zsize;
       const ulongT
         res_wh = (ulongT)_xsize*_ysize,
         res_whd = (ulongT)_xsize*_ysize*_zsize;
-      if (!xsize || !ysize || !zsize) return CImg<Ttfloat>();
+      if (!_xsize || !_ysize || !_zsize) return CImg<Ttfloat>();
       int
         _xcenter = xcenter==(int)(~0U>>1)?(kernel.width()/2 + (is_convolve?0:(kernel.width()%2) - 1)):xcenter,
         _ycenter = ycenter==(int)(~0U>>1)?(kernel.height()/2 + (is_convolve?0:(kernel.height()%2) - 1)):ycenter,
@@ -41167,7 +41183,7 @@ namespace cimg_library {
                                               (Ttfloat)K[24]*I(ax,ay,z))/std::sqrt(N):0);
                 }
               } else {
-                cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
+                cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
                 cimg_forXYZ(res,X,Y,z) {
                   const int
                     x = xoffset + X, y = yoffset + Y,
@@ -41229,7 +41245,7 @@ namespace cimg_library {
                                               (Ttfloat)K[8]*I(nx,ny,z))/std::sqrt(N):0);
                 }
               } else {
-                cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
+                cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
                 cimg_forXYZ(res,X,Y,z) {
                   const int
                     x = xoffset + X, y = yoffset + Y,
@@ -41291,7 +41307,7 @@ namespace cimg_library {
             cimg_forZ(kernel,r) { _cimg_correlate_z; _cimg_correlate_z_##boundary; \
               cimg_forY(kernel,q) { _cimg_correlate_y; _cimg_correlate_y_##boundary; \
                 cimg_forX(kernel,p) { _cimg_correlate_x; _cimg_correlate_x_##boundary; \
-                  val+=*(pK++)*(access); \
+                  val+=(Ttfloat)*(pK++)*(access); \
                 } \
               } \
             } \
@@ -41376,9 +41392,9 @@ namespace cimg_library {
        \param xoffset X-offset.
        \param yoffset Y-offset.
        \param zoffset Z-offset.
-       \param xsize Width of the resulting image (~0U means 'instance_width/xstride').
-       \param ysize Height of the resulting image (~0U means 'instance_height/ystride').
-       \param zsize Depth of the resulting image (~0U means 'instance_depth/zstride').
+       \param xsize Width of the resulting image (~0U means 'ceil(instance_width/xstride)').
+       \param ysize Height of the resulting image (~0U means 'ceil(instance_height/ystride)').
+       \param zsize Depth of the resulting image (~0U means 'ceil(instance_depth/zstride)').
        \note
        - The convolution of the image instance \p *this by the kernel \p kernel is defined to be:
        \f$ res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x - \beta_x\;(i - c_x),\alpha_y\;y

@@ -26514,6 +26514,15 @@ namespace cimg_library {
           _h = mp.opcode[4]==~0U?-100:_mp_arg(4),
           _d = mp.opcode[5]==~0U?-100:_mp_arg(5),
           _s = mp.opcode[6]==~0U?-100:_mp_arg(6);
+        if (!cimg::type<double>::is_finite(_w) ||
+            !cimg::type<double>::is_finite(_h) ||
+            !cimg::type<double>::is_finite(_d) ||
+            !cimg::type<double>::is_finite(_s)) {
+          cimg::mutex(6,0);
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'resize()': "
+                                      "Invalid dimensions (%g,%g,%g,%g) specified to resize image (%u,%u,%u,%u).",
+                                      img.pixel_type(),_w,_h,_d,_s,img._width,img._height,img._depth,img._spectrum);
+        }
         const unsigned int
           w = (unsigned int)(_w>=0?_w:-_w*img.width()/100),
           h = (unsigned int)(_h>=0?_h:-_h*img.height()/100),

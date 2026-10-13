@@ -26514,6 +26514,15 @@ namespace cimg_library {
           _h = mp.opcode[4]==~0U?-100:_mp_arg(4),
           _d = mp.opcode[5]==~0U?-100:_mp_arg(5),
           _s = mp.opcode[6]==~0U?-100:_mp_arg(6);
+        if (!cimg::type<double>::is_finite(_w) ||
+            !cimg::type<double>::is_finite(_h) ||
+            !cimg::type<double>::is_finite(_d) ||
+            !cimg::type<double>::is_finite(_s)) {
+          cimg::mutex(6,0);
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'resize()': "
+                                      "Invalid dimensions (%g,%g,%g,%g) specified to resize image (%u,%u,%u,%u).",
+                                      img.pixel_type(),_w,_h,_d,_s,img._width,img._height,img._depth,img._spectrum);
+        }
         const unsigned int
           w = (unsigned int)(_w>=0?_w:-_w*img.width()/100),
           h = (unsigned int)(_h>=0?_h:-_h*img.height()/100),
@@ -28988,15 +28997,10 @@ namespace cimg_library {
           ptr = (unsigned int)mp.opcode[2] + 1,
           siz = (unsigned int)mp.opcode[3];
         const int index = (int)_mp_arg(4);
-        if (index<0 || index>=(int)siz) {
-#if cimg_verbosity>=3
-          std::fprintf(cimg::output(),"\n%s[CImg] *** Warning *** "
-                       "CImg<%s>::_cimg_math_parser::mp_vector_off(): "
-                       "Invalid vector read at index [%d] (vector size is %u).%s\n",
-                       cimg::t_red(),cimg::type<T>::string(),index,siz,cimg::t_normal());
-          return cimg::type<double>::nan();
-#endif
-        }
+        if (index<0 || index>=(int)siz)
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Operator 'vector[ind]': "
+                                      "Invalid vector read at index [%d] (vector size = %u).",
+                                      mp.imgout.pixel_type(),index,siz);
         return mp.mem[ptr + index];
       }
 
@@ -29110,14 +29114,11 @@ namespace cimg_library {
           ptr = (unsigned int)mp.opcode[2] + 1,
           siz = (unsigned int)mp.opcode[3];
         const int index = (int)_mp_arg(4);
-        if (index<0 || index>=(int)siz) {
-#if cimg_verbosity>=3
-          std::fprintf(cimg::output(),"\n%s[CImg] *** Warning *** "
-                       "CImg<%s>::_cimg_math_parser::mp_vector_set_off(): "
-                       "Invalid vector write at index [%d] (vector size is %u).%s\n",
-                       cimg::t_red(),cimg::type<T>::string(),index,siz,cimg::t_normal());
-#endif
-        } else mp.mem[ptr + index] = _mp_arg(1);
+        if (index<0 || index>=(int)siz)
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Operator 'vector[ind]=': "
+                                      "Invalid vector write at index [%d] (vector size = %u).",
+                                      mp.imgout.pixel_type(),index,siz);
+        else mp.mem[ptr + index] = _mp_arg(1);
         return _mp_arg(1);
       }
 

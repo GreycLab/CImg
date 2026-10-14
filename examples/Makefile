@@ -363,7 +363,7 @@ clean:
 
 # Custom user-defined target
 custom:
-	@$(MAKE) --no-print-directory $(MAKEFLAGS) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(CXX11_CFLAGS) $(VT100_CFLAGS) $(TIFF_CFLAGS) $(HEIF_CFLAGS) $(X11_CFLAGS) $(XSHM_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS) $(TIFF_LIBS) $(HEIF_LIBS) $(XSHM_LIBS) -ltiffxx -ljpeg" \
 all $(EXTRA_FILES)
@@ -372,38 +372,38 @@ all $(EXTRA_FILES)
 
 # A target for Travis-CI
 travis:
-	@$(MAKE) --no-print-directory $(MAKEFLAGS) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(CXX11_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS) $(FFTW3_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(CURL_CFLAGS) $(XSHM_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS) $(FFTW3_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(CURL_LIBS) $(XSHM_LIBS)" \
 all
 
 linux:
-	@$(MAKE) --no-print-directory $(MAKEFLAGS) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(CXX11_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS) $(XSHM_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS) $(XSHM_LIBS)" \
 all
 
 dlinux:
-	@$(MAKE) --no-print-directory $(MAKEFLAGS) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(CXX11_CFLAGS) $(DEBUG_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS) $(XSHM_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS) $(XSHM_LIBS)" \
 all
 
 olinux:
-	@$(MAKE) --no-print-directory $(MAKEFLAGS) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(CXX11_CFLAGS) $(OPT_CFLAGS) $(OPENMP_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS) $(XSHM_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS) $(XSHM_LIBS)" \
 "STRIP_EXE=true" \
 all
 
 mlinux:
-	@$(MAKE) --no-print-directory $(MAKEFLAGS) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(CXX11_CFLAGS) $(NODISPLAY_CFLAGS) $(OPT_CFLAGS)" \
 "STRIP_EXE=true" \
 all
 
 Mlinux:
-	@$(MAKE) --no-print-directory $(MAKEFLAGS) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(OPT_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS) $(XSHM_CFLAGS) $(XRANDR_CFLAGS) $(TIFF_CFLAGS) $(HEIF_CFLAGS) $(OPENEXR_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(ZLIB_CFLAGS) $(CURL_CFLAGS) $(OPENCV_CFLAGS) $(MAGICK_CFLAGS) $(FFTW3_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS) $(XSHM_LIBS) $(XRANDR_LIBS) $(TIFF_LIBS) $(HEIF_LIBS) $(OPENEXR_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(ZLIB_LIBS) $(CURL_LIBS) $(OPENCV_LIBS) $(MAGICK_LIBS) $(FFTW3_LIBS)" \
 "STRIP_EXE=true" \
@@ -411,32 +411,32 @@ all $(EXTRA_FILES)
 
 # MacOs targets, with X11 display.
 macos:
-	@$(MAKE) --no-print-directory $(MAKEFLAGS) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(CXX11_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS)" \
 all
 
 dmacos:
-	@$(MAKE) --no-print-directory $(MAKEFLAGS) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(CXX11_CFLAGS) $(DEBUG_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS)" \
 all
 
 omacos:
-	@$(MAKE) --no-print-directory $(MAKEFLAGS) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(CXX11_CFLAGS) $(OPT_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS)" \
 "STRIP_EXE=true" \
 all
 
 mmacos:
-	@$(MAKE) --no-print-directory $(MAKEFLAGS) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(CXX11_CFLAGS) $(NODISPLAY_CFLAGS) $(OPT_CFLAGS)" \
 "STRIP_EXE=true" \
 all
 
 Mmacos:
-	@$(MAKE) --no-print-directory $(MAKEFLAGS) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(OPT_CFLAGS) $(VT100_CFLAGS) $(X11_CFLAGS) $(TIFF_CFLAGS) $(HEIF_CFLAGS) $(MINC2_CFLAGS) $(OPENEXR_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(ZLIB_CFLAGS) $(OPENCV_CFLAGS) $(MAGICK_CFLAGS) $(FFTW3_CFLAGS)" \
 "CONF_LIBS = $(X11_LIBS) $(TIFF_LIBS) $(HEIF_LIBS) $(MINC2_LIBS) $(OPENEXR_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(ZLIB_LIBS) $(OPENCV_LIBS) $(MAGICK_LIBS) $(FFTW3_LIBS)" \
 "STRIP_EXE=true" \
@@ -444,32 +444,32 @@ all $(EXTRA_FILES)
 
 # Windows targets, with GDI32 display.
 windows:
-	@$(MAKE) --no-print-directory $(MAKEFLAGS) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(GDI32_CFLAGS)" \
 "CONF_LIBS = $(GDI32_LIBS)" \
 all
 
 dwindows:
-	@$(MAKE) --no-print-directory $(MAKEFLAGS) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(DEBUG_CFLAGS) $(GDI32_CFLAGS)" \
 "CONF_LIBS = $(GDI32_LIBS)" \
 all
 
 owindows:
-	@$(MAKE) --no-print-directory $(MAKEFLAGS) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(OPT_CFLAGS) $(GDI32_CFLAGS)" \
 "CONF_LIBS = $(GDI32_LIBS)" \
 "STRIP_EXE=true" \
 all
 
 mwindows:
-	@$(MAKE) --no-print-directory $(MAKEFLAGS) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(NODISPLAY_CFLAGS) $(OPT_CFLAGS)" \
 "STRIP_EXE=true" \
 all
 
 Mwindows:
-	@$(MAKE) --no-print-directory $(MAKEFLAGS) \
+	@$(MAKE) --no-print-directory \
 "CONF_CFLAGS = $(OPT_CFLAGS) $(GDI32_CFLAGS) $(TIFF_CFLAGS) $(HEIF_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(ZLIB_CFLAGS) $(OPENCV_CFLAGS) $(FFTW3_CFLAGS)" \
 "CONF_LIBS = $(GDI32_LIBS) $(TIFF_LIBS) $(HEIF_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(ZLIB_LIBS) $(OPENCV_LIBS) $(FFTW3_LIBS)" \
 "STRIP_EXE=true" \

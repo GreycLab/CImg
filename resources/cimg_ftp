@@ -11,7 +11,7 @@ pwd={`"
   p = find(path,base);
   p>0?(
     l = size(path) - p - size(base);
-    copy(path,path[p + size(base)],l);
+    l>0?copy(path,path[p + size(base)],l);
     path[l] = _'/'; path[l+1] = 0):(path[0] = 0);
   path"`}
   is_pwd={['$pwd']!=0}

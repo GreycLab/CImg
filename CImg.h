@@ -55619,133 +55619,92 @@ namespace cimg_library {
                               filename?filename:"(FILE*)");
       }
 
-      // Read header (little-endian), computed on 64 bits to avoid signed overflows.
-      const longT
-        file_size = (longT)((unsigned int)header[0x02] | ((unsigned int)header[0x03]<<8) |
-                            ((unsigned int)header[0x04]<<16) | ((unsigned int)header[0x05]<<24)),
-        offset = (longT)((unsigned int)header[0x0A] | ((unsigned int)header[0x0B]<<8) |
-                         ((unsigned int)header[0x0C]<<16) | ((unsigned int)header[0x0D]<<24)),
-        header_size = (longT)((unsigned int)header[0x0E] | ((unsigned int)header[0x0F]<<8) |
-                              ((unsigned int)header[0x10]<<16) | ((unsigned int)header[0x11]<<24)),
-        dx = (longT)(int)((unsigned int)header[0x12] | ((unsigned int)header[0x13]<<8) |
-                          ((unsigned int)header[0x14]<<16) | ((unsigned int)header[0x15]<<24)),
-        dy = (longT)(int)((unsigned int)header[0x16] | ((unsigned int)header[0x17]<<8) |
-                          ((unsigned int)header[0x18]<<16) | ((unsigned int)header[0x19]<<24)),
-        compression = (longT)((unsigned int)header[0x1E] | ((unsigned int)header[0x1F]<<8) |
-                              ((unsigned int)header[0x20]<<16) | ((unsigned int)header[0x21]<<24));
-      longT nb_colors = (longT)((unsigned int)header[0x2E] | ((unsigned int)header[0x2F]<<8) |
-                                ((unsigned int)header[0x30]<<16) | ((unsigned int)header[0x31]<<24));
-      const int bpp = header[0x1C] + (header[0x1D]<<8);
+      // Read header and pixel buffer.
+      int
+        file_size = header[0x02] + (header[0x03]<<8) + (header[0x04]<<16) + (header[0x05]<<24),
+        offset = header[0x0A] + (header[0x0B]<<8) + (header[0x0C]<<16) + (header[0x0D]<<24),
+        header_size = header[0x0E] + (header[0x0F]<<8) + (header[0x10]<<16) + (header[0x11]<<24),
+        dx = header[0x12] + (header[0x13]<<8) + (header[0x14]<<16) + (header[0x15]<<24),
+        dy = header[0x16] + (header[0x17]<<8) + (header[0x18]<<16) + (header[0x19]<<24),
+        compression = header[0x1E] + (header[0x1F]<<8) + (header[0x20]<<16) + (header[0x21]<<24),
+        nb_colors = header[0x2E] + (header[0x2F]<<8) + (header[0x30]<<16) + (header[0x31]<<24),
+        bpp = header[0x1C] + (header[0x1D]<<8);
 
-      if (file_size<=0 || (ulongT)file_size!=fsiz) {
-        if (!file) cimg::fclose(nfile);
+      if ((ulongT)file_size!=fsiz)
         throw CImgIOException(_cimg_instance
-                              "load_bmp(): Invalid file_size %ld specified in filename '%s' (expected %lu).",
+                              "load_bmp(): Invalid file_size %d specified in filename '%s' (expected %lu).",
                               cimg_instance,
-                              (long)file_size,filename?filename:"(FILE*)",(unsigned long)fsiz);
-      }
-      if (header_size<40 || header_size>=file_size) {
-        if (!file) cimg::fclose(nfile);
-        throw CImgIOException(_cimg_instance
-                              "load_bmp(): Invalid header size %ld specified in filename '%s'.",
-                              cimg_instance,
-                              (long)header_size,filename?filename:"(FILE*)");
-      }
-      if (offset<0 || offset>=file_size) {
-        if (!file) cimg::fclose(nfile);
-        throw CImgIOException(_cimg_instance
-                              "load_bmp(): Invalid offset %ld specified in filename '%s'.",
-                              cimg_instance,
-                              (long)offset,filename?filename:"(FILE*)");
-      }
-      if (dx<=0 || dy==0) {
-        if (!file) cimg::fclose(nfile);
-        throw CImgIOException(_cimg_instance
-                              "load_bmp(): Invalid image size (%ld,%ld) specified in filename '%s'.",
-                              cimg_instance,
-                              (long)dx,(long)dy,filename?filename:"(FILE*)");
-      }
-      if (bpp!=1 && bpp!=4 && bpp!=8 && bpp!=16 && bpp!=24 && bpp!=32) {
-        if (!file) cimg::fclose(nfile);
-        throw CImgIOException(_cimg_instance
-                              "load_bmp(): Unsupported bits-per-pixel value %d in filename '%s'.",
-                              cimg_instance,
-                              bpp,filename?filename:"(FILE*)");
-      }
+                              file_size,filename?filename:"(FILE*)",fsiz);
 
-      // Compressed data: must be handled BEFORE the size check (compressed size < raw size).
+      if (header_size<0 || header_size>=file_size)
+        throw CImgIOException(_cimg_instance
+                              "load_bmp(): Invalid header size %d specified in filename '%s'.",
+                              cimg_instance,
+                              header_size,filename?filename:"(FILE*)");
+
+      if (offset<0 || offset>=file_size)
+        throw CImgIOException(_cimg_instance
+                              "load_bmp(): Invalid offset %d specified in filename '%s'.",
+                              cimg_instance,
+                              offset,filename?filename:"(FILE*)");
+
+      if (dx<0 || dy<0)
+        throw CImgIOException(_cimg_instance
+                              "load_bmp(): Invalid image size (%d,%d) specified in filename '%s'.",
+                              cimg_instance,
+                              dx,dy,filename?filename:"(FILE*)");
+
+      if (header_size>40) cimg::fseek(nfile,header_size - 40,SEEK_CUR);
+      const int
+        dx_bytes = (bpp==1)?(dx/8 + (dx%8?1:0)):((bpp==4)?(dx/2 + (dx%2)):(int)((longT)dx*bpp/8)),
+        align_bytes = (4 - dx_bytes%4)%4;
+      const ulongT
+        cimg_iobuffer = (ulongT)24*1024*1024,
+        buf_size = (ulongT)cimg::abs((longT)dy)*(dx_bytes + align_bytes);
+
+      if (buf_size>=fsiz)
+        throw CImgIOException(_cimg_instance
+                              "load_bmp(): File size %lu for filename '%s' does not match "
+                              "encoded image dimensions (%d,%d).",
+                              cimg_instance,
+                              (long)fsiz,filename?filename:"(FILE*)",dx,dy);
+
+      CImg<intT> colormap;
+      if (bpp<16) {
+        const int max_colors = 1<<bpp;
+        if (nb_colors<=0 || nb_colors>max_colors) nb_colors = max_colors;
+      } else nb_colors = 0;
+      if (nb_colors) { colormap.assign(nb_colors); cimg::fread(colormap._data,nb_colors,nfile); }
+
+      const int xoffset = offset - 14 - header_size - 4*nb_colors;
+      if (xoffset<0 || xoffset>=file_size)
+        throw CImgIOException(_cimg_instance
+                              "load_bmp(): Malformed header in filename '%s'.",
+                              cimg_instance,
+                              filename?filename:"(FILE*)");
+      cimg::fseek(nfile,xoffset,SEEK_CUR);
+
+      CImg<ucharT> buffer;
+      if (buf_size<cimg_iobuffer) {
+        buffer.assign(buf_size,1,1,1,0);
+        cimg::fread(buffer._data,buf_size,nfile);
+      } else buffer.assign(dx_bytes + align_bytes);
+      unsigned char *ptrs = buffer;
+
+      // Decompress buffer (if necessary).
       if (compression==1 || compression==2) {
         if (file)
           throw CImgIOException(_cimg_instance
                                 "load_bmp(): Unable to load compressed data from '(*FILE)' inputs.",
                                 cimg_instance);
         else {
-          cimg::fclose(nfile);
+          if (!file) cimg::fclose(nfile);
           return load_other(filename);
         }
       }
 
-      // Compute buffer sizes on 64 bits, with explicit overflow guards.
-      const ulongT
-        abs_dy = (ulongT)(dy<0?-dy:dy),
-        dx_bytes = ((ulongT)dx*(ulongT)bpp + 7)/8,
-        align_bytes = (4 - dx_bytes%4)%4,
-        row_bytes = dx_bytes + align_bytes,
-        cimg_iobuffer = (ulongT)24*1024*1024;
-
-      // The file must contain all declared pixels: offset + dy*row_bytes <= file size.
-      // (row_bytes>=4 and abs_dy>=1 here, so the division is safe and abs_dy*row_bytes cannot overflow.)
-      if (row_bytes>fsiz || abs_dy>fsiz/row_bytes) {
-        if (!file) cimg::fclose(nfile);
-        throw CImgIOException(_cimg_instance
-                              "load_bmp(): File size %lu for filename '%s' does not match "
-                              "encoded image dimensions (%ld,%ld).",
-                              cimg_instance,
-                              (unsigned long)fsiz,filename?filename:"(FILE*)",(long)dx,(long)dy);
-      }
-      const ulongT
-        buf_size = abs_dy*row_bytes,
-        min_data_size = buf_size - align_bytes;
-      if ((ulongT)offset>fsiz || min_data_size>fsiz - (ulongT)offset) {
-        if (!file) cimg::fclose(nfile);
-        throw CImgIOException(_cimg_instance
-                              "load_bmp(): File size %lu for filename '%s' is too small for "
-                              "encoded image dimensions (%ld,%ld).",
-                              cimg_instance,
-                              (unsigned long)fsiz,filename?filename:"(FILE*)",(long)dx,(long)dy);
-      }
-
-      if (header_size>40) cimg::fseek(nfile,(long)(header_size - 40),SEEK_CUR);
-
-      CImg<intT> colormap;
-      if (bpp<16) {
-        const longT max_colors = (longT)1<<bpp;
-        if (nb_colors<=0 || nb_colors>max_colors) nb_colors = max_colors;
-      } else nb_colors = 0;
-      if (nb_colors) {
-        colormap.assign((unsigned int)nb_colors);
-        cimg::fread(colormap._data,(unsigned int)nb_colors,nfile);
-      }
-
-      const longT xoffset = offset - 14 - header_size - 4*nb_colors;
-      if (xoffset<0 || xoffset>=file_size) {
-        if (!file) cimg::fclose(nfile);
-        throw CImgIOException(_cimg_instance
-                              "load_bmp(): Malformed header in filename '%s'.",
-                              cimg_instance,
-                              filename?filename:"(FILE*)");
-      }
-      cimg::fseek(nfile,(long)xoffset,SEEK_CUR);
-
-      CImg<ucharT> buffer;
-      if (buf_size<cimg_iobuffer) {
-        buffer.assign((unsigned int)buf_size,1,1,1,0);
-        cimg::fread(buffer._data,(unsigned int)min_data_size,nfile);
-      } else buffer.assign((unsigned int)row_bytes);
-      unsigned char *ptrs = buffer;
-
       // Read pixel data.
-      assign((unsigned int)dx,(unsigned int)abs_dy,1,3,0);
+      assign(dx,cimg::abs(dy),1,3,0);
       switch (bpp) {
       case 1 : { // Monochrome
         if (colormap._width>=2) for (int y = height() - 1; y>=0; --y) {

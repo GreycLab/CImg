@@ -47208,10 +47208,10 @@ namespace cimg_library {
                           const int size_x, const int size_y) {
       static const unsigned int edges[16] = { 0x0, 0x9, 0x3, 0xa, 0x6, 0xf, 0x5, 0xc, 0xc,
                                               0x5, 0xf, 0x6, 0xa, 0x3, 0x9, 0x0 };
-      static const int segments[16][4] = { { -1,-1,-1,-1 }, { 0,3,-1,-1 }, { 0,1,-1,-1 }, { 1,3,-1,-1 },
-                                           { 1,2,-1,-1 },   { 0,1,2,3 },   { 0,2,-1,-1 }, { 2,3,-1,-1 },
-                                           { 2,3,-1,-1 },   { 0,2,-1,-1},  { 0,3,1,2 },   { 1,2,-1,-1 },
-                                           { 1,3,-1,-1 },   { 0,1,-1,-1},  { 0,3,-1,-1},  { -1,-1,-1,-1 } };
+      static const int segments[16][5] = { { -1,-1,-1,-1,-1 }, { 0,3,-1,-1,-1 }, { 0,1,-1,-1,-1 }, { 1,3,-1,-1,-1 },
+                                           { 1,2,-1,-1,-1 },   { 0,1,2,3,-1 },   { 0,2,-1,-1,-1 }, { 2,3,-1,-1,-1 },
+                                           { 2,3,-1,-1,-1 },   { 0,2,-1,-1,-1 }, { 0,3,1,2,-1 },   { 1,2,-1,-1,-1 },
+                                           { 1,3,-1,-1,-1 },   { 0,1,-1,-1,-1 }, { 0,3,-1,-1,-1 }, { -1,-1,-1,-1,-1 } };
       const unsigned int
         _nx = (unsigned int)(size_x>=0?size_x:cimg::round((x1-x0)*-size_x/100 + 1)),
         _ny = (unsigned int)(size_y>=0?size_y:cimg::round((y1-y0)*-size_y/100 + 1)),
@@ -47231,7 +47231,7 @@ namespace cimg_library {
       cimg_forX(values1,x) { values1(x) = (float)func(X,Y); X+=dx; }
 
       // Run the marching squares algorithm.
-      for (unsigned int yi = 0, nyi = 1; yi<nym1; ++yi, ++nyi, Y=nY, nY+=dy) {
+      for (unsigned int yi = 0; yi<nym1; ++yi, Y=nY, nY+=dy) {
         X = x0; nX = X + dx;
         indices2.fill(-1);
         values2(0) = (float)func(X,nY);

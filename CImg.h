@@ -16879,7 +16879,8 @@ namespace cimg_library {
                     mp_func fn = (mp_func)(pop?pop[0]:0);
                     if (is_sth)
                       is_sth = is_comp_scalar(arg3) && pop[1]==arg3 &&
-                        fn!=mp_set_ijoff && fn!=mp_set_ijxyzc && fn!=mp_set_IJoff_s && fn!=mp_set_IJxyz_s;
+                        fn!=mp_set_ijoff && fn!=mp_set_ijxyzc && fn!=mp_set_IJoff_s && fn!=mp_set_IJxyz_s &&
+                        fn!=mp_vector_set_off;
                     if (is_sth)
                       for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg3) { is_sth = false; break; }
                     if (is_sth) {
@@ -17044,7 +17045,8 @@ namespace cimg_library {
                   mp_func fn = (mp_func)(pop?pop[0]:0);
                   if (is_sth)
                     is_sth = is_comp_scalar(arg2) && pop[1]==arg2 &&
-                      fn!=mp_set_ijoff && fn!=mp_set_ijxyzc && fn!=mp_set_IJoff_s && fn!=mp_set_IJxyz_s;
+                      fn!=mp_set_ijoff && fn!=mp_set_ijxyzc && fn!=mp_set_IJoff_s && fn!=mp_set_IJxyz_s &&
+                      fn!=mp_vector_set_off;
                   if (is_sth)
                     for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg2) { is_sth = false; break; }
                   if (is_sth) {
@@ -21598,8 +21600,7 @@ namespace cimg_library {
                 variable_pos[variable_def._width] = arg3;
                 variable_name.move_to(variable_def);
               }
-              if (is_vector(arg3))
-                set_reserved_vector(arg3); // Prevent from being used in further optimization
+              if (is_vector(arg3)) set_reserved_vector(arg3); // Prevent from being used in further optimization
               else if (is_comp_scalar(arg3)) memtype[arg3] = -1;
               *se1 = ')';
               _cimg_mp_return(arg3);

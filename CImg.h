@@ -6539,8 +6539,10 @@ namespace cimg_library {
   _cimg_create_pointwise_function(log10)
   _cimg_create_pointwise_function(log1p)
   _cimg_create_pointwise_function(log2)
+  _cimg_create_pointwise_function(logit)
   _cimg_create_pointwise_function(sqr)
   _cimg_create_pointwise_function(sqrt)
+  _cimg_create_pointwise_function(sigmoid)
   _cimg_create_pointwise_function(sign)
   _cimg_create_pointwise_function(sin)
   _cimg_create_pointwise_function(sinc)
@@ -25457,9 +25459,9 @@ namespace cimg_library {
             _mp_debug(self_vector_pow_v) _mp_debug(self_vector_sub_s) _mp_debug(self_vector_sub_v) _mp_debug(set)
             _mp_debug(set) _mp_debug(set_ijoff) _mp_debug(set_IJoff_s) _mp_debug(set_IJoff_v) _mp_debug(set_IJxyz_s)
             _mp_debug(set_IJxyz_v) _mp_debug(set_ijxyzc)_mp_debug(shift) _mp_debug(shift_ip)
-            _mp_debug(sigmoid) _mp_debug(sign) _mp_debug(sin)
-            _mp_debug(sinc) _mp_debug(sinh) _mp_debug(size_list) _mp_debug(softargmax) _mp_debug(softargmin)
-            _mp_debug(softmax) _mp_debug(softmin) _mp_debug(solve) _mp_debug(sort) _mp_debug(sort_ip) _mp_debug(sqr)
+            _mp_debug(sigmoid) _mp_debug(sign) _mp_debug(sin) _mp_debug(sinc) _mp_debug(sinh) _mp_debug(size_list)
+            _mp_debug(softargmax) _mp_debug(softargmin) _mp_debug(softmax) _mp_debug(softmin) _mp_debug(solve)
+            _mp_debug(sort) _mp_debug(sort_ip) _mp_debug(sqr)
             _mp_debug(sqrt) _mp_debug(srand) _mp_debug(srand0) _mp_debug(std) _mp_debug(std2) _mp_debug(store)
             _mp_debug(store) _mp_debug(string) _mp_debug(string_init) _mp_debug(sub) _mp_debug(sub_div)
             _mp_debug(sub_mul) _mp_debug(sub_sub) _mp_debug(sum) _mp_debug(sum2) _mp_debug(swap) _mp_debug(tan)
@@ -29780,6 +29782,26 @@ namespace cimg_library {
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(abs,cimg::abs,524288)
+
+    //! Compute the sigmoid of each pixel value.
+    /**
+       Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its sigmoid
+       \f$\mathrm{sigmoid}(I_{(x,y,z,c)})\f$.
+       \note
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
+       - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
+    **/
+    _cimg_create_pointwise_functions(sigmoid,cimg::sigmoid,32768)
+
+    //! Compute the logit of each pixel value.
+    /**
+       Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its logit
+       \f$\mathrm{logit}(I_{(x,y,z,c)})\f$.
+       \note
+       - The \inplace of this function statically casts the computed values to the pixel type \c T.
+       - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
+    **/
+    _cimg_create_pointwise_functions(logit,cimg::logit,32768)
 
     //! Compute the sign of each pixel value.
     /**

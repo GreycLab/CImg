@@ -20967,6 +20967,10 @@ namespace cimg_library {
               mp_func fn = (mp_func)(pop?pop[0]:0);
 
               if (is_vector(arg1)) { // Vector-valued result
+                if (is_sth && fn==mp_vector_increment && pop[1]==arg1) { // Spot case 'log(1 + X)'
+                  pop[0] = (ulongT)mp_vector_log1p;
+                  _cimg_mp_return(arg1);
+                }
                 _cimg_mp_vector1(log,arg1);
               }
 

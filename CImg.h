@@ -28696,12 +28696,11 @@ namespace cimg_library {
       const longT sizd = (longT)mp.opcode[2]; \
       const unsigned int nbargs = (unsigned int)mp.opcode[3]; \
       double *const ptrd = &_mp_arg(1) + (sizd?1:0); \
-      cimg_pragma_openmp(parallel cimg_openmp_if_size(sizd,256)) { \
-        CImg<doubleT> vec(nbargs); \
-        cimg_pragma_openmp(for) for (longT k = sizd?sizd - 1:0; k>=0; --k) { \
-          cimg_forX(vec,n) vec[n] = *(&_mp_arg(4 + 2*n) + (k + 1)*(mp.opcode[4 + 2*n + 1]?1:0)); \
-          ptrd[k] = (func); \
-        }} \
+      CImg<doubleT> vec(nbargs); \
+      for (longT k = sizd?sizd - 1:0; k>=0; --k) { \
+        cimg_forX(vec,n) vec[n] = *(&_mp_arg(4 + 2*n) + (k + 1)*(mp.opcode[4 + 2*n + 1]?1:0)); \
+        ptrd[k] = (func); \
+      } \
       return sizd?cimg::type<double>::nan():*ptrd;
 
 #define _cimg_mp_vfunc2(func) /* Optimized case for 2 arguments */ \
@@ -28711,25 +28710,18 @@ namespace cimg_library {
       const double *const ptrs0 = &_mp_arg(4) + (is_vec0?1:0), *const ptrs1 = &_mp_arg(6) + (is_vec1?1:0), \
         e0_0 = *ptrs0, e1_0 = *ptrs1; \
       if (!is_vec0 && !is_vec1) { /* Scalar, scalar */ \
-        const double e0 = e0_0, e1 = e1_0; \
-        cimg::unused(e0,e1); *ptrd = (func);  \
+        const double e0 = e0_0, e1 = e1_0; cimg::unused(e0,e1); *ptrd = (func);  \
       } else if (is_vec0 && !is_vec1) { /* Vector, scalar */ \
-        cimg_pragma_openmp(parallel for cimg_openmp_if_size(sizd,256)) \
         for (longT k = sizd?sizd - 1:0; k>=0; --k) { \
-            const double &e0 = ptrs0[k], e1 = e1_0; \
-            cimg::unused(e0,e1); ptrd[k] = (func); \
-         } \
+          const double &e0 = ptrs0[k], e1 = e1_0; cimg::unused(e0,e1); ptrd[k] = (func); \
+        } \
       } else if (!is_vec0 && is_vec1) { /* Scalar, vector */ \
-        cimg_pragma_openmp(parallel for cimg_openmp_if_size(sizd,256)) \
         for (longT k = sizd?sizd - 1:0; k>=0; --k) { \
-            const double e0 = e0_0, &e1 = ptrs1[k]; \
-            cimg::unused(e0,e1); ptrd[k] = (func); \
+          const double e0 = e0_0, &e1 = ptrs1[k]; cimg::unused(e0,e1); ptrd[k] = (func); \
         } \
       } else { /* Vector, vector */ \
-        cimg_pragma_openmp(parallel for cimg_openmp_if_size(sizd,256)) \
         for (longT k = sizd?sizd - 1:0; k>=0; --k) { \
-            const double &e0 = ptrs0[k], &e1 = ptrs1[k]; \
-            cimg::unused(e0,e1); ptrd[k] = (func); \
+          const double &e0 = ptrs0[k], &e1 = ptrs1[k]; cimg::unused(e0,e1); ptrd[k] = (func); \
         } \
       } \
       return sizd?cimg::type<double>::nan():*ptrd;

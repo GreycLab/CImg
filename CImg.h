@@ -22737,6 +22737,21 @@ namespace cimg_library {
               opcode[1] = pos;
               opcode[2] = p1;
               opcode[3] = (opcode._height - 4)/2;
+              if ((unsigned int)opcode[3]==2) { // Switch to optimized function is 2 arguments only
+                op = ss[1]=='a'?(ss[2]=='v'?mp_vavg2:
+                                 ss[4]=='k'?mp_vargkth2:
+                                 ss[5]=='i' && ss[7]=='('?mp_vargmin2:
+                                 ss[5]=='i'?mp_vargminabs2:
+                                 ss[7]=='('?mp_vargmax2:mp_vargmaxabs2):
+                  ss[1]=='s'?(ss[2]=='u'?mp_vsum2:mp_vstd2):
+                  ss[1]=='k'?mp_vkth2:
+                  ss[1]=='p'?mp_vprod2:
+                  ss[1]=='v'?mp_vvar2:
+                  ss[2]=='i'?(ss[4]=='('?mp_vmin2:mp_vminabs2):
+                  ss[2]=='a'?(ss[4]=='('?mp_vmax2:mp_vmaxabs2):
+                  mp_vmedian2;
+                opcode[0] = (ulongT)op;
+              }
               opcode.move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
@@ -28682,11 +28697,41 @@ namespace cimg_library {
       const unsigned int nbargs = (unsigned int)mp.opcode[3]; \
       double *const ptrd = &_mp_arg(1) + (sizd?1:0); \
       cimg_pragma_openmp(parallel cimg_openmp_if_size(sizd,256)) { \
-        CImg<doubleT> vec(nbargs); double res; \
+        CImg<doubleT> vec(nbargs); \
         cimg_pragma_openmp(for) for (longT k = sizd?sizd - 1:0; k>=0; --k) { \
-          cimg_forX(vec,n) vec[n] = *(&_mp_arg(4 + 2*n) + (k+1)*(mp.opcode[4 + 2*n + 1]?1:0)); \
-          func; ptrd[k] = res; \
+          cimg_forX(vec,n) vec[n] = *(&_mp_arg(4 + 2*n) + (k + 1)*(mp.opcode[4 + 2*n + 1]?1:0)); \
+          ptrd[k] = (func); \
         }} \
+      return sizd?cimg::type<double>::nan():*ptrd;
+
+#define _cimg_mp_vfunc2(func) /* Optimized case for 2 arguments */ \
+      const longT sizd = (longT)mp.opcode[2]; \
+      double *const ptrd = &_mp_arg(1) + (sizd?1:0); \
+      const bool is_vec0 = (unsigned int)mp.opcode[5]!=0, is_vec1 = (unsigned int)mp.opcode[7]!=0; \
+      const double *const ptrs0 = &_mp_arg(4) + (is_vec0?1:0), *const ptrs1 = &_mp_arg(6) + (is_vec1?1:0), \
+        e0_0 = *ptrs0, e1_0 = *ptrs1; \
+      if (!is_vec0 && !is_vec1) { /* Scalar, scalar */ \
+        const double e0 = e0_0, e1 = e1_0; \
+        cimg::unused(e0,e1); *ptrd = (func);  \
+      } else if (is_vec0 && !is_vec1) { /* Vector, scalar */ \
+        cimg_pragma_openmp(parallel for cimg_openmp_if_size(sizd,256)) \
+        for (longT k = sizd?sizd - 1:0; k>=0; --k) { \
+            const double &e0 = ptrs0[k], e1 = e1_0; \
+            cimg::unused(e0,e1); ptrd[k] = (func); \
+         } \
+      } else if (!is_vec0 && is_vec1) { /* Scalar, vector */ \
+        cimg_pragma_openmp(parallel for cimg_openmp_if_size(sizd,256)) \
+        for (longT k = sizd?sizd - 1:0; k>=0; --k) { \
+            const double e0 = e0_0, &e1 = ptrs1[k]; \
+            cimg::unused(e0,e1); ptrd[k] = (func); \
+        } \
+      } else { /* Vector, vector */ \
+        cimg_pragma_openmp(parallel for cimg_openmp_if_size(sizd,256)) \
+        for (longT k = sizd?sizd - 1:0; k>=0; --k) { \
+            const double &e0 = ptrs0[k], &e1 = ptrs1[k]; \
+            cimg::unused(e0,e1); ptrd[k] = (func); \
+        } \
+      } \
       return sizd?cimg::type<double>::nan():*ptrd;
 
       static double _mp_vargkth(CImg<doubleT>& vec) {
@@ -28697,27 +28742,51 @@ namespace cimg_library {
       }
 
       static double mp_vargkth(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = _mp_vargkth(vec));
+        _cimg_mp_vfunc(_mp_vargkth(vec));
+      }
+
+      static double mp_vargkth2(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc2(1);
       }
 
       static double mp_vargmax(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = (double)(&vec.max() - vec.data()));
+        _cimg_mp_vfunc((double)(&vec.max() - vec.data()));
+      }
+
+      static double mp_vargmax2(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc2(e0>=e1?0:1);
       }
 
       static double mp_vargmaxabs(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = (double)(&vec.maxabs() - vec.data()));
+        _cimg_mp_vfunc((double)(&vec.maxabs() - vec.data()));
+      }
+
+      static double mp_vargmaxabs2(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc2(cimg::abs(e0)>=cimg::abs(e1)?0:1);
       }
 
       static double mp_vargmin(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = (double)(&vec.min() - vec.data()));
+        _cimg_mp_vfunc((double)(&vec.min() - vec.data()));
+      }
+
+      static double mp_vargmin2(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc2(e0<=e1?0:1);
       }
 
       static double mp_vargminabs(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = (double)(&vec.minabs() - vec.data()));
+        _cimg_mp_vfunc((double)(&vec.minabs() - vec.data()));
+      }
+
+      static double mp_vargminabs2(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc2(cimg::abs(e0)<=cimg::abs(e1)?0:1);
       }
 
       static double mp_vavg(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = vec.mean());
+        _cimg_mp_vfunc(vec.mean());
+      }
+
+      static double mp_vavg2(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc2((e0 + e1)/2);
       }
 
       static double mp_vector_copy(_cimg_math_parser& mp) {
@@ -29221,44 +29290,84 @@ namespace cimg_library {
       }
 
       static double mp_vkth(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = vec.get_shared_points(1,vec.width() - 1).
+        _cimg_mp_vfunc(vec.get_shared_points(1,vec.width() - 1).
                        kth_smallest((ulongT)cimg::cut((longT)*vec - 1,(longT)0,(longT)vec.width() - 2)));
       }
 
+      static double mp_vkth2(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc2(e1);
+      }
+
       static double mp_vmax(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = vec.max());
+        _cimg_mp_vfunc(vec.max());
+      }
+
+      static double mp_vmax2(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc2(std::max(e0,e1));
       }
 
       static double mp_vmaxabs(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = vec.maxabs());
+        _cimg_mp_vfunc(vec.maxabs());
+      }
+
+      static double mp_vmaxabs2(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc2(cimg::maxabs(e0,e1));
       }
 
       static double mp_vmedian(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = vec.median());
+        _cimg_mp_vfunc(vec.median());
+      }
+
+      static double mp_vmedian2(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc2(cimg::median(e0,e1));
       }
 
       static double mp_vmin(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = vec.min());
+        _cimg_mp_vfunc(vec.min());
+      }
+
+      static double mp_vmin2(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc2(std::min(e0,e1));
       }
 
       static double mp_vminabs(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = vec.minabs());
+        _cimg_mp_vfunc(vec.minabs());
+      }
+
+      static double mp_vminabs2(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc2(cimg::minabs(e0,e1));
       }
 
       static double mp_vprod(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = vec.product());
+        _cimg_mp_vfunc(vec.product());
+      }
+
+      static double mp_vprod2(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc2(e0*e1);
       }
 
       static double mp_vstd(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = std::sqrt(vec.get_stats()[3]));
+        _cimg_mp_vfunc(std::sqrt(vec.get_stats()[3]));
+      }
+
+      static double mp_vstd2(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc2(cimg::abs(e0 - e1)/2);
       }
 
       static double mp_vsum(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = vec.sum());
+        _cimg_mp_vfunc(vec.sum());
+      }
+
+      static double mp_vsum2(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc2(e0 + e1);
       }
 
       static double mp_vvar(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = vec.get_stats()[3]);
+        _cimg_mp_vfunc(vec.get_stats()[3]);
+      }
+
+      static double mp_vvar2(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc2(cimg::sqr((e0 - e1)/2));
       }
 
       static double mp_warp(_cimg_math_parser& mp) {

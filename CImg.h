@@ -22738,19 +22738,23 @@ namespace cimg_library {
               opcode[2] = p1;
               opcode[3] = (opcode._height - 4)/2;
               if ((unsigned int)opcode[3]==2) { // Switch to optimized function is 2 arguments only
-                op = ss[1]=='a'?(ss[2]=='v'?mp_vavg2:
-                                 ss[4]=='k'?mp_vargkth2:
-                                 ss[5]=='i' && ss[7]=='('?mp_vargmin2:
-                                 ss[5]=='i'?mp_vargminabs2:
-                                 ss[7]=='('?mp_vargmax2:mp_vargmaxabs2):
-                  ss[1]=='s'?(ss[2]=='u'?mp_vsum2:mp_vstd2):
-                  ss[1]=='k'?mp_vkth2:
-                  ss[1]=='p'?mp_vprod2:
-                  ss[1]=='v'?mp_vvar2:
-                  ss[2]=='i'?(ss[4]=='('?mp_vmin2:mp_vminabs2):
-                  ss[2]=='a'?(ss[4]=='('?mp_vmax2:mp_vmaxabs2):
-                  mp_vmedian2;
-                opcode[0] = (ulongT)op;
+                op = op==mp_vargkth?mp_vargkth2:
+                     op==mp_vargmax?mp_vargmax2:
+                     op==mp_vargmaxabs?mp_vargmaxabs2:
+                     op==mp_vargmin?mp_vargmin2:
+                     op==mp_vargminabs?mp_vargminabs2:
+                     op==mp_vavg?mp_vavg2:
+                     op==mp_vavg?mp_vavg2:
+                     op==mp_vkth?mp_vkth:
+                     op==mp_vmax?mp_vmax2:
+                     op==mp_vmaxabs?mp_vmaxabs2:
+                     op==mp_vmedian?mp_vmedian2:
+                     op==mp_vmin?mp_vmin2:
+                     op==mp_vminabs?mp_vminabs2:
+                     op==mp_vprod?mp_vprod2:
+                     op==mp_vstd?mp_vstd2:
+                     op==mp_vsum?mp_vsum2:(mp_func)0;
+                 opcode[0] = (ulongT)op;
               }
               opcode.move_to(code);
               return_comp = true;
@@ -25473,57 +25477,60 @@ namespace cimg_library {
             _mp_debug(self_vector_mul_s) _mp_debug(self_vector_mul_v) _mp_debug(self_vector_pow_s)
             _mp_debug(self_vector_pow_v) _mp_debug(self_vector_sub_s) _mp_debug(self_vector_sub_v) _mp_debug(set)
             _mp_debug(set) _mp_debug(set_ijoff) _mp_debug(set_IJoff_s) _mp_debug(set_IJoff_v) _mp_debug(set_IJxyz_s)
-            _mp_debug(set_IJxyz_v) _mp_debug(set_ijxyzc)_mp_debug(shift) _mp_debug(shift_ip)
-            _mp_debug(sigmoid) _mp_debug(sign) _mp_debug(sin) _mp_debug(sinc) _mp_debug(sinh) _mp_debug(size_list)
-            _mp_debug(softargmax) _mp_debug(softargmin) _mp_debug(softmax) _mp_debug(softmin) _mp_debug(solve)
-            _mp_debug(sort) _mp_debug(sort_ip) _mp_debug(sqr)
-            _mp_debug(sqrt) _mp_debug(srand) _mp_debug(srand0) _mp_debug(std) _mp_debug(std2) _mp_debug(store)
-            _mp_debug(store) _mp_debug(string) _mp_debug(string_init) _mp_debug(sub) _mp_debug(sub_div)
-            _mp_debug(sub_mul) _mp_debug(sub_sub) _mp_debug(sum) _mp_debug(sum2) _mp_debug(swap) _mp_debug(tan)
-            _mp_debug(tanh) _mp_debug(trace) _mp_debug(transpose) _mp_debug(ui2f) _mp_debug(unitnorm)
-            _mp_debug(uppercase) _mp_debug(v2s) _mp_debug(var) _mp_debug(var2) _mp_debug(vargkth) _mp_debug(vargmax)
-            _mp_debug(vargmaxabs) _mp_debug(vargmin) _mp_debug(vargminabs) _mp_debug(vavg) _mp_debug(vector_abs)
-            _mp_debug(vector_abscut) _mp_debug(vector_acos) _mp_debug(vector_acosh) _mp_debug(vector_add_sv)
-            _mp_debug(vector_add_vs) _mp_debug(vector_add_vv) _mp_debug(vector_asin) _mp_debug(vector_asinh)
-            _mp_debug(vector_atan) _mp_debug(vector_atan2_sv) _mp_debug(vector_atan2_vs) _mp_debug(vector_atan2_vv)
-            _mp_debug(vector_atanh) _mp_debug(vector_bitwise_not) _mp_debug(vector_bitwise_and_sv)
-            _mp_debug(vector_bitwise_and_vs) _mp_debug(vector_bitwise_and_vv) _mp_debug(vector_bitwise_left_shift_sv)
-            _mp_debug(vector_bitwise_left_shift_vs) _mp_debug(vector_bitwise_left_shift_vv)
-            _mp_debug(vector_bitwise_or_sv) _mp_debug(vector_bitwise_or_vs) _mp_debug(vector_bitwise_or_vv)
-            _mp_debug(vector_bitwise_right_shift_sv) _mp_debug(vector_bitwise_right_shift_vs)
-            _mp_debug(vector_bitwise_right_shift_vv) _mp_debug(vector_bitwise_xor_sv) _mp_debug(vector_bitwise_xor_vs)
-            _mp_debug(vector_bitwise_xor_vv) _mp_debug(vector_bool) _mp_debug(vector_cbrt) _mp_debug(vector_ceil)
-            _mp_debug(vector_copy) _mp_debug(vector_cos) _mp_debug(vector_cosh) _mp_debug(vector_crop)
-            _mp_debug(vector_crop_ext) _mp_debug(vector_cut) _mp_debug(vector_decrement) _mp_debug(vector_deg2rad)
-            _mp_debug(vector_display) _mp_debug(vector_div_sv) _mp_debug(vector_div_vs) _mp_debug(vector_div_vv)
-            _mp_debug(vector_draw) _mp_debug(vector_eq) _mp_debug(vector_erf) _mp_debug(vector_erfinv)
-            _mp_debug(vector_exp) _mp_debug(vector_f2ui) _mp_debug(vector_factorial) _mp_debug(vector_fibonacci)
-            _mp_debug(vector_fill) _mp_debug(vector_fill_ext) _mp_debug(vector_floor) _mp_debug(vector_frac)
-            _mp_debug(vector_gamma) _mp_debug(vector_gauss) _mp_debug(vector_gt_sv) _mp_debug(vector_gt_vs)
-            _mp_debug(vector_gt_vv) _mp_debug(vector_gte_sv) _mp_debug(vector_gte_vs) _mp_debug(vector_gte_vv)
-            _mp_debug(vector_hypot) _mp_debug(vector_increment) _mp_debug(vector_init) _mp_debug(vector_int)
-            _mp_debug(vector_isbool) _mp_debug(vector_isfinite) _mp_debug(vector_isinf) _mp_debug(vector_isint)
-            _mp_debug(vector_isnan) _mp_debug(vector_lerp) _mp_debug(vector_log) _mp_debug(vector_log10)
-            _mp_debug(vector_log1p) _mp_debug(vector_log2) _mp_debug(vector_logical_not) _mp_debug(vector_logit)
-            _mp_debug(vector_lowercase) _mp_debug(vector_lt_sv) _mp_debug(vector_lt_vs) _mp_debug(vector_lt_vv)
-            _mp_debug(vector_lte_sv) _mp_debug(vector_lte_vs) _mp_debug(vector_lte_vv) _mp_debug(vector_modulo_sv)
-            _mp_debug(vector_modulo_vs) _mp_debug(vector_modulo_vv) _mp_debug(vector_mul_sv) _mp_debug(vector_mul_vs)
-            _mp_debug(vector_mul_vv) _mp_debug(vector_neq) _mp_debug(vector_minus) _mp_debug(vector_norm0)
-            _mp_debug(vector_norm1) _mp_debug(vector_norm2) _mp_debug(vector_norminf) _mp_debug(vector_off)
-            _mp_debug(vector_pow_sv) _mp_debug(vector_pow_vs) _mp_debug(vector_pow_vv) _mp_debug(vector_print)
-            _mp_debug(vector_rad2deg) _mp_debug(vector_rand) _mp_debug(vector_rand_double_ext)
-            _mp_debug(vector_rand_double_sv) _mp_debug(vector_rand_double_vs) _mp_debug(vector_rand_double_vv)
-            _mp_debug(vector_rand_int_sv) _mp_debug(vector_rand_int_ext) _mp_debug(vector_rand_int_vs)
-            _mp_debug(vector_rand_int_vv) _mp_debug(vector_resize) _mp_debug(vector_resize_ext) _mp_debug(vector_rol_sv)
-            _mp_debug(vector_rol_vs) _mp_debug(vector_rol_vv) _mp_debug(vector_ror_sv) _mp_debug(vector_ror_vs)
-            _mp_debug(vector_ror_vv) _mp_debug(vector_round) _mp_debug(vector_set_off) _mp_debug(vector_sigmoid)
-            _mp_debug(vector_sign) _mp_debug(vector_sin) _mp_debug(vector_sinc) _mp_debug(vector_sinh)
-            _mp_debug(vector_sqr) _mp_debug(vector_sqrt) _mp_debug(vector_stats) _mp_debug(vector_sub_sv)
-            _mp_debug(vector_sub_vs) _mp_debug(vector_sub_vv) _mp_debug(vector_tan) _mp_debug(vector_tanh)
-            _mp_debug(vector_ui2f) _mp_debug(vector_uppercase) _mp_debug(vector_wave_sv) _mp_debug(vector_wave_vs)
-            _mp_debug(vector_wave_vv) _mp_debug(vkth) _mp_debug(vmax) _mp_debug(vmaxabs) _mp_debug(vmedian)
-            _mp_debug(vmin) _mp_debug(vminabs) _mp_debug(vprod) _mp_debug(vstd) _mp_debug(vsum) _mp_debug(vvar)
-            _mp_debug(warp) _mp_debug(wave) _mp_debug(while) "unknown";
+            _mp_debug(set_IJxyz_v) _mp_debug(set_ijxyzc)_mp_debug(shift) _mp_debug(shift_ip) _mp_debug(sigmoid)
+            _mp_debug(sign) _mp_debug(sin) _mp_debug(sinc) _mp_debug(sinh) _mp_debug(size_list) _mp_debug(softargmax)
+            _mp_debug(softargmin) _mp_debug(softmax) _mp_debug(softmin) _mp_debug(solve) _mp_debug(sort)
+            _mp_debug(sort_ip) _mp_debug(sqr) _mp_debug(sqrt) _mp_debug(srand) _mp_debug(srand0) _mp_debug(std)
+            _mp_debug(std2) _mp_debug(store) _mp_debug(store) _mp_debug(string) _mp_debug(string_init) _mp_debug(sub)
+            _mp_debug(sub_div) _mp_debug(sub_mul) _mp_debug(sub_sub) _mp_debug(sum) _mp_debug(sum2) _mp_debug(swap)
+            _mp_debug(tan) _mp_debug(tanh) _mp_debug(trace) _mp_debug(transpose) _mp_debug(ui2f) _mp_debug(unitnorm)
+            _mp_debug(uppercase) _mp_debug(v2s) _mp_debug(var) _mp_debug(var2) _mp_debug(vargkth) _mp_debug(vargkth2)
+            _mp_debug(vargmax) _mp_debug(vargmax2) _mp_debug(vargmaxabs) _mp_debug(vargmaxabs2) _mp_debug(vargmin)
+            _mp_debug(vargmin2) _mp_debug(vargminabs) _mp_debug(vargminabs2) _mp_debug(vavg) _mp_debug(vavg2)
+            _mp_debug(vector_abs) _mp_debug(vector_abscut) _mp_debug(vector_acos) _mp_debug(vector_acosh)
+            _mp_debug(vector_add_sv) _mp_debug(vector_add_vs) _mp_debug(vector_add_vv) _mp_debug(vector_asin)
+            _mp_debug(vector_asinh) _mp_debug(vector_atan) _mp_debug(vector_atan2_sv) _mp_debug(vector_atan2_vs)
+            _mp_debug(vector_atan2_vv) _mp_debug(vector_atanh) _mp_debug(vector_bitwise_not)
+            _mp_debug(vector_bitwise_and_sv) _mp_debug(vector_bitwise_and_vs) _mp_debug(vector_bitwise_and_vv)
+            _mp_debug(vector_bitwise_left_shift_sv) _mp_debug(vector_bitwise_left_shift_vs)
+            _mp_debug(vector_bitwise_left_shift_vv) _mp_debug(vector_bitwise_or_sv) _mp_debug(vector_bitwise_or_vs)
+            _mp_debug(vector_bitwise_or_vv) _mp_debug(vector_bitwise_right_shift_sv)
+            _mp_debug(vector_bitwise_right_shift_vs) _mp_debug(vector_bitwise_right_shift_vv)
+            _mp_debug(vector_bitwise_xor_sv) _mp_debug(vector_bitwise_xor_vs) _mp_debug(vector_bitwise_xor_vv)
+            _mp_debug(vector_bool) _mp_debug(vector_cbrt) _mp_debug(vector_ceil) _mp_debug(vector_copy)
+            _mp_debug(vector_cos) _mp_debug(vector_cosh) _mp_debug(vector_crop) _mp_debug(vector_crop_ext)
+            _mp_debug(vector_cut) _mp_debug(vector_decrement) _mp_debug(vector_deg2rad) _mp_debug(vector_display)
+            _mp_debug(vector_div_sv) _mp_debug(vector_div_vs) _mp_debug(vector_div_vv) _mp_debug(vector_draw)
+            _mp_debug(vector_eq) _mp_debug(vector_erf) _mp_debug(vector_erfinv) _mp_debug(vector_exp)
+            _mp_debug(vector_f2ui) _mp_debug(vector_factorial) _mp_debug(vector_fibonacci) _mp_debug(vector_fill)
+            _mp_debug(vector_fill_ext) _mp_debug(vector_floor) _mp_debug(vector_frac) _mp_debug(vector_gamma)
+            _mp_debug(vector_gauss) _mp_debug(vector_gt_sv) _mp_debug(vector_gt_vs) _mp_debug(vector_gt_vv)
+            _mp_debug(vector_gte_sv) _mp_debug(vector_gte_vs) _mp_debug(vector_gte_vv) _mp_debug(vector_hypot)
+            _mp_debug(vector_increment) _mp_debug(vector_init) _mp_debug(vector_int) _mp_debug(vector_isbool)
+            _mp_debug(vector_isfinite) _mp_debug(vector_isinf) _mp_debug(vector_isint) _mp_debug(vector_isnan)
+            _mp_debug(vector_lerp) _mp_debug(vector_log) _mp_debug(vector_log10) _mp_debug(vector_log1p)
+            _mp_debug(vector_log2) _mp_debug(vector_logical_not) _mp_debug(vector_logit) _mp_debug(vector_lowercase)
+            _mp_debug(vector_lt_sv) _mp_debug(vector_lt_vs) _mp_debug(vector_lt_vv) _mp_debug(vector_lte_sv)
+            _mp_debug(vector_lte_vs) _mp_debug(vector_lte_vv) _mp_debug(vector_modulo_sv) _mp_debug(vector_modulo_vs)
+            _mp_debug(vector_modulo_vv) _mp_debug(vector_mul_sv) _mp_debug(vector_mul_vs) _mp_debug(vector_mul_vv)
+            _mp_debug(vector_neq) _mp_debug(vector_minus) _mp_debug(vector_norm0) _mp_debug(vector_norm1)
+            _mp_debug(vector_norm2) _mp_debug(vector_norminf) _mp_debug(vector_off) _mp_debug(vector_pow_sv)
+            _mp_debug(vector_pow_vs) _mp_debug(vector_pow_vv) _mp_debug(vector_print) _mp_debug(vector_rad2deg)
+            _mp_debug(vector_rand) _mp_debug(vector_rand_double_ext) _mp_debug(vector_rand_double_sv)
+            _mp_debug(vector_rand_double_vs) _mp_debug(vector_rand_double_vv) _mp_debug(vector_rand_int_sv)
+            _mp_debug(vector_rand_int_ext) _mp_debug(vector_rand_int_vs) _mp_debug(vector_rand_int_vv)
+            _mp_debug(vector_resize) _mp_debug(vector_resize_ext) _mp_debug(vector_rol_sv) _mp_debug(vector_rol_vs)
+            _mp_debug(vector_rol_vv) _mp_debug(vector_ror_sv) _mp_debug(vector_ror_vs) _mp_debug(vector_ror_vv)
+            _mp_debug(vector_round) _mp_debug(vector_set_off) _mp_debug(vector_sigmoid) _mp_debug(vector_sign)
+            _mp_debug(vector_sin) _mp_debug(vector_sinc) _mp_debug(vector_sinh) _mp_debug(vector_sqr)
+            _mp_debug(vector_sqrt) _mp_debug(vector_stats) _mp_debug(vector_sub_sv) _mp_debug(vector_sub_vs)
+            _mp_debug(vector_sub_vv) _mp_debug(vector_tan) _mp_debug(vector_tanh) _mp_debug(vector_ui2f)
+            _mp_debug(vector_uppercase) _mp_debug(vector_wave_sv) _mp_debug(vector_wave_vs) _mp_debug(vector_wave_vv)
+            _mp_debug(vkth) _mp_debug(vkth2) _mp_debug(vmax) _mp_debug(vmax2) _mp_debug(vmaxabs) _mp_debug(vmaxabs2)
+            _mp_debug(vmedian) _mp_debug(vmedian2) _mp_debug(vmin) _mp_debug(vmin2) _mp_debug(vminabs)
+            _mp_debug(vminabs2) _mp_debug(vprod) _mp_debug(vprod2) _mp_debug(vstd) _mp_debug(vstd2) _mp_debug(vsum)
+            _mp_debug(vsum2) _mp_debug(vvar) _mp_debug(vvar2) _mp_debug(warp) _mp_debug(wave) _mp_debug(while)
+            "unknown";
 
           cimg_pragma_openmp(critical(mp_debug)) {
             std::fprintf(cimg::output(),

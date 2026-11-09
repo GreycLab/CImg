@@ -17762,7 +17762,7 @@ namespace cimg_library {
             }
 
             p3 = size(arg2);
-            if (p3>0 && (ulongT)size(arg1)==(ulongT)p3*p3) { // Particular case of matrix multiplication
+            if (p3>0 && (ulongT)size(arg1)==(ulongT)p3*p3) { // Particular case of 'square matrix*vector'
               pos = vector(p3);
               CImg<ulongT>::vector((ulongT)mp_matrix_mul,pos,arg1,arg2,p3,p3,1).move_to(code);
               return_comp = true;

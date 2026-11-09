@@ -17928,17 +17928,18 @@ namespace cimg_library {
             _cimg_mp_check_type(arg2,2,3,size(arg1));
             if (arg2==1) _cimg_mp_same(arg1);
             if (is_vector(arg1) || is_vector(arg2)) _cimg_mp_vector2(pow,arg1,arg2);
-            if (is_const_scalar(arg1) && is_const_scalar(arg2))
-              _cimg_mp_const_scalar(std::pow(mem[arg1],mem[arg2]));
+            if (is_const_scalar(arg1) && is_const_scalar(arg2)) _cimg_mp_const_scalar(std::pow(mem[arg1],mem[arg2]));
             switch (arg2) {
             case 0 : _cimg_mp_return(1);
             case 2 : _cimg_mp_scalar1(sqr,arg1);
             case 3 : _cimg_mp_scalar1(pow3,arg1);
             case 4 : _cimg_mp_scalar1(pow4,arg1);
+            case 11 : _cimg_mp_scalar2(div,1,arg1); // x^-1
             default :
               if (is_const_scalar(arg2)) {
-                if (mem[arg2]==0.5) { _cimg_mp_scalar1(sqrt,arg1); }
-                else if (mem[arg2]==0.25) { _cimg_mp_scalar1(pow0_25,arg1); }
+                val = mem[arg2];
+                if (val==0.5) { _cimg_mp_scalar1(sqrt,arg1); }
+                else if (val==0.25) { _cimg_mp_scalar1(pow0_25,arg1); }
               }
               _cimg_mp_scalar2(pow,arg1,arg2);
             }

@@ -28704,9 +28704,13 @@ namespace cimg_library {
       const longT sizd = (longT)mp.opcode[2]; \
       const unsigned int nbargs = (unsigned int)mp.opcode[3]; \
       double *const ptrd = &_mp_arg(1) + (sizd?1:0); \
-      CImg<doubleT> vec(nbargs); \
+      double _vec[256]; \
+      CImg<double> vec; vec._width = nbargs; vec._height = vec._depth = vec._spectrum = 1; \
+      if (nbargs<=256) { vec._data = _vec; vec._is_shared = true; } \
+      else { vec._data = new double[nbargs]; vec._is_shared = false; } \
       for (longT k = sizd?sizd - 1:0; k>=0; --k) { \
-        cimg_forX(vec,n) vec[n] = *(&_mp_arg(4 + 2*n) + (k + 1)*(mp.opcode[4 + 2*n + 1]?1:0)); \
+        for (unsigned int n = 0; n<nbargs; ++n) \
+          vec._data[n] = *(&_mp_arg(4 + 2*n) + (k + 1)*(mp.opcode[4 + 2*n + 1]?1:0)); \
         ptrd[k] = (func); \
       } \
       return sizd?cimg::type<double>::nan():*ptrd;

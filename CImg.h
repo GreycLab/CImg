@@ -29347,7 +29347,7 @@ namespace cimg_library {
       }
 
       static double mp_vstd(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(std::sqrt(vec.get_stats()[3]));
+        _cimg_mp_vfunc(std::sqrt(vec.variance()));
       }
 
       static double mp_vstd2(_cimg_math_parser& mp) {
@@ -29363,7 +29363,7 @@ namespace cimg_library {
       }
 
       static double mp_vvar(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(vec.get_stats()[3]);
+        _cimg_mp_vfunc(vec.variance());
       }
 
       static double mp_vvar2(_cimg_math_parser& mp) {

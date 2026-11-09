@@ -27279,15 +27279,104 @@ namespace cimg_library {
       }
 
       static double mp_matrix_mul(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(1) + 1;
+        double *const ptrd = &_mp_arg(1) + 1;
         const double
-          *ptr1 = &_mp_arg(2) + 1,
-          *ptr2 = &_mp_arg(3) + 1;
+          *const A = &_mp_arg(2) + 1,   // Matrix A : k rows, l columns (row-major)
+          *const B = &_mp_arg(3) + 1;   // Matrix B : l rows, m columns (row-major)
         const unsigned int
           k = (unsigned int)mp.opcode[4],
           l = (unsigned int)mp.opcode[5],
           m = (unsigned int)mp.opcode[6];
-        CImg<doubleT>(ptrd,m,k,1,1,true) = CImg<doubleT>(ptr1,l,k,1,1,true)*CImg<doubleT>(ptr2,m,l,1,1,true);
+
+        if (k==l) {
+          if (m==1) { // Particular case: Square matrix (NxN) x vector (Nx1).
+            switch (k) {
+            case 1 :
+              ptrd[0] = A[0]*B[0];
+              return cimg::type<double>::nan();
+            case 2 : {
+              const double b0 = B[0], b1 = B[1];
+              ptrd[0] = A[0]*b0 + A[1]*b1;
+              ptrd[1] = A[2]*b0 + A[3]*b1;
+            } return cimg::type<double>::nan();
+            case 3 : {
+              const double b0 = B[0], b1 = B[1], b2 = B[2];
+              ptrd[0] = A[0]*b0 + A[1]*b1 + A[2]*b2;
+              ptrd[1] = A[3]*b0 + A[4]*b1 + A[5]*b2;
+              ptrd[2] = A[6]*b0 + A[7]*b1 + A[8]*b2;
+            } return cimg::type<double>::nan();
+            case 4 : {
+              const double b0 = B[0], b1 = B[1], b2 = B[2], b3 = B[3];
+              ptrd[0] = A[0]*b0  + A[1]*b1  + A[2]*b2  + A[3]*b3;
+              ptrd[1] = A[4]*b0  + A[5]*b1  + A[6]*b2  + A[7]*b3;
+              ptrd[2] = A[8]*b0  + A[9]*b1  + A[10]*b2 + A[11]*b3;
+              ptrd[3] = A[12]*b0 + A[13]*b1 + A[14]*b2 + A[15]*b3;
+            } return cimg::type<double>::nan();
+            }
+          } else if (m==k) { // Particular case: Square matrix (NxN) x square matrix (NxN).
+            switch (k) {
+            case 1 :
+              ptrd[0] = A[0]*B[0];
+              return cimg::type<double>::nan();
+            case 2 : {
+              const double
+                b0 = B[0], b1 = B[1],
+                b2 = B[2], b3 = B[3];
+              ptrd[0] = A[0]*b0 + A[1]*b2;  ptrd[1] = A[0]*b1 + A[1]*b3;
+              ptrd[2] = A[2]*b0 + A[3]*b2;  ptrd[3] = A[2]*b1 + A[3]*b3;
+            } return cimg::type<double>::nan();
+            case 3 : {
+              const double
+                b0 = B[0], b1 = B[1], b2 = B[2],
+                b3 = B[3], b4 = B[4], b5 = B[5],
+                b6 = B[6], b7 = B[7], b8 = B[8];
+#define _mp_mm3(i) { \
+  const double a0 = A[3*(i)], a1 = A[3*(i)+1], a2 = A[3*(i)+2]; \
+  ptrd[3*(i)]   = a0*b0 + a1*b3 + a2*b6; \
+  ptrd[3*(i)+1] = a0*b1 + a1*b4 + a2*b7; \
+  ptrd[3*(i)+2] = a0*b2 + a1*b5 + a2*b8; }
+              _mp_mm3(0) _mp_mm3(1) _mp_mm3(2)
+#undef _mp_mm3
+            } return cimg::type<double>::nan();
+            case 4 : {
+              const double
+                b0 = B[0],  b1 = B[1],  b2 = B[2],  b3 = B[3],
+                b4 = B[4],  b5 = B[5],  b6 = B[6],  b7 = B[7],
+                b8 = B[8],  b9 = B[9],  b10 = B[10], b11 = B[11],
+                b12 = B[12], b13 = B[13], b14 = B[14], b15 = B[15];
+#define _mp_mm4(i) { \
+  const double a0 = A[4*(i)], a1 = A[4*(i)+1], a2 = A[4*(i)+2], a3 = A[4*(i)+3]; \
+  ptrd[4*(i)]   = a0*b0 + a1*b4 + a2*b8  + a3*b12; \
+  ptrd[4*(i)+1] = a0*b1 + a1*b5 + a2*b9  + a3*b13; \
+  ptrd[4*(i)+2] = a0*b2 + a1*b6 + a2*b10 + a3*b14; \
+  ptrd[4*(i)+3] = a0*b3 + a1*b7 + a2*b11 + a3*b15; }
+              _mp_mm4(0) _mp_mm4(1) _mp_mm4(2) _mp_mm4(3)
+#undef _mp_mm4
+            } return cimg::type<double>::nan();
+            }
+          }
+        }
+
+        // Generic case.
+        if (m==1) { // Matrix x vector.
+          for (unsigned int i = 0; i<k; ++i) {
+            const double *const rowA = A + (ulongT)i*l;
+            double sum = 0;
+            for (unsigned int t = 0; t<l; ++t) sum+=rowA[t]*B[t];
+            ptrd[i] = sum;
+          }
+        } else { // Matrix x matrix (i-t-j order : contiguous accesses in B and C).
+          std::memset(ptrd,0,(ulongT)k*m*sizeof(double));
+          for (unsigned int i = 0; i<k; ++i) {
+            const double *const rowA = A + (ulongT)i*l;
+            double *const rowC = ptrd + (ulongT)i*m;
+            for (unsigned int t = 0; t<l; ++t) {
+              const double a = rowA[t];
+              const double *const rowB = B + (ulongT)t*m;
+              for (unsigned int j = 0; j<m; ++j) rowC[j]+=a*rowB[j];
+            }
+          }
+        }
         return cimg::type<double>::nan();
       }
 

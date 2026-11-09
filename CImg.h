@@ -23913,7 +23913,7 @@ namespace cimg_library {
         if (rp!=~0U) { rpos = rp; return; } // One of the reserved labels
 
         // Multi-char variable name : check for existing variable with same name.
-        cimglist_for(variable_def,i)
+        cimglist_rof(variable_def,i)
           if (!std::strcmp(variable_name,variable_def[i])) { pos = i; break; }
       }
 

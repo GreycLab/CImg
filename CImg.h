@@ -22223,20 +22223,20 @@ namespace cimg_library {
                 if (s1<se1) {
                   s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
                   arg2 = compile(s1,s2,depth1,0,block_flags); // Width
-                  _cimg_mp_check_const_scalar(2,arg2,3);
+                  _cimg_mp_check_const_scalar(arg2,2,3);
                   arg2 = (unsigned int)mem[arg2];
                   if (s2<se1) {
                     s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                     arg3 = compile(s2,s1,depth1,0,block_flags); // Height
-                    _cimg_mp_check_const_scalar(3,arg3,3);
+                    _cimg_mp_check_const_scalar(arg3,3,3);
                     arg3 = (unsigned int)mem[arg3];
                     if (s1<se1) {
                       s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
                       arg4 = compile(s1,s2,depth1,0,block_flags); // Depth
-                      _cimg_mp_check_const_scalar(4,arg4,3);
+                      _cimg_mp_check_const_scalar(arg4,4,3);
                       arg4 = (unsigned int)mem[arg4];
                       arg5 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0; // Spectrum
-                      _cimg_mp_check_const_scalar(5,arg5,3);
+                      _cimg_mp_check_const_scalar(arg5,5,3);
                       arg5 = (unsigned int)mem[arg5];
                     }
                   }
@@ -28697,7 +28697,7 @@ namespace cimg_library {
       }
 
       static double mp_var2(_cimg_math_parser& mp) {
-        return cimg::sqr(_mp_arg(2) - _mp_arg(3))/2;
+        return cimg::sqr(_mp_arg(2) - _mp_arg(3))/4;
       }
 
 #define _cimg_mp_vfunc(func) \
@@ -28959,7 +28959,7 @@ namespace cimg_library {
           n = std::min((unsigned int)N,siz2);
           const double value = case_sensitive?_mp_arg(2):cimg::lowercase(_mp_arg(2));
           if (cimg::type<double>::is_nan(value))
-            while (still_equal && siz2--) still_equal = cimg::type<double>::is_nan(*(ptr2++));
+            while (still_equal && n--) still_equal = cimg::type<double>::is_nan(*(ptr2++));
           else
             while (still_equal && n--) still_equal = *(ptr2++)==value;
           return still_equal;

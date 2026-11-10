@@ -38057,7 +38057,140 @@ namespace cimg_library {
         _width = res._width; _height = res._height; _depth = res._depth; _spectrum = res._spectrum;
         return *this;
       }
-      return get_permute_axes(axes_order).move_to(*this);
+      if (_permute_axes_inplace(uicase)) return *this; // In-place permutation, no full-size temporary buffer
+      return get_permute_axes(axes_order).move_to(*this); // Fallback (invalid axes order)
+    }
+
+    // Copy a chunk of 'E' values.
+    static void _permute_axes_cpy(T *const dst, const T *const src, const cimg_uint64 E) {
+      if (E==1) *dst = *src; else std::memcpy(dst,src,(size_t)E*sizeof(T));
+    }
+
+    // In-place transposition of a 'rows'x'cols' matrix of chunks (of stride 'S' values) by following cycles
+    // of the permutation d -> (d*cols)%(rows*cols - 1). Chunks are processed by sub-ranges of at most 'Lmax' values,
+    // so that 'tmp' only needs to store 'Lmax' values. 'done' is a bit-vector of (rows*cols)/8 + 1 bytes.
+    static void _permute_axes_cycles(T *const ptr, const cimg_uint64 rows, const cimg_uint64 cols,
+                                     const cimg_uint64 S, const cimg_uint64 Lmax,
+                                     T *const tmp, unsigned char *const done) {
+      if (rows<2 || cols<2) return;
+      const cimg_uint64 M = rows*cols - 1;
+      for (cimg_uint64 i0 = 0; i0<S; i0+=Lmax) {
+        const cimg_uint64 L = S - i0<Lmax?S - i0:Lmax;
+        const size_t nbytes = (size_t)L*sizeof(T);
+        T *const p = ptr + i0;
+        std::memset(done,0,(size_t)(M/8 + 1));
+        for (cimg_uint64 s = 1; s<M; ++s) {
+          if (done[s>>3]&(1U<<(s&7))) continue;
+          std::memcpy(tmp,p + s*S,nbytes);
+          cimg_uint64 d = s;
+          for (;;) {
+            done[d>>3]|=(unsigned char)(1U<<(d&7));
+            const cimg_uint64 src = (d*cols)%M;
+            if (src==s) { std::memcpy(p + d*S,tmp,nbytes); break; }
+            std::memcpy(p + d*S,p + src*S,nbytes);
+            d = src;
+          }
+        }
+      }
+    }
+
+    // In-place transposition of 'outer' consecutive matrices, each made of 'rows' x 'cols' chunks of 'E' values
+    // (each matrix becomes a 'cols' x 'rows' matrix of chunks).
+    static void _permute_axes_transpose(T *const ptr, const cimg_uint64 rows, const cimg_uint64 cols,
+                                        const cimg_uint64 E, const cimg_uint64 outer) {
+      if (rows<2 || cols<2 || !E || !outer) return;
+      const cimg_uint64 slice = rows*cols*E, sz = (cimg_uint64)sizeof(T);
+      if (rows==cols) { // Square case : swap chunks
+        for (cimg_uint64 o = 0; o<outer; ++o) {
+          T *const p = ptr + o*slice;
+          for (cimg_uint64 r = 0; r<rows; ++r) for (cimg_uint64 c = r + 1; c<cols; ++c) {
+              T *const a = p + (r*cols + c)*E, *const b = p + (c*rows + r)*E;
+              for (cimg_uint64 i = 0; i<E; ++i) cimg::swap(a[i],b[i]);
+            }
+        }
+        return;
+      }
+
+      // General case : blocking along the longest dimension K, so that the local buffer (~32 Kb) stays in cache.
+      const bool is_fwd = rows<cols; // true : source is R x K, false : source is K x R.
+      const cimg_uint64
+        R = is_fwd?rows:cols, K = is_fwd?cols:rows,
+        B0 = R*E*sz<=32768?32768/(R*E*sz):1,
+        B = K<B0?K:B0, m = K/B, rem = K%B, mB = m*B, S = B*E,
+        Lel = 32768/sz?32768/sz:1,
+        Lmax = S<Lel?S:Lel,
+        tsz = B>1?R*S:Lmax;
+      T *const tmp = new T[(size_t)tsz];
+      unsigned char *const done = new unsigned char[(size_t)((R*m)/8 + 1)];
+
+      for (cimg_uint64 o = 0; o<outer; ++o) {
+        T *const p = ptr + o*slice;
+        if (is_fwd) { // [r][k] -> [k][r]
+          if (rem) { // Save tails, pack lines, transpose tails
+            for (cimg_uint64 r = 0; r<R; ++r) std::memcpy(tmp + r*rem*E,p + (r*K + mB)*E,(size_t)(rem*E*sz));
+            for (cimg_uint64 r = 1; r<R; ++r) std::memmove(p + r*mB*E,p + r*K*E,(size_t)(mB*E*sz));
+            T *const out = p + R*mB*E;
+            for (cimg_uint64 b = 0; b<rem; ++b) for (cimg_uint64 r = 0; r<R; ++r)
+                                                  _permute_axes_cpy(out + (b*R + r)*E,tmp + (r*rem + b)*E,E);
+          }
+          _permute_axes_cycles(p,R,m,S,Lmax,tmp,done); // [r][j][b] -> [j][r][b]
+          if (B>1) for (cimg_uint64 j = 0; j<m; ++j) { // Local transposition [r][b] -> [b][r]
+              T *const blk = p + j*R*S;
+              std::memcpy(tmp,blk,(size_t)(R*S*sz));
+              for (cimg_uint64 b = 0; b<B; ++b) for (cimg_uint64 r = 0; r<R; ++r)
+                                                  _permute_axes_cpy(blk + (b*R + r)*E,tmp + (r*B + b)*E,E);
+            }
+        } else { // [k][r] -> [r][k]
+          if (B>1) for (cimg_uint64 j = 0; j<m; ++j) { // Local transposition [b][r] -> [r][b]
+              T *const blk = p + j*R*S;
+              std::memcpy(tmp,blk,(size_t)(R*S*sz));
+              for (cimg_uint64 r = 0; r<R; ++r) for (cimg_uint64 b = 0; b<B; ++b)
+                                                  _permute_axes_cpy(blk + (r*B + b)*E,tmp + (b*R + r)*E,E);
+            }
+          if (rem) { // Transpose tails
+            T *const tail = p + R*mB*E;
+            std::memcpy(tmp,tail,(size_t)(R*rem*E*sz));
+            for (cimg_uint64 r = 0; r<R; ++r) for (cimg_uint64 b = 0; b<rem; ++b)
+                                                _permute_axes_cpy(tail + (r*rem + b)*E,tmp + (b*R + r)*E,E);
+          }
+          _permute_axes_cycles(p,m,R,S,Lmax,tmp,done); // [j][r][b] -> [r][j][b]
+          if (rem) { // Spread lines, restore tails
+            std::memcpy(tmp,p + R*mB*E,(size_t)(R*rem*E*sz));
+            for (cimg_uint64 r = R - 1; r>=1; --r) std::memmove(p + r*K*E,p + r*mB*E,(size_t)(mB*E*sz));
+            for (cimg_uint64 r = 0; r<R; ++r) std::memcpy(p + (r*K + mB)*E,tmp + r*rem*E,(size_t)(rem*E*sz));
+          }
+        }
+      }
+      delete[] tmp; delete[] done;
+    }
+
+    // Permute axes in place, from a permutation given as 'uicase'. Returns false if the permutation is invalid.
+    // Each step moves one axis to its final position, as one transposition of two adjacent groups of axes.
+    bool _permute_axes_inplace(const unsigned int uicase) {
+      unsigned int tgt[4], cur[4] = { 0,1,2,3 };
+      bool used[4] = { false,false,false,false };
+      for (unsigned int i = 0; i<4; ++i) {
+        tgt[i] = (uicase>>(4*(3 - i)))&15;
+        if (tgt[i]>3 || used[tgt[i]]) return false;
+        used[tgt[i]] = true;
+      }
+      cimg_uint64 dim[4] = { _width,_height,_depth,_spectrum };
+      for (unsigned int p = 0; p<3; ++p) {
+        unsigned int q = p;
+        while (cur[q]!=tgt[p]) ++q;
+        if (q==p) continue;
+        cimg_uint64 A = 1, E = 1, O = 1;
+        for (unsigned int t = p; t<q; ++t) A*=dim[t];
+        for (unsigned int t = 0; t<p; ++t) E*=dim[t];
+        for (unsigned int t = q + 1; t<4; ++t) O*=dim[t];
+        _permute_axes_transpose(_data,dim[q],A,E,O); // Matrix of (dim[q]) rows x (A) columns of chunks of E values
+        const unsigned int c = cur[q]; const cimg_uint64 dq = dim[q];
+        for (unsigned int t = q; t>p; --t) { cur[t] = cur[t - 1]; dim[t] = dim[t - 1]; }
+        cur[p] = c; dim[p] = dq;
+      }
+      _width = (unsigned int)dim[0]; _height = (unsigned int)dim[1];
+      _depth = (unsigned int)dim[2]; _spectrum = (unsigned int)dim[3];
+      return true;
     }
 
     //! Permute axes order \newinstance.

@@ -24131,30 +24131,23 @@ namespace cimg_library {
         return pos;
       }
 
-      // Insert an opcode in code (trying to do this contiguously in memory).
+      // Insert an opcode in code (trying to store opcodes contiguously in memory).
       void _add_opcode(const unsigned int N, ...) {
         va_list ap;
         va_start(ap,N);
-
-/*        if (!code_buf || p_code_buf + N>=code_buf.back().end()) {
+        if (!code_buf || p_code_buf + N>=code_buf.back().end()) {
           code_buf.insert(1);
-          CImg<ulongT> &back = code.back();
+          CImg<ulongT> &back = code_buf.back();
           back.assign(1,1024);
           p_code_buf = back._data;
         }
         code.insert(1);
         CImg<ulongT> &back = code.back();
-        back._data = p_code_buf; back._height = 1;
+        back._data = p_code_buf; back._height = N;
         back._width = back._depth = back._spectrum = 1;
         back._is_shared = true;
         for (unsigned int n = 0; n<N; ++n) p_code_buf[n] = va_arg(ap,ulongT);
         p_code_buf+=N;
-*/
-
-        CImg<ulongT> op(1,N);
-        for (unsigned int n = 0; n<N; ++n) op[n] = va_arg(ap,ulongT);
-        op.move_to(code);
-
         va_end(ap);
       }
 

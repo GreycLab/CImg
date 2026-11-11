@@ -15955,8 +15955,7 @@ namespace cimg_library {
 
     // Define the math formula parser/compiler and expression evaluator.
     struct _cimg_math_parser {
-      CImgList<ulongT> _code, _code_begin_t, _code_end_t, code_begin, code_end, code_buf,
-        &code, &code_begin_t, &code_end_t;
+      CImgList<ulongT> _code, _code_begin_t, _code_end_t, code_begin, code_end, &code, &code_begin_t, &code_end_t;
       CImgList<doubleT> _list_median, _list_norm, _list_stats, &list_median, &list_norm, &list_stats;
       CImgList<charT> macro_def, macro_body, variable_def;
       CImgList<T>& imglist;
@@ -15976,7 +15975,6 @@ namespace cimg_library {
       bool is_end_code, is_fill, is_noncritical_run, is_parallelizable, need_input_copy, return_comp;
       const char *const calling_function, *s_op, *ss_op;
       double *result, *result_end;
-      ulongT *p_code_buf;
       char *user_macro;
       cimg_uint64 rng;
 
@@ -16039,7 +16037,6 @@ namespace cimg_library {
         is_fill(_is_fill),is_noncritical_run(false),is_parallelizable(true),need_input_copy(false),
         calling_function(funcname?funcname:"cimg_math_parser"),
         result_end(0),
-        p_code_buf(0),
         user_macro(0),
         rng((cimg::_rand(),cimg::rng())) {
 
@@ -16157,8 +16154,6 @@ namespace cimg_library {
         is_fill(false),is_noncritical_run(false),is_parallelizable(true),need_input_copy(false),
         calling_function(0),
         result_end(0),
-        p_code_buf(0),
-        user_macro(0),
         rng(0) {
         mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Makes it possible to skip 'is_empty?' test in operator()()
         result = mem._data;
@@ -24131,100 +24126,81 @@ namespace cimg_library {
         return pos;
       }
 
-      // Insert an opcode in code (trying to store opcodes contiguously in memory).
-      void _add_opcode(const unsigned int N, ...) {
-        va_list ap;
-        va_start(ap,N);
-        if (!code_buf || p_code_buf + N>=code_buf.back().end()) {
-          code_buf.insert(1);
-          CImg<ulongT> &back = code_buf.back();
-          back.assign(1,1024);
-          p_code_buf = back._data;
-        }
-        code.insert(1);
-        CImg<ulongT> &back = code.back();
-        back._data = p_code_buf; back._height = N;
-        back._width = back._depth = back._spectrum = 1;
-        back._is_shared = true;
-        for (unsigned int n = 0; n<N; ++n) p_code_buf[n] = va_arg(ap,ulongT);
-        p_code_buf+=N;
-        va_end(ap);
-      }
-
+      // Insert an opcode in code.
       void add_opcode(mp_func func) {
-        _add_opcode(1,func);
+        CImg<ulongT>::vector((ulongT)func).move_to(code);
       }
 
       void add_opcode(mp_func func,
                       const ulongT e0) {
-        _add_opcode(2,func,e0);
+        CImg<ulongT>::vector((ulongT)func,e0).move_to(code);
       }
 
       void add_opcode(mp_func func,
                       const ulongT e0, const ulongT e1) {
-        _add_opcode(3,func,e0,e1);
+        CImg<ulongT>::vector((ulongT)func,e0,e1).move_to(code);
       }
 
       void add_opcode(mp_func func,
                       const ulongT e0, const ulongT e1, const ulongT e2) {
-        _add_opcode(4,func,e0,e1,e2);
+        CImg<ulongT>::vector((ulongT)func,e0,e1,e2).move_to(code);
       }
 
       void add_opcode(mp_func func,
                       const ulongT e0, const ulongT e1, const ulongT e2, const ulongT e3) {
-        _add_opcode(5,func,e0,e1,e2,e3);
+        CImg<ulongT>::vector((ulongT)func,e0,e1,e2,e3).move_to(code);
       }
 
       void add_opcode(mp_func func,
                       const ulongT e0, const ulongT e1, const ulongT e2, const ulongT e3,
                       const ulongT e4) {
-        _add_opcode(6,func,e0,e1,e2,e3,e4);
+        CImg<ulongT>::vector((ulongT)func,e0,e1,e2,e3,e4).move_to(code);
       }
 
       void add_opcode(mp_func func,
                       const ulongT e0, const ulongT e1, const ulongT e2, const ulongT e3,
                       const ulongT e4, const ulongT e5) {
-        _add_opcode(7,func,e0,e1,e2,e3,e4,e5);
+        CImg<ulongT>::vector((ulongT)func,e0,e1,e2,e3,e4,e5).move_to(code);
       }
 
       void add_opcode(mp_func func,
                       const ulongT e0, const ulongT e1, const ulongT e2, const ulongT e3,
                       const ulongT e4, const ulongT e5, const ulongT e6) {
-        _add_opcode(8,func,e0,e1,e2,e3,e4,e5,e6);
+        CImg<ulongT>::vector((ulongT)func,e0,e1,e2,e3,e4,e5,e6).move_to(code);
       }
 
       void add_opcode(mp_func func,
                       const ulongT e0, const ulongT e1, const ulongT e2, const ulongT e3,
                       const ulongT e4, const ulongT e5, const ulongT e6, const ulongT e7) {
-        _add_opcode(9,func,e0,e1,e2,e3,e4,e5,e6,e7);
+        CImg<ulongT>::vector((ulongT)func,e0,e1,e2,e3,e4,e5,e6,e7).move_to(code);
       }
 
       void add_opcode(mp_func func,
                       const ulongT e0, const ulongT e1, const ulongT e2, const ulongT e3,
                       const ulongT e4, const ulongT e5, const ulongT e6, const ulongT e7,
                       const ulongT e8) {
-        _add_opcode(10,func,e0,e1,e2,e3,e4,e5,e6,e7,e8);
+        CImg<ulongT>::vector((ulongT)func,e0,e1,e2,e3,e4,e5,e6,e7,e8).move_to(code);
       }
 
       void add_opcode(mp_func func,
                       const ulongT e0, const ulongT e1, const ulongT e2, const ulongT e3,
                       const ulongT e4, const ulongT e5, const ulongT e6, const ulongT e7,
                       const ulongT e8, const ulongT e9) {
-        _add_opcode(11,func,e0,e1,e2,e3,e4,e5,e6,e7,e8,e9);
+        CImg<ulongT>::vector((ulongT)func,e0,e1,e2,e3,e4,e5,e6,e7,e8,e9).move_to(code);
       }
 
       void add_opcode(mp_func func,
                       const ulongT e0, const ulongT e1, const ulongT e2, const ulongT e3,
                       const ulongT e4, const ulongT e5, const ulongT e6, const ulongT e7,
                       const ulongT e8, const ulongT e9, const ulongT e10) {
-        _add_opcode(12,func,e0,e1,e2,e3,e4,e5,e6,e7,e8,e9,e10);
+        CImg<ulongT>::vector((ulongT)func,e0,e1,e2,e3,e4,e5,e6,e7,e8,e9,e10).move_to(code);
       }
 
       void add_opcode(mp_func func,
                       const ulongT e0, const ulongT e1, const ulongT e2, const ulongT e3,
                       const ulongT e4, const ulongT e5, const ulongT e6, const ulongT e7,
                       const ulongT e8, const ulongT e9, const ulongT e10, const ulongT e11) {
-        _add_opcode(13,func,e0,e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11);
+        CImg<ulongT>::vector((ulongT)func,e0,e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11).move_to(code);
       }
 
       void add_opcode(mp_func func,
@@ -24232,7 +24208,7 @@ namespace cimg_library {
                       const ulongT e4, const ulongT e5, const ulongT e6, const ulongT e7,
                       const ulongT e8, const ulongT e9, const ulongT e10, const ulongT e11,
                       const ulongT e12, const ulongT e13, const ulongT e14) {
-        _add_opcode(16,func,e0,e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14);
+        CImg<ulongT>::vector((ulongT)func,e0,e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14).move_to(code);
       }
 
       void add_opcode(mp_func func,
@@ -24241,7 +24217,8 @@ namespace cimg_library {
                       const ulongT e8, const ulongT e9, const ulongT e10, const ulongT e11,
                       const ulongT e12, const ulongT e13, const ulongT e14, const ulongT e15,
                       const ulongT e16, const ulongT e17, const ulongT e18, const ulongT e19) {
-        _add_opcode(21,func,e0,e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19);
+        CImg<ulongT>::vector((ulongT)func,e0,e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19).
+          move_to(code);
       }
 
       // Return a copy of the specified value.

@@ -18400,7 +18400,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"arg0(",5) ||
                 !std::strncmp(ss,"arg1(",5)) { // Nth argument
               _cimg_mp_op(*ss3=='0'?"Function 'arg0()'":"Function 'arg1()'");
-              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss5,se1);
               arg1 = compile(ss5,s1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,1,1,0);
               s2 = next_arg(++s1,se1);
@@ -18839,7 +18839,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"copy(",5)) { // Memory copy
               _cimg_mp_op("Function 'copy()'");
               ref.assign(14);
-              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss5,se1);
               arg1 = p1 = compile(ss5,s1,depth1,ref,block_flags);
               s2 = next_arg(++s1,se1);
               arg2 = compile(s1,s2,depth1,ref._data + 7,block_flags);
@@ -19441,7 +19441,7 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"date(",5)) { // Current date or file date
               _cimg_mp_op("Function 'date()'");
-              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss5,se1);
               arg1 = ss5!=se1?compile(ss5,s1,depth1,0,block_flags):~0U;
               arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):~0U;
               if (arg2!=~0U) _cimg_mp_check_type(arg2,1,2,0);
@@ -19995,7 +19995,7 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"expr(",5)) { // Vector from expression
               _cimg_mp_op("Function 'expr()'");
-              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss5,se1);
               arg1 = compile(ss5,s1,depth1,0,block_flags); // formula
               _cimg_mp_check_type(arg1,1,2,0);
               p1 = size(arg1);
@@ -20885,7 +20885,7 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"lerp(",5)) { // Linear interpolation
               _cimg_mp_op("Function 'lerp()'");
-              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss5,se1);
               arg1 = compile(ss5,s1,depth1,0,block_flags);
               s2 = next_arg(++s1,se1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
@@ -21353,7 +21353,7 @@ namespace cimg_library {
           case 'p' :
             if (!std::strncmp(ss,"perm(",5)) { // Number of permutations
               _cimg_mp_op("Function 'perm()'");
-              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss5,se1);
               arg1 = compile(ss5,s1,depth1,0,block_flags);
               s2 = next_arg(++s1,se1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
@@ -21904,7 +21904,7 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"same(",5)) { // Test if operands have the same values
               _cimg_mp_op("Function 'same()'");
-              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss5,se1);
               arg1 = compile(ss5,s1,depth1,0,block_flags);
               s2 = next_arg(++s1,se1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
@@ -22105,7 +22105,7 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"sort(",5)) { // Sort vector
               _cimg_mp_op("Function 'sort()'");
-              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss5,se1);
               arg1 = compile(ss5,s1,depth1,0,block_flags); // X
               arg2 = arg5 = 1; arg3 = arg6 = 0; arg4 = ~0U;
               if (s1<se1) {
@@ -22334,7 +22334,7 @@ namespace cimg_library {
                 add_opcode(mp_image_swap,_cimg_mp_slot_nan,p1,arg1,arg2,arg3);
 
               } else {
-                s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                s1 = next_arg(ss5,se1);
                 ref.assign(14);
                 arg1 = compile(ss5,s1,depth1,ref,block_flags);
                 arg2 = compile(++s1,se1,depth1,ref._data + 7,block_flags);
@@ -22774,7 +22774,7 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"wave(",5)) { // Wave function
               _cimg_mp_op("Function 'wave()'");
-              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss5,se1);
               arg1 = compile(ss5,s1,depth1,0,block_flags); // x
               arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):4; // type
               _cimg_mp_check_type(arg2,2,1,0);

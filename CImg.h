@@ -16550,7 +16550,7 @@ namespace cimg_library {
                 arg5 = compile(s + 1,se,depth1,0,block_flags); // Value to assign
                 _cimg_mp_check_type(arg5,2,*ss>='i'?1:3,0);
                 if (s0<ve1) { // X or [ X,_Y,_Z,_C ]
-                  s1 = s0; while (s1<ve1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                  s1 = next_arg(s0,ve1);
                   arg1 = compile(s0,s1,depth1,0,block_flags);
                   if (is_vector(arg1)) { // Coordinates specified as a vector
                     p2 = size(arg1); // Vector size
@@ -16563,10 +16563,10 @@ namespace cimg_library {
                       }
                     }
                   } else if (s1<ve1) { // Y
-                    s2 = ++s1; while (s2<ve1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                    s2 = next_arg(++s1,ve1);
                     arg2 = compile(s1,s2,depth1,0,block_flags);
                     if (s2<ve1) { // Z
-                      s3 = ++s2; while (s3<ve1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
+                      s3 = next_arg(++s2,ve1);
                       arg3 = compile(s2,s3,depth1,0,block_flags);
                       if (s3<ve1) arg4 = compile(++s3,ve1,depth1,0,block_flags); // C
                     }
@@ -18040,7 +18040,7 @@ namespace cimg_library {
               (reserved_label[(int)*ss]==~0U ||
                !is_vector(reserved_label[(int)*ss]))) { // Image value as a vector
             if (*ss2=='#') { // Index specified
-              s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+              s0 = next_arg(ss3,se1);
               p1 = compile(ss3,s0++,depth1,0,block_flags);
               _cimg_mp_check_const_index(p1);
               _cimg_mp_check_notnan_index(p1,ss3);
@@ -18080,7 +18080,7 @@ namespace cimg_library {
               (reserved_label[(int)*ss]==~0U ||
                !is_vector(reserved_label[(int)*ss]))) { // Image value as a scalar
             if (*ss2=='#') { // Index specified
-              s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+              s0 = next_arg(ss3,se1);
               p1 = compile(ss3,s0++,depth1,0,block_flags);
               _cimg_mp_check_notnan_index(p1,ss3);
             } else { p1 = ~0U; s0 = ss2; }
@@ -18169,7 +18169,7 @@ namespace cimg_library {
           // I/J(_#ind,_x,_y,_z,_interpolation,_boundary_conditions).
           if ((*ss=='I' || *ss=='J') && *ss1=='(') { // Image value as scalar
             if (*ss2=='#') { // Index specified
-              s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+              s0 = next_arg(ss3,se1);
               p1 = compile(ss3,s0++,depth1,0,block_flags);
               _cimg_mp_check_const_index(p1);
               _cimg_mp_check_notnan_index(p1,ss3);
@@ -18242,7 +18242,7 @@ namespace cimg_library {
           // i/j(_#ind,_x,_y,_z,_c,_interpolation,_boundary_conditions).
           if ((*ss=='i' || *ss=='j') && *ss1=='(') { // Image value as scalar
             if (*ss2=='#') { // Index specified
-              s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+              s0 = next_arg(ss3,se1);
               p1 = compile(ss3,s0++,depth1,0,block_flags);
               _cimg_mp_check_notnan_index(p1,ss3);
             } else { p1 = ~0U; s0 = ss2; }

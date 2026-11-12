@@ -18040,13 +18040,13 @@ namespace cimg_library {
               (reserved_label[(int)*ss]==~0U ||
                !is_vector(reserved_label[(int)*ss]))) { // Image value as a vector
             if (*ss2=='#') { // Index specified
-              s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+              s0 = next_arg(ss3,se1,clevel1);
               p1 = compile(ss3,s0++,depth1,0,block_flags);
               _cimg_mp_check_const_index(p1);
               _cimg_mp_check_notnan_index(p1,ss3);
               _cimg_mp_check_list();
             } else { p1 = ~0U; s0 = ss2; }
-            s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+            s1 = next_arg(s0,se1,clevel1);
             p2 = 1 + (p1!=~0U);
             arg1 = compile(s0,s1,depth1,0,block_flags); // Offset
             _cimg_mp_check_type(arg1,p2,1,0);
@@ -18080,11 +18080,11 @@ namespace cimg_library {
               (reserved_label[(int)*ss]==~0U ||
                !is_vector(reserved_label[(int)*ss]))) { // Image value as a scalar
             if (*ss2=='#') { // Index specified
-              s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+              s0 = next_arg(ss3,se1,clevel1);
               p1 = compile(ss3,s0++,depth1,0,block_flags);
               _cimg_mp_check_notnan_index(p1,ss3);
             } else { p1 = ~0U; s0 = ss2; }
-            s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+            s1 = next_arg(s0,se1,clevel1);
             arg1 = compile(s0,s1,depth1,0,block_flags); // Offset
             arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):~0U; // Boundary
             if (p_ref && arg2==~0U) {
@@ -18115,12 +18115,12 @@ namespace cimg_library {
                                           pixel_type(),_cimg_mp_calling_function,s_op,
                                           variable_name._data,s0);
             }
-            s1 = s0 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+            s1 = next_arg(s0 + 1,se1,clevel1);
 
             if (s1<se1) { // Two or three arguments -> sub-vector extraction
               p1 = size(arg1);
               arg2 = compile(++s0,s1,depth1,0,block_flags); // Starting index
-              s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+              s0 = next_arg(++s1,se1,clevel1);
               arg3 = compile(s1,s0,depth1,0,block_flags); // Length
               arg4 = s0<se1?compile(++s0,se1,depth1,0,block_flags):1; // Step
               _cimg_mp_check_const_scalar(arg3,2,3);
@@ -18169,7 +18169,7 @@ namespace cimg_library {
           // I/J(_#ind,_x,_y,_z,_interpolation,_boundary_conditions).
           if ((*ss=='I' || *ss=='J') && *ss1=='(') { // Image value as scalar
             if (*ss2=='#') { // Index specified
-              s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+              s0 = next_arg(ss3,se1,clevel1);
               p1 = compile(ss3,s0++,depth1,0,block_flags);
               _cimg_mp_check_const_index(p1);
               _cimg_mp_check_notnan_index(p1,ss3);
@@ -18180,7 +18180,7 @@ namespace cimg_library {
             arg3 = is_relative?0U:(unsigned int)_cimg_mp_slot_z;
             arg4 = arg5 = ~0U;
             if (s0<se1) {
-              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(s0,se1,clevel1);
               arg1 = compile(s0,s1,depth1,0,block_flags);
               if (is_vector(arg1)) { // Coordinates specified as a vector
                 p2 = size(arg1);
@@ -18190,12 +18190,12 @@ namespace cimg_library {
                   if (p2>2) arg3 = arg2 + 1;
                 }
                 if (s1<se1) {
-                  s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  s2 = next_arg(++s1,se1,clevel1);
                   arg4 = compile(s1,s2,depth1,0,block_flags);
                   arg5 = s2<se1?compile(++s2,se1,depth1,0,block_flags):~0U;
                 }
               } else if (s1<se1) {
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                s2 = next_arg(++s1,se1,clevel1);
                 arg2 = compile(s1,s2,depth1,0,block_flags);
                 if (s2<se1) {
                   s3 = ++s2; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
@@ -18242,7 +18242,7 @@ namespace cimg_library {
           // i/j(_#ind,_x,_y,_z,_c,_interpolation,_boundary_conditions).
           if ((*ss=='i' || *ss=='j') && *ss1=='(') { // Image value as scalar
             if (*ss2=='#') { // Index specified
-              s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+              s0 = next_arg(ss3,se1,clevel1);
               p1 = compile(ss3,s0++,depth1,0,block_flags);
               _cimg_mp_check_notnan_index(p1,ss3);
             } else { p1 = ~0U; s0 = ss2; }
@@ -18252,7 +18252,7 @@ namespace cimg_library {
             arg4 = is_relative?0U:(unsigned int)_cimg_mp_slot_c;
             arg5 = arg6 = ~0U;
             if (s0<se1) {
-              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(s0,se1,clevel1);
               arg1 = compile(s0,s1,depth1,0,block_flags);
               if (is_vector(arg1)) { // Coordinates specified as a vector
                 p2 = size(arg1);
@@ -18265,12 +18265,12 @@ namespace cimg_library {
                   }
                 }
                 if (s1<se1) {
-                  s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  s2 = next_arg(++s1,se1,clevel1);
                   arg5 = compile(s1,s2,depth1,0,block_flags);
                   arg6 = s2<se1?compile(++s2,se1,depth1,0,block_flags):~0U;
                 }
               } else if (s1<se1) {
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                s2 = next_arg(++s1,se1,clevel1);
                 arg2 = compile(s1,s2,depth1,0,block_flags);
                 if (s2<se1) {
                   s3 = ++s2; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
@@ -18348,7 +18348,7 @@ namespace cimg_library {
               _cimg_mp_op("Function 'abscut()'");
               s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss7,s1,depth1,0,block_flags);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
               if (s2<se1) {
                 s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -18403,7 +18403,7 @@ namespace cimg_library {
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss5,s1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,1,1,0);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
               p2 = size(arg2);
               p3 = 3;
@@ -18539,7 +18539,7 @@ namespace cimg_library {
                 _cimg_mp_check_notnan_index(p1,ss5);
                 _cimg_mp_check_list();
               } else { p1 = ~0U; s0 = ss4; p3 = 0; }
-              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(s0,se1,clevel1);
               pos = compile(s0,s1,depth1,0,block_flags);
               p2 = size(pos);
               if (p2) { // Coordinates specified as a vector
@@ -18560,7 +18560,7 @@ namespace cimg_library {
               } else { // Coordinates specified as scalars
                 arg1 = pos; arg2 = arg3 = arg4 = arg5 = 0;
                 if (s1<se1) {
-                  s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                  s0 = next_arg(++s1,se1,clevel1);
                   arg2 = compile(s1,s0,depth1,0,block_flags);
                   _cimg_mp_check_type(arg2,p3 + 2,1,0);
                   if (s0<se1) {
@@ -18568,7 +18568,7 @@ namespace cimg_library {
                     arg3 = compile(s0,s1,depth1,0,block_flags);
                     _cimg_mp_check_type(arg3,p3 + 3,1,0);
                     if (s1<se1) {
-                      s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                      s0 = next_arg(++s1,se1,clevel1);
                       arg4 = compile(s1,s0,depth1,0,block_flags);
                       _cimg_mp_check_type(arg4,p3 + 4,1,0);
                       arg5 = s0<se1?compile(++s0,se1,depth1,0,block_flags):0; // boundary conditions
@@ -18841,7 +18841,7 @@ namespace cimg_library {
               ref.assign(14);
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = p1 = compile(ss5,s1,depth1,ref,block_flags);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,ref._data + 7,block_flags);
               arg3 = arg4 = arg5 = ~0U; arg6 = 1;
               if (s2<se1) {
@@ -18851,7 +18851,7 @@ namespace cimg_library {
                   s1 = ++s3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                   arg4 = compile(s3,s1,depth1,0,block_flags);
                   if (s1<se1) {
-                    s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                    s2 = next_arg(++s1,se1,clevel1);
                     arg5 = compile(s1,s2,depth1,0,block_flags);
                     arg6 = s2<se1?compile(++s2,se1,depth1,0,block_flags):1;
                   }
@@ -18899,7 +18899,7 @@ namespace cimg_library {
               _cimg_mp_op("Function 'cov()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1,depth1,0,block_flags);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
               arg3 = arg4 = ~0U;
               if (s2<se1) {
@@ -19242,7 +19242,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"cumulate(",9)) { // Cumulate
               _cimg_mp_op("Function 'cumulate()'");
               s0 = ss + 9;
-              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(s0,se1,clevel1);
               arg1 = compile(s0,s1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,1,2,0);
               p1 = size(arg1);
@@ -19250,11 +19250,11 @@ namespace cimg_library {
               arg3 = arg4 = arg5 = 1;
               arg6 = p2 = ~0U;
               if (s1<se1) {
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                s2 = next_arg(++s1,se1,clevel1);
                 arg2 = compile(s1,s2,depth1,0,block_flags);
                 s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg3 = compile(s2,s1,depth1,0,block_flags);
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                s2 = next_arg(++s1,se1,clevel1);
                 arg4 = compile(s1,s2,depth1,0,block_flags);
                 s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg5 = compile(s2,s1,depth1,0,block_flags);
@@ -19287,7 +19287,7 @@ namespace cimg_library {
               _cimg_mp_op("Function 'cut()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1,depth1,0,block_flags);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
               arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):const_scalar(cimg::type<double>::inf());
               _cimg_mp_check_type(arg2,2,1,0);
@@ -19419,7 +19419,7 @@ namespace cimg_library {
 
               arg1 = arg2 = ~0U;
               if (s0<se1) {
-                s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                s1 = next_arg(s0,se1,clevel1);
                 arg1 = compile(s0,s1,depth1,0,block_flags); // Starting position
                 arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):~0U; // Ending position
               }
@@ -19566,7 +19566,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"do(",3)) { // Do..while
               _cimg_mp_op("Function 'do()'");
               s0 = *ss2=='('?ss3:ss8;
-              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(s0,se1,clevel1);
               arg1 = code._width;
               arg6 = mempos;
               p1 = compile(s0,s1,depth1,0,block_flags); // Body
@@ -19945,9 +19945,9 @@ namespace cimg_library {
             if (!std::strncmp(ss,"equalize(",9)) { // Equalize
               _cimg_mp_op("Function 'equalize()'");
               s0 = ss + 9;
-              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(s0,se1,clevel1);
               arg1 = compile(s0,s1,depth1,0,block_flags);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
               arg3 = arg4 = ~0U;
               if (s2<se1) {
@@ -20001,7 +20001,7 @@ namespace cimg_library {
               p1 = size(arg1);
               arg2 = arg3 = arg4 = arg5 = 1; arg6 = ~0U;
               if (s1<se1) {
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                s2 = next_arg(++s1,se1,clevel1);
                 arg2 = compile(s1,s2,depth1,0,block_flags); // w
                 _cimg_mp_check_const_scalar(arg2,2,3);
                 arg2 = (unsigned int)mem[arg2];
@@ -20011,7 +20011,7 @@ namespace cimg_library {
                   _cimg_mp_check_const_scalar(arg3,3,3);
                   arg3 = (unsigned int)mem[arg3];
                   if (s1<se1) {
-                    s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                    s2 = next_arg(++s1,se1,clevel1);
                     arg4 = compile(s1,s2,depth1,0,block_flags); // d
                     _cimg_mp_check_const_scalar(arg4,4,3);
                     arg4 = (unsigned int)mem[arg4];
@@ -20101,7 +20101,7 @@ namespace cimg_library {
                   arg3 = compile(++s1,s2,depth1,0,block_flags); // h
                   s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                   arg4 = compile(s2,s1,depth1,0,block_flags); // d
-                  s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  s2 = next_arg(++s1,se1,clevel1);
                   arg5 = compile(s1,s2,depth1,0,block_flags); // s
                   arg6 = compile(++s2,se1,depth1,0,block_flags); // expr
                   _cimg_mp_check_const_scalar(arg2,2,3);
@@ -20196,7 +20196,7 @@ namespace cimg_library {
               // Third, fourth and fifth arguments: starting index, search step and max iterations.
               arg3 = _cimg_mp_slot_nan; arg4 = 1; arg5 = ~0U;
               if (s1<se1) {
-                s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                s0 = next_arg(++s1,se1,clevel1);
                 arg3 = compile(s1,s0,depth1,0,block_flags);
                 _cimg_mp_check_type(arg3,3,1,0);
                 if (s0<se1) {
@@ -20319,7 +20319,7 @@ namespace cimg_library {
               arg1 = compile(ss6,s1,depth1,0,block_flags);
               arg2 = arg3 = 1;
               if (s1<se1) {
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                s2 = next_arg(++s1,se1,clevel1);
                 arg2 = compile(s1,s2,depth1,0,block_flags);
                 arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):1;
               }
@@ -20341,7 +20341,7 @@ namespace cimg_library {
               arg1 = compile(ss4,s1,depth1,0,block_flags);
               arg2 = arg3 = 0;
               if (s1<se1) {
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                s2 = next_arg(++s1,se1,clevel1);
                 arg2 = compile(s1,s2,depth1,0,block_flags);
                 arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0;
               }
@@ -20381,9 +20381,9 @@ namespace cimg_library {
             if (!std::strncmp(ss,"histogram(",10)) { // Compute histogram
               _cimg_mp_op("Function 'histogram()'");
               s0 = ss + 10;
-              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(s0,se1,clevel1);
               arg1 = compile(s0,s1,depth1,0,block_flags);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
               arg3 = arg4 = ~0U;
               if (s2<se1) {
@@ -20550,13 +20550,13 @@ namespace cimg_library {
               _cimg_mp_op("Function 'index()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1,depth1,0,block_flags);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
               s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg3 = compile(s2,s1,depth1,0,block_flags);
               arg4 = arg5 = 0;
               if (s1<se1) {
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                s2 = next_arg(++s1,se1,clevel1);
                 arg4 = compile(s1,s2,depth1,0,block_flags);
                 arg5 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0;
               }
@@ -20623,13 +20623,13 @@ namespace cimg_library {
               _cimg_mp_op("Function 'inrange()'");
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss8,s1,depth1,0,block_flags);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
               s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg3 = compile(s2,s1,depth1,0,block_flags);
               arg4 = arg5 = 1;
               if (s1<se1) {
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                s2 = next_arg(++s1,se1,clevel1);
                 arg4 = compile(s1,s2,depth1,0,block_flags);
                 arg5 = s2<se1?compile(++s2,se1,depth1,0,block_flags):arg4;
                 _cimg_mp_check_type(arg4,4,1,0);
@@ -20812,7 +20812,7 @@ namespace cimg_library {
                 catch (CImgException&) { _cimg_mp_return(0); }
                 arg2 = arg3 = ~0U;
                 if (s1<se1) {
-                  s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  s2 = next_arg(++s1,se1,clevel1);
                   arg2 = compile(s1,s2,depth1,0,block_flags);
                   arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):~0U;
                 }
@@ -20887,7 +20887,7 @@ namespace cimg_library {
               _cimg_mp_op("Function 'lerp()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss5,s1,depth1,0,block_flags);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
               arg3 = compile(++s2,se1,depth1,0,block_flags);
               if (is_vector(arg1)) p1 = size(arg1);
@@ -20982,14 +20982,14 @@ namespace cimg_library {
               _cimg_mp_op("Function 'map()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1,depth1,0,block_flags); // X
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags); // P
               arg3 = arg4 = 1; arg5 = 0;
               if (s2<se1) {
                 s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg3 = compile(s2,s1,depth1,0,block_flags); // nb_channelsX
                 if (s1<se1) {
-                  s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  s2 = next_arg(++s1,se1,clevel1);
                   arg4 = compile(s1,s2,depth1,0,block_flags); // nb_channelsP
                   arg5 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0; // boundary_conditions
                 }
@@ -21096,11 +21096,11 @@ namespace cimg_library {
               _cimg_mp_op("Function 'mirror()'");
               s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss7,s1,depth1,0,block_flags);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
               s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg3 = compile(s2,s1,depth1,0,block_flags);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg4 = compile(s1,s2,depth1,0,block_flags);
               s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg5 = compile(s2,s1,depth1,0,block_flags);
@@ -21134,18 +21134,18 @@ namespace cimg_library {
               _cimg_mp_op("Function 'mproj()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1,depth1,0,block_flags); // S
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags); // ncolS
               s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg3 = compile(s2,s1,depth1,0,block_flags); // D
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg4 = compile(s1,s2,depth1,0,block_flags); // ncolD
               arg5 = arg6 = p3 = 0;
               if (s2<se1) {
                 s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg5 = compile(s2,s1,depth1,0,block_flags); // method
                 if (s1<se1) {
-                  s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  s2 = next_arg(++s1,se1,clevel1);
                   arg6 = compile(s1,s2,depth1,0,block_flags); // max_iter
                   p3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0; // method
                 }
@@ -21211,7 +21211,7 @@ namespace cimg_library {
               _cimg_mp_op("Function 'mul()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1,depth1,0,block_flags);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
               arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):1;
               _cimg_mp_check_type(arg1,1,2,0);
@@ -21276,7 +21276,7 @@ namespace cimg_library {
               _cimg_mp_op("Function 'noise()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1,depth1,0,block_flags);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
               arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0;
               _cimg_mp_check_type(arg1,1,2,0);
@@ -21292,12 +21292,12 @@ namespace cimg_library {
             if (!std::strncmp(ss,"normalize(",10)) { // Normalize
               _cimg_mp_op("Function 'normalize()'");
               s0 = ss + 10;
-              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(s0,se1,clevel1);
               arg1 = compile(s0,s1,depth1,0,block_flags);
 
               arg2 = arg4 = 0; arg3 = 1;
               if (s1<se1) {
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                s2 = next_arg(++s1,se1,clevel1);
                 arg3 = compile(s1,s2,depth1,0,block_flags);
                 if (s2<se1) {
                   s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -21338,7 +21338,7 @@ namespace cimg_library {
                 _cimg_mp_check_notnan_index(p1,ss5);
                 _cimg_mp_check_list();
               } else { p1 = ~0U; s0 = ss4; p2 = 0; }
-              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(s0,se1,clevel1);
               arg1 = compile(s0,s1,depth1,0,block_flags);
               arg2 = s1!=se1?compile(++s1,se1,depth1,0,block_flags):0;
               _cimg_mp_check_type(arg1,p2 + 1,1,0);
@@ -21355,7 +21355,7 @@ namespace cimg_library {
               _cimg_mp_op("Function 'perm()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss5,s1,depth1,0,block_flags);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
               arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0;
               _cimg_mp_check_type(arg1,1,1,0);
@@ -21370,11 +21370,11 @@ namespace cimg_library {
               _cimg_mp_op("Function 'permute()'");
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss8,s1,depth1,0,block_flags);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
               s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg3 = compile(s2,s1,depth1,0,block_flags);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg4 = compile(s1,s2,depth1,0,block_flags);
               s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg5 = compile(s2,s1,depth1,0,block_flags);
@@ -21488,7 +21488,7 @@ namespace cimg_library {
               _cimg_mp_op("Function 'qr()'");
               s1 = ss3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss3,s1,depth1,0,block_flags); // A
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags); // nb_colsA
               arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):1; // is_reduced_form
               _cimg_mp_check_type(arg1,1,2,0);
@@ -21549,7 +21549,7 @@ namespace cimg_library {
                 s1 = s + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg3 = compile(s,s1,depth1,0,block_flags);
                 if (s1<se1) {
-                  s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  s2 = next_arg(++s1,se1,clevel1);
                   arg2 = arg3;
                   arg3 = compile(s1,s2,depth1,0,block_flags);
                   if (s2<se1) {
@@ -21809,7 +21809,7 @@ namespace cimg_library {
                   }
                   arg4 = compile(++s1,se1,depth1,0,block_flags);
                 } else {
-                  s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  s2 = next_arg(++s1,se1,clevel1);
                   arg2 = compile(s1,s2,depth1,0,block_flags);
                   s3 = ++s2; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
                   arg3 = compile(s2,s3,depth1,0,block_flags);
@@ -21836,7 +21836,7 @@ namespace cimg_library {
               arg2 = 1;
               arg3 = 0;
               if (s1<se1) {
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                s2 = next_arg(++s1,se1,clevel1);
                 arg2 = compile(s1,s2,depth1,0,block_flags);
                 arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0;
               }
@@ -21889,7 +21889,7 @@ namespace cimg_library {
               arg1 = compile(ss4,s1,depth1,0,block_flags);
               arg2 = arg3 = 0;
               if (s1<se1) {
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                s2 = next_arg(++s1,se1,clevel1);
                 arg2 = compile(s1,s2,depth1,0,block_flags);
                 arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0;
               }
@@ -21906,7 +21906,7 @@ namespace cimg_library {
               _cimg_mp_op("Function 'same()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss5,s1,depth1,0,block_flags);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
               arg3 = 11;
               arg4 = 1;
@@ -22052,7 +22052,7 @@ namespace cimg_library {
                 !std::strncmp(ss,"softargmin(",11)) {
               _cimg_mp_op(*ss8=='a'?"Function 'softargmax()'":"Function 'softargmin()'");
               s0 = ss + 11;
-              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(s0,se1,clevel1);
               arg1 = compile(s0,s1,depth1,0,block_flags);
               arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):1;
               _cimg_mp_check_type(arg2,2,1,0);
@@ -22078,7 +22078,7 @@ namespace cimg_library {
               _cimg_mp_op("Function 'solve()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1,depth1,0,block_flags);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
               arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):1;
               _cimg_mp_check_type(arg1,1,2,0);
@@ -22109,13 +22109,13 @@ namespace cimg_library {
               arg1 = compile(ss5,s1,depth1,0,block_flags); // X
               arg2 = arg5 = 1; arg3 = arg6 = 0; arg4 = ~0U;
               if (s1<se1) {
-                s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                s0 = next_arg(++s1,se1,clevel1);
                 arg2 = compile(s1,s0,depth1,0,block_flags); // is_increasing
                 if (s0<se1) {
                   s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                   arg3 = compile(s0,s1,depth1,0,block_flags); // starting_index
                   if (s1<se1) {
-                    s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                    s0 = next_arg(++s1,se1,clevel1);
                     arg4 = compile(s1,s0,depth1,0,block_flags); // nb_elt
                     if (s0<se1) {
                       s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -22170,7 +22170,7 @@ namespace cimg_library {
                 p1 = size(arg1);
                 arg2 = arg3 = arg4 = arg5 = 1;
                 if (s1<se1) {
-                  s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  s2 = next_arg(++s1,se1,clevel1);
                   arg2 = compile(s1,s2,depth1,0,block_flags); // Width
                   _cimg_mp_check_const_scalar(arg2,2,3);
                   arg2 = (unsigned int)mem[arg2];
@@ -22180,7 +22180,7 @@ namespace cimg_library {
                     _cimg_mp_check_const_scalar(arg3,3,3);
                     arg3 = (unsigned int)mem[arg3];
                     if (s1<se1) {
-                      s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                      s2 = next_arg(++s1,se1,clevel1);
                       arg4 = compile(s1,s2,depth1,0,block_flags); // Depth
                       _cimg_mp_check_const_scalar(arg4,4,3);
                       arg4 = (unsigned int)mem[arg4];
@@ -22221,7 +22221,7 @@ namespace cimg_library {
               arg1 = compile(ss6,s1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,2,2,0);
               p1 = size(arg1);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
               p2 = size(arg2);
               p3 = std::max(1U,p2);
@@ -22233,7 +22233,7 @@ namespace cimg_library {
                 _cimg_mp_check_type(arg3,3,1,0);
                 arg4 = arg5 = arg6 = 1U;
                 if (s1<se1) {
-                  s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  s2 = next_arg(++s1,se1,clevel1);
                   arg4 = compile(s1,s2,depth1,0,block_flags);
                   _cimg_mp_check_type(arg4,4,1,0);
                   if (s2<se1) {
@@ -22241,7 +22241,7 @@ namespace cimg_library {
                     arg5 = compile(s2,s1,depth1,0,block_flags);
                     _cimg_mp_check_type(arg5,5,1,0);
                     if (s1<se1) {
-                      s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                      s2 = next_arg(++s1,se1,clevel1);
                       arg6 = compile(s1,s2,depth1,0,block_flags);
                       pos = s2<se1?compile(++s2,se1,depth1,0,block_flags):0;
                       _cimg_mp_check_type(arg6,6,1,0);
@@ -22326,9 +22326,9 @@ namespace cimg_library {
                 p1 = compile(ss6,s0++,depth1,0,block_flags);
                 _cimg_mp_check_notnan_index(p1,ss6);
                 _cimg_mp_check_list();
-                s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1; // pos0
+                s1 = next_arg(s0,se1,clevel1); // pos0
                 arg1 = compile(s0,s1,depth1,0,block_flags);
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2; // pos1
+                s2 = next_arg(++s1,se1,clevel1); // pos1
                 arg2 = compile(s1,s2,depth1,0,block_flags);
                 arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0; // is_vector?
                 add_opcode(mp_image_swap,_cimg_mp_slot_nan,p1,arg1,arg2,arg3);
@@ -22484,7 +22484,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"unitnorm(",9)) { // Normalize vector to unit norm
               _cimg_mp_op("Function 'unitnorm()'");
               s0 = ss + 9;
-              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(s0,se1,clevel1);
               arg1 = compile(s0,s1,depth1,0,block_flags);
               arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):2;
               _cimg_mp_check_type(arg2,2,1,0);
@@ -22541,7 +22541,7 @@ namespace cimg_library {
               arg1 = compile(ss4,s1,depth1,0,block_flags);
               arg2 = 0; arg3 = ~0U;
               if (s1<se1) {
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                s2 = next_arg(++s1,se1,clevel1);
                 arg2 = compile(s1,s2,depth1,0,block_flags);
                 arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):~0U;
               }
@@ -22807,7 +22807,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"while(",6)) { // While...do
               _cimg_mp_op("Function 'while()'");
               s0 = *ss5=='('?ss6:ss8;
-              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(s0,se1,clevel1);
               p1 = code._width;
               arg1 = compile(s0,s1,depth1,0,block_flags);
               p2 = code._width;
@@ -22933,23 +22933,23 @@ namespace cimg_library {
             is_sth = *ss=='i'; // is_ifft ?
             _cimg_mp_op(is_sth?"Function 'ifft()'":"Function 'fft()'");
             s0 = is_sth?ss5:ss4;
-            s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+            s1 = next_arg(s0,se1,clevel1);
             arg1 = compile(s0,s1,depth1,0,block_flags); // Real part
             p1 = size(arg1);
-            s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+            s2 = next_arg(++s1,se1,clevel1);
             arg2 = compile(s1,s2,depth1,0,block_flags); // Imaginary part
             arg3 = ~0U; arg4 = arg5 = arg6 = 1; p3 = 0;
             if (s2<se1) {
               s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg3 = compile(s2,s1,depth1,0,block_flags); // Width
               if (s1<se1) {
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                s2 = next_arg(++s1,se1,clevel1);
                 arg4 = compile(s1,s2,depth1,0,block_flags); // Height
                 if (s2<se1) {
                   s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                   arg5 = compile(s2,s1,depth1,0,block_flags); // Depth
                   if (s1<se1) {
-                    s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                    s2 = next_arg(++s1,se1,clevel1);
                     arg6 = compile(s1,s2,depth1,0,block_flags); // Spectrum
                     p3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0; // Axes
                   }
@@ -23025,7 +23025,7 @@ namespace cimg_library {
             arg1 = compile(ss2,s1,depth1,0,block_flags);
             arg3 = arg4 = 1;
             if (s1<se1) {
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
               if (s2<se1) {
                 s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;

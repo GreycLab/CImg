@@ -23524,10 +23524,10 @@ namespace cimg_library {
                                     s_op,variable_name._data,s0);
       }
 
-      // Find starting index of next item/argument in expression string.
-      char *next_arg(const char *const s0, const char *const s1, const unsigned int clevel, const char sep=',') {
+      // Return pointer to the next comma in expression string, with same code level.
+      char *next_arg(const char *const s0, const char *const s1, const unsigned int clevel) {
         const char *s = s0;
-        while (s<s1 && (*s!=sep || level[s - expr._data]!=clevel)) ++s;
+        while (s<s1 && (*s!=',' || level[s - expr._data]!=clevel)) ++s;
         return (char*)s;
       }
 

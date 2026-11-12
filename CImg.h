@@ -18115,12 +18115,12 @@ namespace cimg_library {
                                           pixel_type(),_cimg_mp_calling_function,s_op,
                                           variable_name._data,s0);
             }
-            s1 = s0 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+            s1 = next_arg(s0 + 1,se1);
 
             if (s1<se1) { // Two or three arguments -> sub-vector extraction
               p1 = size(arg1);
               arg2 = compile(++s0,s1,depth1,0,block_flags); // Starting index
-              s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+              s0 = next_arg(++s1,se1);
               arg3 = compile(s1,s0,depth1,0,block_flags); // Length
               arg4 = s0<se1?compile(++s0,se1,depth1,0,block_flags):1; // Step
               _cimg_mp_check_const_scalar(arg3,2,3);
@@ -18560,7 +18560,7 @@ namespace cimg_library {
               } else { // Coordinates specified as scalars
                 arg1 = pos; arg2 = arg3 = arg4 = arg5 = 0;
                 if (s1<se1) {
-                  s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                  s0 = next_arg(++s1,se1);
                   arg2 = compile(s1,s0,depth1,0,block_flags);
                   _cimg_mp_check_type(arg2,p3 + 2,1,0);
                   if (s0<se1) {
@@ -18568,7 +18568,7 @@ namespace cimg_library {
                     arg3 = compile(s0,s1,depth1,0,block_flags);
                     _cimg_mp_check_type(arg3,p3 + 3,1,0);
                     if (s1<se1) {
-                      s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                      s0 = next_arg(++s1,se1);
                       arg4 = compile(s1,s0,depth1,0,block_flags);
                       _cimg_mp_check_type(arg4,p3 + 4,1,0);
                       arg5 = s0<se1?compile(++s0,se1,depth1,0,block_flags):0; // boundary conditions
@@ -20196,7 +20196,7 @@ namespace cimg_library {
               // Third, fourth and fifth arguments: starting index, search step and max iterations.
               arg3 = _cimg_mp_slot_nan; arg4 = 1; arg5 = ~0U;
               if (s1<se1) {
-                s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                s0 = next_arg(++s1,se1);
                 arg3 = compile(s1,s0,depth1,0,block_flags);
                 _cimg_mp_check_type(arg3,3,1,0);
                 if (s0<se1) {
@@ -22109,13 +22109,13 @@ namespace cimg_library {
               arg1 = compile(ss5,s1,depth1,0,block_flags); // X
               arg2 = arg5 = 1; arg3 = arg6 = 0; arg4 = ~0U;
               if (s1<se1) {
-                s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                s0 = next_arg(++s1,se1);
                 arg2 = compile(s1,s0,depth1,0,block_flags); // is_increasing
                 if (s0<se1) {
                   s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                   arg3 = compile(s0,s1,depth1,0,block_flags); // starting_index
                   if (s1<se1) {
-                    s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                    s0 = next_arg(++s1,se1);
                     arg4 = compile(s1,s0,depth1,0,block_flags); // nb_elt
                     if (s0<se1) {
                       s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;

@@ -18533,7 +18533,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"c2o(",4)) { // Coordinates to offset
               _cimg_mp_op("Function 'c2o()'");
               if (*ss4=='#') { // Index specified
-                s0 = ss5; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                s0 = next_arg(ss5,se1);
                 p1 = compile(ss5,s0++,depth1,0,block_flags);
                 p3 = 1;
                 _cimg_mp_check_notnan_index(p1,ss5);
@@ -18564,7 +18564,7 @@ namespace cimg_library {
                   arg2 = compile(s1,s0,depth1,0,block_flags);
                   _cimg_mp_check_type(arg2,p3 + 2,1,0);
                   if (s0<se1) {
-                    s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                    s1 = next_arg(++s0,se1);
                     arg3 = compile(s0,s1,depth1,0,block_flags);
                     _cimg_mp_check_type(arg3,p3 + 3,1,0);
                     if (s1<se1) {
@@ -19323,7 +19323,7 @@ namespace cimg_library {
                           is_pop?"Function 'da_pop()'":"Function 'da_back()'");
               s0 = ss + (is_pop_heap?12:is_pop?7:8);
               if (*s0=='#') { // Index specified
-                s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                s1 = next_arg(++s0,se1);
                 p1 = compile(s0,s1++,depth1,0,block_flags);
                 _cimg_mp_check_notnan_index(p1,s0);
               } else { p1 = 11; s1 = s0; } // Default: #-1
@@ -19342,7 +19342,7 @@ namespace cimg_library {
               _cimg_mp_op("Function 'da_freeze()'");
               s0 = ss + 10;
               if (*s0=='#') { // Index specified
-                s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                s1 = next_arg(++s0,se1);
                 p1 = compile(s0,s1++,depth1,0,block_flags);
                 _cimg_mp_check_notnan_index(p1,s0);
               } else { p1 = 11; s1 = s0; } // Default: #-1
@@ -19368,7 +19368,7 @@ namespace cimg_library {
                           (is_n?"Function 'da_insert_n()'":"Function 'da_insert()'"));
               s0 = ss + (is_push_heap?13:is_push?8:10) + (is_n?2:0);
               if (*s0=='#') { // Index specified
-                s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                s1 = next_arg(++s0,se1);
                 p1 = compile(s0,s1++,depth1,0,block_flags);
                 _cimg_mp_check_notnan_index(p1,s0);
               } else { p1 = 11; s1 = s0; } // Default: #-1
@@ -20089,10 +20089,10 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"fill(",5)) { // Fill
               _cimg_mp_op("Function 'fill()'");
-              s0 = ss5; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+              s0 = next_arg(ss5,se1);
               arg1 = compile(ss5,s0,depth1,0,block_flags); // target
               _cimg_mp_check_type(arg1,1,2,0);
-              s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(++s0,se1);
               p1 = code._width;
               if (s1<se1) { // Version with >=3 arguments
                 s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
@@ -20176,7 +20176,7 @@ namespace cimg_library {
               _cimg_mp_op("Function 'find()'");
 
               // First argument: data to look at.
-              s0 = ss5; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+              s0 = next_arg(ss5,se1);
               if (*ss5=='#') { // Index specified
                 p1 = compile(ss6,s0,depth1,0,block_flags);
                 _cimg_mp_check_notnan_index(p1,ss6);
@@ -20190,7 +20190,7 @@ namespace cimg_library {
               }
 
               // Second argument: scalar or vector data to find.
-              s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(++s0,se1);
               arg2 = compile(s0,s1,depth1,0,block_flags);
 
               // Third, fourth and fifth arguments: starting index, search step and max iterations.
@@ -20200,7 +20200,7 @@ namespace cimg_library {
                 arg3 = compile(s1,s0,depth1,0,block_flags);
                 _cimg_mp_check_type(arg3,3,1,0);
                 if (s0<se1) {
-                  s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                  s1 = next_arg(++s0,se1);
                   arg4 = compile(s0,s1,depth1,0,block_flags);
                   _cimg_mp_check_type(arg4,4,1,0);
                   if (s1<se1) {
@@ -21332,7 +21332,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"o2c(",4)) { // Offset to coordinates
               _cimg_mp_op("Function 'o2c()'");
               if (*ss4=='#') { // Index specified
-                s0 = ss5; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                s0 = next_arg(ss5,se1);
                 p1 = compile(ss5,s0++,depth1,0,block_flags);
                 p2 = 1;
                 _cimg_mp_check_notnan_index(p1,ss5);
@@ -21608,7 +21608,7 @@ namespace cimg_library {
               s0 = ss7; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               arg1 = compile(ss7,s0,depth1,0,block_flags); // Number of iterations
               _cimg_mp_check_type(arg1,1,1,0);
-              s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(++s0,se1);
               p1 = code._width;
 
               if (s1<se1) { // Version with 3 arguments
@@ -22112,13 +22112,13 @@ namespace cimg_library {
                 s0 = next_arg(++s1,se1);
                 arg2 = compile(s1,s0,depth1,0,block_flags); // is_increasing
                 if (s0<se1) {
-                  s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                  s1 = next_arg(++s0,se1);
                   arg3 = compile(s0,s1,depth1,0,block_flags); // starting_index
                   if (s1<se1) {
                     s0 = next_arg(++s1,se1);
                     arg4 = compile(s1,s0,depth1,0,block_flags); // nb_elt
                     if (s0<se1) {
-                      s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                      s1 = next_arg(++s0,se1);
                       arg5 = compile(s0,s1,depth1,0,block_flags); // size_elt
                       arg6 = s1<se1?compile(++s1,se1,depth1,0,block_flags):0; // sort_index
                     }

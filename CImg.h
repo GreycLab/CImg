@@ -18848,7 +18848,7 @@ namespace cimg_library {
                 s3 = next_arg(++s2,se1);
                 arg3 = compile(s2,s3,depth1,0,block_flags);
                 if (s3<se1) {
-                  s1 = ++s3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                  s1 = next_arg(++s3,se1);
                   arg4 = compile(s3,s1,depth1,0,block_flags);
                   if (s1<se1) {
                     s2 = next_arg(++s1,se1);

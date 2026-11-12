@@ -18463,7 +18463,7 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"atan2(",6)) { // Arctan2
               _cimg_mp_op("Function 'atan2()'");
-              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss6,se1);
               arg1 = compile(ss6,s1,depth1,0,block_flags);
               arg2 = compile(++s1,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg2,2,3,size(arg1));
@@ -19144,7 +19144,7 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"cross(",6)) { // Cross product
               _cimg_mp_op("Function 'cross()'");
-              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss6,se1);
               arg1 = compile(ss6,s1,depth1,0,block_flags);
               arg2 = compile(++s1,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,1,2,3);
@@ -20315,7 +20315,7 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"gauss(",6)) { // Gaussian function
               _cimg_mp_op("Function 'gauss()'");
-              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss6,se1);
               arg1 = compile(ss6,s1,depth1,0,block_flags);
               arg2 = arg3 = 1;
               if (s1<se1) {
@@ -20548,7 +20548,7 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"index(",6)) { // Index colors
               _cimg_mp_op("Function 'index()'");
-              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss6,se1);
               arg1 = compile(ss6,s1,depth1,0,block_flags);
               s2 = next_arg(++s1,se1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
@@ -20807,7 +20807,7 @@ namespace cimg_library {
               if (!std::strncmp(ss,"isint(",6)) { // Is integer?
                 _cimg_mp_op("Function 'isint()'");
                 if (ss6==se1) _cimg_mp_return(0);
-                s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                s1 = next_arg(ss6,se1);
                 try { arg1 = compile(ss6,s1,depth1,0,block_flags); }
                 catch (CImgException&) { _cimg_mp_return(0); }
                 arg2 = arg3 = ~0U;
@@ -21037,7 +21037,7 @@ namespace cimg_library {
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s0);
               }
-              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss6,se1);
               ref.assign(7);
               pos = compile(ss6,s1,depth1,ref,block_flags);
               if (*ref) {
@@ -21132,7 +21132,7 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"mproj(",6)) { // Project matrix onto dictionary
               _cimg_mp_op("Function 'mproj()'");
-              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss6,se1);
               arg1 = compile(ss6,s1,depth1,0,block_flags); // S
               s2 = next_arg(++s1,se1);
               arg2 = compile(s1,s2,depth1,0,block_flags); // ncolS
@@ -21274,7 +21274,7 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"noise(",6)) { // Add noise
               _cimg_mp_op("Function 'noise()'");
-              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss6,se1);
               arg1 = compile(ss6,s1,depth1,0,block_flags);
               s2 = next_arg(++s1,se1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
@@ -21319,7 +21319,7 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"normp(",6)) { // Lp norm, with variable argument p
               _cimg_mp_op("Function 'normp()'");
-              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss6,se1);
               arg1 = compile(ss6,s1,depth1,0,block_flags);
               arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):2;
               _cimg_mp_check_type(arg2,0,1,0);
@@ -21831,7 +21831,7 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"round(",6)) { // Value rounding
               _cimg_mp_op("Function 'round()'");
-              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss6,se1);
               arg1 = compile(ss6,s1,depth1,0,block_flags);
               arg2 = 1;
               arg3 = 0;
@@ -22076,7 +22076,7 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"solve(",6)) { // Solve square linear system
               _cimg_mp_op("Function 'solve()'");
-              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss6,se1);
               arg1 = compile(ss6,s1,depth1,0,block_flags);
               s2 = next_arg(++s1,se1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
@@ -22164,7 +22164,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"stats(",6)) { // Image/vector statistics
               _cimg_mp_op("Function 'stats()'");
               if (*ss6!='#' && ss6!=se1) { // Vector
-                s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                s1 = next_arg(ss6,se1);
                 arg1 = compile(ss6,s1,depth1,0,block_flags); // Vector
                 _cimg_mp_check_type(arg1,1,2,0);
                 p1 = size(arg1);
@@ -22217,7 +22217,7 @@ namespace cimg_library {
 #ifdef cimg_mp_func_store
             if (!std::strncmp(ss,"store(",6)) { // Store vector to variable
               _cimg_mp_op("Function 'store()'");
-              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s1 = next_arg(ss6,se1);
               arg1 = compile(ss6,s1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,2,2,0);
               p1 = size(arg1);

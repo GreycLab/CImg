@@ -16495,7 +16495,7 @@ namespace cimg_library {
               if (*ss1=='[' && *ve1==']') { // i/j/I/J[_#ind,offset] = value
                 if (!is_inside_critical) is_parallelizable = false;
                 if (*ss2=='#') { // Index specified
-                  s0 = ss3; while (s0<ve1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                  s0 = next_arg(ss3,ve1);
                   p1 = compile(ss3,s0++,depth1,0,block_flags);
                   _cimg_mp_check_notnan_index(p1,ss3);
                   _cimg_mp_check_list();
@@ -16538,7 +16538,7 @@ namespace cimg_library {
               if (*ss1=='(' && *ve1==')') { // i/j/I/J(_#ind,_x,_y,_z,_c) = value
                 if (!is_inside_critical) is_parallelizable = false;
                 if (*ss2=='#') { // Index specified
-                  s0 = ss3; while (s0<ve1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                  s0 = next_arg(ss3,ve1);
                   p1 = compile(ss3,s0++,depth1,0,block_flags);
                   _cimg_mp_check_notnan_index(p1,ss3);
                   _cimg_mp_check_list();
@@ -23522,6 +23522,14 @@ namespace cimg_library {
                                     "CImg<%s>::%s: Unrecognized %s '%s' in expression '%s'.",
                                     pixel_type(),_cimg_mp_calling_function,
                                     s_op,variable_name._data,s0);
+      }
+
+      // Find starting index of next item/argument in expression string.
+      char *next_arg(const char *const s0, const char *const s1, const char sep=',') {
+        const unsigned int clevel = level[s0 - expr._data];
+        const char *s = s0;
+        while (s<s1 && (*s!=sep || level[s - expr._data]!=clevel)) ++s;
+        return (char*)s;
       }
 
       // Evaluate a portion of the compiled expression.

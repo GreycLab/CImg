@@ -18236,9 +18236,46 @@ namespace cimg_library {
               is_inty = is_intz && // optimized for 1D?
               (is_const_integer(arg2) || (arg2>=_cimg_mp_slot_x && arg2<=_cimg_mp_slot_c));
             if (p1==~0U) need_input_copy = true;
-            op = is_inty?(is_relative?mp_Jxyz1:mp_Ixyz1):
-                 is_intz?(is_relative?mp_Jxyz2:mp_Ixyz2):
-                          is_relative?mp_Jxyz3:mp_Ixyz3;
+
+            op = (mp_func)0;
+            if (arg5==0 || (arg5==~0U && _cimg_mp_boundary==0)) { // Dirichlet boundary conditions
+              if (arg4==0 || (arg4==~0U && _cimg_mp_interpolation==0)) { // Nearest-neighbor interpolation
+                op = is_inty?(is_relative?mp_Jxyz1_nearest_dirichlet:mp_Ixyz1_nearest_dirichlet):
+                     is_intz?(is_relative?mp_Jxyz2_nearest_dirichlet:mp_Ixyz2_nearest_dirichlet):
+                     is_relative?mp_Jxyz3_nearest_dirichlet:mp_Ixyz3_nearest_dirichlet;
+              } else if (arg4==1 || (arg4==~0U && _cimg_mp_interpolation==1)) { // Linear interpolation
+                op = is_inty?(is_relative?mp_Jxyz1_linear_dirichlet:mp_Ixyz1_linear_dirichlet):
+                     is_intz?(is_relative?mp_Jxyz2_linear_dirichlet:mp_Ixyz2_linear_dirichlet):
+                     is_relative?mp_Jxyz3_linear_dirichlet:mp_Ixyz3_linear_dirichlet;
+              }
+            } else if (arg5==1 || (arg5==~0U && _cimg_mp_boundary==1)) { // Neumann boundary conditions
+              if (arg4==0 || (arg4==~0U && _cimg_mp_interpolation==0)) { // Nearest-neighbor interpolation
+                op = is_inty?(is_relative?mp_Jxyz1_nearest_neumann:mp_Ixyz1_nearest_neumann):
+                     is_intz?(is_relative?mp_Jxyz2_nearest_neumann:mp_Ixyz2_nearest_neumann):
+                     is_relative?mp_Jxyz3_nearest_neumann:mp_Ixyz3_nearest_neumann;
+              } else if (arg4==1 || (arg4==~0U && _cimg_mp_interpolation==1)) { // Linear interpolation
+                op = is_inty?(is_relative?mp_Jxyz1_linear_neumann:mp_Ixyz1_linear_neumann):
+                     is_intz?(is_relative?mp_Jxyz2_linear_neumann:mp_Ixyz2_linear_neumann):
+                     is_relative?mp_Jxyz3_linear_neumann:mp_Ixyz3_linear_neumann;
+              }
+            } else if (arg5==2 || (arg5==~0U && _cimg_mp_boundary==2)) { // Periodic boundary conditions
+              if (arg4==0 || (arg4==~0U && _cimg_mp_interpolation==0)) { // Nearest-neighbor interpolation
+                op = is_inty?(is_relative?mp_Jxyz1_nearest_periodic:mp_Ixyz1_nearest_periodic):
+                     is_intz?(is_relative?mp_Jxyz2_nearest_periodic:mp_Ixyz2_nearest_periodic):
+                     is_relative?mp_Jxyz3_nearest_periodic:mp_Ixyz3_nearest_periodic;
+              }
+            } else if (arg5==3 || (arg5==~0U && _cimg_mp_boundary==3)) { // Mirror boundary conditions
+              if (arg4==0 || (arg4==~0U && _cimg_mp_interpolation==0)) { // Nearest-neighbor interpolation
+                op = is_inty?(is_relative?mp_Jxyz1_nearest_mirror:mp_Ixyz1_nearest_mirror):
+                     is_intz?(is_relative?mp_Jxyz2_nearest_mirror:mp_Ixyz2_nearest_mirror):
+                     is_relative?mp_Jxyz3_nearest_mirror:mp_Ixyz3_nearest_mirror;
+              }
+            }
+            if (!op) // Generic version
+              op = is_inty?(is_relative?mp_Jxyz1:mp_Ixyz1):
+                is_intz?(is_relative?mp_Jxyz2:mp_Ixyz2):
+                is_relative?mp_Jxyz3:mp_Ixyz3;
+
             add_opcode(op,pos,p1,arg1,arg2,arg3,
                        arg4==~0U?_cimg_mp_interpolation:arg4,arg5==~0U?_cimg_mp_boundary:arg5,p2);
             return_comp = true;
@@ -18315,9 +18352,45 @@ namespace cimg_library {
             if (p1==~0U) { if (!imgin) _cimg_mp_return(0); need_input_copy = true; }
             else if (!imglist) _cimg_mp_return(0);
 
-            op = is_inty?(is_relative?mp_jxyzc1:mp_ixyzc1):
-                 is_intz?(is_relative?mp_jxyzc2:mp_ixyzc2):
-                 is_relative?mp_jxyzc3:mp_ixyzc3;
+            op = (mp_func)0;
+            if (arg6==0 || (arg6==~0U && _cimg_mp_boundary==0)) { // Dirichlet boundary conditions
+              if (arg5==0 || (arg5==~0U && _cimg_mp_interpolation==0)) { // Nearest-neighbor interpolation
+                op = is_inty?(is_relative?mp_jxyzc1_nearest_dirichlet:mp_ixyzc1_nearest_dirichlet):
+                     is_intz?(is_relative?mp_jxyzc2_nearest_dirichlet:mp_ixyzc2_nearest_dirichlet):
+                     is_relative?mp_jxyzc3_nearest_dirichlet:mp_ixyzc3_nearest_dirichlet;
+              } else if (arg5==1 || (arg5==~0U && _cimg_mp_interpolation==1)) { // Linear interpolation
+                op = is_inty?(is_relative?mp_jxyzc1_linear_dirichlet:mp_ixyzc1_linear_dirichlet):
+                     is_intz?(is_relative?mp_jxyzc2_linear_dirichlet:mp_ixyzc2_linear_dirichlet):
+                     is_relative?mp_jxyzc3_linear_dirichlet:mp_ixyzc3_linear_dirichlet;
+              }
+            } else if (arg6==1 || (arg6==~0U && _cimg_mp_boundary==1)) { // Neumann boundary conditions
+              if (arg5==0 || (arg5==~0U && _cimg_mp_interpolation==0)) { // Nearest-neighbor interpolation
+                op = is_inty?(is_relative?mp_jxyzc1_nearest_neumann:mp_ixyzc1_nearest_neumann):
+                     is_intz?(is_relative?mp_jxyzc2_nearest_neumann:mp_ixyzc2_nearest_neumann):
+                     is_relative?mp_jxyzc3_nearest_neumann:mp_ixyzc3_nearest_neumann;
+              } else if (arg5==1 || (arg5==~0U && _cimg_mp_interpolation==1)) { // Linear interpolation
+                op = is_inty?(is_relative?mp_jxyzc1_linear_neumann:mp_ixyzc1_linear_neumann):
+                     is_intz?(is_relative?mp_jxyzc2_linear_neumann:mp_ixyzc2_linear_neumann):
+                     is_relative?mp_jxyzc3_linear_neumann:mp_ixyzc3_linear_neumann;
+              }
+            } else if (arg6==2 || (arg6==~0U && _cimg_mp_boundary==2)) { // Periodic boundary conditions
+              if (arg5==0 || (arg5==~0U && _cimg_mp_interpolation==0)) { // Nearest-neighbor interpolation
+                op = is_inty?(is_relative?mp_jxyzc1_nearest_periodic:mp_ixyzc1_nearest_periodic):
+                     is_intz?(is_relative?mp_jxyzc2_nearest_periodic:mp_ixyzc2_nearest_periodic):
+                     is_relative?mp_jxyzc3_nearest_periodic:mp_ixyzc3_nearest_periodic;
+              }
+            } else if (arg6==3 || (arg6==~0U && _cimg_mp_boundary==3)) { // Mirror boundary conditions
+              if (arg5==0 || (arg5==~0U && _cimg_mp_interpolation==0)) { // Nearest-neighbor interpolation
+                op = is_inty?(is_relative?mp_jxyzc1_nearest_mirror:mp_ixyzc1_nearest_mirror):
+                     is_intz?(is_relative?mp_jxyzc2_nearest_mirror:mp_ixyzc2_nearest_mirror):
+                     is_relative?mp_jxyzc3_nearest_mirror:mp_ixyzc3_nearest_mirror;
+              }
+            }
+            if (!op) // Generic version
+              op = is_inty?(is_relative?mp_jxyzc1:mp_ixyzc1):
+                is_intz?(is_relative?mp_jxyzc2:mp_ixyzc2):
+                is_relative?mp_jxyzc3:mp_ixyzc3;
+
             pos = scalar7(op,p1,arg1,arg2,arg3,arg4,
                           arg5==~0U?_cimg_mp_interpolation:arg5,
                           arg6==~0U?_cimg_mp_boundary:arg6);
@@ -25484,7 +25557,24 @@ namespace cimg_library {
             _mp_debug(flood) _mp_debug(floor) _mp_debug(for) _mp_debug(frac) _mp_debug(fsize) _mp_debug(gamma)
             _mp_debug(gauss) _mp_debug(gcd) _mp_debug(gcd2) _mp_debug(get) _mp_debug(get) _mp_debug(gt) _mp_debug(gte)
             _mp_debug(histogram) _mp_debug(I) _mp_debug(i) _mp_debug(if) _mp_debug(Ioff) _mp_debug(ioff)
-            _mp_debug(Ixyz1) _mp_debug(Ixyz2) _mp_debug(Ixyz3) _mp_debug(ixyzc1) _mp_debug(ixyzc2) _mp_debug(ixyzc3)
+            _mp_debug(Ixyz1_nearest_dirichlet) _mp_debug(Ixyz1_nearest_neumann) _mp_debug(Ixyz1_nearest_periodic)
+            _mp_debug(Ixyz1_nearest_mirror) _mp_debug(Ixyz1_linear_dirichlet) _mp_debug(Ixyz1_linear_neumann)
+            _mp_debug(Ixyz1)
+            _mp_debug(Ixyz2_nearest_dirichlet) _mp_debug(Ixyz2_nearest_neumann) _mp_debug(Ixyz2_nearest_periodic)
+            _mp_debug(Ixyz2_nearest_mirror) _mp_debug(Ixyz2_linear_dirichlet) _mp_debug(Ixyz2_linear_neumann)
+            _mp_debug(Ixyz2)
+            _mp_debug(Ixyz3_nearest_dirichlet) _mp_debug(Ixyz3_nearest_neumann) _mp_debug(Ixyz3_nearest_periodic)
+            _mp_debug(Ixyz3_nearest_mirror) _mp_debug(Ixyz3_linear_dirichlet) _mp_debug(Ixyz3_linear_neumann)
+            _mp_debug(Ixyz3)
+            _mp_debug(ixyzc1_nearest_dirichlet) _mp_debug(ixyzc1_nearest_neumann) _mp_debug(ixyzc1_nearest_periodic)
+            _mp_debug(ixyzc1_nearest_mirror) _mp_debug(ixyzc1_linear_dirichlet) _mp_debug(ixyzc1_linear_neumann)
+            _mp_debug(ixyzc1)
+            _mp_debug(ixyzc2_nearest_dirichlet) _mp_debug(ixyzc2_nearest_neumann) _mp_debug(ixyzc2_nearest_periodic)
+            _mp_debug(ixyzc2_nearest_mirror) _mp_debug(ixyzc2_linear_dirichlet) _mp_debug(ixyzc2_linear_neumann)
+            _mp_debug(ixyzc2)
+            _mp_debug(ixyzc3_nearest_dirichlet) _mp_debug(ixyzc3_nearest_neumann) _mp_debug(ixyzc3_nearest_periodic)
+            _mp_debug(ixyzc3_nearest_mirror) _mp_debug(ixyzc3_linear_dirichlet) _mp_debug(ixyzc3_linear_neumann)
+            _mp_debug(ixyzc3)
             _mp_debug(image_crop) _mp_debug(image_depth) _mp_debug(image_display) _mp_debug(image_draw)
             _mp_debug(image_find) _mp_debug(image_find_seq) _mp_debug(image_height) _mp_debug(image_is_shared)
             _mp_debug(image_print) _mp_debug(image_resize) _mp_debug(image_shift) _mp_debug(image_shift_ip)
@@ -25497,8 +25587,26 @@ namespace cimg_library {
             _mp_debug(image_wh) _mp_debug(image_whd) _mp_debug(image_whds) _mp_debug(image_width) _mp_debug(increment)
             _mp_debug(index) _mp_debug(indexof) _mp_debug(inrange) _mp_debug(int) _mp_debug(isbool) _mp_debug(isdir)
             _mp_debug(isfile) _mp_debug(isfinite) _mp_debug(isin) _mp_debug(isinf) _mp_debug(isint) _mp_debug(isnan)
-            _mp_debug(isvarname) _mp_debug(Joff) _mp_debug(joff) _mp_debug(Jxyz1) _mp_debug(Jxyz2) _mp_debug(Jxyz3)
-            _mp_debug(jxyzc1) _mp_debug(jxyzc2) _mp_debug(jxyzc3) _mp_debug(kth) _mp_debug(lcm) _mp_debug(lcm2)
+            _mp_debug(isvarname) _mp_debug(Joff) _mp_debug(joff)
+            _mp_debug(Jxyz1_nearest_dirichlet) _mp_debug(Jxyz1_nearest_neumann) _mp_debug(Jxyz1_nearest_periodic)
+            _mp_debug(Jxyz1_nearest_mirror) _mp_debug(Jxyz1_linear_dirichlet) _mp_debug(Jxyz1_linear_neumann)
+            _mp_debug(Jxyz1)
+            _mp_debug(Jxyz2_nearest_dirichlet) _mp_debug(Jxyz2_nearest_neumann) _mp_debug(Jxyz2_nearest_periodic)
+            _mp_debug(Jxyz2_nearest_mirror) _mp_debug(Jxyz2_linear_dirichlet) _mp_debug(Jxyz2_linear_neumann)
+            _mp_debug(Jxyz2)
+            _mp_debug(Jxyz3_nearest_dirichlet) _mp_debug(Jxyz3_nearest_neumann) _mp_debug(Jxyz3_nearest_periodic)
+            _mp_debug(Jxyz3_nearest_mirror) _mp_debug(Jxyz3_linear_dirichlet) _mp_debug(Jxyz3_linear_neumann)
+            _mp_debug(Jxyz3)
+            _mp_debug(jxyzc1_nearest_dirichlet) _mp_debug(jxyzc1_nearest_neumann) _mp_debug(jxyzc1_nearest_periodic)
+            _mp_debug(jxyzc1_nearest_mirror) _mp_debug(jxyzc1_linear_dirichlet) _mp_debug(jxyzc1_linear_neumann)
+            _mp_debug(jxyzc1)
+            _mp_debug(jxyzc2_nearest_dirichlet) _mp_debug(jxyzc2_nearest_neumann) _mp_debug(jxyzc2_nearest_periodic)
+            _mp_debug(jxyzc2_nearest_mirror) _mp_debug(jxyzc2_linear_dirichlet) _mp_debug(jxyzc2_linear_neumann)
+            _mp_debug(jxyzc2)
+            _mp_debug(jxyzc3_nearest_dirichlet) _mp_debug(jxyzc3_nearest_neumann) _mp_debug(jxyzc3_nearest_periodic)
+            _mp_debug(jxyzc3_nearest_mirror) _mp_debug(jxyzc3_linear_dirichlet) _mp_debug(jxyzc3_linear_neumann)
+            _mp_debug(jxyzc3)
+            _mp_debug(kth) _mp_debug(lcm) _mp_debug(lcm2)
             _mp_debug(lerp) _mp_debug(log) _mp_debug(log10) _mp_debug(log1p) _mp_debug(log2) _mp_debug(logical_and)
             _mp_debug(logical_not) _mp_debug(logical_or) _mp_debug(logit) _mp_debug(lowercase) _mp_debug(lt)
             _mp_debug(lte) _mp_debug(map) _mp_debug(matrix_eigen) _mp_debug(matrix_invert) _mp_debug(matrix_mul)
@@ -26443,26 +26551,59 @@ namespace cimg_library {
         }
       }
 
+      static double mp_ixyzc3_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc3(mp,false,0,0); }
+      static double mp_ixyzc3_nearest_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc3(mp,false,0,1); }
+      static double mp_ixyzc3_nearest_periodic(_cimg_math_parser& mp) { return _mp_ijxyzc3(mp,false,0,2); }
+      static double mp_ixyzc3_nearest_mirror(_cimg_math_parser& mp) { return _mp_ijxyzc3(mp,false,0,3); }
+      static double mp_ixyzc3_linear_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc3(mp,false,1,0); }
+      static double mp_ixyzc3_linear_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc3(mp,false,1,1); }
       static double mp_ixyzc3(_cimg_math_parser& mp) {
         return _mp_ijxyzc3(mp,false,(unsigned int)_mp_arg(7),(unsigned int)_mp_arg(8));
       }
-
+      static double mp_jxyzc3_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc3(mp,true,0,0); }
+      static double mp_jxyzc3_nearest_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc3(mp,true,0,1); }
+      static double mp_jxyzc3_nearest_periodic(_cimg_math_parser& mp) { return _mp_ijxyzc3(mp,true,0,2); }
+      static double mp_jxyzc3_nearest_mirror(_cimg_math_parser& mp) { return _mp_ijxyzc3(mp,true,0,3); }
+      static double mp_jxyzc3_linear_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc3(mp,true,1,0); }
+      static double mp_jxyzc3_linear_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc3(mp,true,1,1); }
       static double mp_jxyzc3(_cimg_math_parser& mp) {
         return _mp_ijxyzc3(mp,true,(unsigned int)_mp_arg(7),(unsigned int)_mp_arg(8));
       }
 
+      static double mp_ixyzc2_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc2(mp,false,0,0); }
+      static double mp_ixyzc2_nearest_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc2(mp,false,0,1); }
+      static double mp_ixyzc2_nearest_periodic(_cimg_math_parser& mp) { return _mp_ijxyzc2(mp,false,0,2); }
+      static double mp_ixyzc2_nearest_mirror(_cimg_math_parser& mp) { return _mp_ijxyzc2(mp,false,0,3); }
+      static double mp_ixyzc2_linear_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc2(mp,false,1,0); }
+      static double mp_ixyzc2_linear_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc2(mp,false,1,1); }
       static double mp_ixyzc2(_cimg_math_parser& mp) {
         return _mp_ijxyzc2(mp,false,(unsigned int)_mp_arg(7),(unsigned int)_mp_arg(8));
       }
-
+      static double mp_jxyzc2_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc2(mp,true,0,0); }
+      static double mp_jxyzc2_nearest_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc2(mp,true,0,1); }
+      static double mp_jxyzc2_nearest_periodic(_cimg_math_parser& mp) { return _mp_ijxyzc2(mp,true,0,2); }
+      static double mp_jxyzc2_nearest_mirror(_cimg_math_parser& mp) { return _mp_ijxyzc2(mp,true,0,3); }
+      static double mp_jxyzc2_linear_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc2(mp,true,1,0); }
+      static double mp_jxyzc2_linear_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc2(mp,true,1,1); }
       static double mp_jxyzc2(_cimg_math_parser& mp) {
         return _mp_ijxyzc2(mp,true,(unsigned int)_mp_arg(7),(unsigned int)_mp_arg(8));
       }
 
+      static double mp_ixyzc1_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc1(mp,false,0,0); }
+      static double mp_ixyzc1_nearest_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc1(mp,false,0,1); }
+      static double mp_ixyzc1_nearest_periodic(_cimg_math_parser& mp) { return _mp_ijxyzc1(mp,false,0,2); }
+      static double mp_ixyzc1_nearest_mirror(_cimg_math_parser& mp) { return _mp_ijxyzc1(mp,false,0,3); }
+      static double mp_ixyzc1_linear_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc1(mp,false,1,0); }
+      static double mp_ixyzc1_linear_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc1(mp,false,1,1); }
       static double mp_ixyzc1(_cimg_math_parser& mp) {
         return _mp_ijxyzc1(mp,false,(unsigned int)_mp_arg(7),(unsigned int)_mp_arg(8));
       }
-
+      static double mp_jxyzc1_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc1(mp,true,0,0); }
+      static double mp_jxyzc1_nearest_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc1(mp,true,0,1); }
+      static double mp_jxyzc1_nearest_periodic(_cimg_math_parser& mp) { return _mp_ijxyzc1(mp,true,0,2); }
+      static double mp_jxyzc1_nearest_mirror(_cimg_math_parser& mp) { return _mp_ijxyzc1(mp,true,0,3); }
+      static double mp_jxyzc1_linear_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc1(mp,true,1,0); }
+      static double mp_jxyzc1_linear_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc1(mp,true,1,1); }
       static double mp_jxyzc1(_cimg_math_parser& mp) {
         return _mp_ijxyzc1(mp,true,(unsigned int)_mp_arg(7),(unsigned int)_mp_arg(8));
       }
@@ -29961,26 +30102,60 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
+      // Specialize for most common cases.
+      static double mp_Ixyz3_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz3(mp,false,0,0); }
+      static double mp_Ixyz3_nearest_neumann(_cimg_math_parser& mp) { return _mp_IJxyz3(mp,false,0,1); }
+      static double mp_Ixyz3_nearest_periodic(_cimg_math_parser& mp) { return _mp_IJxyz3(mp,false,0,2); }
+      static double mp_Ixyz3_nearest_mirror(_cimg_math_parser& mp) { return _mp_IJxyz3(mp,false,0,3); }
+      static double mp_Ixyz3_linear_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz3(mp,false,1,0); }
+      static double mp_Ixyz3_linear_neumann(_cimg_math_parser& mp) { return _mp_IJxyz3(mp,false,1,1); }
       static double mp_Ixyz3(_cimg_math_parser& mp) {
         return _mp_IJxyz3(mp,false,(unsigned int)_mp_arg(6),(unsigned int)_mp_arg(7));
       }
-
+      static double mp_Jxyz3_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz3(mp,true,0,0); }
+      static double mp_Jxyz3_nearest_neumann(_cimg_math_parser& mp) { return _mp_IJxyz3(mp,true,0,1); }
+      static double mp_Jxyz3_nearest_periodic(_cimg_math_parser& mp) { return _mp_IJxyz3(mp,true,0,2); }
+      static double mp_Jxyz3_nearest_mirror(_cimg_math_parser& mp) { return _mp_IJxyz3(mp,true,0,3); }
+      static double mp_Jxyz3_linear_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz3(mp,true,1,0); }
+      static double mp_Jxyz3_linear_neumann(_cimg_math_parser& mp) { return _mp_IJxyz3(mp,true,1,1); }
       static double mp_Jxyz3(_cimg_math_parser& mp) {
         return _mp_IJxyz3(mp,true,(unsigned int)_mp_arg(6),(unsigned int)_mp_arg(7));
       }
 
+      static double mp_Ixyz2_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz2(mp,false,0,0); }
+      static double mp_Ixyz2_nearest_neumann(_cimg_math_parser& mp) { return _mp_IJxyz2(mp,false,0,1); }
+      static double mp_Ixyz2_nearest_periodic(_cimg_math_parser& mp) { return _mp_IJxyz2(mp,false,0,2); }
+      static double mp_Ixyz2_nearest_mirror(_cimg_math_parser& mp) { return _mp_IJxyz2(mp,false,0,3); }
+      static double mp_Ixyz2_linear_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz2(mp,false,1,0); }
+      static double mp_Ixyz2_linear_neumann(_cimg_math_parser& mp) { return _mp_IJxyz2(mp,false,1,1); }
       static double mp_Ixyz2(_cimg_math_parser& mp) {
         return _mp_IJxyz2(mp,false,(unsigned int)_mp_arg(6),(unsigned int)_mp_arg(7));
       }
-
+      static double mp_Jxyz2_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz2(mp,true,0,0); }
+      static double mp_Jxyz2_nearest_neumann(_cimg_math_parser& mp) { return _mp_IJxyz2(mp,true,0,1); }
+      static double mp_Jxyz2_nearest_periodic(_cimg_math_parser& mp) { return _mp_IJxyz2(mp,true,0,2); }
+      static double mp_Jxyz2_nearest_mirror(_cimg_math_parser& mp) { return _mp_IJxyz2(mp,true,0,3); }
+      static double mp_Jxyz2_linear_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz2(mp,true,1,0); }
+      static double mp_Jxyz2_linear_neumann(_cimg_math_parser& mp) { return _mp_IJxyz2(mp,true,1,1); }
       static double mp_Jxyz2(_cimg_math_parser& mp) {
         return _mp_IJxyz2(mp,true,(unsigned int)_mp_arg(6),(unsigned int)_mp_arg(7));
       }
 
+      static double mp_Ixyz1_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz1(mp,false,0,0); }
+      static double mp_Ixyz1_nearest_neumann(_cimg_math_parser& mp) { return _mp_IJxyz1(mp,false,0,1); }
+      static double mp_Ixyz1_nearest_periodic(_cimg_math_parser& mp) { return _mp_IJxyz1(mp,false,0,2); }
+      static double mp_Ixyz1_nearest_mirror(_cimg_math_parser& mp) { return _mp_IJxyz1(mp,false,0,3); }
+      static double mp_Ixyz1_linear_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz1(mp,false,1,0); }
+      static double mp_Ixyz1_linear_neumann(_cimg_math_parser& mp) { return _mp_IJxyz1(mp,false,1,1); }
       static double mp_Ixyz1(_cimg_math_parser& mp) {
         return _mp_IJxyz1(mp,false,(unsigned int)_mp_arg(6),(unsigned int)_mp_arg(7));
       }
-
+      static double mp_Jxyz1_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz1(mp,true,0,0); }
+      static double mp_Jxyz1_nearest_neumann(_cimg_math_parser& mp) { return _mp_IJxyz1(mp,true,0,1); }
+      static double mp_Jxyz1_nearest_periodic(_cimg_math_parser& mp) { return _mp_IJxyz1(mp,true,0,2); }
+      static double mp_Jxyz1_nearest_mirror(_cimg_math_parser& mp) { return _mp_IJxyz1(mp,true,0,3); }
+      static double mp_Jxyz1_linear_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz1(mp,true,1,0); }
+      static double mp_Jxyz1_linear_neumann(_cimg_math_parser& mp) { return _mp_IJxyz1(mp,true,1,1); }
       static double mp_Jxyz1(_cimg_math_parser& mp) {
         return _mp_IJxyz1(mp,true,(unsigned int)_mp_arg(6),(unsigned int)_mp_arg(7));
       }

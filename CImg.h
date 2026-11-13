@@ -16527,11 +16527,11 @@ namespace cimg_library {
 
                 if ((p1==~0U && imgout) || (p1!=~0U && imglist)) {
                   if (*ss>='i')
-                    add_opcode(mp_set_ijoff,arg2,is_relative,p1,arg1);
+                    add_opcode(is_relative?mp_set_joff:mp_set_ioff,arg2,is_relative,p1,arg1);
                   else if (is_scalar(arg2))
-                    add_opcode(mp_set_IJoff_s,arg2,is_relative,p1,arg1);
+                    add_opcode(is_relative?mp_set_Joff_s:mp_set_Ioff_s,arg2,is_relative,p1,arg1);
                   else
-                    add_opcode(mp_set_IJoff_v,arg2,is_relative,p1,arg1,size(arg2));
+                    add_opcode(is_relative?mp_set_Joff_v:mp_set_Ioff_v,arg2,is_relative,p1,arg1,size(arg2));
                 }
                 _cimg_mp_return(arg2);
               }
@@ -16604,11 +16604,11 @@ namespace cimg_library {
 
                 if ((p1==~0U && imgout) || (p1!=~0U && imglist)) {
                   if (*ss>='i')
-                    add_opcode(mp_set_ijxyzc,arg5,is_relative,p1,arg1,arg2,arg3,arg4);
+                    add_opcode(is_relative?mp_set_jxyzc:mp_set_ixyzc,arg5,is_relative,p1,arg1,arg2,arg3,arg4);
                   else if (is_scalar(arg5))
-                    add_opcode(mp_set_IJxyz_s,arg5,is_relative,p1,arg1,arg2,arg3);
+                    add_opcode(is_relative?mp_set_Jxyz_s:mp_set_Ixyz_s,arg5,is_relative,p1,arg1,arg2,arg3);
                   else
-                    add_opcode(mp_set_IJxyz_v,arg5,is_relative,p1,arg1,arg2,arg3,size(arg5));
+                    add_opcode(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v,arg5,is_relative,p1,arg1,arg2,arg3,size(arg5));
                 }
                 _cimg_mp_return(arg5);
               }
@@ -16863,7 +16863,7 @@ namespace cimg_library {
                         }
                       } else {
                         is_sth = is_comp_vector(arg3) && pop[1]==arg3 &&
-                          fn!=mp_set_IJoff_v && fn!=mp_set_IJxyz_v;
+                          fn!=mp_set_Ioff_v && fn!=mp_set_Joff_v && fn!=mp_set_Ixyz_v && fn!=mp_set_Jxyz_v;
                         if (is_sth)
                           for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg3) { is_sth = false; break; }
                         if (is_sth) {
@@ -16884,7 +16884,10 @@ namespace cimg_library {
                     mp_func fn = (mp_func)(pop?pop[0]:0);
                     if (is_sth)
                       is_sth = is_comp_scalar(arg3) && pop[1]==arg3 &&
-                        fn!=mp_set_ijoff && fn!=mp_set_ijxyzc && fn!=mp_set_IJoff_s && fn!=mp_set_IJxyz_s &&
+                        fn!=mp_set_ioff && fn!=mp_set_joff &&
+                        fn!=mp_set_ixyzc && fn!=mp_set_jxyzc &&
+                        fn!=mp_set_Ioff_s && fn!=mp_set_Joff_s &&
+                        fn!=mp_set_Ixyz_s && fn!=mp_set_Jxyz_s &&
                         fn!=mp_vector_set_off;
                     if (is_sth)
                       for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg3) { is_sth = false; break; }
@@ -16927,7 +16930,7 @@ namespace cimg_library {
                 arg3 = ref[3]; // Offset
                 if (p_ref) std::memcpy(p_ref,ref,siz_ref);
                 if ((p1==~0U && imgout) || (p1!=~0U && imglist))
-                  add_opcode(mp_set_ijoff,arg2,is_relative,p1,arg3);
+                  add_opcode(is_relative?mp_set_joff:mp_set_ioff,arg2,is_relative,p1,arg3);
                 _cimg_mp_return(arg2);
               }
 
@@ -16942,7 +16945,7 @@ namespace cimg_library {
                 arg6 = ref[6]; // C
                 if (p_ref) std::memcpy(p_ref,ref,siz_ref);
                 if ((p1==~0U && imgout) || (p1!=~0U && imglist))
-                  add_opcode(mp_set_ijxyzc,arg2,is_relative,p1,arg3,arg4,arg5,arg6);
+                  add_opcode(is_relative?mp_set_jxyzc:mp_set_ixyzc,arg2,is_relative,p1,arg3,arg4,arg5,arg6);
                 _cimg_mp_return(arg2);
               }
 
@@ -16954,10 +16957,10 @@ namespace cimg_library {
                 arg3 = ref[3]; // Offset
                 if (p_ref) std::memcpy(p_ref,ref,siz_ref);
                 if ((p1==~0U && imgout) || (p1!=~0U && imglist)) {
-                  if (is_scalar(arg2)) add_opcode(mp_set_IJoff_s,arg2,is_relative,p1,arg3);
+                  if (is_scalar(arg2)) add_opcode(is_relative?mp_set_Joff_s:mp_set_Ioff_s,arg2,is_relative,p1,arg3);
                   else {
                     _cimg_mp_check_const_index(p1);
-                    add_opcode(mp_set_IJoff_v,arg2,is_relative,p1,arg3,size(arg2));
+                    add_opcode(is_relative?mp_set_Joff_v:mp_set_Ioff_v,arg2,is_relative,p1,arg3,size(arg2));
                   }
                 }
                 _cimg_mp_return(arg2);
@@ -16973,10 +16976,10 @@ namespace cimg_library {
                 arg5 = ref[5]; // Z
                 if (p_ref) std::memcpy(p_ref,ref,siz_ref);
                 if ((p1==~0U && imgout) || (p1!=~0U && imglist)) {
-                  if (is_scalar(arg2)) add_opcode(mp_set_IJxyz_s,arg2,is_relative,p1,arg3,arg4,arg5);
+                  if (is_scalar(arg2)) add_opcode(is_relative?mp_set_Jxyz_s:mp_set_Ixyz_s,arg2,is_relative,p1,arg3,arg4,arg5);
                   else {
                     _cimg_mp_check_const_index(p1);
-                    add_opcode(mp_set_IJxyz_v,arg2,is_relative,p1,arg3,arg4,arg5,size(arg2));
+                    add_opcode(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v,arg2,is_relative,p1,arg3,arg4,arg5,size(arg2));
                   }
                 }
                 _cimg_mp_return(arg2);
@@ -17010,7 +17013,8 @@ namespace cimg_library {
                       }
                     } else {
                       is_sth = is_comp_vector(arg2) && pop[1]==arg2 &&
-                        fn!=mp_set_IJoff_v && fn!=mp_set_IJxyz_v;
+                        fn!=mp_set_Ioff_v && fn!=mp_set_Joff_v &&
+                        fn!=mp_set_Ixyz_v && fn!=mp_set_Jxyz_v;
                       if (is_sth)
                         for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg2) { is_sth = false; break; }
                       if (is_sth) {
@@ -17036,7 +17040,10 @@ namespace cimg_library {
                   mp_func fn = (mp_func)(pop?pop[0]:0);
                   if (is_sth)
                     is_sth = is_comp_scalar(arg2) && pop[1]==arg2 &&
-                      fn!=mp_set_ijoff && fn!=mp_set_ijxyzc && fn!=mp_set_IJoff_s && fn!=mp_set_IJxyz_s &&
+                      fn!=mp_set_ioff && fn!=mp_set_joff &&
+                      fn!=mp_set_ixyzc && fn!=mp_set_jxyzc &&
+                      fn!=mp_set_Ioff_s && fn!=mp_set_Joff_s &&
+                      fn!=mp_set_Ixyz_s && fn!=mp_set_Jxyz_s &&
                       fn!=mp_vector_set_off;
                   if (is_sth)
                     for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg2) { is_sth = false; break; }
@@ -17101,7 +17108,7 @@ namespace cimg_library {
               if (p_ref) std::memcpy(p_ref,ref,siz_ref);
               if ((p1==~0U && imgout) || (p1!=~0U && imglist)) {
                 if (p1!=~0U) _cimg_mp_check_const_index(p1);
-                add_opcode(mp_set_IJoff_v,arg1,is_relative,p1,arg3,size(arg1));
+                add_opcode(is_relative?mp_set_Joff_v:mp_set_Ioff_v,arg1,is_relative,p1,arg3,size(arg1));
               }
             } else if (*ref==5) { // Image value (vector): I/J(_#ind,_x,_y,_z,_c) **= value
               if (!is_inside_critical) is_parallelizable = false;
@@ -17113,7 +17120,7 @@ namespace cimg_library {
               if (p_ref) std::memcpy(p_ref,ref,siz_ref);
               if ((p1==~0U && imgout) || (p1!=~0U && imglist)) {
                 if (p1!=~0U) _cimg_mp_check_const_index(p1);
-                add_opcode(mp_set_IJxyz_v,arg1,is_relative,p1,arg3,arg4,arg5,size(arg1));
+                add_opcode(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v,arg1,is_relative,p1,arg3,arg4,arg5,size(arg1));
               }
             }
             _cimg_mp_return(arg1);
@@ -17211,7 +17218,7 @@ namespace cimg_library {
               if (p_ref) std::memcpy(p_ref,ref,siz_ref);
               add_opcode(op,arg1,arg2);
               if ((p1==~0U && imgout) || (p1!=~0U && imglist))
-                add_opcode(mp_set_ijoff,arg1,is_relative,p1,arg3);
+                add_opcode(is_relative?mp_set_joff:mp_set_ioff,arg1,is_relative,p1,arg3);
               _cimg_mp_return(arg1);
             }
 
@@ -17227,7 +17234,7 @@ namespace cimg_library {
               if (p_ref) std::memcpy(p_ref,ref,siz_ref);
               add_opcode(op,arg1,arg2);
               if ((p1==~0U && imgout) || (p1!=~0U && imglist))
-                add_opcode(mp_set_ijxyzc,arg1,is_relative,p1,arg3,arg4,arg5,arg6);
+                add_opcode(is_relative?mp_set_jxyzc:mp_set_ixyzc,arg1,is_relative,p1,arg3,arg4,arg5,arg6);
               _cimg_mp_return(arg1);
             }
 
@@ -17240,7 +17247,7 @@ namespace cimg_library {
               if (p_ref) std::memcpy(p_ref,ref,siz_ref);
               _cimg_mp_self_vector2(is_scalar(arg2)?op_s:op_v,arg1,arg2);
               if ((p1==~0U && imgout) || (p1!=~0U && imglist))
-                add_opcode(mp_set_IJoff_v,arg1,is_relative,p1,arg3,size(arg1));
+                add_opcode(is_relative?mp_set_Joff_v:mp_set_Ioff_v,arg1,is_relative,p1,arg3,size(arg1));
               _cimg_mp_return(arg1);
             }
 
@@ -17255,7 +17262,7 @@ namespace cimg_library {
               if (p_ref) std::memcpy(p_ref,ref,siz_ref);
               _cimg_mp_self_vector2(is_scalar(arg2)?op_s:op_v,arg1,arg2);
               if ((p1==~0U && imgout) || (p1!=~0U && imglist))
-                add_opcode(mp_set_IJxyz_v,arg1,is_relative,p1,arg3,arg4,arg5,size(arg1));
+                add_opcode(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v,arg1,is_relative,p1,arg3,arg4,arg5,size(arg1));
               _cimg_mp_return(arg1);
             }
 
@@ -17958,7 +17965,7 @@ namespace cimg_library {
             if (is_sth && p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
             add_opcode(op,arg1);
             if ((p1==~0U && imgout) || (p1!=~0U && imglist))
-              add_opcode(mp_set_ijoff,arg1,is_relative,p1,arg3);
+              add_opcode(is_relative?mp_set_joff:mp_set_ioff,arg1,is_relative,p1,arg3);
             _cimg_mp_return(pos);
           }
 
@@ -17973,7 +17980,7 @@ namespace cimg_library {
             if (is_sth && p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
             add_opcode(op,arg1);
             if ((p1==~0U && imgout) || (p1!=~0U && imglist))
-              add_opcode(mp_set_ijxyzc,arg1,is_relative,p1,arg3,arg4,arg5,arg6);
+              add_opcode(is_relative?mp_set_jxyzc:mp_set_ixyzc,arg1,is_relative,p1,arg3,arg4,arg5,arg6);
             _cimg_mp_return(pos);
           }
 
@@ -17985,7 +17992,7 @@ namespace cimg_library {
             if (is_sth && p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
             _cimg_mp_self_vector1(op==mp_self_increment?mp_self_vector_increment:mp_self_vector_decrement,arg1);
             if ((p1==~0U && imgout) || (p1!=~0U && imglist))
-              add_opcode(mp_set_IJoff_v,arg1,is_relative,p1,arg3,size(arg1));
+              add_opcode(is_relative?mp_set_Joff_v:mp_set_Ioff_v,arg1,is_relative,p1,arg3,size(arg1));
             _cimg_mp_return(pos);
           }
 
@@ -17999,7 +18006,7 @@ namespace cimg_library {
             if (is_sth && p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
             _cimg_mp_self_vector1(op==mp_self_increment?mp_self_vector_increment:mp_self_vector_decrement,arg1);
             if ((p1==~0U && imgout) || (p1!=~0U && imglist))
-              add_opcode(mp_set_IJxyz_v,arg1,is_relative,p1,arg3,arg4,arg5,size(arg1));
+              add_opcode(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v,arg1,is_relative,p1,arg3,arg4,arg5,size(arg1));
             _cimg_mp_return(pos);
           }
 
@@ -22460,7 +22467,7 @@ namespace cimg_library {
                     is_relative = (bool)_ref[2];
                     arg3 = _ref[3]; // Offset
                     if ((p1==~0U && imgout) || (p1!=~0U && imglist))
-                      add_opcode(mp_set_ijoff,arg1,is_relative,p1,arg3);
+                      add_opcode(is_relative?mp_set_joff:mp_set_ioff,arg1,is_relative,p1,arg3);
                     break;
                   case 3 : // arg1: i/j(_#ind,_x,_y,_z,_c)
                     if (!is_inside_critical) is_parallelizable = false;
@@ -22471,7 +22478,7 @@ namespace cimg_library {
                     arg5 = _ref[5]; // Z
                     arg6 = _ref[6]; // C
                     if ((p1==~0U && imgout) || (p1!=~0U && imglist))
-                      add_opcode(mp_set_ijxyzc,arg1,is_relative,p1,arg3,arg4,arg5,arg6);
+                      add_opcode(is_relative?mp_set_jxyzc:mp_set_ixyzc,arg1,is_relative,p1,arg3,arg4,arg5,arg6);
                     break;
                   case 4: // arg1: I/J[_#ind,off]
                     if (!is_inside_critical) is_parallelizable = false;
@@ -22479,10 +22486,10 @@ namespace cimg_library {
                     is_relative = (bool)_ref[2];
                     arg3 = _ref[3]; // Offset
                     if ((p1==~0U && imgout) || (p1!=~0U && imglist)) {
-                      if (is_scalar(arg1)) add_opcode(mp_set_IJoff_s,arg1,is_relative,p1,arg3);
+                      if (is_scalar(arg1)) add_opcode(is_relative?mp_set_Joff_s:mp_set_Ioff_s,arg1,is_relative,p1,arg3);
                       else {
                         _cimg_mp_check_const_index(p1);
-                        add_opcode(mp_set_IJoff_v,arg1,is_relative,p1,arg3,size(arg1));
+                        add_opcode(is_relative?mp_set_Joff_v:mp_set_Ioff_v,arg1,is_relative,p1,arg3,size(arg1));
                       }
                     }
                     break;
@@ -22494,10 +22501,10 @@ namespace cimg_library {
                     arg4 = _ref[4]; // Y
                     arg5 = _ref[5]; // Z
                     if ((p1==~0U && imgout) || (p1!=~0U && imglist)) {
-                      if (is_scalar(arg1)) add_opcode(mp_set_IJxyz_s,arg1,is_relative,p1,arg3,arg4,arg5);
+                      if (is_scalar(arg1)) add_opcode(is_relative?mp_set_Jxyz_s:mp_set_Ixyz_s,arg1,is_relative,p1,arg3,arg4,arg5);
                       else {
                         _cimg_mp_check_const_index(p1);
-                        add_opcode(mp_set_IJxyz_v,arg1,is_relative,p1,arg3,arg4,arg5,size(arg1));
+                        add_opcode(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v,arg1,is_relative,p1,arg3,arg4,arg5,size(arg1));
                       }
                     }
                     break;
@@ -25642,13 +25649,14 @@ namespace cimg_library {
             _mp_dbg(self_vector_div_v) _mp_dbg(self_vector_increment) _mp_dbg(self_vector_modulo_s)
             _mp_dbg(self_vector_modulo_v) _mp_dbg(self_vector_mul_s) _mp_dbg(self_vector_mul_v)
             _mp_dbg(self_vector_pow_s) _mp_dbg(self_vector_pow_v) _mp_dbg(self_vector_sub_s) _mp_dbg(self_vector_sub_v)
-            _mp_dbg(set) _mp_dbg(set_IJoff_s) _mp_dbg(set_IJoff_v) _mp_dbg(set_IJxyz_s) _mp_dbg(set_IJxyz_v)
-            _mp_dbg(set_ijoff) _mp_dbg(set_ijxyzc) _mp_dbg(shift) _mp_dbg(shift_ip) _mp_dbg(sigmoid) _mp_dbg(sign)
-            _mp_dbg(sin) _mp_dbg(sinc) _mp_dbg(sinh) _mp_dbg(size_list) _mp_dbg(softargmax) _mp_dbg(softargmin)
-            _mp_dbg(softmax) _mp_dbg(softmin) _mp_dbg(solve) _mp_dbg(sort) _mp_dbg(sort_ip) _mp_dbg(sqr) _mp_dbg(sqrt)
-            _mp_dbg(srand) _mp_dbg(srand0) _mp_dbg(std) _mp_dbg(std2) _mp_dbg(store) _mp_dbg(string)
-            _mp_dbg(string_init) _mp_dbg(sub) _mp_dbg(sub_div) _mp_dbg(sub_mul) _mp_dbg(sub_sub) _mp_dbg(sum)
-            _mp_dbg(sum2) _mp_dbg(swap)
+            _mp_dbg(set) _mp_dbg(set_Ioff_s) _mp_dbg(set_Ioff_v) _mp_dbg(set_Ixyz_s) _mp_dbg(set_Ixyz_v)
+            _mp_dbg(set_Joff_s) _mp_dbg(set_Joff_v) _mp_dbg(set_Jxyz_s) _mp_dbg(set_Jxyz_v) _mp_dbg(set_ioff)
+            _mp_dbg(set_ixyzc) _mp_dbg(set_joff) _mp_dbg(set_jxyzc) _mp_dbg(shift) _mp_dbg(shift_ip) _mp_dbg(sigmoid)
+            _mp_dbg(sign) _mp_dbg(sin) _mp_dbg(sinc) _mp_dbg(sinh) _mp_dbg(size_list) _mp_dbg(softargmax)
+            _mp_dbg(softargmin) _mp_dbg(softmax) _mp_dbg(softmin) _mp_dbg(solve) _mp_dbg(sort) _mp_dbg(sort_ip)
+            _mp_dbg(sqr) _mp_dbg(sqrt) _mp_dbg(srand) _mp_dbg(srand0) _mp_dbg(std) _mp_dbg(std2) _mp_dbg(store)
+            _mp_dbg(string) _mp_dbg(string_init) _mp_dbg(sub) _mp_dbg(sub_div) _mp_dbg(sub_mul) _mp_dbg(sub_sub)
+            _mp_dbg(sum) _mp_dbg(sum2) _mp_dbg(swap)
             _mp_dbg(tan) _mp_dbg(tanh) _mp_dbg(trace) _mp_dbg(transpose)
             _mp_dbg(ui2f) _mp_dbg(unitnorm) _mp_dbg(uppercase)
             _mp_dbg(v2s) _mp_dbg(var) _mp_dbg(var2) _mp_dbg(vargkth) _mp_dbg(vargkth2) _mp_dbg(vargmax)
@@ -28436,50 +28444,72 @@ namespace cimg_library {
       static double mp_set(_cimg_math_parser& mp) { cimg::unused(mp); return cimg::type<double>::nan(); }
 #endif
 
-      static double mp_set_ijoff(_cimg_math_parser& mp) {
+      static double mp_set_ioff(_cimg_math_parser& mp) {
         const unsigned int _ind = (unsigned int)mp.opcode[3];
         if (_ind!=~0U && !mp.imglist.width()) return cimg::type<double>::nan();
         const unsigned int ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
-        const bool is_relative = (bool)mp.opcode[2];
         CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
         const longT
-          off = (longT)(is_relative?img.offset((int)mp.mem[_cimg_mp_slot_x],
-                                               (int)mp.mem[_cimg_mp_slot_y],
-                                               (int)mp.mem[_cimg_mp_slot_z],
-                                               (int)mp.mem[_cimg_mp_slot_c]) + _mp_arg(4):_mp_arg(4)),
+          off = (longT)_mp_arg(4),
           whds = (longT)img.size();
         const double val = _mp_arg(1);
         if (off>=0 && off<whds) img[off] = (T)val;
         return val;
       }
 
-      static double mp_set_ijxyzc(_cimg_math_parser& mp) {
+      static double mp_set_joff(_cimg_math_parser& mp) {
         const unsigned int _ind = (unsigned int)mp.opcode[3];
         if (_ind!=~0U && !mp.imglist.width()) return cimg::type<double>::nan();
         const unsigned int ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
-        const bool is_relative = (bool)mp.opcode[2];
+        CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        const longT
+          off = (longT)(img.offset((int)mp.mem[_cimg_mp_slot_x],
+                                   (int)mp.mem[_cimg_mp_slot_y],
+                                   (int)mp.mem[_cimg_mp_slot_z],
+                                   (int)mp.mem[_cimg_mp_slot_c]) + _mp_arg(4)),
+          whds = (longT)img.size();
+        const double val = _mp_arg(1);
+        if (off>=0 && off<whds) img[off] = (T)val;
+        return val;
+      }
+
+      static double mp_set_ixyzc(_cimg_math_parser& mp) {
+        const unsigned int _ind = (unsigned int)mp.opcode[3];
+        if (_ind!=~0U && !mp.imglist.width()) return cimg::type<double>::nan();
+        const unsigned int ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
         CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
         const int
-          x = (int)(is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(4)):_mp_arg(4)),
-          y = (int)(is_relative?(mp.mem[_cimg_mp_slot_y] + _mp_arg(5)):_mp_arg(5)),
-          z = (int)(is_relative?(mp.mem[_cimg_mp_slot_z] + _mp_arg(6)):_mp_arg(6)),
-          c = (int)(is_relative?(mp.mem[_cimg_mp_slot_c] + _mp_arg(7)):_mp_arg(7));
+          x = (int)_mp_arg(4),
+          y = (int)_mp_arg(5),
+          z = (int)_mp_arg(6),
+          c = (int)_mp_arg(7);
         const double val = _mp_arg(1);
         if (img.containsXYZC(x,y,z,c)) img(x,y,z,c) = (T)val;
         return val;
       }
 
-      static double mp_set_IJoff_s(_cimg_math_parser& mp) {
+      static double mp_set_jxyzc(_cimg_math_parser& mp) {
         const unsigned int _ind = (unsigned int)mp.opcode[3];
         if (_ind!=~0U && !mp.imglist.width()) return cimg::type<double>::nan();
         const unsigned int ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
-        const bool is_relative = (bool)mp.opcode[2];
+        CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        const int
+          x = (int)(mp.mem[_cimg_mp_slot_x] + _mp_arg(4)),
+          y = (int)(mp.mem[_cimg_mp_slot_y] + _mp_arg(5)),
+          z = (int)(mp.mem[_cimg_mp_slot_z] + _mp_arg(6)),
+          c = (int)(mp.mem[_cimg_mp_slot_c] + _mp_arg(7));
+        const double val = _mp_arg(1);
+        if (img.containsXYZC(x,y,z,c)) img(x,y,z,c) = (T)val;
+        return val;
+      }
+
+      static double mp_set_Ioff_s(_cimg_math_parser& mp) {
+        const unsigned int _ind = (unsigned int)mp.opcode[3];
+        if (_ind!=~0U && !mp.imglist.width()) return cimg::type<double>::nan();
+        const unsigned int ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
         CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
         const longT
-          off = (longT)(is_relative?img.offset((int)mp.mem[_cimg_mp_slot_x],
-                                               (int)mp.mem[_cimg_mp_slot_y],
-                                               (int)mp.mem[_cimg_mp_slot_z],
-                                               (int)mp.mem[_cimg_mp_slot_c]) + _mp_arg(4):_mp_arg(4)),
+          off = (longT)_mp_arg(4),
           whd = (longT)img.width()*img.height()*img.depth();
         const T val = (T)_mp_arg(1);
         if (off>=0 && off<whd) {
@@ -28489,17 +28519,32 @@ namespace cimg_library {
         return _mp_arg(1);
       }
 
-      static double mp_set_IJoff_v(_cimg_math_parser& mp) {
+      static double mp_set_Joff_s(_cimg_math_parser& mp) {
         const unsigned int _ind = (unsigned int)mp.opcode[3];
         if (_ind!=~0U && !mp.imglist.width()) return cimg::type<double>::nan();
         const unsigned int ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
-        const bool is_relative = (bool)mp.opcode[2];
         CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
         const longT
-          off = (longT)(is_relative?img.offset((int)mp.mem[_cimg_mp_slot_x],
-                                               (int)mp.mem[_cimg_mp_slot_y],
-                                               (int)mp.mem[_cimg_mp_slot_z],
-                                               (int)mp.mem[_cimg_mp_slot_c]) + _mp_arg(4):_mp_arg(4)),
+          off = (longT)(img.offset((int)mp.mem[_cimg_mp_slot_x],
+                                   (int)mp.mem[_cimg_mp_slot_y],
+                                   (int)mp.mem[_cimg_mp_slot_z],
+                                   (int)mp.mem[_cimg_mp_slot_c]) + _mp_arg(4)),
+          whd = (longT)img.width()*img.height()*img.depth();
+        const T val = (T)_mp_arg(1);
+        if (off>=0 && off<whd) {
+          T *ptrd = &img[off];
+          cimg_forC(img,c) { *ptrd = val; ptrd+=whd; }
+        }
+        return _mp_arg(1);
+      }
+
+      static double mp_set_Ioff_v(_cimg_math_parser& mp) {
+        const unsigned int _ind = (unsigned int)mp.opcode[3];
+        if (_ind!=~0U && !mp.imglist.width()) return cimg::type<double>::nan();
+        const unsigned int ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
+        CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        const longT
+          off = (longT)_mp_arg(4),
           whd = (longT)img.width()*img.height()*img.depth();
         const double *ptrs = &_mp_arg(1) + 1;
         if (off>=0 && off<whd) {
@@ -28510,16 +28555,35 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_set_IJxyz_s(_cimg_math_parser& mp) {
+      static double mp_set_Joff_v(_cimg_math_parser& mp) {
         const unsigned int _ind = (unsigned int)mp.opcode[3];
         if (_ind!=~0U && !mp.imglist.width()) return cimg::type<double>::nan();
         const unsigned int ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
-        const bool is_relative = (bool)mp.opcode[2];
+        CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        const longT
+          off = (longT)(img.offset((int)mp.mem[_cimg_mp_slot_x],
+                                   (int)mp.mem[_cimg_mp_slot_y],
+                                   (int)mp.mem[_cimg_mp_slot_z],
+                                   (int)mp.mem[_cimg_mp_slot_c]) + _mp_arg(4)),
+          whd = (longT)img.width()*img.height()*img.depth();
+        const double *ptrs = &_mp_arg(1) + 1;
+        if (off>=0 && off<whd) {
+          const unsigned int siz = (unsigned int)mp.opcode[5];
+          T *ptrd = &img[off];
+          cimg_for_inC(img,0,siz - 1,c) { *ptrd = (T)*(ptrs++); ptrd+=whd; }
+        }
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_set_Ixyz_s(_cimg_math_parser& mp) {
+        const unsigned int _ind = (unsigned int)mp.opcode[3];
+        if (_ind!=~0U && !mp.imglist.width()) return cimg::type<double>::nan();
+        const unsigned int ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
         CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
         const int
-          x = (int)(is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(4)):_mp_arg(4)),
-          y = (int)(is_relative?(mp.mem[_cimg_mp_slot_y] + _mp_arg(5)):_mp_arg(5)),
-          z = (int)(is_relative?(mp.mem[_cimg_mp_slot_z] + _mp_arg(6)):_mp_arg(6));
+          x = (int)_mp_arg(4),
+          y = (int)_mp_arg(5),
+          z = (int)_mp_arg(6);
         const T val = (T)_mp_arg(1);
         if (x>=0 && x<img.width() && y>=0 && y<img.height() && z>=0 && z<img.depth()) {
           T *ptrd = &img(x,y,z);
@@ -28529,16 +28593,52 @@ namespace cimg_library {
         return _mp_arg(1);
       }
 
-      static double mp_set_IJxyz_v(_cimg_math_parser& mp) {
+      static double mp_set_Jxyz_s(_cimg_math_parser& mp) {
         const unsigned int _ind = (unsigned int)mp.opcode[3];
         if (_ind!=~0U && !mp.imglist.width()) return cimg::type<double>::nan();
         const unsigned int ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
-        const bool is_relative = (bool)mp.opcode[2];
         CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
         const int
-          x = (int)(is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(4)):_mp_arg(4)),
-          y = (int)(is_relative?(mp.mem[_cimg_mp_slot_y] + _mp_arg(5)):_mp_arg(5)),
-          z = (int)(is_relative?(mp.mem[_cimg_mp_slot_z] + _mp_arg(6)):_mp_arg(6));
+          x = (int)(mp.mem[_cimg_mp_slot_x] + _mp_arg(4)),
+          y = (int)(mp.mem[_cimg_mp_slot_y] + _mp_arg(5)),
+          z = (int)(mp.mem[_cimg_mp_slot_z] + _mp_arg(6));
+        const T val = (T)_mp_arg(1);
+        if (x>=0 && x<img.width() && y>=0 && y<img.height() && z>=0 && z<img.depth()) {
+          T *ptrd = &img(x,y,z);
+          const ulongT whd = (ulongT)img._width*img._height*img._depth;
+          cimg_forC(img,c) { *ptrd = val; ptrd+=whd; }
+        }
+        return _mp_arg(1);
+      }
+
+      static double mp_set_Ixyz_v(_cimg_math_parser& mp) {
+        const unsigned int _ind = (unsigned int)mp.opcode[3];
+        if (_ind!=~0U && !mp.imglist.width()) return cimg::type<double>::nan();
+        const unsigned int ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
+        CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        const int
+          x = (int)_mp_arg(4),
+          y = (int)_mp_arg(5),
+          z = (int)_mp_arg(6);
+        const double *ptrs = &_mp_arg(1) + 1;
+        if (x>=0 && x<img.width() && y>=0 && y<img.height() && z>=0 && z<img.depth()) {
+          const unsigned int siz = (unsigned int)mp.opcode[7];
+          T *ptrd = &img(x,y,z);
+          const ulongT whd = (ulongT)img._width*img._height*img._depth;
+          cimg_for_inC(img,0,siz - 1,c) { *ptrd = (T)*(ptrs++); ptrd+=whd; }
+        }
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_set_Jxyz_v(_cimg_math_parser& mp) {
+        const unsigned int _ind = (unsigned int)mp.opcode[3];
+        if (_ind!=~0U && !mp.imglist.width()) return cimg::type<double>::nan();
+        const unsigned int ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
+        CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        const int
+          x = (int)(mp.mem[_cimg_mp_slot_x] + _mp_arg(4)),
+          y = (int)(mp.mem[_cimg_mp_slot_y] + _mp_arg(5)),
+          z = (int)(mp.mem[_cimg_mp_slot_z] + _mp_arg(6));
         const double *ptrs = &_mp_arg(1) + 1;
         if (x>=0 && x<img.width() && y>=0 && y<img.height() && z>=0 && z<img.depth()) {
           const unsigned int siz = (unsigned int)mp.opcode[7];

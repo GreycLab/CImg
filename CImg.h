@@ -23487,19 +23487,19 @@ namespace cimg_library {
           case 'R' : // R#ind
             if (!imglist) _cimg_mp_return(0);
             _cimg_mp_scalar7(ixyzc1_nearest_dirichlet,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,0,
-                             0,_cimg_mp_boundary);
+                             0,0);
           case 'G' : // G#ind
             if (!imglist) _cimg_mp_return(0);
             _cimg_mp_scalar7(ixyzc1_nearest_dirichlet,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,1,
-                             0,_cimg_mp_boundary);
+                             0,0);
           case 'B' : // B#ind
             if (!imglist) _cimg_mp_return(0);
             _cimg_mp_scalar7(ixyzc1_nearest_dirichlet,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,2,
-                             0,_cimg_mp_boundary);
+                             0,0);
           case 'A' : // A#ind
             if (!imglist) _cimg_mp_return(0);
             _cimg_mp_scalar7(ixyzc1_nearest_dirichlet,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,3,
-                             0,_cimg_mp_boundary);
+                             0,0);
           }
         }
 
@@ -23519,7 +23519,7 @@ namespace cimg_library {
             if (*ss1>='0' && *ss1<='9') { // i0#ind...i9#ind
               if (!imglist) _cimg_mp_return(0);
               _cimg_mp_scalar7(ixyzc1_nearest_dirichlet,arg1,
-                               _cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,*ss1 - '0',0,_cimg_mp_boundary);
+                               _cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,*ss1 - '0',0,0);
             }
 
             if (*ss1=='c') { // ic#ind
@@ -26277,11 +26277,11 @@ namespace cimg_library {
       }
 
 #if defined(_MSC_VER)
-#efine cimg_always_inline __forceinline
+#define cimg_always_inline __forceinline
 #elif defined(__GNUC__) || defined(__clang__)
 #define cimg_always_inline inline __attribute__((always_inline))
 #else
-#efine cimg_always_inline inline
+#define cimg_always_inline inline
 #endif
 
       static cimg_always_inline double _mp_ijoff(_cimg_math_parser& mp,
@@ -28489,7 +28489,7 @@ namespace cimg_library {
         CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
         const int
           x = (int)(mp.mem[_cimg_mp_slot_x] + _mp_arg(3)), y = (int)(mp.mem[_cimg_mp_slot_y] + _mp_arg(4)),
-          z = (int)(mp.mem[_cimg_mp_slot_z] + _mp_arg(5)), c = (int)(mp.mem[_cimg_mp_slot_c] + _mp_arg(5));
+          z = (int)(mp.mem[_cimg_mp_slot_z] + _mp_arg(5)), c = (int)(mp.mem[_cimg_mp_slot_c] + _mp_arg(6));
         const double val = _mp_arg(1);
         if (img.containsXYZC(x,y,z,c)) img(x,y,z,c) = (T)val;
         return val;

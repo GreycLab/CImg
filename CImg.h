@@ -18071,7 +18071,6 @@ namespace cimg_library {
             if (!p2) _cimg_mp_return(0);
             pos = vector(p2);
             if (p1==~0U) need_input_copy = true;
-
             if (arg2==0 || (arg2==~0U && _cimg_mp_boundary==0)) // Dirichlet boundary conditions
               op = is_relative?mp_Joff_dirichlet:mp_Ioff_dirichlet;
             else if (arg2==1 || (arg2==~0U && _cimg_mp_boundary==1)) // Neumann boundary conditions
@@ -18080,9 +18079,7 @@ namespace cimg_library {
               op = is_relative?mp_Joff_periodic:mp_Ioff_periodic;
             else if (arg2==3 || (arg2==~0U && _cimg_mp_boundary==3)) // Mirror boundary conditions
               op = is_relative?mp_Joff_mirror:mp_Ioff_mirror;
-            if (!op) // Generic case
-              op = is_relative?mp_Joff:mp_Ioff;
-
+            else op = is_relative?mp_Joff:mp_Ioff; // Generic case
             add_opcode(op,pos,p1,arg1,arg2==~0U?_cimg_mp_boundary:arg2,p2);
             return_comp = true;
             _cimg_mp_return(pos);
@@ -18109,8 +18106,15 @@ namespace cimg_library {
             }
             if (p1==~0U) { if (!imgin) _cimg_mp_return(0); need_input_copy = true; }
             else if (!imglist) _cimg_mp_return(0);
-
-            op = is_relative?mp_joff:mp_ioff;
+            if (arg2==0 || (arg2==~0U && _cimg_mp_boundary==0)) // Dirichlet boundary conditions
+              op = is_relative?mp_joff_dirichlet:mp_ioff_dirichlet;
+            else if (arg2==1 || (arg2==~0U && _cimg_mp_boundary==1)) // Neumann boundary conditions
+              op = is_relative?mp_joff_neumann:mp_ioff_neumann;
+            else if (arg2==2 || (arg2==~0U && _cimg_mp_boundary==2)) // Periodic boundary conditions
+              op = is_relative?mp_joff_periodic:mp_ioff_periodic;
+            else if (arg2==3 || (arg2==~0U && _cimg_mp_boundary==3)) // Mirror boundary conditions
+              op = is_relative?mp_joff_mirror:mp_ioff_mirror;
+            else op = is_relative?mp_joff:mp_ioff; // Generic case
             pos = scalar3(op,p1,arg1,arg2==~0U?_cimg_mp_boundary:arg2);
             memtype[pos] = -1; // Prevent from being used in further optimization
             _cimg_mp_return(pos);
@@ -18247,7 +18251,6 @@ namespace cimg_library {
               is_inty = is_intz && // optimized for 1D?
               (is_const_integer(arg2) || (arg2>=_cimg_mp_slot_x && arg2<=_cimg_mp_slot_c));
             if (p1==~0U) need_input_copy = true;
-
             op = (mp_func)0;
             if (arg5==0 || (arg5==~0U && _cimg_mp_boundary==0)) { // Dirichlet boundary conditions
               if (arg4==0 || (arg4==~0U && _cimg_mp_interpolation==0)) { // Nearest-neighbor interpolation
@@ -18286,7 +18289,6 @@ namespace cimg_library {
               op = is_inty?(is_relative?mp_Jxyz1:mp_Ixyz1):
                 is_intz?(is_relative?mp_Jxyz2:mp_Ixyz2):
                 is_relative?mp_Jxyz3:mp_Ixyz3;
-
             add_opcode(op,pos,p1,arg1,arg2,arg3,
                        arg4==~0U?_cimg_mp_interpolation:arg4,arg5==~0U?_cimg_mp_boundary:arg5,p2);
             return_comp = true;
@@ -18362,7 +18364,6 @@ namespace cimg_library {
               (is_const_integer(arg2) || (arg2>=_cimg_mp_slot_x && arg2<=_cimg_mp_slot_c));
             if (p1==~0U) { if (!imgin) _cimg_mp_return(0); need_input_copy = true; }
             else if (!imglist) _cimg_mp_return(0);
-
             op = (mp_func)0;
             if (arg6==0 || (arg6==~0U && _cimg_mp_boundary==0)) { // Dirichlet boundary conditions
               if (arg5==0 || (arg5==~0U && _cimg_mp_interpolation==0)) { // Nearest-neighbor interpolation
@@ -18401,7 +18402,6 @@ namespace cimg_library {
               op = is_inty?(is_relative?mp_jxyzc1:mp_ixyzc1):
                 is_intz?(is_relative?mp_jxyzc2:mp_ixyzc2):
                 is_relative?mp_jxyzc3:mp_ixyzc3;
-
             pos = scalar7(op,p1,arg1,arg2,arg3,arg4,
                           arg5==~0U?_cimg_mp_interpolation:arg5,
                           arg6==~0U?_cimg_mp_boundary:arg6);
@@ -25567,36 +25567,31 @@ namespace cimg_library {
             _mp_debug(f2ui) _mp_debug(factorial) _mp_debug(fft) _mp_debug(fibonacci) _mp_debug(find) _mp_debug(find_seq)
             _mp_debug(flood) _mp_debug(floor) _mp_debug(for) _mp_debug(frac) _mp_debug(fsize) _mp_debug(gamma)
             _mp_debug(gauss) _mp_debug(gcd) _mp_debug(gcd2) _mp_debug(get) _mp_debug(get) _mp_debug(gt) _mp_debug(gte)
-            _mp_debug(histogram) _mp_debug(I) _mp_debug(i) _mp_debug(if)
-            _mp_debug(Ioff_dirichlet) _mp_debug(Ioff_neumann) _mp_debug(Ioff_periodic) _mp_debug(Ioff_mirror)
-            _mp_debug(Ioff)
+            _mp_debug(histogram) _mp_debug(I) _mp_debug(i) _mp_debug(if) _mp_debug(Ioff_dirichlet)
+            _mp_debug(Ioff_neumann) _mp_debug(Ioff_periodic) _mp_debug(Ioff_mirror) _mp_debug(Ioff)
             _mp_debug(ioff_dirichlet) _mp_debug(ioff_neumann) _mp_debug(ioff_periodic) _mp_debug(ioff_mirror)
-            _mp_debug(ioff)
-            _mp_debug(Ixyz1_nearest_dirichlet) _mp_debug(Ixyz1_nearest_neumann) _mp_debug(Ixyz1_nearest_periodic)
-            _mp_debug(Ixyz1_nearest_mirror) _mp_debug(Ixyz1_linear_dirichlet) _mp_debug(Ixyz1_linear_neumann)
-            _mp_debug(Ixyz1)
-            _mp_debug(Ixyz2_nearest_dirichlet) _mp_debug(Ixyz2_nearest_neumann) _mp_debug(Ixyz2_nearest_periodic)
-            _mp_debug(Ixyz2_nearest_mirror) _mp_debug(Ixyz2_linear_dirichlet) _mp_debug(Ixyz2_linear_neumann)
-            _mp_debug(Ixyz2)
+            _mp_debug(ioff) _mp_debug(Ixyz1_nearest_dirichlet) _mp_debug(Ixyz1_nearest_neumann)
+            _mp_debug(Ixyz1_nearest_periodic) _mp_debug(Ixyz1_nearest_mirror) _mp_debug(Ixyz1_linear_dirichlet)
+            _mp_debug(Ixyz1_linear_neumann) _mp_debug(Ixyz1) _mp_debug(Ixyz2_nearest_dirichlet)
+            _mp_debug(Ixyz2_nearest_neumann) _mp_debug(Ixyz2_nearest_periodic) _mp_debug(Ixyz2_nearest_mirror)
+            _mp_debug(Ixyz2_linear_dirichlet) _mp_debug(Ixyz2_linear_neumann) _mp_debug(Ixyz2)
             _mp_debug(Ixyz3_nearest_dirichlet) _mp_debug(Ixyz3_nearest_neumann) _mp_debug(Ixyz3_nearest_periodic)
             _mp_debug(Ixyz3_nearest_mirror) _mp_debug(Ixyz3_linear_dirichlet) _mp_debug(Ixyz3_linear_neumann)
-            _mp_debug(Ixyz3)
-            _mp_debug(ixyzc1_nearest_dirichlet) _mp_debug(ixyzc1_nearest_neumann) _mp_debug(ixyzc1_nearest_periodic)
-            _mp_debug(ixyzc1_nearest_mirror) _mp_debug(ixyzc1_linear_dirichlet) _mp_debug(ixyzc1_linear_neumann)
-            _mp_debug(ixyzc1)
-            _mp_debug(ixyzc2_nearest_dirichlet) _mp_debug(ixyzc2_nearest_neumann) _mp_debug(ixyzc2_nearest_periodic)
-            _mp_debug(ixyzc2_nearest_mirror) _mp_debug(ixyzc2_linear_dirichlet) _mp_debug(ixyzc2_linear_neumann)
-            _mp_debug(ixyzc2)
+            _mp_debug(Ixyz3) _mp_debug(ixyzc1_nearest_dirichlet) _mp_debug(ixyzc1_nearest_neumann)
+            _mp_debug(ixyzc1_nearest_periodic) _mp_debug(ixyzc1_nearest_mirror) _mp_debug(ixyzc1_linear_dirichlet)
+            _mp_debug(ixyzc1_linear_neumann) _mp_debug(ixyzc1) _mp_debug(ixyzc2_nearest_dirichlet)
+            _mp_debug(ixyzc2_nearest_neumann) _mp_debug(ixyzc2_nearest_periodic) _mp_debug(ixyzc2_nearest_mirror)
+            _mp_debug(ixyzc2_linear_dirichlet) _mp_debug(ixyzc2_linear_neumann) _mp_debug(ixyzc2)
             _mp_debug(ixyzc3_nearest_dirichlet) _mp_debug(ixyzc3_nearest_neumann) _mp_debug(ixyzc3_nearest_periodic)
             _mp_debug(ixyzc3_nearest_mirror) _mp_debug(ixyzc3_linear_dirichlet) _mp_debug(ixyzc3_linear_neumann)
-            _mp_debug(ixyzc3)
-            _mp_debug(image_crop) _mp_debug(image_depth) _mp_debug(image_display) _mp_debug(image_draw)
-            _mp_debug(image_find) _mp_debug(image_find_seq) _mp_debug(image_height) _mp_debug(image_is_shared)
-            _mp_debug(image_print) _mp_debug(image_resize) _mp_debug(image_shift) _mp_debug(image_shift_ip)
-            _mp_debug(image_spectrum) _mp_debug(image_stats) _mp_debug(image_stats_cm) _mp_debug(image_stats_cM)
-            _mp_debug(image_stats_ia) _mp_debug(image_stats_ic) _mp_debug(image_stats_ic_static)
-            _mp_debug(image_stats_id) _mp_debug(image_stats_id_static) _mp_debug(image_stats_im)
-            _mp_debug(image_stats_iM) _mp_debug(image_stats_in) _mp_debug(image_stats_ip) _mp_debug(image_stats_is)
+            _mp_debug(ixyzc3) _mp_debug(image_crop) _mp_debug(image_depth) _mp_debug(image_display)
+            _mp_debug(image_draw) _mp_debug(image_find) _mp_debug(image_find_seq) _mp_debug(image_height)
+            _mp_debug(image_is_shared) _mp_debug(image_print) _mp_debug(image_resize) _mp_debug(image_shift)
+            _mp_debug(image_shift_ip) _mp_debug(image_spectrum) _mp_debug(image_stats) _mp_debug(image_stats_cm)
+            _mp_debug(image_stats_cM) _mp_debug(image_stats_ia) _mp_debug(image_stats_ic)
+            _mp_debug(image_stats_ic_static) _mp_debug(image_stats_id) _mp_debug(image_stats_id_static)
+            _mp_debug(image_stats_im) _mp_debug(image_stats_iM) _mp_debug(image_stats_in) _mp_debug(image_stats_ip)
+            _mp_debug(image_stats_is)
             _mp_debug(image_stats_static) _mp_debug(image_stats_xm) _mp_debug(image_stats_xM) _mp_debug(image_stats_ym)
             _mp_debug(image_stats_yM) _mp_debug(image_stats_zm) _mp_debug(image_stats_zM) _mp_debug(image_swap)
             _mp_debug(image_wh) _mp_debug(image_whd) _mp_debug(image_whds) _mp_debug(image_width) _mp_debug(increment)

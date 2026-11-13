@@ -18071,7 +18071,8 @@ namespace cimg_library {
             if (!p2) _cimg_mp_return(0);
             pos = vector(p2);
             if (p1==~0U) need_input_copy = true;
-            add_opcode(mp_IJoff,pos,is_relative,p1,arg1,arg2==~0U?_cimg_mp_boundary:arg2,p2);
+            op = is_relative?mp_Joff:mp_Ioff;
+            add_opcode(op,pos,p1,arg1,arg2==~0U?_cimg_mp_boundary:arg2,p2);
             return_comp = true;
             _cimg_mp_return(pos);
           }
@@ -23385,7 +23386,7 @@ namespace cimg_library {
             p2 = p1!=~0U?imglist[p1]._spectrum:imglist._width?~0U:0;
             if (!p2) _cimg_mp_return(0);
             pos = vector(p2);
-            add_opcode(mp_IJoff,pos,1,p1,0,0,p2);
+            add_opcode(mp_Joff,pos,p1,0,0,p2);
             return_comp = true;
             _cimg_mp_return(pos);
           case 'R' : // R#ind
@@ -25479,7 +25480,7 @@ namespace cimg_library {
             _mp_debug(f2ui) _mp_debug(factorial) _mp_debug(fft) _mp_debug(fibonacci) _mp_debug(find) _mp_debug(find_seq)
             _mp_debug(flood) _mp_debug(floor) _mp_debug(for) _mp_debug(frac) _mp_debug(fsize) _mp_debug(gamma)
             _mp_debug(gauss) _mp_debug(gcd) _mp_debug(gcd2) _mp_debug(get) _mp_debug(get) _mp_debug(gt) _mp_debug(gte)
-            _mp_debug(histogram) _mp_debug(I) _mp_debug(i) _mp_debug(if) _mp_debug(IJoff) _mp_debug(ioff)
+            _mp_debug(histogram) _mp_debug(I) _mp_debug(i) _mp_debug(if) _mp_debug(Ioff) _mp_debug(ioff)
             _mp_debug(IJxyz1) _mp_debug(IJxyz2) _mp_debug(IJxyz3) _mp_debug(ixyzc1) _mp_debug(ixyzc2) _mp_debug(ixyzc3)
             _mp_debug(image_crop) _mp_debug(image_depth) _mp_debug(image_display)
             _mp_debug(image_draw) _mp_debug(image_find) _mp_debug(image_find_seq) _mp_debug(image_height)
@@ -25493,8 +25494,8 @@ namespace cimg_library {
             _mp_debug(image_swap) _mp_debug(image_wh) _mp_debug(image_whd) _mp_debug(image_whds) _mp_debug(image_width)
             _mp_debug(increment) _mp_debug(index) _mp_debug(indexof) _mp_debug(inrange) _mp_debug(int) _mp_debug(isbool)
             _mp_debug(isdir) _mp_debug(isfile) _mp_debug(isfinite) _mp_debug(isin) _mp_debug(isinf) _mp_debug(isint)
-            _mp_debug(isnan) _mp_debug(isvarname) _mp_debug(joff) _mp_debug(jxyzc1) _mp_debug(jxyzc2) _mp_debug(jxyzc3)
-            _mp_debug(kth) _mp_debug(lcm) _mp_debug(lcm2) _mp_debug(lerp)
+            _mp_debug(isnan) _mp_debug(isvarname) _mp_debug(Joff) _mp_debug(joff) _mp_debug(jxyzc1) _mp_debug(jxyzc2)
+            _mp_debug(jxyzc3) _mp_debug(kth) _mp_debug(lcm) _mp_debug(lcm2) _mp_debug(lerp)
             _mp_debug(log) _mp_debug(log10) _mp_debug(log1p) _mp_debug(log2) _mp_debug(logical_and)
             _mp_debug(logical_not) _mp_debug(logical_or) _mp_debug(logit) _mp_debug(lowercase) _mp_debug(lt)
             _mp_debug(lte) _mp_debug(map) _mp_debug(matrix_eigen) _mp_debug(matrix_invert) _mp_debug(matrix_mul)
@@ -29613,19 +29614,18 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_IJoff(_cimg_math_parser& mp) {
+      static cimg_always_inline double _mp_IJoff(_cimg_math_parser& mp,
+                                                 const bool is_relative, const unsigned int boundary_conditions) {
         double *ptrd = &_mp_arg(1) + 1;
-        const bool is_relative = (bool)mp.opcode[2];
         const unsigned int
-          _ind = (unsigned int)mp.opcode[3],
+          _ind = (unsigned int)mp.opcode[2],
           ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width()),
-          boundary_conditions = (unsigned int)_mp_arg(5),
-          siz = (unsigned int)mp.opcode[6];
+          siz = (unsigned int)mp.opcode[5];
         const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
         const longT
           off = (longT)(is_relative?img.offset((int)mp.mem[_cimg_mp_slot_x],
                                                (int)mp.mem[_cimg_mp_slot_y],
-                                               (int)mp.mem[_cimg_mp_slot_z]) + _mp_arg(4):_mp_arg(4)),
+                                               (int)mp.mem[_cimg_mp_slot_z]) + _mp_arg(3):_mp_arg(3)),
           whd = (longT)img.width()*img.height()*img.depth();
         const T *ptrs;
         if (off>=0 && off<whd) {
@@ -29654,6 +29654,14 @@ namespace cimg_library {
           }
         std::memset(ptrd,0,siz*sizeof(double));
         return cimg::type<double>::nan();
+      }
+
+      static double mp_Ioff(_cimg_math_parser& mp) {
+        return _mp_IJoff(mp,false,(unsigned int)_mp_arg(4));
+      }
+
+      static double mp_Joff(_cimg_math_parser& mp) {
+        return _mp_IJoff(mp,true,(unsigned int)_mp_arg(4));
       }
 
       static double mp_IJxyz3(_cimg_math_parser& mp) {

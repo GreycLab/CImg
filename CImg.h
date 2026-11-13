@@ -25451,7 +25451,7 @@ namespace cimg_library {
 #define _mp_debug(name) fn==mp_##name?#name:
           const mp_func fn = (mp_func)*mp.opcode;
           const char *const s_fn =
-            _mp_debug(abort) _mp_debug(abort) _mp_debug(abs) _mp_debug(abscut) _mp_debug(absmaxabs) _mp_debug(absminabs)
+            _mp_debug(abort) _mp_debug(abs) _mp_debug(abscut) _mp_debug(absmaxabs) _mp_debug(absminabs)
             _mp_debug(acos) _mp_debug(acosh) _mp_debug(add) _mp_debug(add_add) _mp_debug(add_mul) _mp_debug(add_sub)
             _mp_debug(arg0) _mp_debug(arg1) _mp_debug(argkth) _mp_debug(argmax) _mp_debug(argmax2) _mp_debug(argmaxabs)
             _mp_debug(argmaxabs2) _mp_debug(argmin) _mp_debug(argmin2) _mp_debug(argminabs) _mp_debug(argminabs2)

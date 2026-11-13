@@ -26317,14 +26317,14 @@ namespace cimg_library {
       static double mp_ioff_periodic(_cimg_math_parser& mp) { return _mp_ijoff(mp,false,2); }
       static double mp_ioff_mirror(_cimg_math_parser& mp) { return _mp_ijoff(mp,false,3); }
       static double mp_ioff(_cimg_math_parser& mp) {
-        return _mp_ijoff(mp,false,_mp_arg(4));
+        return _mp_ijoff(mp,false,(unsigned int)_mp_arg(4));
       }
       static double mp_joff_dirichlet(_cimg_math_parser& mp) { return _mp_ijoff(mp,true,0); }
       static double mp_joff_neumann(_cimg_math_parser& mp) { return _mp_ijoff(mp,true,1); }
       static double mp_joff_periodic(_cimg_math_parser& mp) { return _mp_ijoff(mp,true,2); }
       static double mp_joff_mirror(_cimg_math_parser& mp) { return _mp_ijoff(mp,true,3); }
       static double mp_joff(_cimg_math_parser& mp) {
-        return _mp_ijoff(mp,true,_mp_arg(4));
+        return _mp_ijoff(mp,true,(unsigned int)_mp_arg(4));
       }
 
       static cimg_always_inline double _mp_ijxyzc3(_cimg_math_parser& mp,
@@ -26580,7 +26580,7 @@ namespace cimg_library {
       static double mp_ixyzc3_linear_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc3(mp,false,1,0); }
       static double mp_ixyzc3_linear_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc3(mp,false,1,1); }
       static double mp_ixyzc3(_cimg_math_parser& mp) {
-        return _mp_ijxyzc3(mp,false,_mp_arg(7),_mp_arg(8));
+        return _mp_ijxyzc3(mp,false,(unsigned int)_mp_arg(7),(unsigned int)_mp_arg(8));
       }
       static double mp_jxyzc3_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc3(mp,true,0,0); }
       static double mp_jxyzc3_nearest_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc3(mp,true,0,1); }
@@ -26589,7 +26589,7 @@ namespace cimg_library {
       static double mp_jxyzc3_linear_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc3(mp,true,1,0); }
       static double mp_jxyzc3_linear_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc3(mp,true,1,1); }
       static double mp_jxyzc3(_cimg_math_parser& mp) {
-        return _mp_ijxyzc3(mp,true,_mp_arg(7),_mp_arg(8));
+        return _mp_ijxyzc3(mp,true,(unsigned int)_mp_arg(7),(unsigned int)_mp_arg(8));
       }
 
       static double mp_ixyzc2_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc2(mp,false,0,0); }
@@ -26599,7 +26599,7 @@ namespace cimg_library {
       static double mp_ixyzc2_linear_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc2(mp,false,1,0); }
       static double mp_ixyzc2_linear_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc2(mp,false,1,1); }
       static double mp_ixyzc2(_cimg_math_parser& mp) {
-        return _mp_ijxyzc2(mp,false,_mp_arg(7),_mp_arg(8));
+        return _mp_ijxyzc2(mp,false,(unsigned int)_mp_arg(7),(unsigned int)_mp_arg(8));
       }
       static double mp_jxyzc2_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc2(mp,true,0,0); }
       static double mp_jxyzc2_nearest_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc2(mp,true,0,1); }
@@ -26608,7 +26608,7 @@ namespace cimg_library {
       static double mp_jxyzc2_linear_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc2(mp,true,1,0); }
       static double mp_jxyzc2_linear_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc2(mp,true,1,1); }
       static double mp_jxyzc2(_cimg_math_parser& mp) {
-        return _mp_ijxyzc2(mp,true,_mp_arg(7),_mp_arg(8));
+        return _mp_ijxyzc2(mp,true,(unsigned int)_mp_arg(7),(unsigned int)_mp_arg(8));
       }
 
       static double mp_ixyzc1_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc1(mp,false,0,0); }
@@ -26618,7 +26618,7 @@ namespace cimg_library {
       static double mp_ixyzc1_linear_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc1(mp,false,1,0); }
       static double mp_ixyzc1_linear_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc1(mp,false,1,1); }
       static double mp_ixyzc1(_cimg_math_parser& mp) {
-        return _mp_ijxyzc1(mp,false,_mp_arg(7),_mp_arg(8));
+        return _mp_ijxyzc1(mp,false,(unsigned int)_mp_arg(7),(unsigned int)_mp_arg(8));
       }
       static double mp_jxyzc1_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc1(mp,true,0,0); }
       static double mp_jxyzc1_nearest_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc1(mp,true,0,1); }
@@ -26627,7 +26627,7 @@ namespace cimg_library {
       static double mp_jxyzc1_linear_dirichlet(_cimg_math_parser& mp) { return _mp_ijxyzc1(mp,true,1,0); }
       static double mp_jxyzc1_linear_neumann(_cimg_math_parser& mp) { return _mp_ijxyzc1(mp,true,1,1); }
       static double mp_jxyzc1(_cimg_math_parser& mp) {
-        return _mp_ijxyzc1(mp,true,_mp_arg(7),_mp_arg(8));
+        return _mp_ijxyzc1(mp,true,(unsigned int)_mp_arg(7),(unsigned int)_mp_arg(8));
       }
 
       static double mp_image_crop(_cimg_math_parser& mp) {
@@ -29899,14 +29899,14 @@ namespace cimg_library {
       static double mp_Ioff_periodic(_cimg_math_parser& mp) { return _mp_IJoff(mp,false,2); }
       static double mp_Ioff_mirror(_cimg_math_parser& mp) { return _mp_IJoff(mp,false,3); }
       static double mp_Ioff(_cimg_math_parser& mp) {
-        return _mp_IJoff(mp,false,_mp_arg(4));
+        return _mp_IJoff(mp,false,(unsigned int)_mp_arg(4));
       }
       static double mp_Joff_dirichlet(_cimg_math_parser& mp) { return _mp_IJoff(mp,true,0); }
       static double mp_Joff_neumann(_cimg_math_parser& mp) { return _mp_IJoff(mp,true,1); }
       static double mp_Joff_periodic(_cimg_math_parser& mp) { return _mp_IJoff(mp,true,2); }
       static double mp_Joff_mirror(_cimg_math_parser& mp) { return _mp_IJoff(mp,true,3); }
       static double mp_Joff(_cimg_math_parser& mp) {
-        return _mp_IJoff(mp,true,_mp_arg(4));
+        return _mp_IJoff(mp,true,(unsigned int)_mp_arg(4));
       }
 
       static cimg_always_inline double _mp_IJxyz3(_cimg_math_parser& mp,
@@ -30211,7 +30211,7 @@ namespace cimg_library {
       static double mp_Ixyz3_linear_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz3(mp,false,1,0); }
       static double mp_Ixyz3_linear_neumann(_cimg_math_parser& mp) { return _mp_IJxyz3(mp,false,1,1); }
       static double mp_Ixyz3(_cimg_math_parser& mp) {
-        return _mp_IJxyz3(mp,false,_mp_arg(6),_mp_arg(7));
+        return _mp_IJxyz3(mp,false,(unsigned int)_mp_arg(6),(unsigned int)_mp_arg(7));
       }
       static double mp_Jxyz3_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz3(mp,true,0,0); }
       static double mp_Jxyz3_nearest_neumann(_cimg_math_parser& mp) { return _mp_IJxyz3(mp,true,0,1); }
@@ -30220,7 +30220,7 @@ namespace cimg_library {
       static double mp_Jxyz3_linear_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz3(mp,true,1,0); }
       static double mp_Jxyz3_linear_neumann(_cimg_math_parser& mp) { return _mp_IJxyz3(mp,true,1,1); }
       static double mp_Jxyz3(_cimg_math_parser& mp) {
-        return _mp_IJxyz3(mp,true,_mp_arg(6),_mp_arg(7));
+        return _mp_IJxyz3(mp,true,(unsigned int)_mp_arg(6),(unsigned int)_mp_arg(7));
       }
 
       static double mp_Ixyz2_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz2(mp,false,0,0); }
@@ -30230,7 +30230,7 @@ namespace cimg_library {
       static double mp_Ixyz2_linear_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz2(mp,false,1,0); }
       static double mp_Ixyz2_linear_neumann(_cimg_math_parser& mp) { return _mp_IJxyz2(mp,false,1,1); }
       static double mp_Ixyz2(_cimg_math_parser& mp) {
-        return _mp_IJxyz2(mp,false,_mp_arg(6),_mp_arg(7));
+        return _mp_IJxyz2(mp,false,(unsigned int)_mp_arg(6),(unsigned int)_mp_arg(7));
       }
       static double mp_Jxyz2_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz2(mp,true,0,0); }
       static double mp_Jxyz2_nearest_neumann(_cimg_math_parser& mp) { return _mp_IJxyz2(mp,true,0,1); }
@@ -30239,7 +30239,7 @@ namespace cimg_library {
       static double mp_Jxyz2_linear_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz2(mp,true,1,0); }
       static double mp_Jxyz2_linear_neumann(_cimg_math_parser& mp) { return _mp_IJxyz2(mp,true,1,1); }
       static double mp_Jxyz2(_cimg_math_parser& mp) {
-        return _mp_IJxyz2(mp,true,_mp_arg(6),_mp_arg(7));
+        return _mp_IJxyz2(mp,true,(unsigned int)_mp_arg(6),(unsigned int)_mp_arg(7));
       }
 
       static double mp_Ixyz1_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz1(mp,false,0,0); }
@@ -30249,7 +30249,7 @@ namespace cimg_library {
       static double mp_Ixyz1_linear_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz1(mp,false,1,0); }
       static double mp_Ixyz1_linear_neumann(_cimg_math_parser& mp) { return _mp_IJxyz1(mp,false,1,1); }
       static double mp_Ixyz1(_cimg_math_parser& mp) {
-        return _mp_IJxyz1(mp,false,_mp_arg(6),_mp_arg(7));
+        return _mp_IJxyz1(mp,false,(unsigned int)_mp_arg(6),(unsigned int)_mp_arg(7));
       }
       static double mp_Jxyz1_nearest_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz1(mp,true,0,0); }
       static double mp_Jxyz1_nearest_neumann(_cimg_math_parser& mp) { return _mp_IJxyz1(mp,true,0,1); }
@@ -30258,7 +30258,7 @@ namespace cimg_library {
       static double mp_Jxyz1_linear_dirichlet(_cimg_math_parser& mp) { return _mp_IJxyz1(mp,true,1,0); }
       static double mp_Jxyz1_linear_neumann(_cimg_math_parser& mp) { return _mp_IJxyz1(mp,true,1,1); }
       static double mp_Jxyz1(_cimg_math_parser& mp) {
-        return _mp_IJxyz1(mp,true,_mp_arg(6),_mp_arg(7));
+        return _mp_IJxyz1(mp,true,(unsigned int)_mp_arg(6),(unsigned int)_mp_arg(7));
       }
 
 #undef _mp_arg

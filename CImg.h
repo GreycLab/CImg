@@ -18097,7 +18097,9 @@ namespace cimg_library {
             }
             if (p1==~0U) { if (!imgin) _cimg_mp_return(0); need_input_copy = true; }
             else if (!imglist) _cimg_mp_return(0);
-            pos = scalar4(mp_ijoff,(unsigned int)is_relative,p1,arg1,arg2==~0U?_cimg_mp_boundary:arg2);
+
+            op = is_relative?mp_joff:mp_ioff;
+            pos = scalar3(op,p1,arg1,arg2==~0U?_cimg_mp_boundary:arg2);
             memtype[pos] = -1; // Prevent from being used in further optimization
             _cimg_mp_return(pos);
           }
@@ -25477,7 +25479,7 @@ namespace cimg_library {
             _mp_debug(f2ui) _mp_debug(factorial) _mp_debug(fft) _mp_debug(fibonacci) _mp_debug(find) _mp_debug(find_seq)
             _mp_debug(flood) _mp_debug(floor) _mp_debug(for) _mp_debug(frac) _mp_debug(fsize) _mp_debug(gamma)
             _mp_debug(gauss) _mp_debug(gcd) _mp_debug(gcd2) _mp_debug(get) _mp_debug(get) _mp_debug(gt) _mp_debug(gte)
-            _mp_debug(histogram) _mp_debug(I) _mp_debug(i) _mp_debug(if) _mp_debug(IJoff) _mp_debug(ijoff)
+            _mp_debug(histogram) _mp_debug(I) _mp_debug(i) _mp_debug(if) _mp_debug(IJoff) _mp_debug(ioff)
             _mp_debug(IJxyz1) _mp_debug(IJxyz2) _mp_debug(IJxyz3) _mp_debug(ixyzc1) _mp_debug(ixyzc2) _mp_debug(ixyzc3)
             _mp_debug(image_crop) _mp_debug(image_depth) _mp_debug(image_display)
             _mp_debug(image_draw) _mp_debug(image_find) _mp_debug(image_find_seq) _mp_debug(image_height)
@@ -25491,8 +25493,8 @@ namespace cimg_library {
             _mp_debug(image_swap) _mp_debug(image_wh) _mp_debug(image_whd) _mp_debug(image_whds) _mp_debug(image_width)
             _mp_debug(increment) _mp_debug(index) _mp_debug(indexof) _mp_debug(inrange) _mp_debug(int) _mp_debug(isbool)
             _mp_debug(isdir) _mp_debug(isfile) _mp_debug(isfinite) _mp_debug(isin) _mp_debug(isinf) _mp_debug(isint)
-            _mp_debug(isnan) _mp_debug(isvarname) _mp_debug(jxyzc1) _mp_debug(jxyzc2) _mp_debug(jxyzc3) _mp_debug(kth)
-            _mp_debug(lcm) _mp_debug(lcm2) _mp_debug(lerp)
+            _mp_debug(isnan) _mp_debug(isvarname) _mp_debug(joff) _mp_debug(jxyzc1) _mp_debug(jxyzc2) _mp_debug(jxyzc3)
+            _mp_debug(kth) _mp_debug(lcm) _mp_debug(lcm2) _mp_debug(lerp)
             _mp_debug(log) _mp_debug(log10) _mp_debug(log1p) _mp_debug(log2) _mp_debug(logical_and)
             _mp_debug(logical_not) _mp_debug(logical_or) _mp_debug(logit) _mp_debug(lowercase) _mp_debug(lt)
             _mp_debug(lte) _mp_debug(map) _mp_debug(matrix_eigen) _mp_debug(matrix_invert) _mp_debug(matrix_mul)
@@ -26150,14 +26152,14 @@ namespace cimg_library {
       static double _mp_ijoff(_cimg_math_parser& mp,
                               const bool is_relative, const unsigned int boundary_conditions) {
         const unsigned int
-          _ind = (unsigned int)mp.opcode[3],
+          _ind = (unsigned int)mp.opcode[2],
           ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
         const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
         const longT
           off = (longT)(is_relative?img.offset((int)mp.mem[_cimg_mp_slot_x],
                                                (int)mp.mem[_cimg_mp_slot_y],
                                                (int)mp.mem[_cimg_mp_slot_z],
-                                               (int)mp.mem[_cimg_mp_slot_c]) + _mp_arg(4):_mp_arg(4)),
+                                               (int)mp.mem[_cimg_mp_slot_c]) + _mp_arg(3):_mp_arg(3)),
           whds = (longT)img.size();
         if (off>=0 && off<whds) return (double)img[off];
         if (img._data) switch (boundary_conditions) {
@@ -26175,8 +26177,12 @@ namespace cimg_library {
         return 0;
       }
 
-      static double mp_ijoff(_cimg_math_parser& mp) {
-        return _mp_ijoff(mp,(bool)mp.opcode[2],(unsigned int)_mp_arg(5));
+      static double mp_ioff(_cimg_math_parser& mp) {
+        return _mp_ijoff(mp,false,(unsigned int)_mp_arg(4));
+      }
+
+      static double mp_joff(_cimg_math_parser& mp) {
+        return _mp_ijoff(mp,true,(unsigned int)_mp_arg(4));
       }
 
 #if defined(_MSC_VER)

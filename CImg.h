@@ -26172,13 +26172,19 @@ namespace cimg_library {
         return 0;
       }
 
-      static double mp_ijxyzc3(_cimg_math_parser& mp) {
-        const bool is_relative = (bool)mp.opcode[2];
+#if defined(_MSC_VER)
+#efine cimg_always_inline __forceinline
+#elif defined(__GNUC__) || defined(__clang__)
+#define cimg_always_inline inline __attribute__((always_inline))
+#else
+#efine cimg_always_inline inline
+#endif
+      static cimg_always_inline double _mp_ijxyzc3(_cimg_math_parser& mp,
+                                                   const bool is_relative, const unsigned int interpolation,
+                                                   const unsigned int boundary_conditions) {
         const unsigned int
           _ind = (unsigned int)mp.opcode[3],
-          ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width()),
-          interpolation = (unsigned int)_mp_arg(8),
-          boundary_conditions = (unsigned int)_mp_arg(9);
+          ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
         const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
         const double
           x = is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(4)):_mp_arg(4),
@@ -26251,13 +26257,12 @@ namespace cimg_library {
         }
       }
 
-      static double mp_ijxyzc2(_cimg_math_parser& mp) {
-        const bool is_relative = (bool)mp.opcode[2];
+      static cimg_always_inline double _mp_ijxyzc2(_cimg_math_parser& mp,
+                                                   const bool is_relative, const unsigned int interpolation,
+                                                   const unsigned int boundary_conditions) {
         const unsigned int
           _ind = (unsigned int)mp.opcode[3],
-          ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width()),
-          interpolation = (unsigned int)_mp_arg(8),
-          boundary_conditions = (unsigned int)_mp_arg(9);
+          ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
         const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
         const double
           x = is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(4)):_mp_arg(4),
@@ -26335,13 +26340,12 @@ namespace cimg_library {
         }
       }
 
-      static double mp_ijxyzc1(_cimg_math_parser& mp) {
-        const bool is_relative = (bool)mp.opcode[2];
+      static cimg_always_inline double _mp_ijxyzc1(_cimg_math_parser& mp,
+                                                   const bool is_relative, const unsigned int interpolation,
+                                                   const unsigned int boundary_conditions) {
         const unsigned int
           _ind = (unsigned int)mp.opcode[3],
-          ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width()),
-          interpolation = (unsigned int)_mp_arg(8),
-          boundary_conditions = (unsigned int)_mp_arg(9);
+          ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
         const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
         const double
           x = is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(4)):_mp_arg(4);
@@ -26419,6 +26423,18 @@ namespace cimg_library {
             return (double)img.atXYZC((int)x,y,z,c,(T)0);
           }
         }
+      }
+
+      static double mp_ijxyzc3(_cimg_math_parser& mp) {
+        return _mp_ijxyzc3(mp,(bool)mp.opcode[2],(unsigned int)_mp_arg(8),(unsigned int)_mp_arg(9));
+      }
+
+      static double mp_ijxyzc2(_cimg_math_parser& mp) {
+        return _mp_ijxyzc2(mp,(bool)mp.opcode[2],(unsigned int)_mp_arg(8),(unsigned int)_mp_arg(9));
+      }
+
+      static double mp_ijxyzc1(_cimg_math_parser& mp) {
+        return _mp_ijxyzc1(mp,(bool)mp.opcode[2],(unsigned int)_mp_arg(8),(unsigned int)_mp_arg(9));
       }
 
       static double mp_image_crop(_cimg_math_parser& mp) {

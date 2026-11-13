@@ -18309,10 +18309,10 @@ namespace cimg_library {
             if (p1==~0U) { if (!imgin) _cimg_mp_return(0); need_input_copy = true; }
             else if (!imglist) _cimg_mp_return(0);
 
-            pos = scalar7(is_inty?(is_relative?mp_jxyzc1:mp_ixyzc1):
-                          is_intz?(is_relative?mp_jxyzc2:mp_ixyzc2):
-                          is_relative?mp_jxyzc3:mp_ixyzc3,
-                          p1,arg1,arg2,arg3,arg4,
+            op = is_inty?(is_relative?mp_jxyzc1:mp_ixyzc1):
+                 is_intz?(is_relative?mp_jxyzc2:mp_ixyzc2):
+                 is_relative?mp_jxyzc3:mp_ixyzc3;
+            pos = scalar7(op,p1,arg1,arg2,arg3,arg4,
                           arg5==~0U?_cimg_mp_interpolation:arg5,
                           arg6==~0U?_cimg_mp_boundary:arg6);
             memtype[pos] = -1; // Prevent from being used in further optimization

@@ -16353,19 +16353,19 @@ namespace cimg_library {
           case 'R' :
             if (reserved_label[(int)'R']!=~0U) _cimg_mp_return(reserved_label[(int)'R']);
             need_input_copy = true;
-            _cimg_mp_scalar7(ixyzc1,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,0,0,0);
+            _cimg_mp_scalar7(ixyzc1_nearest_dirichlet,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,0,0,0);
           case 'G' :
             if (reserved_label[(int)'G']!=~0U) _cimg_mp_return(reserved_label[(int)'G']);
             need_input_copy = true;
-            _cimg_mp_scalar7(ixyzc1,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,1,0,0);
+            _cimg_mp_scalar7(ixyzc1_nearest_dirichlet,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,1,0,0);
           case 'B' :
             if (reserved_label[(int)'B']!=~0U) _cimg_mp_return(reserved_label[(int)'B']);
             need_input_copy = true;
-            _cimg_mp_scalar7(ixyzc1,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,2,0,0);
+            _cimg_mp_scalar7(ixyzc1_nearest_dirichlet,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,2,0,0);
           case 'A' :
             if (reserved_label[(int)'A']!=~0U) _cimg_mp_return(reserved_label[(int)'A']);
             need_input_copy = true;
-            _cimg_mp_scalar7(ixyzc1,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,3,0,0);
+            _cimg_mp_scalar7(ixyzc1_nearest_dirichlet,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,3,0,0);
           }
         else if (ss2==se) { // Two-chars reserved variable
           arg1 = arg2 = ~0U;
@@ -16398,7 +16398,8 @@ namespace cimg_library {
               pos = 21 + *ss1 - '0';
               if (reserved_label[pos]!=~0U) _cimg_mp_return(reserved_label[pos]);
               need_input_copy = true;
-              _cimg_mp_scalar7(ixyzc1,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,pos - 21,0,0);
+              _cimg_mp_scalar7(ixyzc1_nearest_dirichlet,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,pos - 21,
+                               0,0);
             }
             switch (*ss1) {
             case 'a' : arg1 = 6; arg2 = 2; break; // ia
@@ -23467,8 +23468,8 @@ namespace cimg_library {
             _cimg_mp_scalar1(image_spectrum,arg1);
           case 'i' : // i#ind
             if (!imglist) _cimg_mp_return(0);
-            _cimg_mp_scalar7(ixyzc1,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,_cimg_mp_slot_c,
-                             0,_cimg_mp_boundary);
+            _cimg_mp_scalar7(ixyzc1_nearest_dirichlet,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,
+                             _cimg_mp_slot_c,0,0);
           case 'I' : // I#ind
             p2 = p1!=~0U?imglist[p1]._spectrum:imglist._width?~0U:0;
             if (!p2) _cimg_mp_return(0);
@@ -23478,19 +23479,19 @@ namespace cimg_library {
             _cimg_mp_return(pos);
           case 'R' : // R#ind
             if (!imglist) _cimg_mp_return(0);
-            _cimg_mp_scalar7(ixyzc1,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,0,
+            _cimg_mp_scalar7(ixyzc1_nearest_dirichlet,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,0,
                              0,_cimg_mp_boundary);
           case 'G' : // G#ind
             if (!imglist) _cimg_mp_return(0);
-            _cimg_mp_scalar7(ixyzc1,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,1,
+            _cimg_mp_scalar7(ixyzc1_nearest_dirichlet,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,1,
                              0,_cimg_mp_boundary);
           case 'B' : // B#ind
             if (!imglist) _cimg_mp_return(0);
-            _cimg_mp_scalar7(ixyzc1,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,2,
+            _cimg_mp_scalar7(ixyzc1_nearest_dirichlet,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,2,
                              0,_cimg_mp_boundary);
           case 'A' : // A#ind
             if (!imglist) _cimg_mp_return(0);
-            _cimg_mp_scalar7(ixyzc1,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,3,
+            _cimg_mp_scalar7(ixyzc1_nearest_dirichlet,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,3,
                              0,_cimg_mp_boundary);
           }
         }
@@ -23510,8 +23511,8 @@ namespace cimg_library {
           if (*ss=='i') {
             if (*ss1>='0' && *ss1<='9') { // i0#ind...i9#ind
               if (!imglist) _cimg_mp_return(0);
-              _cimg_mp_scalar7(ixyzc1,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,*ss1 - '0',
-                               0,_cimg_mp_boundary);
+              _cimg_mp_scalar7(ixyzc1_nearest_dirichlet,arg1,
+                               _cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,*ss1 - '0',0,_cimg_mp_boundary);
             }
 
             if (*ss1=='c') { // ic#ind
@@ -25541,160 +25542,159 @@ namespace cimg_library {
           const ulongT target = mp.opcode[1];
           mp.eval(mp.p_code,mp.p_code + 1);
 
-#define _mp_debug(name) fn==mp_##name?#name:
+#define _mp_dbg(name) fn==mp_##name?#name:
           const mp_func fn = (mp_func)*mp.opcode;
           const char *const s_fn =
-            _mp_debug(abort) _mp_debug(abs) _mp_debug(abscut) _mp_debug(absmaxabs) _mp_debug(absminabs)
-            _mp_debug(acos) _mp_debug(acosh) _mp_debug(add) _mp_debug(add_add) _mp_debug(add_mul) _mp_debug(add_sub)
-            _mp_debug(arg0) _mp_debug(arg1) _mp_debug(argkth) _mp_debug(argmax) _mp_debug(argmax2) _mp_debug(argmaxabs)
-            _mp_debug(argmaxabs2) _mp_debug(argmin) _mp_debug(argmin2) _mp_debug(argminabs) _mp_debug(argminabs2)
-            _mp_debug(asin) _mp_debug(asinh) _mp_debug(atan) _mp_debug(atan2) _mp_debug(atanh) _mp_debug(avg)
-            _mp_debug(avg2) _mp_debug(bitwise_and) _mp_debug(bitwise_left_shift) _mp_debug(bitwise_not)
-            _mp_debug(bitwise_or) _mp_debug(bitwise_right_shift) _mp_debug(bitwise_xor) _mp_debug(bool) _mp_debug(break)
-            _mp_debug(breakpoint) _mp_debug(c2o) _mp_debug(cbrt) _mp_debug(ceil) _mp_debug(complex_abs)
-            _mp_debug(complex_conj) _mp_debug(complex_cos) _mp_debug(complex_cosh) _mp_debug(div_add) _mp_debug(div_div)
-            _mp_debug(div_sub) _mp_debug(complex_div_sv) _mp_debug(complex_div_vv) _mp_debug(complex_exp)
-            _mp_debug(complex_log) _mp_debug(complex_mul) _mp_debug(complex_one) _mp_debug(complex_pow_ss)
-            _mp_debug(complex_pow_sv) _mp_debug(complex_pow_vs) _mp_debug(complex_pow_vv) _mp_debug(complex_sin)
-            _mp_debug(complex_sinh) _mp_debug(complex_sqr) _mp_debug(complex_sqrt) _mp_debug(complex_tan)
-            _mp_debug(complex_tanh) _mp_debug(continue) _mp_debug(convolve) _mp_debug(copy) _mp_debug(correlate)
-            _mp_debug(cos) _mp_debug(cosh) _mp_debug(cov) _mp_debug(critical) _mp_debug(cross) _mp_debug(cumulate)
-            _mp_debug(cumulate_ip) _mp_debug(cut) _mp_debug(da_back_or_pop) _mp_debug(da_freeze)
-            _mp_debug(da_insert_or_push_n) _mp_debug(da_remove) _mp_debug(da_size) _mp_debug(date) _mp_debug(debug)
-            _mp_debug(decrement) _mp_debug(deg2rad) _mp_debug(det) _mp_debug(diag) _mp_debug(div) _mp_debug(do)
-            _mp_debug(dot) _mp_debug(echo) _mp_debug(ellipse) _mp_debug(epoch) _mp_debug(eq) _mp_debug(equalize)
-            _mp_debug(equalize_ip) _mp_debug(erf) _mp_debug(erfinv) _mp_debug(exp) _mp_debug(expr) _mp_debug(eye)
-            _mp_debug(f2ui) _mp_debug(factorial) _mp_debug(fft) _mp_debug(fibonacci) _mp_debug(find) _mp_debug(find_seq)
-            _mp_debug(flood) _mp_debug(floor) _mp_debug(for) _mp_debug(frac) _mp_debug(fsize) _mp_debug(gamma)
-            _mp_debug(gauss) _mp_debug(gcd) _mp_debug(gcd2) _mp_debug(get) _mp_debug(get) _mp_debug(gt) _mp_debug(gte)
-            _mp_debug(histogram) _mp_debug(I) _mp_debug(i) _mp_debug(if) _mp_debug(Ioff_dirichlet)
-            _mp_debug(Ioff_neumann) _mp_debug(Ioff_periodic) _mp_debug(Ioff_mirror) _mp_debug(Ioff)
-            _mp_debug(ioff_dirichlet) _mp_debug(ioff_neumann) _mp_debug(ioff_periodic) _mp_debug(ioff_mirror)
-            _mp_debug(ioff) _mp_debug(Ixyz1_nearest_dirichlet) _mp_debug(Ixyz1_nearest_neumann)
-            _mp_debug(Ixyz1_nearest_periodic) _mp_debug(Ixyz1_nearest_mirror) _mp_debug(Ixyz1_linear_dirichlet)
-            _mp_debug(Ixyz1_linear_neumann) _mp_debug(Ixyz1) _mp_debug(Ixyz2_nearest_dirichlet)
-            _mp_debug(Ixyz2_nearest_neumann) _mp_debug(Ixyz2_nearest_periodic) _mp_debug(Ixyz2_nearest_mirror)
-            _mp_debug(Ixyz2_linear_dirichlet) _mp_debug(Ixyz2_linear_neumann) _mp_debug(Ixyz2)
-            _mp_debug(Ixyz3_nearest_dirichlet) _mp_debug(Ixyz3_nearest_neumann) _mp_debug(Ixyz3_nearest_periodic)
-            _mp_debug(Ixyz3_nearest_mirror) _mp_debug(Ixyz3_linear_dirichlet) _mp_debug(Ixyz3_linear_neumann)
-            _mp_debug(Ixyz3) _mp_debug(ixyzc1_nearest_dirichlet) _mp_debug(ixyzc1_nearest_neumann)
-            _mp_debug(ixyzc1_nearest_periodic) _mp_debug(ixyzc1_nearest_mirror) _mp_debug(ixyzc1_linear_dirichlet)
-            _mp_debug(ixyzc1_linear_neumann) _mp_debug(ixyzc1) _mp_debug(ixyzc2_nearest_dirichlet)
-            _mp_debug(ixyzc2_nearest_neumann) _mp_debug(ixyzc2_nearest_periodic) _mp_debug(ixyzc2_nearest_mirror)
-            _mp_debug(ixyzc2_linear_dirichlet) _mp_debug(ixyzc2_linear_neumann) _mp_debug(ixyzc2)
-            _mp_debug(ixyzc3_nearest_dirichlet) _mp_debug(ixyzc3_nearest_neumann) _mp_debug(ixyzc3_nearest_periodic)
-            _mp_debug(ixyzc3_nearest_mirror) _mp_debug(ixyzc3_linear_dirichlet) _mp_debug(ixyzc3_linear_neumann)
-            _mp_debug(ixyzc3) _mp_debug(image_crop) _mp_debug(image_depth) _mp_debug(image_display)
-            _mp_debug(image_draw) _mp_debug(image_find) _mp_debug(image_find_seq) _mp_debug(image_height)
-            _mp_debug(image_is_shared) _mp_debug(image_print) _mp_debug(image_resize) _mp_debug(image_shift)
-            _mp_debug(image_shift_ip) _mp_debug(image_spectrum) _mp_debug(image_stats) _mp_debug(image_stats_cm)
-            _mp_debug(image_stats_cM) _mp_debug(image_stats_ia) _mp_debug(image_stats_ic)
-            _mp_debug(image_stats_ic_static) _mp_debug(image_stats_id) _mp_debug(image_stats_id_static)
-            _mp_debug(image_stats_im) _mp_debug(image_stats_iM) _mp_debug(image_stats_in) _mp_debug(image_stats_ip)
-            _mp_debug(image_stats_is) _mp_debug(image_stats_static) _mp_debug(image_stats_xm) _mp_debug(image_stats_xM)
-            _mp_debug(image_stats_ym) _mp_debug(image_stats_yM) _mp_debug(image_stats_zm) _mp_debug(image_stats_zM)
-            _mp_debug(image_swap) _mp_debug(image_wh) _mp_debug(image_whd) _mp_debug(image_whds) _mp_debug(image_width)
-            _mp_debug(increment) _mp_debug(index) _mp_debug(indexof) _mp_debug(inrange) _mp_debug(int) _mp_debug(isbool)
-            _mp_debug(isdir) _mp_debug(isfile) _mp_debug(isfinite) _mp_debug(isin) _mp_debug(isinf) _mp_debug(isint)
-            _mp_debug(isnan) _mp_debug(isvarname) _mp_debug(Joff_dirichlet) _mp_debug(Joff_neumann)
-            _mp_debug(Joff_periodic) _mp_debug(Joff_mirror) _mp_debug(Joff) _mp_debug(joff_dirichlet)
-            _mp_debug(joff_neumann) _mp_debug(joff_periodic) _mp_debug(joff_mirror) _mp_debug(joff)
-            _mp_debug(Jxyz1_nearest_dirichlet) _mp_debug(Jxyz1_nearest_neumann) _mp_debug(Jxyz1_nearest_periodic)
-            _mp_debug(Jxyz1_nearest_mirror) _mp_debug(Jxyz1_linear_dirichlet) _mp_debug(Jxyz1_linear_neumann)
-            _mp_debug(Jxyz1) _mp_debug(Jxyz2_nearest_dirichlet) _mp_debug(Jxyz2_nearest_neumann)
-            _mp_debug(Jxyz2_nearest_periodic) _mp_debug(Jxyz2_nearest_mirror) _mp_debug(Jxyz2_linear_dirichlet)
-            _mp_debug(Jxyz2_linear_neumann) _mp_debug(Jxyz2) _mp_debug(Jxyz3_nearest_dirichlet)
-            _mp_debug(Jxyz3_nearest_neumann) _mp_debug(Jxyz3_nearest_periodic) _mp_debug(Jxyz3_nearest_mirror)
-            _mp_debug(Jxyz3_linear_dirichlet) _mp_debug(Jxyz3_linear_neumann) _mp_debug(Jxyz3)
-            _mp_debug(jxyzc1_nearest_dirichlet) _mp_debug(jxyzc1_nearest_neumann) _mp_debug(jxyzc1_nearest_periodic)
-            _mp_debug(jxyzc1_nearest_mirror) _mp_debug(jxyzc1_linear_dirichlet) _mp_debug(jxyzc1_linear_neumann)
-            _mp_debug(jxyzc1) _mp_debug(jxyzc2_nearest_dirichlet) _mp_debug(jxyzc2_nearest_neumann)
-            _mp_debug(jxyzc2_nearest_periodic) _mp_debug(jxyzc2_nearest_mirror) _mp_debug(jxyzc2_linear_dirichlet)
-            _mp_debug(jxyzc2_linear_neumann) _mp_debug(jxyzc2) _mp_debug(jxyzc3_nearest_dirichlet)
-            _mp_debug(jxyzc3_nearest_neumann) _mp_debug(jxyzc3_nearest_periodic) _mp_debug(jxyzc3_nearest_mirror)
-            _mp_debug(jxyzc3_linear_dirichlet) _mp_debug(jxyzc3_linear_neumann) _mp_debug(jxyzc3) _mp_debug(kth)
-            _mp_debug(lcm) _mp_debug(lcm2) _mp_debug(lerp) _mp_debug(log) _mp_debug(log10) _mp_debug(log1p)
-            _mp_debug(log2) _mp_debug(logical_and) _mp_debug(logical_not) _mp_debug(logical_or) _mp_debug(logit)
-            _mp_debug(lowercase) _mp_debug(lt) _mp_debug(lte) _mp_debug(map) _mp_debug(matrix_eigen)
-            _mp_debug(matrix_invert) _mp_debug(matrix_mul) _mp_debug(matrix_qr) _mp_debug(matrix_svd) _mp_debug(max)
-            _mp_debug(max2) _mp_debug(maxabs) _mp_debug(maxabs2) _mp_debug(med) _mp_debug(med2) _mp_debug(mem_copy)
-            _mp_debug(mem_display) _mp_debug(min) _mp_debug(min2) _mp_debug(minabs) _mp_debug(minabs2) _mp_debug(minus)
-            _mp_debug(mirror) _mp_debug(mirror_ip) _mp_debug(modulo) _mp_debug(mproj) _mp_debug(mse) _mp_debug(mul)
-            _mp_debug(mul_div) _mp_debug(mul_mul) _mp_debug(mul_sub) _mp_debug(name) _mp_debug(name) _mp_debug(neq)
-            _mp_debug(noise) _mp_debug(noise_ip) _mp_debug(normalize) _mp_debug(normalize_ip) _mp_debug(normp)
-            _mp_debug(o2c) _mp_debug(permutations) _mp_debug(permute) _mp_debug(permute_ip) _mp_debug(polygon)
-            _mp_debug(pow) _mp_debug(pow0_25) _mp_debug(pow3) _mp_debug(pow4) _mp_debug(print) _mp_debug(prod)
-            _mp_debug(prod2) _mp_debug(rad2deg) _mp_debug(rand_double) _mp_debug(rand_double_0_1)
-            _mp_debug(rand_double_0_N) _mp_debug(rand_double_ext) _mp_debug(rand_double_gaussian)
-            _mp_debug(rand_double_m1_1) _mp_debug(rand_int) _mp_debug(rand_int_0_1) _mp_debug(rand_int_0_N)
-            _mp_debug(rand_int_ext) _mp_debug(rand_int_m1_1) _mp_debug(repeat) _mp_debug(reverse) _mp_debug(reverse_ip)
-            _mp_debug(rol) _mp_debug(ror) _mp_debug(rot2d) _mp_debug(rot3d) _mp_debug(round) _mp_debug(run)
-            _mp_debug(s2v) _mp_debug(self_add) _mp_debug(self_bitwise_and) _mp_debug(self_bitwise_left_shift)
-            _mp_debug(self_bitwise_or) _mp_debug(self_bitwise_right_shift) _mp_debug(self_decrement)
-            _mp_debug(self_div) _mp_debug(self_increment) _mp_debug(self_modulo) _mp_debug(self_mul)
-            _mp_debug(self_pow) _mp_debug(self_sub) _mp_debug(self_vector_add_s) _mp_debug(self_vector_add_v)
-            _mp_debug(self_vector_bitwise_and_s) _mp_debug(self_vector_bitwise_and_v)
-            _mp_debug(self_vector_bitwise_left_shift_s) _mp_debug(self_vector_bitwise_left_shift_v)
-            _mp_debug(self_vector_bitwise_or_s) _mp_debug(self_vector_bitwise_or_v)
-            _mp_debug(self_vector_bitwise_right_shift_s) _mp_debug(self_vector_bitwise_right_shift_v)
-            _mp_debug(self_vector_decrement) _mp_debug(self_vector_div_s) _mp_debug(self_vector_div_v)
-            _mp_debug(self_vector_increment) _mp_debug(self_vector_modulo_s) _mp_debug(self_vector_modulo_v)
-            _mp_debug(self_vector_mul_s) _mp_debug(self_vector_mul_v) _mp_debug(self_vector_pow_s)
-            _mp_debug(self_vector_pow_v) _mp_debug(self_vector_sub_s) _mp_debug(self_vector_sub_v) _mp_debug(set)
-            _mp_debug(set) _mp_debug(set_ijoff) _mp_debug(set_IJoff_s) _mp_debug(set_IJoff_v) _mp_debug(set_IJxyz_s)
-            _mp_debug(set_IJxyz_v) _mp_debug(set_ijxyzc)_mp_debug(shift) _mp_debug(shift_ip) _mp_debug(sigmoid)
-            _mp_debug(sign) _mp_debug(sin) _mp_debug(sinc) _mp_debug(sinh) _mp_debug(size_list) _mp_debug(softargmax)
-            _mp_debug(softargmin) _mp_debug(softmax) _mp_debug(softmin) _mp_debug(solve) _mp_debug(sort)
-            _mp_debug(sort_ip) _mp_debug(sqr) _mp_debug(sqrt) _mp_debug(srand) _mp_debug(srand0) _mp_debug(std)
-            _mp_debug(std2) _mp_debug(store) _mp_debug(store) _mp_debug(string) _mp_debug(string_init) _mp_debug(sub)
-            _mp_debug(sub_div) _mp_debug(sub_mul) _mp_debug(sub_sub) _mp_debug(sum) _mp_debug(sum2) _mp_debug(swap)
-            _mp_debug(tan) _mp_debug(tanh) _mp_debug(trace) _mp_debug(transpose) _mp_debug(ui2f) _mp_debug(unitnorm)
-            _mp_debug(uppercase) _mp_debug(v2s) _mp_debug(var) _mp_debug(var2) _mp_debug(vargkth) _mp_debug(vargkth2)
-            _mp_debug(vargmax) _mp_debug(vargmax2) _mp_debug(vargmaxabs) _mp_debug(vargmaxabs2) _mp_debug(vargmin)
-            _mp_debug(vargmin2) _mp_debug(vargminabs) _mp_debug(vargminabs2) _mp_debug(vavg) _mp_debug(vavg2)
-            _mp_debug(vector_abs) _mp_debug(vector_abscut) _mp_debug(vector_acos) _mp_debug(vector_acosh)
-            _mp_debug(vector_add_sv) _mp_debug(vector_add_vs) _mp_debug(vector_add_vv) _mp_debug(vector_asin)
-            _mp_debug(vector_asinh) _mp_debug(vector_atan) _mp_debug(vector_atan2_sv) _mp_debug(vector_atan2_vs)
-            _mp_debug(vector_atan2_vv) _mp_debug(vector_atanh) _mp_debug(vector_bitwise_not)
-            _mp_debug(vector_bitwise_and_sv) _mp_debug(vector_bitwise_and_vs) _mp_debug(vector_bitwise_and_vv)
-            _mp_debug(vector_bitwise_left_shift_sv) _mp_debug(vector_bitwise_left_shift_vs)
-            _mp_debug(vector_bitwise_left_shift_vv) _mp_debug(vector_bitwise_or_sv) _mp_debug(vector_bitwise_or_vs)
-            _mp_debug(vector_bitwise_or_vv) _mp_debug(vector_bitwise_right_shift_sv)
-            _mp_debug(vector_bitwise_right_shift_vs) _mp_debug(vector_bitwise_right_shift_vv)
-            _mp_debug(vector_bitwise_xor_sv) _mp_debug(vector_bitwise_xor_vs) _mp_debug(vector_bitwise_xor_vv)
-            _mp_debug(vector_bool) _mp_debug(vector_cbrt) _mp_debug(vector_ceil) _mp_debug(vector_copy)
-            _mp_debug(vector_cos) _mp_debug(vector_cosh) _mp_debug(vector_crop) _mp_debug(vector_crop_ext)
-            _mp_debug(vector_cut) _mp_debug(vector_decrement) _mp_debug(vector_deg2rad) _mp_debug(vector_display)
-            _mp_debug(vector_div_sv) _mp_debug(vector_div_vs) _mp_debug(vector_div_vv) _mp_debug(vector_draw)
-            _mp_debug(vector_eq) _mp_debug(vector_erf) _mp_debug(vector_erfinv) _mp_debug(vector_exp)
-            _mp_debug(vector_f2ui) _mp_debug(vector_factorial) _mp_debug(vector_fibonacci) _mp_debug(vector_fill)
-            _mp_debug(vector_fill_ext) _mp_debug(vector_floor) _mp_debug(vector_frac) _mp_debug(vector_gamma)
-            _mp_debug(vector_gauss) _mp_debug(vector_gt_sv) _mp_debug(vector_gt_vs) _mp_debug(vector_gt_vv)
-            _mp_debug(vector_gte_sv) _mp_debug(vector_gte_vs) _mp_debug(vector_gte_vv) _mp_debug(vector_hypot)
-            _mp_debug(vector_increment) _mp_debug(vector_init) _mp_debug(vector_int) _mp_debug(vector_isbool)
-            _mp_debug(vector_isfinite) _mp_debug(vector_isinf) _mp_debug(vector_isint) _mp_debug(vector_isnan)
-            _mp_debug(vector_lerp) _mp_debug(vector_log) _mp_debug(vector_log10) _mp_debug(vector_log1p)
-            _mp_debug(vector_log2) _mp_debug(vector_logical_not) _mp_debug(vector_logit) _mp_debug(vector_lowercase)
-            _mp_debug(vector_lt_sv) _mp_debug(vector_lt_vs) _mp_debug(vector_lt_vv) _mp_debug(vector_lte_sv)
-            _mp_debug(vector_lte_vs) _mp_debug(vector_lte_vv) _mp_debug(vector_modulo_sv) _mp_debug(vector_modulo_vs)
-            _mp_debug(vector_modulo_vv) _mp_debug(vector_mul_sv) _mp_debug(vector_mul_vs) _mp_debug(vector_mul_vv)
-            _mp_debug(vector_neq) _mp_debug(vector_minus) _mp_debug(vector_norm0) _mp_debug(vector_norm1)
-            _mp_debug(vector_norm2) _mp_debug(vector_norminf) _mp_debug(vector_off) _mp_debug(vector_pow_sv)
-            _mp_debug(vector_pow_vs) _mp_debug(vector_pow_vv) _mp_debug(vector_print) _mp_debug(vector_rad2deg)
-            _mp_debug(vector_rand) _mp_debug(vector_rand_double_ext) _mp_debug(vector_rand_double_sv)
-            _mp_debug(vector_rand_double_vs) _mp_debug(vector_rand_double_vv) _mp_debug(vector_rand_int_sv)
-            _mp_debug(vector_rand_int_ext) _mp_debug(vector_rand_int_vs) _mp_debug(vector_rand_int_vv)
-            _mp_debug(vector_resize) _mp_debug(vector_resize_ext) _mp_debug(vector_rol_sv) _mp_debug(vector_rol_vs)
-            _mp_debug(vector_rol_vv) _mp_debug(vector_ror_sv) _mp_debug(vector_ror_vs) _mp_debug(vector_ror_vv)
-            _mp_debug(vector_round) _mp_debug(vector_set_off) _mp_debug(vector_sigmoid) _mp_debug(vector_sign)
-            _mp_debug(vector_sin) _mp_debug(vector_sinc) _mp_debug(vector_sinh) _mp_debug(vector_sqr)
-            _mp_debug(vector_sqrt) _mp_debug(vector_stats) _mp_debug(vector_sub_sv) _mp_debug(vector_sub_vs)
-            _mp_debug(vector_sub_vv) _mp_debug(vector_tan) _mp_debug(vector_tanh) _mp_debug(vector_ui2f)
-            _mp_debug(vector_uppercase) _mp_debug(vector_wave_sv) _mp_debug(vector_wave_vs) _mp_debug(vector_wave_vv)
-            _mp_debug(vkth) _mp_debug(vkth2) _mp_debug(vmax) _mp_debug(vmax2) _mp_debug(vmaxabs) _mp_debug(vmaxabs2)
-            _mp_debug(vmedian) _mp_debug(vmedian2) _mp_debug(vmin) _mp_debug(vmin2) _mp_debug(vminabs)
-            _mp_debug(vminabs2) _mp_debug(vprod) _mp_debug(vprod2) _mp_debug(vstd) _mp_debug(vstd2) _mp_debug(vsum)
-            _mp_debug(vsum2) _mp_debug(vvar) _mp_debug(vvar2) _mp_debug(warp) _mp_debug(wave) _mp_debug(while)
+            _mp_dbg(I) _mp_dbg(Ioff) _mp_dbg(Ioff_dirichlet) _mp_dbg(Ioff_mirror) _mp_dbg(Ioff_neumann)
+            _mp_dbg(Ioff_periodic) _mp_dbg(Ixyz1) _mp_dbg(Ixyz1_linear_dirichlet) _mp_dbg(Ixyz1_linear_neumann)
+            _mp_dbg(Ixyz1_nearest_dirichlet) _mp_dbg(Ixyz1_nearest_mirror) _mp_dbg(Ixyz1_nearest_neumann)
+            _mp_dbg(Ixyz1_nearest_periodic) _mp_dbg(Ixyz2) _mp_dbg(Ixyz2_linear_dirichlet) _mp_dbg(Ixyz2_linear_neumann)
+            _mp_dbg(Ixyz2_nearest_dirichlet) _mp_dbg(Ixyz2_nearest_mirror) _mp_dbg(Ixyz2_nearest_neumann)
+            _mp_dbg(Ixyz2_nearest_periodic) _mp_dbg(Ixyz3) _mp_dbg(Ixyz3_linear_dirichlet) _mp_dbg(Ixyz3_linear_neumann)
+            _mp_dbg(Ixyz3_nearest_dirichlet) _mp_dbg(Ixyz3_nearest_mirror) _mp_dbg(Ixyz3_nearest_neumann)
+            _mp_dbg(Ixyz3_nearest_periodic)
+            _mp_dbg(Joff) _mp_dbg(Joff_dirichlet) _mp_dbg(Joff_mirror) _mp_dbg(Joff_neumann) _mp_dbg(Joff_periodic)
+            _mp_dbg(Jxyz1) _mp_dbg(Jxyz1_linear_dirichlet) _mp_dbg(Jxyz1_linear_neumann)
+            _mp_dbg(Jxyz1_nearest_dirichlet) _mp_dbg(Jxyz1_nearest_mirror) _mp_dbg(Jxyz1_nearest_neumann)
+            _mp_dbg(Jxyz1_nearest_periodic) _mp_dbg(Jxyz2) _mp_dbg(Jxyz2_linear_dirichlet) _mp_dbg(Jxyz2_linear_neumann)
+            _mp_dbg(Jxyz2_nearest_dirichlet) _mp_dbg(Jxyz2_nearest_mirror) _mp_dbg(Jxyz2_nearest_neumann)
+            _mp_dbg(Jxyz2_nearest_periodic) _mp_dbg(Jxyz3) _mp_dbg(Jxyz3_linear_dirichlet) _mp_dbg(Jxyz3_linear_neumann)
+            _mp_dbg(Jxyz3_nearest_dirichlet) _mp_dbg(Jxyz3_nearest_mirror) _mp_dbg(Jxyz3_nearest_neumann)
+            _mp_dbg(Jxyz3_nearest_periodic)
+            _mp_dbg(abort) _mp_dbg(abs) _mp_dbg(abscut) _mp_dbg(absmaxabs) _mp_dbg(absminabs) _mp_dbg(acos)
+            _mp_dbg(acosh) _mp_dbg(add) _mp_dbg(add_add) _mp_dbg(add_mul) _mp_dbg(add_sub) _mp_dbg(arg0) _mp_dbg(arg1)
+            _mp_dbg(argkth) _mp_dbg(argmax) _mp_dbg(argmax2) _mp_dbg(argmaxabs) _mp_dbg(argmaxabs2) _mp_dbg(argmin)
+            _mp_dbg(argmin2) _mp_dbg(argminabs) _mp_dbg(argminabs2) _mp_dbg(asin) _mp_dbg(asinh) _mp_dbg(atan)
+            _mp_dbg(atan2) _mp_dbg(atanh) _mp_dbg(avg) _mp_dbg(avg2)
+            _mp_dbg(bitwise_and) _mp_dbg(bitwise_left_shift) _mp_dbg(bitwise_not) _mp_dbg(bitwise_or)
+            _mp_dbg(bitwise_right_shift) _mp_dbg(bitwise_xor) _mp_dbg(bool) _mp_dbg(break) _mp_dbg(breakpoint)
+            _mp_dbg(c2o) _mp_dbg(cbrt) _mp_dbg(ceil) _mp_dbg(complex_abs) _mp_dbg(complex_conj) _mp_dbg(complex_cos)
+            _mp_dbg(complex_cosh) _mp_dbg(complex_div_sv) _mp_dbg(complex_div_vv) _mp_dbg(complex_exp)
+            _mp_dbg(complex_log) _mp_dbg(complex_mul) _mp_dbg(complex_one) _mp_dbg(complex_pow_ss)
+            _mp_dbg(complex_pow_sv) _mp_dbg(complex_pow_vs) _mp_dbg(complex_pow_vv) _mp_dbg(complex_sin)
+            _mp_dbg(complex_sinh) _mp_dbg(complex_sqr) _mp_dbg(complex_sqrt) _mp_dbg(complex_tan) _mp_dbg(complex_tanh)
+            _mp_dbg(continue) _mp_dbg(convolve) _mp_dbg(copy) _mp_dbg(correlate) _mp_dbg(cos) _mp_dbg(cosh) _mp_dbg(cov)
+            _mp_dbg(critical) _mp_dbg(cross) _mp_dbg(cumulate) _mp_dbg(cumulate_ip) _mp_dbg(cut)
+            _mp_dbg(da_back_or_pop) _mp_dbg(da_freeze) _mp_dbg(da_insert_or_push_n) _mp_dbg(da_remove) _mp_dbg(da_size)
+            _mp_dbg(date) _mp_dbg(debug) _mp_dbg(decrement) _mp_dbg(deg2rad) _mp_dbg(det) _mp_dbg(diag) _mp_dbg(div)
+            _mp_dbg(div_add) _mp_dbg(div_div) _mp_dbg(div_sub) _mp_dbg(do) _mp_dbg(dot)
+            _mp_dbg(echo) _mp_dbg(ellipse) _mp_dbg(epoch) _mp_dbg(eq) _mp_dbg(equalize) _mp_dbg(equalize_ip)
+            _mp_dbg(erf) _mp_dbg(erfinv) _mp_dbg(exp) _mp_dbg(expr) _mp_dbg(eye)
+            _mp_dbg(f2ui) _mp_dbg(factorial) _mp_dbg(fft) _mp_dbg(fibonacci) _mp_dbg(find) _mp_dbg(find_seq)
+            _mp_dbg(flood) _mp_dbg(floor) _mp_dbg(for) _mp_dbg(frac) _mp_dbg(fsize)
+            _mp_dbg(gamma) _mp_dbg(gauss) _mp_dbg(gcd) _mp_dbg(gcd2) _mp_dbg(get) _mp_dbg(gt) _mp_dbg(gte)
+            _mp_dbg(histogram)
+            _mp_dbg(i) _mp_dbg(if) _mp_dbg(image_crop) _mp_dbg(image_depth) _mp_dbg(image_display) _mp_dbg(image_draw)
+            _mp_dbg(image_find) _mp_dbg(image_find_seq) _mp_dbg(image_height) _mp_dbg(image_is_shared)
+            _mp_dbg(image_print) _mp_dbg(image_resize) _mp_dbg(image_shift) _mp_dbg(image_shift_ip)
+            _mp_dbg(image_spectrum) _mp_dbg(image_stats) _mp_dbg(image_stats_cM) _mp_dbg(image_stats_cm)
+            _mp_dbg(image_stats_iM) _mp_dbg(image_stats_ia) _mp_dbg(image_stats_ic) _mp_dbg(image_stats_ic_static)
+            _mp_dbg(image_stats_id) _mp_dbg(image_stats_id_static) _mp_dbg(image_stats_im) _mp_dbg(image_stats_in)
+            _mp_dbg(image_stats_ip) _mp_dbg(image_stats_is) _mp_dbg(image_stats_static) _mp_dbg(image_stats_xM)
+            _mp_dbg(image_stats_xm) _mp_dbg(image_stats_yM) _mp_dbg(image_stats_ym) _mp_dbg(image_stats_zM)
+            _mp_dbg(image_stats_zm) _mp_dbg(image_swap) _mp_dbg(image_wh) _mp_dbg(image_whd) _mp_dbg(image_whds)
+            _mp_dbg(image_width) _mp_dbg(increment) _mp_dbg(index) _mp_dbg(indexof) _mp_dbg(inrange) _mp_dbg(int)
+            _mp_dbg(ioff) _mp_dbg(ioff_dirichlet) _mp_dbg(ioff_mirror) _mp_dbg(ioff_neumann) _mp_dbg(ioff_periodic)
+            _mp_dbg(isbool) _mp_dbg(isdir) _mp_dbg(isfile) _mp_dbg(isfinite) _mp_dbg(isin) _mp_dbg(isinf) _mp_dbg(isint)
+            _mp_dbg(isnan) _mp_dbg(isvarname) _mp_dbg(ixyzc1) _mp_dbg(ixyzc1_linear_dirichlet)
+            _mp_dbg(ixyzc1_linear_neumann) _mp_dbg(ixyzc1_nearest_dirichlet) _mp_dbg(ixyzc1_nearest_mirror)
+            _mp_dbg(ixyzc1_nearest_neumann) _mp_dbg(ixyzc1_nearest_periodic) _mp_dbg(ixyzc2)
+            _mp_dbg(ixyzc2_linear_dirichlet) _mp_dbg(ixyzc2_linear_neumann) _mp_dbg(ixyzc2_nearest_dirichlet)
+            _mp_dbg(ixyzc2_nearest_mirror) _mp_dbg(ixyzc2_nearest_neumann) _mp_dbg(ixyzc2_nearest_periodic)
+            _mp_dbg(ixyzc3) _mp_dbg(ixyzc3_linear_dirichlet) _mp_dbg(ixyzc3_linear_neumann)
+            _mp_dbg(ixyzc3_nearest_dirichlet) _mp_dbg(ixyzc3_nearest_mirror) _mp_dbg(ixyzc3_nearest_neumann)
+            _mp_dbg(ixyzc3_nearest_periodic)
+            _mp_dbg(joff) _mp_dbg(joff_dirichlet) _mp_dbg(joff_mirror) _mp_dbg(joff_neumann) _mp_dbg(joff_periodic)
+            _mp_dbg(jxyzc1) _mp_dbg(jxyzc1_linear_dirichlet) _mp_dbg(jxyzc1_linear_neumann)
+            _mp_dbg(jxyzc1_nearest_dirichlet) _mp_dbg(jxyzc1_nearest_mirror) _mp_dbg(jxyzc1_nearest_neumann)
+            _mp_dbg(jxyzc1_nearest_periodic) _mp_dbg(jxyzc2) _mp_dbg(jxyzc2_linear_dirichlet)
+            _mp_dbg(jxyzc2_linear_neumann) _mp_dbg(jxyzc2_nearest_dirichlet) _mp_dbg(jxyzc2_nearest_mirror)
+            _mp_dbg(jxyzc2_nearest_neumann) _mp_dbg(jxyzc2_nearest_periodic) _mp_dbg(jxyzc3)
+            _mp_dbg(jxyzc3_linear_dirichlet) _mp_dbg(jxyzc3_linear_neumann) _mp_dbg(jxyzc3_nearest_dirichlet)
+            _mp_dbg(jxyzc3_nearest_mirror) _mp_dbg(jxyzc3_nearest_neumann) _mp_dbg(jxyzc3_nearest_periodic)
+            _mp_dbg(kth)
+            _mp_dbg(lcm) _mp_dbg(lcm2) _mp_dbg(lerp) _mp_dbg(log) _mp_dbg(log10) _mp_dbg(log1p) _mp_dbg(log2)
+            _mp_dbg(logical_and) _mp_dbg(logical_not) _mp_dbg(logical_or) _mp_dbg(logit) _mp_dbg(lowercase) _mp_dbg(lt)
+            _mp_dbg(lte)
+            _mp_dbg(map) _mp_dbg(matrix_eigen) _mp_dbg(matrix_invert) _mp_dbg(matrix_mul) _mp_dbg(matrix_qr)
+            _mp_dbg(matrix_svd) _mp_dbg(max) _mp_dbg(max2) _mp_dbg(maxabs) _mp_dbg(maxabs2) _mp_dbg(med) _mp_dbg(med2)
+            _mp_dbg(mem_copy) _mp_dbg(mem_display) _mp_dbg(min) _mp_dbg(min2) _mp_dbg(minabs) _mp_dbg(minabs2)
+            _mp_dbg(minus) _mp_dbg(mirror) _mp_dbg(mirror_ip) _mp_dbg(modulo) _mp_dbg(mproj) _mp_dbg(mse) _mp_dbg(mul)
+            _mp_dbg(mul_div) _mp_dbg(mul_mul) _mp_dbg(mul_sub)
+            _mp_dbg(name) _mp_dbg(neq) _mp_dbg(noise) _mp_dbg(noise_ip) _mp_dbg(normalize) _mp_dbg(normalize_ip)
+            _mp_dbg(normp)
+            _mp_dbg(o2c)
+            _mp_dbg(permutations) _mp_dbg(permute) _mp_dbg(permute_ip) _mp_dbg(polygon) _mp_dbg(pow) _mp_dbg(pow0_25)
+            _mp_dbg(pow3) _mp_dbg(pow4) _mp_dbg(print) _mp_dbg(prod) _mp_dbg(prod2)
+            _mp_dbg(rad2deg) _mp_dbg(rand_double) _mp_dbg(rand_double_0_1) _mp_dbg(rand_double_0_N)
+            _mp_dbg(rand_double_ext) _mp_dbg(rand_double_gaussian) _mp_dbg(rand_double_m1_1) _mp_dbg(rand_int)
+            _mp_dbg(rand_int_0_1) _mp_dbg(rand_int_0_N) _mp_dbg(rand_int_ext) _mp_dbg(rand_int_m1_1) _mp_dbg(repeat)
+            _mp_dbg(reverse) _mp_dbg(reverse_ip) _mp_dbg(rol) _mp_dbg(ror) _mp_dbg(rot2d) _mp_dbg(rot3d) _mp_dbg(round)
+            _mp_dbg(run)
+            _mp_dbg(s2v) _mp_dbg(self_add) _mp_dbg(self_bitwise_and) _mp_dbg(self_bitwise_left_shift)
+            _mp_dbg(self_bitwise_or) _mp_dbg(self_bitwise_right_shift) _mp_dbg(self_decrement) _mp_dbg(self_div)
+            _mp_dbg(self_increment) _mp_dbg(self_modulo) _mp_dbg(self_mul) _mp_dbg(self_pow) _mp_dbg(self_sub)
+            _mp_dbg(self_vector_add_s) _mp_dbg(self_vector_add_v) _mp_dbg(self_vector_bitwise_and_s)
+            _mp_dbg(self_vector_bitwise_and_v) _mp_dbg(self_vector_bitwise_left_shift_s)
+            _mp_dbg(self_vector_bitwise_left_shift_v) _mp_dbg(self_vector_bitwise_or_s)
+            _mp_dbg(self_vector_bitwise_or_v) _mp_dbg(self_vector_bitwise_right_shift_s)
+            _mp_dbg(self_vector_bitwise_right_shift_v) _mp_dbg(self_vector_decrement) _mp_dbg(self_vector_div_s)
+            _mp_dbg(self_vector_div_v) _mp_dbg(self_vector_increment) _mp_dbg(self_vector_modulo_s)
+            _mp_dbg(self_vector_modulo_v) _mp_dbg(self_vector_mul_s) _mp_dbg(self_vector_mul_v)
+            _mp_dbg(self_vector_pow_s) _mp_dbg(self_vector_pow_v) _mp_dbg(self_vector_sub_s) _mp_dbg(self_vector_sub_v)
+            _mp_dbg(set) _mp_dbg(set_IJoff_s) _mp_dbg(set_IJoff_v) _mp_dbg(set_IJxyz_s) _mp_dbg(set_IJxyz_v)
+            _mp_dbg(set_ijoff) _mp_dbg(set_ijxyzc) _mp_dbg(shift) _mp_dbg(shift_ip) _mp_dbg(sigmoid) _mp_dbg(sign)
+            _mp_dbg(sin) _mp_dbg(sinc) _mp_dbg(sinh) _mp_dbg(size_list) _mp_dbg(softargmax) _mp_dbg(softargmin)
+            _mp_dbg(softmax) _mp_dbg(softmin) _mp_dbg(solve) _mp_dbg(sort) _mp_dbg(sort_ip) _mp_dbg(sqr) _mp_dbg(sqrt)
+            _mp_dbg(srand) _mp_dbg(srand0) _mp_dbg(std) _mp_dbg(std2) _mp_dbg(store) _mp_dbg(string)
+            _mp_dbg(string_init) _mp_dbg(sub) _mp_dbg(sub_div) _mp_dbg(sub_mul) _mp_dbg(sub_sub) _mp_dbg(sum)
+            _mp_dbg(sum2) _mp_dbg(swap)
+            _mp_dbg(tan) _mp_dbg(tanh) _mp_dbg(trace) _mp_dbg(transpose)
+            _mp_dbg(ui2f) _mp_dbg(unitnorm) _mp_dbg(uppercase)
+            _mp_dbg(v2s) _mp_dbg(var) _mp_dbg(var2) _mp_dbg(vargkth) _mp_dbg(vargkth2) _mp_dbg(vargmax)
+            _mp_dbg(vargmax2) _mp_dbg(vargmaxabs) _mp_dbg(vargmaxabs2) _mp_dbg(vargmin) _mp_dbg(vargmin2)
+            _mp_dbg(vargminabs) _mp_dbg(vargminabs2) _mp_dbg(vavg) _mp_dbg(vavg2) _mp_dbg(vector_abs)
+            _mp_dbg(vector_abscut) _mp_dbg(vector_acos) _mp_dbg(vector_acosh) _mp_dbg(vector_add_sv)
+            _mp_dbg(vector_add_vs) _mp_dbg(vector_add_vv) _mp_dbg(vector_asin) _mp_dbg(vector_asinh)
+            _mp_dbg(vector_atan) _mp_dbg(vector_atan2_sv) _mp_dbg(vector_atan2_vs) _mp_dbg(vector_atan2_vv)
+            _mp_dbg(vector_atanh) _mp_dbg(vector_bitwise_and_sv) _mp_dbg(vector_bitwise_and_vs)
+            _mp_dbg(vector_bitwise_and_vv) _mp_dbg(vector_bitwise_left_shift_sv) _mp_dbg(vector_bitwise_left_shift_vs)
+            _mp_dbg(vector_bitwise_left_shift_vv) _mp_dbg(vector_bitwise_not) _mp_dbg(vector_bitwise_or_sv)
+            _mp_dbg(vector_bitwise_or_vs) _mp_dbg(vector_bitwise_or_vv) _mp_dbg(vector_bitwise_right_shift_sv)
+            _mp_dbg(vector_bitwise_right_shift_vs) _mp_dbg(vector_bitwise_right_shift_vv) _mp_dbg(vector_bitwise_xor_sv)
+            _mp_dbg(vector_bitwise_xor_vs) _mp_dbg(vector_bitwise_xor_vv) _mp_dbg(vector_bool) _mp_dbg(vector_cbrt)
+            _mp_dbg(vector_ceil) _mp_dbg(vector_copy) _mp_dbg(vector_cos) _mp_dbg(vector_cosh) _mp_dbg(vector_crop)
+            _mp_dbg(vector_crop_ext) _mp_dbg(vector_cut) _mp_dbg(vector_decrement) _mp_dbg(vector_deg2rad)
+            _mp_dbg(vector_display) _mp_dbg(vector_div_sv) _mp_dbg(vector_div_vs) _mp_dbg(vector_div_vv)
+            _mp_dbg(vector_draw) _mp_dbg(vector_eq) _mp_dbg(vector_erf) _mp_dbg(vector_erfinv) _mp_dbg(vector_exp)
+            _mp_dbg(vector_f2ui) _mp_dbg(vector_factorial) _mp_dbg(vector_fibonacci) _mp_dbg(vector_fill)
+            _mp_dbg(vector_fill_ext) _mp_dbg(vector_floor) _mp_dbg(vector_frac) _mp_dbg(vector_gamma)
+            _mp_dbg(vector_gauss) _mp_dbg(vector_gt_sv) _mp_dbg(vector_gt_vs) _mp_dbg(vector_gt_vv)
+            _mp_dbg(vector_gte_sv) _mp_dbg(vector_gte_vs) _mp_dbg(vector_gte_vv) _mp_dbg(vector_hypot)
+            _mp_dbg(vector_increment) _mp_dbg(vector_init) _mp_dbg(vector_int) _mp_dbg(vector_isbool)
+            _mp_dbg(vector_isfinite) _mp_dbg(vector_isinf) _mp_dbg(vector_isint) _mp_dbg(vector_isnan)
+            _mp_dbg(vector_lerp) _mp_dbg(vector_log) _mp_dbg(vector_log10) _mp_dbg(vector_log1p) _mp_dbg(vector_log2)
+            _mp_dbg(vector_logical_not) _mp_dbg(vector_logit) _mp_dbg(vector_lowercase) _mp_dbg(vector_lt_sv)
+            _mp_dbg(vector_lt_vs) _mp_dbg(vector_lt_vv) _mp_dbg(vector_lte_sv) _mp_dbg(vector_lte_vs)
+            _mp_dbg(vector_lte_vv) _mp_dbg(vector_minus) _mp_dbg(vector_modulo_sv) _mp_dbg(vector_modulo_vs)
+            _mp_dbg(vector_modulo_vv) _mp_dbg(vector_mul_sv) _mp_dbg(vector_mul_vs) _mp_dbg(vector_mul_vv)
+            _mp_dbg(vector_neq) _mp_dbg(vector_norm0) _mp_dbg(vector_norm1) _mp_dbg(vector_norm2)
+            _mp_dbg(vector_norminf) _mp_dbg(vector_off) _mp_dbg(vector_pow_sv) _mp_dbg(vector_pow_vs)
+            _mp_dbg(vector_pow_vv) _mp_dbg(vector_print) _mp_dbg(vector_rad2deg) _mp_dbg(vector_rand)
+            _mp_dbg(vector_rand_double_ext) _mp_dbg(vector_rand_double_sv) _mp_dbg(vector_rand_double_vs)
+            _mp_dbg(vector_rand_double_vv) _mp_dbg(vector_rand_int_ext) _mp_dbg(vector_rand_int_sv)
+            _mp_dbg(vector_rand_int_vs) _mp_dbg(vector_rand_int_vv) _mp_dbg(vector_resize) _mp_dbg(vector_resize_ext)
+            _mp_dbg(vector_rol_sv) _mp_dbg(vector_rol_vs) _mp_dbg(vector_rol_vv) _mp_dbg(vector_ror_sv)
+            _mp_dbg(vector_ror_vs) _mp_dbg(vector_ror_vv) _mp_dbg(vector_round) _mp_dbg(vector_set_off)
+            _mp_dbg(vector_sigmoid) _mp_dbg(vector_sign) _mp_dbg(vector_sin) _mp_dbg(vector_sinc) _mp_dbg(vector_sinh)
+            _mp_dbg(vector_sqr) _mp_dbg(vector_sqrt) _mp_dbg(vector_stats) _mp_dbg(vector_sub_sv) _mp_dbg(vector_sub_vs)
+            _mp_dbg(vector_sub_vv) _mp_dbg(vector_tan) _mp_dbg(vector_tanh) _mp_dbg(vector_ui2f)
+            _mp_dbg(vector_uppercase) _mp_dbg(vector_wave_sv) _mp_dbg(vector_wave_vs) _mp_dbg(vector_wave_vv)
+            _mp_dbg(vkth) _mp_dbg(vkth2) _mp_dbg(vmax) _mp_dbg(vmax2) _mp_dbg(vmaxabs) _mp_dbg(vmaxabs2)
+            _mp_dbg(vmedian) _mp_dbg(vmedian2) _mp_dbg(vmin) _mp_dbg(vmin2) _mp_dbg(vminabs) _mp_dbg(vminabs2)
+            _mp_dbg(vprod) _mp_dbg(vprod2) _mp_dbg(vstd) _mp_dbg(vstd2) _mp_dbg(vsum) _mp_dbg(vsum2) _mp_dbg(vvar)
+            _mp_dbg(vvar2)
+            _mp_dbg(warp) _mp_dbg(wave) _mp_dbg(while)
             "unknown";
 
           cimg_pragma_openmp(critical(mp_debug)) {

@@ -16353,19 +16353,19 @@ namespace cimg_library {
           case 'R' :
             if (reserved_label[(int)'R']!=~0U) _cimg_mp_return(reserved_label[(int)'R']);
             need_input_copy = true;
-            _cimg_mp_scalar8(ixyzc1,0,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,0,0,0);
+            _cimg_mp_scalar7(ixyzc1,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,0,0,0);
           case 'G' :
             if (reserved_label[(int)'G']!=~0U) _cimg_mp_return(reserved_label[(int)'G']);
             need_input_copy = true;
-            _cimg_mp_scalar8(ixyzc1,0,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,1,0,0);
+            _cimg_mp_scalar7(ixyzc1,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,1,0,0);
           case 'B' :
             if (reserved_label[(int)'B']!=~0U) _cimg_mp_return(reserved_label[(int)'B']);
             need_input_copy = true;
-            _cimg_mp_scalar8(ixyzc1,0,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,2,0,0);
+            _cimg_mp_scalar7(ixyzc1,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,2,0,0);
           case 'A' :
             if (reserved_label[(int)'A']!=~0U) _cimg_mp_return(reserved_label[(int)'A']);
             need_input_copy = true;
-            _cimg_mp_scalar8(ixyzc1,0,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,3,0,0);
+            _cimg_mp_scalar7(ixyzc1,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,3,0,0);
           }
         else if (ss2==se) { // Two-chars reserved variable
           arg1 = arg2 = ~0U;
@@ -16398,7 +16398,7 @@ namespace cimg_library {
               pos = 21 + *ss1 - '0';
               if (reserved_label[pos]!=~0U) _cimg_mp_return(reserved_label[pos]);
               need_input_copy = true;
-              _cimg_mp_scalar8(ixyzc1,0,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,pos - 21,0,0);
+              _cimg_mp_scalar7(ixyzc1,~0U,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,pos - 21,0,0);
             }
             switch (*ss1) {
             case 'a' : arg1 = 6; arg2 = 2; break; // ia
@@ -18309,10 +18309,10 @@ namespace cimg_library {
             if (p1==~0U) { if (!imgin) _cimg_mp_return(0); need_input_copy = true; }
             else if (!imglist) _cimg_mp_return(0);
 
-            pos = scalar8(is_inty?(is_relative?mp_jxyzc1:mp_ixyzc1):
+            pos = scalar7(is_inty?(is_relative?mp_jxyzc1:mp_ixyzc1):
                           is_intz?(is_relative?mp_jxyzc2:mp_ixyzc2):
                           is_relative?mp_jxyzc3:mp_ixyzc3,
-                          (unsigned int)is_relative,p1,arg1,arg2,arg3,arg4,
+                          p1,arg1,arg2,arg3,arg4,
                           arg5==~0U?_cimg_mp_interpolation:arg5,
                           arg6==~0U?_cimg_mp_boundary:arg6);
             memtype[pos] = -1; // Prevent from being used in further optimization
@@ -23377,7 +23377,7 @@ namespace cimg_library {
             _cimg_mp_scalar1(image_spectrum,arg1);
           case 'i' : // i#ind
             if (!imglist) _cimg_mp_return(0);
-            _cimg_mp_scalar8(ixyzc1,0,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,_cimg_mp_slot_c,
+            _cimg_mp_scalar7(ixyzc1,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,_cimg_mp_slot_c,
                              0,_cimg_mp_boundary);
           case 'I' : // I#ind
             p2 = p1!=~0U?imglist[p1]._spectrum:imglist._width?~0U:0;
@@ -23388,19 +23388,19 @@ namespace cimg_library {
             _cimg_mp_return(pos);
           case 'R' : // R#ind
             if (!imglist) _cimg_mp_return(0);
-            _cimg_mp_scalar8(ixyzc1,0,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,0,
+            _cimg_mp_scalar7(ixyzc1,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,0,
                              0,_cimg_mp_boundary);
           case 'G' : // G#ind
             if (!imglist) _cimg_mp_return(0);
-            _cimg_mp_scalar8(ixyzc1,0,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,1,
+            _cimg_mp_scalar7(ixyzc1,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,1,
                              0,_cimg_mp_boundary);
           case 'B' : // B#ind
             if (!imglist) _cimg_mp_return(0);
-            _cimg_mp_scalar8(ixyzc1,0,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,2,
+            _cimg_mp_scalar7(ixyzc1,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,2,
                              0,_cimg_mp_boundary);
           case 'A' : // A#ind
             if (!imglist) _cimg_mp_return(0);
-            _cimg_mp_scalar8(ixyzc1,0,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,3,
+            _cimg_mp_scalar7(ixyzc1,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,3,
                              0,_cimg_mp_boundary);
           }
         }
@@ -23420,7 +23420,7 @@ namespace cimg_library {
           if (*ss=='i') {
             if (*ss1>='0' && *ss1<='9') { // i0#ind...i9#ind
               if (!imglist) _cimg_mp_return(0);
-              _cimg_mp_scalar8(ixyzc1,0,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,*ss1 - '0',
+              _cimg_mp_scalar7(ixyzc1,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,*ss1 - '0',
                                0,_cimg_mp_boundary);
             }
 
@@ -26187,14 +26187,14 @@ namespace cimg_library {
                                                    const bool is_relative, const unsigned int interpolation,
                                                    const unsigned int boundary_conditions) {
         const unsigned int
-          _ind = (unsigned int)mp.opcode[3],
+          _ind = (unsigned int)mp.opcode[2],
           ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
         const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
         const double
-          x = is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(4)):_mp_arg(4),
-          y = is_relative?(mp.mem[_cimg_mp_slot_y] + _mp_arg(5)):_mp_arg(5),
-          z = is_relative?(mp.mem[_cimg_mp_slot_z] + _mp_arg(6)):_mp_arg(6);
-        const int c = (int)(is_relative?(mp.mem[_cimg_mp_slot_c] + _mp_arg(7)):_mp_arg(7));
+          x = is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(3)):_mp_arg(3),
+          y = is_relative?(mp.mem[_cimg_mp_slot_y] + _mp_arg(4)):_mp_arg(4),
+          z = is_relative?(mp.mem[_cimg_mp_slot_z] + _mp_arg(5)):_mp_arg(5);
+        const int c = (int)(is_relative?(mp.mem[_cimg_mp_slot_c] + _mp_arg(6)):_mp_arg(6));
         switch (interpolation) {
         case 2 : // Cubic interpolation
           switch (boundary_conditions) {
@@ -26265,15 +26265,15 @@ namespace cimg_library {
                                                    const bool is_relative, const unsigned int interpolation,
                                                    const unsigned int boundary_conditions) {
         const unsigned int
-          _ind = (unsigned int)mp.opcode[3],
+          _ind = (unsigned int)mp.opcode[2],
           ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
         const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
         const double
-          x = is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(4)):_mp_arg(4),
-          y = is_relative?(mp.mem[_cimg_mp_slot_y] + _mp_arg(5)):_mp_arg(5);
+          x = is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(3)):_mp_arg(3),
+          y = is_relative?(mp.mem[_cimg_mp_slot_y] + _mp_arg(4)):_mp_arg(4);
         const int
-          z = (int)(is_relative?(mp.mem[_cimg_mp_slot_z] + _mp_arg(6)):_mp_arg(6)),
-          c = (int)(is_relative?(mp.mem[_cimg_mp_slot_c] + _mp_arg(7)):_mp_arg(7));
+          z = (int)(is_relative?(mp.mem[_cimg_mp_slot_z] + _mp_arg(5)):_mp_arg(5)),
+          c = (int)(is_relative?(mp.mem[_cimg_mp_slot_c] + _mp_arg(6)):_mp_arg(6));
         switch (interpolation) {
         case 2 : // Cubic interpolation
           switch (boundary_conditions) {
@@ -26348,15 +26348,15 @@ namespace cimg_library {
                                                    const bool is_relative, const unsigned int interpolation,
                                                    const unsigned int boundary_conditions) {
         const unsigned int
-          _ind = (unsigned int)mp.opcode[3],
+          _ind = (unsigned int)mp.opcode[2],
           ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
         const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
         const double
-          x = is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(4)):_mp_arg(4);
+          x = is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(3)):_mp_arg(3);
         const int
-          y = (int)(is_relative?(mp.mem[_cimg_mp_slot_y] + _mp_arg(5)):_mp_arg(5)),
-          z = (int)(is_relative?(mp.mem[_cimg_mp_slot_z] + _mp_arg(6)):_mp_arg(6)),
-          c = (int)(is_relative?(mp.mem[_cimg_mp_slot_c] + _mp_arg(7)):_mp_arg(7));
+          y = (int)(is_relative?(mp.mem[_cimg_mp_slot_y] + _mp_arg(4)):_mp_arg(4)),
+          z = (int)(is_relative?(mp.mem[_cimg_mp_slot_z] + _mp_arg(5)):_mp_arg(5)),
+          c = (int)(is_relative?(mp.mem[_cimg_mp_slot_c] + _mp_arg(6)):_mp_arg(6));
         switch (interpolation) {
         case 2 : // Cubic interpolation
           switch (boundary_conditions) {
@@ -26430,27 +26430,27 @@ namespace cimg_library {
       }
 
       static double mp_ixyzc3(_cimg_math_parser& mp) {
-        return _mp_ijxyzc3(mp,false,(unsigned int)_mp_arg(8),(unsigned int)_mp_arg(9));
+        return _mp_ijxyzc3(mp,false,(unsigned int)_mp_arg(7),(unsigned int)_mp_arg(8));
       }
 
       static double mp_jxyzc3(_cimg_math_parser& mp) {
-        return _mp_ijxyzc3(mp,true,(unsigned int)_mp_arg(8),(unsigned int)_mp_arg(9));
+        return _mp_ijxyzc3(mp,true,(unsigned int)_mp_arg(7),(unsigned int)_mp_arg(8));
       }
 
       static double mp_ixyzc2(_cimg_math_parser& mp) {
-        return _mp_ijxyzc2(mp,false,(unsigned int)_mp_arg(8),(unsigned int)_mp_arg(9));
+        return _mp_ijxyzc2(mp,false,(unsigned int)_mp_arg(7),(unsigned int)_mp_arg(8));
       }
 
       static double mp_jxyzc2(_cimg_math_parser& mp) {
-        return _mp_ijxyzc2(mp,true,(unsigned int)_mp_arg(8),(unsigned int)_mp_arg(9));
+        return _mp_ijxyzc2(mp,true,(unsigned int)_mp_arg(7),(unsigned int)_mp_arg(8));
       }
 
       static double mp_ixyzc1(_cimg_math_parser& mp) {
-        return _mp_ijxyzc1(mp,false,(unsigned int)_mp_arg(8),(unsigned int)_mp_arg(9));
+        return _mp_ijxyzc1(mp,false,(unsigned int)_mp_arg(7),(unsigned int)_mp_arg(8));
       }
 
       static double mp_jxyzc1(_cimg_math_parser& mp) {
-        return _mp_ijxyzc1(mp,true,(unsigned int)_mp_arg(8),(unsigned int)_mp_arg(9));
+        return _mp_ijxyzc1(mp,true,(unsigned int)_mp_arg(7),(unsigned int)_mp_arg(8));
       }
 
       static double mp_image_crop(_cimg_math_parser& mp) {

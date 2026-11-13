@@ -26149,8 +26149,16 @@ namespace cimg_library {
         return mp.mem[is_cond?mem_left:mem_right];
       }
 
-      static double _mp_ijoff(_cimg_math_parser& mp,
-                              const bool is_relative, const unsigned int boundary_conditions) {
+#if defined(_MSC_VER)
+#efine cimg_always_inline __forceinline
+#elif defined(__GNUC__) || defined(__clang__)
+#define cimg_always_inline inline __attribute__((always_inline))
+#else
+#efine cimg_always_inline inline
+#endif
+
+      static cimg_always_inline double _mp_ijoff(_cimg_math_parser& mp,
+                                                 const bool is_relative, const unsigned int boundary_conditions) {
         const unsigned int
           _ind = (unsigned int)mp.opcode[2],
           ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
@@ -26185,13 +26193,6 @@ namespace cimg_library {
         return _mp_ijoff(mp,true,(unsigned int)_mp_arg(4));
       }
 
-#if defined(_MSC_VER)
-#efine cimg_always_inline __forceinline
-#elif defined(__GNUC__) || defined(__clang__)
-#define cimg_always_inline inline __attribute__((always_inline))
-#else
-#efine cimg_always_inline inline
-#endif
       static cimg_always_inline double _mp_ijxyzc3(_cimg_math_parser& mp,
                                                    const bool is_relative, const unsigned int interpolation,
                                                    const unsigned int boundary_conditions) {

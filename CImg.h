@@ -26147,12 +26147,11 @@ namespace cimg_library {
         return mp.mem[is_cond?mem_left:mem_right];
       }
 
-      static double mp_ijoff(_cimg_math_parser& mp) {
-        const bool is_relative = (bool)mp.opcode[2];
+      static double _mp_ijoff(_cimg_math_parser& mp,
+                              const bool is_relative, const unsigned int boundary_conditions) {
         const unsigned int
           _ind = (unsigned int)mp.opcode[3],
-          ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width()),
-          boundary_conditions = (unsigned int)_mp_arg(5);
+          ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
         const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
         const longT
           off = (longT)(is_relative?img.offset((int)mp.mem[_cimg_mp_slot_x],
@@ -26174,6 +26173,10 @@ namespace cimg_library {
             return 0;
           }
         return 0;
+      }
+
+      static double mp_ijoff(_cimg_math_parser& mp) {
+        return _mp_ijoff(mp,(bool)mp.opcode[2],(unsigned int)_mp_arg(5));
       }
 
 #if defined(_MSC_VER)

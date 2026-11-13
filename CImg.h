@@ -18071,7 +18071,18 @@ namespace cimg_library {
             if (!p2) _cimg_mp_return(0);
             pos = vector(p2);
             if (p1==~0U) need_input_copy = true;
-            op = is_relative?mp_Joff:mp_Ioff;
+
+            if (arg2==0 || (arg2==~0U && _cimg_mp_boundary==0)) // Dirichlet boundary conditions
+              op = is_relative?mp_Joff_dirichlet:mp_Ioff_dirichlet;
+            else if (arg2==1 || (arg2==~0U && _cimg_mp_boundary==1)) // Neumann boundary conditions
+              op = is_relative?mp_Joff_neumann:mp_Ioff_neumann;
+            else if (arg2==2 || (arg2==~0U && _cimg_mp_boundary==2)) // Periodic boundary conditions
+              op = is_relative?mp_Joff_periodic:mp_Ioff_periodic;
+            else if (arg2==3 || (arg2==~0U && _cimg_mp_boundary==3)) // Mirror boundary conditions
+              op = is_relative?mp_Joff_mirror:mp_Ioff_mirror;
+            if (!op) // Generic case
+              op = is_relative?mp_Joff:mp_Ioff;
+
             add_opcode(op,pos,p1,arg1,arg2==~0U?_cimg_mp_boundary:arg2,p2);
             return_comp = true;
             _cimg_mp_return(pos);
@@ -18271,7 +18282,7 @@ namespace cimg_library {
                      is_relative?mp_Jxyz3_nearest_mirror:mp_Ixyz3_nearest_mirror;
               }
             }
-            if (!op) // Generic version
+            if (!op) // Generic case
               op = is_inty?(is_relative?mp_Jxyz1:mp_Ixyz1):
                 is_intz?(is_relative?mp_Jxyz2:mp_Ixyz2):
                 is_relative?mp_Jxyz3:mp_Ixyz3;
@@ -18386,7 +18397,7 @@ namespace cimg_library {
                      is_relative?mp_jxyzc3_nearest_mirror:mp_ixyzc3_nearest_mirror;
               }
             }
-            if (!op) // Generic version
+            if (!op) // Generic case
               op = is_inty?(is_relative?mp_jxyzc1:mp_ixyzc1):
                 is_intz?(is_relative?mp_jxyzc2:mp_ixyzc2):
                 is_relative?mp_jxyzc3:mp_ixyzc3;
@@ -25556,7 +25567,11 @@ namespace cimg_library {
             _mp_debug(f2ui) _mp_debug(factorial) _mp_debug(fft) _mp_debug(fibonacci) _mp_debug(find) _mp_debug(find_seq)
             _mp_debug(flood) _mp_debug(floor) _mp_debug(for) _mp_debug(frac) _mp_debug(fsize) _mp_debug(gamma)
             _mp_debug(gauss) _mp_debug(gcd) _mp_debug(gcd2) _mp_debug(get) _mp_debug(get) _mp_debug(gt) _mp_debug(gte)
-            _mp_debug(histogram) _mp_debug(I) _mp_debug(i) _mp_debug(if) _mp_debug(Ioff) _mp_debug(ioff)
+            _mp_debug(histogram) _mp_debug(I) _mp_debug(i) _mp_debug(if)
+            _mp_debug(Ioff_dirichlet) _mp_debug(Ioff_neumann) _mp_debug(Ioff_periodic) _mp_debug(Ioff_mirror)
+            _mp_debug(Ioff)
+            _mp_debug(ioff_dirichlet) _mp_debug(ioff_neumann) _mp_debug(ioff_periodic) _mp_debug(ioff_mirror)
+            _mp_debug(ioff)
             _mp_debug(Ixyz1_nearest_dirichlet) _mp_debug(Ixyz1_nearest_neumann) _mp_debug(Ixyz1_nearest_periodic)
             _mp_debug(Ixyz1_nearest_mirror) _mp_debug(Ixyz1_linear_dirichlet) _mp_debug(Ixyz1_linear_neumann)
             _mp_debug(Ixyz1)
@@ -25587,7 +25602,11 @@ namespace cimg_library {
             _mp_debug(image_wh) _mp_debug(image_whd) _mp_debug(image_whds) _mp_debug(image_width) _mp_debug(increment)
             _mp_debug(index) _mp_debug(indexof) _mp_debug(inrange) _mp_debug(int) _mp_debug(isbool) _mp_debug(isdir)
             _mp_debug(isfile) _mp_debug(isfinite) _mp_debug(isin) _mp_debug(isinf) _mp_debug(isint) _mp_debug(isnan)
-            _mp_debug(isvarname) _mp_debug(Joff) _mp_debug(joff)
+            _mp_debug(isvarname)
+            _mp_debug(Joff_dirichlet) _mp_debug(Joff_neumann) _mp_debug(Joff_periodic) _mp_debug(Joff_mirror)
+            _mp_debug(Joff)
+            _mp_debug(joff_dirichlet) _mp_debug(joff_neumann) _mp_debug(joff_periodic) _mp_debug(joff_mirror)
+            _mp_debug(joff)
             _mp_debug(Jxyz1_nearest_dirichlet) _mp_debug(Jxyz1_nearest_neumann) _mp_debug(Jxyz1_nearest_periodic)
             _mp_debug(Jxyz1_nearest_mirror) _mp_debug(Jxyz1_linear_dirichlet) _mp_debug(Jxyz1_linear_neumann)
             _mp_debug(Jxyz1)
@@ -26297,10 +26316,17 @@ namespace cimg_library {
         return 0;
       }
 
+      static double mp_ioff_dirichlet(_cimg_math_parser& mp) { return _mp_ijoff(mp,false,0); }
+      static double mp_ioff_neumann(_cimg_math_parser& mp) { return _mp_ijoff(mp,false,1); }
+      static double mp_ioff_periodic(_cimg_math_parser& mp) { return _mp_ijoff(mp,false,2); }
+      static double mp_ioff_mirror(_cimg_math_parser& mp) { return _mp_ijoff(mp,false,3); }
       static double mp_ioff(_cimg_math_parser& mp) {
         return _mp_ijoff(mp,false,(unsigned int)_mp_arg(4));
       }
-
+      static double mp_joff_dirichlet(_cimg_math_parser& mp) { return _mp_ijoff(mp,true,0); }
+      static double mp_joff_neumann(_cimg_math_parser& mp) { return _mp_ijoff(mp,true,1); }
+      static double mp_joff_periodic(_cimg_math_parser& mp) { return _mp_ijoff(mp,true,2); }
+      static double mp_joff_mirror(_cimg_math_parser& mp) { return _mp_ijoff(mp,true,3); }
       static double mp_joff(_cimg_math_parser& mp) {
         return _mp_ijoff(mp,true,(unsigned int)_mp_arg(4));
       }
@@ -29800,10 +29826,17 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
+      static double mp_Ioff_dirichlet(_cimg_math_parser& mp) { return _mp_IJoff(mp,false,0); }
+      static double mp_Ioff_neumann(_cimg_math_parser& mp) { return _mp_IJoff(mp,false,1); }
+      static double mp_Ioff_periodic(_cimg_math_parser& mp) { return _mp_IJoff(mp,false,2); }
+      static double mp_Ioff_mirror(_cimg_math_parser& mp) { return _mp_IJoff(mp,false,3); }
       static double mp_Ioff(_cimg_math_parser& mp) {
         return _mp_IJoff(mp,false,(unsigned int)_mp_arg(4));
       }
-
+      static double mp_Joff_dirichlet(_cimg_math_parser& mp) { return _mp_IJoff(mp,true,0); }
+      static double mp_Joff_neumann(_cimg_math_parser& mp) { return _mp_IJoff(mp,true,1); }
+      static double mp_Joff_periodic(_cimg_math_parser& mp) { return _mp_IJoff(mp,true,2); }
+      static double mp_Joff_mirror(_cimg_math_parser& mp) { return _mp_IJoff(mp,true,3); }
       static double mp_Joff(_cimg_math_parser& mp) {
         return _mp_IJoff(mp,true,(unsigned int)_mp_arg(4));
       }

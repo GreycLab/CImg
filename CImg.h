@@ -16740,12 +16740,12 @@ namespace cimg_library {
                           if (p2>1) { std::memset(ps,cvoid,p3); need_cleaning = true; }
                           ps+=p3;
                         } else { // Not near a number sign
-                          const char *pb = ps - 1, *pa = ps + p2, *const pae = macro_body[0].end();
+                          const char *pb = ps - 1, *pa = ps + p2;
                           while (pb>=macro_body[0]._data && cimg::is_blank(*pb)) --pb;
-                          while (pa<pae && cimg::is_blank(*pa)) ++pa;
+                          while (*pa && cimg::is_blank(*pa)) ++pa;
                           const bool
                             is_safe_before = pb>=macro_body[0]._data && (*pb=='(' || *pb==','),
-                            is_safe_after = pa<pae && (*pa==')' || *pa==',');
+                            is_safe_after = *pa==')' || *pa==',';
                           if (is_safe_before && is_safe_after) { // No need for enclosing parentheses
                             *(ps++) = (char)p1;
                             p3 = p2 - 1;

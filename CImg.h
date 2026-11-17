@@ -30135,12 +30135,14 @@ namespace cimg_library {
               cx = mx<img.width()?mx:w2 - mx - 1;
             cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atX(cx,cy,cz,c);
           } break;
-          case 2 : // Periodic
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atX_p((float)x,y,z,c);
-            break;
-          case 1 : // Neumann
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atX((float)x,y,z,c);
-            break;
+          case 2 : { // Periodic
+            const int my = cimg::mod(y,img.height()), mz = cimg::mod(z,img.depth());
+            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atX_p((float)x,my,mz,c);
+          } break;
+          case 1 : { // Neumann
+            const int cy = cimg::cut(y,0,img.height() - 1), cz = cimg::cut(z,0,img.depth() - 1);
+            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atX((float)x,cy,cz,c);
+          } break;
           default : // Dirichlet
             cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img.cubic_atX((float)x,y,z,c,(T)0);
           } break;
@@ -30158,12 +30160,14 @@ namespace cimg_library {
               cx = mx<img.width()?mx:w2 - mx - 1;
             cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atX(cx,cy,cz,c);
           } break;
-          case 2 : // Periodic
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atX_p((float)x,y,z,c);
-            break;
-          case 1 : // Neumann
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atX((float)x,y,z,c);
-            break;
+          case 2 : { // Periodic
+            const int my = cimg::mod(y,img.height()), mz = cimg::mod(z,img.depth());
+            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atX_p((float)x,my,mz,c);
+          } break;
+          case 1 : { // Neumann
+            const int cy = cimg::cut(y,0,img.height() - 1), cz = cimg::cut(z,0,img.depth() - 1);
+            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atX((float)x,cy,cz,c);
+          } break;
           default : // Dirichlet
             cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img.linear_atX((float)x,y,z,c,(T)0);
           } break;

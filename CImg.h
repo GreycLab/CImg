@@ -32855,7 +32855,7 @@ namespace cimg_library {
         }
 
         // Sort singular values (in decreasing order), then copy into U, S, V (type t).
-        std::vector<int> perm(n);
+        CImg<intT> perm(n);
         for (int i = 0; i<n; ++i) perm[i] = i;
         if (sorting)
           for (int i = 1; i<n; ++i)

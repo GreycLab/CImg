@@ -5206,7 +5206,10 @@ namespace cimg_library {
 #if cimg_use_cpp11==1 && !defined(_MSC_VER)
       return std::hypot(x,y);
 #else
-      return std::sqrt(x*x + y*y);
+      const double aa = cimg::abs((double)a), ab = cimg::abs((double)b);
+      if (aa>ab) { const double r = ab/aa; return (T)(aa*std::sqrt(1 + r*r)); }
+      if (ab>0) { const double r = aa/ab; return (T)(ab*std::sqrt(1 + r*r)); }
+      return 0;
 #endif
     }
 
@@ -32642,220 +32645,213 @@ namespace cimg_library {
     /**
        Compute the SVD decomposition \c *this=U*S*V' where \c U and \c V are orthogonal matrices
        and \c S is a diagonal matrix. \c V' denotes the matrix transpose of \c V.
+       All internal computations are done in \c double, whatever the pixel types are.
        \param[out] U First matrix of the SVD product.
        \param[out] S Coefficients of the second (diagonal) matrix of the SVD product.
          These coefficients are stored as a vector.
        \param[out] V Third matrix of the SVD product.
        \param sorting Indicates whether the diagonal coefficients are sorted (in decreasing order).
        \param max_iteration Maximum number of iterations considered for the algorithm convergence.
-       \param lambda Epsilon used for the algorithm convergence.
-       \note The instance matrix can be computed from \c U,\c S and \c V by
-       \code
-       const CImg<> A; // Input matrix (assumed to contain some values)
-       CImg<> U,S,V;
-       A.SVD(U,S,V)
-       \endcode
+       \param lambda Value added to the diagonal of the matrix before the decomposition.
     **/
     template<typename t>
     const CImg<T>& SVD(CImg<t>& U, CImg<t>& S, CImg<t>& V, const bool sorting=true,
                        const unsigned int max_iteration=40, const float lambda=0) const {
-      typedef _cimg_Ttfloat Ttfloat;
-      const Ttfloat eps = (Ttfloat)1e-8f;
       if (is_empty()) { U.assign(); S.assign(); V.assign(); }
       else if (_depth!=1 || _spectrum!=1)
         throw CImgInstanceException(_cimg_instance
                                     "SVD(): Instance has invalid dimensions (depth or channels different from 1).",
                                     cimg_instance);
       else {
-        U.assign(*this,false);
-        if (lambda!=0) {
-          const unsigned int delta = std::min(U._width,U._height);
-          for (unsigned int i = 0; i<delta; ++i) U(i,i) = (t)(U(i,i) + lambda);
-        }
-        if (S.size()<_width) S.assign(1,_width);
-        if (V._width<_width || V._height<_height) V.assign(_width,_width);
-        CImg<t> rv1(_width);
-        Ttfloat anorm = 0, c, f, g = 0, h, s, scale = 0;
-        int l = 0;
+        const int m = (int)_height, n = (int)_width;
 
-        cimg_forX(U,i) {
+        // Working copy in double (a will become U), V, singular values w and superdiagonal rv1.
+        CImg<doubleT>
+          a(n,m,1,1,0), v(n,n,1,1,0), u(n,m,1,1,0), w(n,1,1,1,0),
+          rv1(n,1,1,1,0), hl(n,1,1,1,0), hr(n,1,1,1,0);
+        for (int y = 0; y<m; ++y) for (int x = 0; x<n; ++x) a(x,y) = (double)(*this)(x,y);
+        if (lambda!=0) for (int i = 0; i<std::min(m,n); ++i) a(i,i) += (double)lambda;
+
+        double anorm = 0, c, f, g = 0, h, s, scale = 0, x, y, z;
+        int l = 0, nm = 0;
+
+        // Householder bidiagonalization. The (normalized) Householder vectors are kept as is
+        // in a (left: column i, right: row i), with their coefficient h in hl[i] / hr[i].
+        for (int i = 0; i<n; ++i) {
           l = i + 1;
           rv1[i] = scale*g;
           g = s = scale = 0;
-          if (i<height()) {
-            for (int k = i; k<height(); ++k) scale+=cimg::abs(U(i,k));
-            if (scale) {
-              for (int k = i; k<height(); ++k) {
-                U(i,k)/=scale;
-                s+=U(i,k)*U(i,k);
-              }
-              f = U(i,i);
-              g = (Ttfloat)((f>=0?-1:1)*std::sqrt(std::max((Tfloat)0,s)));
+          if (i<m) {
+            for (int k = i; k<m; ++k) scale += std::fabs(a(i,k));
+            if (scale!=0) {
+              for (int k = i; k<m; ++k) { a(i,k) /= scale; s += a(i,k)*a(i,k); }
+              f = a(i,i);
+              g = (f>=0?-1:1)*std::sqrt(s);
               h = f*g - s;
-              U(i,i) = f - g;
-              for (int j = l; j<width(); ++j) {
+              a(i,i) = f - g;
+              for (int j = l; j<n; ++j) {
                 s = 0;
-                for (int k = i; k<height(); ++k) s+=U(i,k)*U(j,k);
+                for (int k = i; k<m; ++k) s += a(i,k)*a(j,k);
                 f = s/h;
-                for (int k = i; k<height(); ++k) U(j,k)+=f*U(i,k);
+                for (int k = i; k<m; ++k) a(j,k) += f*a(i,k);
               }
-              for (int k = i; k<height(); ++k) U(i,k)*=scale;
+              hl[i] = h;
             }
           }
-          S[i] = scale*g;
+          w[i] = scale*g;
 
           g = s = scale = 0;
-          if (i<height() && i!=width() - 1) {
-            for (int k = l; k<width(); ++k) scale+=cimg::abs(U(k,i));
-            if (scale) {
-              for (int k = l; k<width(); ++k) {
-                U(k,i)/=scale;
-                s+=U(k,i)*U(k,i);
-              }
-              f = U(l,i);
-              g = (Ttfloat)((f>=0?-1:1)*std::sqrt(std::max((Tfloat)0,s)));
+          if (i<m && i!=n - 1) {
+            for (int k = l; k<n; ++k) scale += std::fabs(a(k,i));
+            if (scale!=0) {
+              for (int k = l; k<n; ++k) { a(k,i) /= scale; s += a(k,i)*a(k,i); }
+              f = a(l,i);
+              g = (f>=0?-1:1)*std::sqrt(s);
               h = f*g - s;
-              U(l,i) = f - g;
-              for (int k = l; k<width(); ++k) rv1[k] = U(k,i)/h;
-              for (int j = l; j<height(); ++j) {
+              a(l,i) = f - g;
+              for (int k = l; k<n; ++k) rv1[k] = a(k,i)/h;
+              for (int j = l; j<m; ++j) {
                 s = 0;
-                for (int k = l; k<width(); ++k) s+=U(k,j)*U(k,i);
-                for (int k = l; k<width(); ++k) U(k,j)+=s*rv1[k];
+                for (int k = l; k<n; ++k) s += a(k,j)*a(k,i);
+                for (int k = l; k<n; ++k) a(k,j) += s*rv1[k];
               }
-              for (int k = l; k<width(); ++k) U(k,i)*=scale;
+              hr[i] = h;
             }
           }
-          anorm = (Ttfloat)std::max((float)anorm,(float)(cimg::abs(S[i]) + cimg::abs(rv1[i])));
+          anorm = std::max(anorm,std::fabs(w[i]) + std::fabs(rv1[i]));
         }
 
-        for (int i = width() - 1; i>=0; --i) {
-          if (i<width() - 1) {
-            if (g) {
-              for (int j = l; j<width(); ++j) V(i,j) =(U(j,i)/U(l,i))/g;
-              for (int j = l; j<width(); ++j) {
-                s = 0;
-                for (int k = l; k<width(); ++k) s+=U(k,i)*V(j,k);
-                for (int k = l; k<width(); ++k) V(j,k)+=s*V(i,k);
-              }
-            }
-            for (int j = l; j<width(); ++j) V(j,i) = V(i,j) = (t)0.;
-          }
-          V(i,i) = (t)1;
-          g = rv1[i];
-          l = i;
-        }
-
-        for (int i = std::min(width(),height()) - 1; i>=0; --i) {
+        // Accumulation of right-hand reflections: V = H_0*H_1*...*H_{n-2}, with H = I + u*u'/h.
+        for (int i = 0; i<n; ++i) v(i,i) = 1;
+        for (int i = n - 2; i>=0; --i) if (hr[i]!=0) {
           l = i + 1;
-          g = S[i];
-          for (int j = l; j<width(); ++j) U(j,i) = 0;
-          if (g) {
-            g = 1/g;
-            for (int j = l; j<width(); ++j) {
-              s = 0;
-              for (int k = l; k<height(); ++k) s+=U(i,k)*U(j,k);
-              f = (s/U(i,i))*g;
-              for (int k = i; k<height(); ++k) U(j,k)+=f*U(i,k);
-            }
-            for (int j = i; j<height(); ++j) U(i,j)*= g;
-          } else for (int j = i; j<height(); ++j) U(i,j) = 0;
-          ++U(i,i);
+          for (int j = l; j<n; ++j) {
+            s = 0;
+            for (int k = l; k<n; ++k) s += a(k,i)*v(j,k);
+            s /= hr[i];
+            for (int k = l; k<n; ++k) v(j,k) += s*a(k,i);
+          }
         }
 
-        for (int k = width() - 1; k>=0; --k) {
-          int nm = 0;
+        // Accumulation of left-hand reflections: U = H_0*H_1*...*H_{p-1} applied to the columns of the identity.
+        for (int i = 0; i<std::min(m,n); ++i) u(i,i) = 1;
+        for (int i = std::min(m,n) - 1; i>=0; --i) if (hl[i]!=0) {
+          for (int j = i; j<n; ++j) {
+            s = 0;
+            for (int k = i; k<m; ++k) s += a(i,k)*u(j,k);
+            s /= hl[i];
+            for (int k = i; k<m; ++k) u(j,k) += s*a(i,k);
+          }
+        }
+
+        // Diagonalization of the bidiagonal form (QR iterations with shift).
+        for (int k = n - 1; k>=0; --k) {
+          bool converged = false;
           for (unsigned int its = 0; its<max_iteration; ++its) {
             bool flag = true;
-            for (l = k; l>=1; --l) {
+            // Search for the largest l<=k such that rv1[l] or w[l-1] is negligible.
+            // Test relative to machine epsilon (as in NR), rv1[0] is always 0.
+            for (l = k; l>=0; --l) {
               nm = l - 1;
-              if (l==0 || cimg::abs(rv1[l])<=eps*anorm) { flag = false; break; }
-              if (cimg::abs(S[nm])<=eps*anorm) break;
+              if (l==0 || (std::fabs(rv1[l]) + anorm)==anorm) { flag = false; break; }
+              if ((std::fabs(w[nm]) + anorm)==anorm) break;
             }
-            if (flag) {
-              c = 0;
-              s = 1;
+            if (flag) {   // Cancellation of rv1[l] if w[l-1] is negligible.
+              c = 0; s = 1;
               for (int i = l; i<=k; ++i) {
                 f = s*rv1[i];
                 rv1[i] = c*rv1[i];
-                if ((cimg::abs(f) + anorm)==anorm) break;
-                g = S[i];
+                if ((std::fabs(f) + anorm)==anorm) break;
+                g = w[i];
                 h = cimg::hypot(f,g);
-                S[i] = h;
-                h = 1/h;
+                w[i] = h;
+                h = 1/h;                         // h>0 since |f| is not negligible here.
                 c = g*h;
                 s = -f*h;
-                cimg_forY(U,j) {
-                  const t y = U(nm,j), z = U(i,j);
-                  U(nm,j) = y*c + z*s;
-                  U(i,j) = z*c - y*s;
+                for (int j = 0; j<m; ++j) {
+                  y = u(nm,j); z = u(i,j);
+                  u(nm,j) = y*c + z*s;
+                  u(i,j) = z*c - y*s;
                 }
               }
             }
 
-            const t z = S[k];
-            if (l==k) { if (z<0) { S[k] = -z; cimg_forX(U,j) V(k,j) = -V(k,j); } break; }
-            nm = k - 1;
-            t x = S[l], y = S[nm];
-            g = rv1[nm];
-            h = rv1[k];
-            f = ((y - z)*(y + z) + (g - h)*(g + h))/std::max(eps,(Ttfloat)2*h*y);
-            g = cimg::hypot(f,(Ttfloat)1);
-            f = ((x - z)*(x + z) + h*((y/(f + (f>=0?g:-g))) - h))/std::max(eps,(Ttfloat)x);
+            z = w[k];
+            if (l==k) {   // Convergence: make the singular value positive.
+              if (z<0) { w[k] = -z; for (int j = 0; j<n; ++j) v(k,j) = -v(k,j); }
+              converged = true;
+              break;
+            }
+
+            // Wilkinson shift (protected divisors preserving sign).
+            x = w[l]; nm = k - 1; y = w[nm];
+            g = rv1[nm]; h = rv1[k];
+            f = ((y - z)*(y + z) + (g - h)*(g + h))/_SVD_safe(2*h*y);
+            g = cimg::hypot(f,1.);
+            f = ((x - z)*(x + z) + h*((y/_SVD_safe(f + (f>=0?g:-g))) - h))/_SVD_safe(x);
+
+            // QR step.
             c = s = 1;
             for (int j = l; j<=nm; ++j) {
               const int i = j + 1;
               g = rv1[i];
+              y = w[i];
               h = s*g;
               g = c*g;
-              t y1 = S[i], z1 = cimg::hypot(f,h);
-              rv1[j] = z1;
-              c = f/std::max(eps,(Ttfloat)z1);
-              s = h/std::max(eps,(Ttfloat)z1);
+              z = cimg::hypot(f,h);
+              rv1[j] = z;
+              if (z!=0) { c = f/z; s = h/z; } else { c = 1; s = 0; }
               f = x*c + g*s;
               g = g*c - x*s;
-              h = y1*s;
-              y1*=c;
-              cimg_forX(U,jj) {
-                const t x2 = V(j,jj), z2 = V(i,jj);
-                V(j,jj) = x2*c + z2*s;
-                V(i,jj) = z2*c - x2*s;
+              h = y*s;
+              y *= c;
+              for (int jj = 0; jj<n; ++jj) {
+                x = v(j,jj); z = v(i,jj);
+                v(j,jj) = x*c + z*s;
+                v(i,jj) = z*c - x*s;
               }
-              z1 = cimg::hypot(f,h);
-              S[j] = z1;
-              if (z1) {
-                z1 = 1/std::max(eps,(Ttfloat)z1);
-                c = f*z1;
-                s = h*z1;
-              }
-              f = c*g + s*y1;
-              x = c*y1 - s*g;
-              cimg_forY(U,jj) {
-                const t y2 = U(j,jj), z2 = U(i,jj);
-                U(j,jj) = y2*c + z2*s;
-                U(i,jj) = z2*c - y2*s;
+              z = cimg::hypot(f,h);
+              w[j] = z;
+              if (z!=0) { z = 1/z; c = f*z; s = h*z; }
+              f = c*g + s*y;
+              x = c*y - s*g;
+              for (int jj = 0; jj<m; ++jj) {
+                y = u(j,jj); z = u(i,jj);
+                u(j,jj) = y*c + z*s;
+                u(i,jj) = z*c - y*s;
               }
             }
             rv1[l] = 0;
             rv1[k] = f;
-            S[k] = x;
+            w[k] = x;
           }
+          if (!converged)
+            throw CImgInstanceException(_cimg_instance
+                                        "SVD(): No convergence after %u iterations.",
+                                        cimg_instance,max_iteration);
         }
 
-        if (sorting) {
-          CImg<intT> permutations;
-          CImg<t> tmp(_width);
-          S.sort(permutations,false);
-          cimg_forY(U,k) {
-            cimg_forY(permutations,y) tmp(y) = U(permutations(y),k);
-            std::memcpy(U.data(0,k),tmp._data,sizeof(t)*_width);
-          }
-          cimg_forY(V,k) {
-            cimg_forY(permutations,y) tmp(y) = V(permutations(y),k);
-            std::memcpy(V.data(0,k),tmp._data,sizeof(t)*_width);
-          }
+        // Sort singular values (in decreasing order), then copy into U, S, V (type t).
+        std::vector<int> perm(n);
+        for (int i = 0; i<n; ++i) perm[i] = i;
+        if (sorting)
+          for (int i = 1; i<n; ++i)
+            for (int j = i; j>0 && w[perm[j - 1]]<w[perm[j]]; --j) std::swap(perm[j],perm[j - 1]);
+
+        U.assign(n,m); S.assign(1,n); V.assign(n,n);
+        for (int c2 = 0; c2<n; ++c2) {
+          S[c2] = (t)w[perm[c2]];
+          for (int r = 0; r<m; ++r) U(c2,r) = (t)u(perm[c2],r);
+          for (int r = 0; r<n; ++r) V(c2,r) = (t)v(perm[c2],r);
         }
       }
       return *this;
+    }
+
+    // Protect a divisor against zero while PRESERVING its sign.
+    static double _SVD_safe(const double d) {
+      const double eps = 1e-32;
+      return std::fabs(d)<eps?(d>=0?eps:-eps):d;
     }
 
     //! Compute the SVD of the instance image, viewed as a general matrix.

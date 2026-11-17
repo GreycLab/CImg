@@ -64159,7 +64159,7 @@ namespace cimg_library {
       if (_allocated_width<n || _allocated_width>(n<<2)) {
         delete[] _data;
         _data = new CImg<T>[_allocated_width = std::max(16U,(unsigned int)cimg::nearest_pow2(n))];
-      }
+      } else for (unsigned int l = 0; l<_width; ++l) _data[l].assign(); // Empty previous images
       _width = n;
       return *this;
     }

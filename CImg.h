@@ -630,6 +630,18 @@ extern "C" {
 }
 #endif
 
+// Configure pocketfft support.
+// (https://github.com/mreineck/pocketfft, C++ header-only version)
+//
+// Define 'cimg_use_pocketfft' to compute the Fast Fourier Transform of image data with
+// pocketfft (BSD license), without restriction on the image size, when FFTW3 is not used
+// (see function 'CImg[List]<T>::FFT()').
+#if defined(cimg_use_pocketfft) && !defined(cimg_use_fftw3)
+#include <complex>
+#include <exception>
+#include "pocketfft_hdronly.h"
+#endif
+
 // Configure OpenEXR support.
 // (http://www.openexr.com/)
 //
@@ -5206,7 +5218,10 @@ namespace cimg_library {
 #if cimg_use_cpp11==1 && !defined(_MSC_VER)
       return std::hypot(x,y);
 #else
-      return std::sqrt(x*x + y*y);
+      const double aa = cimg::abs((double)a), ab = cimg::abs((double)b);
+      if (aa>ab) { const double r = ab/aa; return (T)(aa*std::sqrt(1 + r*r)); }
+      if (ab>0) { const double r = aa/ab; return (T)(ab*std::sqrt(1 + r*r)); }
+      return 0;
 #endif
     }
 
@@ -6321,6 +6336,17 @@ namespace cimg_library {
                    cimg::t_bold(),
 #ifdef cimg_use_fftw3
                    "Yes",cimg::t_normal(),cimg::t_green(),"defined",
+#else
+                   "No",cimg::t_normal(),cimg::t_green(),"undefined",
+#endif
+                   cimg::t_normal());
+
+      std::fprintf(cimg::output(),"  > Using pocketfft library:  %s%-13s%s %s('cimg_use_pocketfft' %s)%s\n",
+                   cimg::t_bold(),
+#if defined(cimg_use_pocketfft) && !defined(cimg_use_fftw3)
+                   "Yes",cimg::t_normal(),cimg::t_green(),"defined",
+#elif defined(cimg_use_pocketfft)
+                   "No",cimg::t_normal(),cimg::t_green(),"defined, FFTW3 used",
 #else
                    "No",cimg::t_normal(),cimg::t_green(),"undefined",
 #endif
@@ -16742,7 +16768,7 @@ namespace cimg_library {
                         } else { // Not near a number sign
                           const char *pb = ps - 1, *pa = ps + p2;
                           while (pb>=macro_body[0]._data && cimg::is_blank(*pb)) --pb;
-                          while (cimg::is_blank(*pa)) ++pa;
+                          while (*pa && cimg::is_blank(*pa)) ++pa;
                           const bool
                             is_safe_before = pb>=macro_body[0]._data && (*pb=='(' || *pb==','),
                             is_safe_after = *pa==')' || *pa==',';
@@ -26338,65 +26364,69 @@ namespace cimg_library {
           x = is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(3)):_mp_arg(3),
           y = is_relative?(mp.mem[_cimg_mp_slot_y] + _mp_arg(4)):_mp_arg(4),
           z = is_relative?(mp.mem[_cimg_mp_slot_z] + _mp_arg(5)):_mp_arg(5);
-        const int c = (int)(is_relative?(mp.mem[_cimg_mp_slot_c] + _mp_arg(6)):_mp_arg(6));
+        int c = (int)(is_relative?(mp.mem[_cimg_mp_slot_c] + _mp_arg(6)):_mp_arg(6));
+
+        if (c<0 || c>=img.spectrum()) switch (boundary_conditions) { // Out-of-bound access along c
+          case 0 : return 0; // Dirichlet
+          case 1 : c = cimg::cut(c,0,img.spectrum() - 1); break; // Neumann
+          case 2 : c = cimg::mod(c,img.spectrum()); break; // Periodic
+          default : { // Mirror
+            const int s2 = 2*img.spectrum(), mc = cimg::mod(c,s2);
+            c = mc<img.spectrum()?mc:s2 - mc - 1;
+          }
+          }
+
         switch (interpolation) {
         case 2 : // Cubic interpolation
           switch (boundary_conditions) {
           case 3 : { // Mirror
-            const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(), s2 = 2*img.spectrum(),
-              mc = cimg::mod(c,s2);
+            const int w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth();
             const float
               mx = cimg::mod((float)x,(float)w2),
               my = cimg::mod((float)y,(float)h2),
               mz = cimg::mod((float)z,(float)d2);
             return (double)img._cubic_atXYZ(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
-                                            mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
+                                            mz<img.depth()?mz:d2 - mz - 1,c);
           }
           case 2 : // Periodic
-            return (double)img._cubic_atXYZ_p((float)x,(float)y,(float)z,cimg::mod(c,img.spectrum()));
+            return (double)img._cubic_atXYZ_p((float)x,(float)y,(float)z,c);
           case 1 : // Neumann
-            return (double)img._cubic_atXYZ((float)x,(float)y,(float)z,c<0?0:c>=img.spectrum()?img.spectrum() - 1:c);
+            return (double)img._cubic_atXYZ((float)x,(float)y,(float)z,c);
           default : // Dirichlet
-            if (c<0 || c>=img.spectrum()) return (T)0;
             return (double)img.cubic_atXYZ((float)x,(float)y,(float)z,c,(T)0);
           }
         case 1 : // Linear interpolation
           switch (boundary_conditions) {
           case 3 : { // Mirror
-            const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(), s2 = 2*img.spectrum(),
-              mc = cimg::mod(c,s2);
+            const int w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth();
             const float
               mx = cimg::mod((float)x,(float)w2),
               my = cimg::mod((float)y,(float)h2),
               mz = cimg::mod((float)z,(float)d2);
             return (double)img._linear_atXYZ(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
-                                             mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
+                                             mz<img.depth()?mz:d2 - mz - 1,c);
           }
           case 2 : // Periodic
-            return (double)img._linear_atXYZ_p((float)x,(float)y,(float)z,cimg::mod(c,img.spectrum()));
+            return (double)img._linear_atXYZ_p((float)x,(float)y,(float)z,c);
           case 1 : // Neumann
-            return (double)img._linear_atXYZ((float)x,(float)y,(float)z,c<0?0:c>=img.spectrum()?img.spectrum() - 1:c);
+            return (double)img._linear_atXYZ((float)x,(float)y,(float)z,c);
           default : // Dirichlet
-            if (c<0 || c>=img.spectrum()) return (T)0;
             return (double)img.linear_atXYZ((float)x,(float)y,(float)z,c,(T)0);
           }
         default : // Nearest neighbor interpolation
           switch (boundary_conditions) {
           case 3 : { // Mirror
             const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(), s2 = 2*img.spectrum(),
-              mc = cimg::mod(c,s2),
+              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(),
               mx = cimg::mod((int)x,w2),
               my = cimg::mod((int)y,h2),
               mz = cimg::mod((int)z,d2);
             return (double)img(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
-                               mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
+                               mz<img.depth()?mz:d2 - mz - 1,c);
           }
           case 2 : // Periodic
             return (double)img((int)cimg::mod(x,(double)img._width),(int)cimg::mod(y,(double)img._height),
-                               (int)cimg::mod(z,(double)img._depth),cimg::mod(c,img.spectrum()));
+                               (int)cimg::mod(z,(double)img._depth),c);
           case 1 : // Neumann
             return (double)img._atXYZC((int)x,(int)y,(int)z,c);
           default : // Dirichlet
@@ -26415,71 +26445,74 @@ namespace cimg_library {
         const double
           x = is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(3)):_mp_arg(3),
           y = is_relative?(mp.mem[_cimg_mp_slot_y] + _mp_arg(4)):_mp_arg(4);
-        const int
+        int
           z = (int)(is_relative?(mp.mem[_cimg_mp_slot_z] + _mp_arg(5)):_mp_arg(5)),
           c = (int)(is_relative?(mp.mem[_cimg_mp_slot_c] + _mp_arg(6)):_mp_arg(6));
+
+        if (c<0 || c>=img.spectrum()) switch (boundary_conditions) { // Out-of-bound access along c
+          case 0 : return 0; // Dirichlet
+          case 1 : c = cimg::cut(c,0,img.spectrum() - 1); break; // Neumann
+          case 2 : c = cimg::mod(c,img.spectrum()); break; // Periodic
+          default : { // Mirror
+            const int s2 = 2*img.spectrum(), mc = cimg::mod(c,s2);
+            c = mc<img.spectrum()?mc:s2 - mc - 1;
+          }
+          }
+
+        if (z<0 || z>=img.depth()) switch (boundary_conditions) { // Out-of-bound access along z
+          case 0 : return 0; // Dirichlet
+          case 1 : z = cimg::cut(z,0,img.depth() - 1); break; // Neumann
+          case 2 : z = cimg::mod(z,img.depth()); break; // Periodic
+          default : { // Mirror
+            const int d2 = 2*img.depth(), mz = cimg::mod(z,d2);
+            z = mz<img.depth()?mz:d2 - mz - 1;
+          }
+          }
+
         switch (interpolation) {
         case 2 : // Cubic interpolation
           switch (boundary_conditions) {
           case 3 : { // Mirror
-            const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(), s2 = 2*img.spectrum(),
-              mz = cimg::mod(z,d2),
-              mc = cimg::mod(c,s2);
+            const int w2 = 2*img.width(), h2 = 2*img.height();
             const float
               mx = cimg::mod((float)x,(float)w2),
               my = cimg::mod((float)y,(float)h2);
-            return (double)img._cubic_atXY(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
-                                           mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
+            return (double)img._cubic_atXY(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,z,c);
           }
           case 2 : // Periodic
-            return (double)img._cubic_atXY_p((float)x,(float)y,cimg::mod(z,img.depth()),cimg::mod(c,img.spectrum()));
+            return (double)img._cubic_atXY_p((float)x,(float)y,z,c);
           case 1 : // Neumann
-            return (double)img._cubic_atXY((float)x,(float)y,
-                                           z<0?0:z>=img.depth()?img.depth() - 1:z,
-                                           c<0?0:c>=img.spectrum()?img.spectrum() - 1:c);
+            return (double)img._cubic_atXY((float)x,(float)y,z,c);
           default : // Dirichlet
-            if (z<0 || z>=img.depth() || c<0 || c>=img.spectrum()) return (T)0;
             return (double)img.cubic_atXY((float)x,(float)y,z,c,(T)0);
           }
         case 1 : // Linear interpolation
           switch (boundary_conditions) {
           case 3 : { // Mirror
-            const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(), s2 = 2*img.spectrum(),
-              mz = cimg::mod(z,d2),
-              mc = cimg::mod(c,s2);
+            const int w2 = 2*img.width(), h2 = 2*img.height();
             const float
               mx = cimg::mod((float)x,(float)w2),
               my = cimg::mod((float)y,(float)h2);
-            return (double)img._linear_atXY(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
-                                            mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
+            return (double)img._linear_atXY(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,z,c);
           }
           case 2 : // Periodic
-            return (double)img._linear_atXY_p((float)x,(float)y,cimg::mod(z,img.depth()),cimg::mod(c,img.spectrum()));
+            return (double)img._linear_atXY_p((float)x,(float)y,z,c);
           case 1 : // Neumann
-            return (double)img._linear_atXY((float)x,(float)y,
-                                            z<0?0:z>=img.depth()?img.depth() - 1:z,
-                                            c<0?0:c>=img.spectrum()?img.spectrum() - 1:c);
+            return (double)img._linear_atXY((float)x,(float)y,z,c);
           default : // Dirichlet
-            if (z<0 || z>=img.depth() || c<0 || c>=img.spectrum()) return (T)0;
             return (double)img.linear_atXY((float)x,(float)y,z,c,(T)0);
           }
         default : // Nearest neighbor interpolation
           switch (boundary_conditions) {
           case 3 : { // Mirror
             const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(), s2 = 2*img.spectrum(),
-              mz = cimg::mod(z,d2),
-              mc = cimg::mod(c,s2),
+              w2 = 2*img.width(), h2 = 2*img.height(),
               mx = cimg::mod((int)x,w2),
               my = cimg::mod((int)y,h2);
-            return (double)img(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
-                               mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
+            return (double)img(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,z,c);
           }
           case 2 : // Periodic
-            return (double)img((int)cimg::mod(x,(double)img._width),(int)cimg::mod(y,(double)img._height),
-                               cimg::mod(z,img.depth()),cimg::mod(c,img.spectrum()));
+            return (double)img((int)cimg::mod(x,(double)img._width),(int)cimg::mod(y,(double)img._height),z,c);
           case 1 : // Neumann
             return (double)img._atXYZC((int)x,(int)y,z,c);
           default : // Dirichlet
@@ -26497,74 +26530,80 @@ namespace cimg_library {
         const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
         const double
           x = is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(3)):_mp_arg(3);
-        const int
+        int
           y = (int)(is_relative?(mp.mem[_cimg_mp_slot_y] + _mp_arg(4)):_mp_arg(4)),
           z = (int)(is_relative?(mp.mem[_cimg_mp_slot_z] + _mp_arg(5)):_mp_arg(5)),
           c = (int)(is_relative?(mp.mem[_cimg_mp_slot_c] + _mp_arg(6)):_mp_arg(6));
+
+        if (c<0 || c>=img.spectrum()) switch (boundary_conditions) { // Out-of-bound access along c
+          case 0 : return 0; // Dirichlet
+          case 1 : c = cimg::cut(c,0,img.spectrum() - 1); break; // Neumann
+          case 2 : c = cimg::mod(c,img.spectrum()); break; // Periodic
+          default : { // Mirror
+            const int s2 = 2*img.spectrum(), mc = cimg::mod(c,s2);
+            c = mc<img.spectrum()?mc:s2 - mc - 1;
+          }
+          }
+
+        if (z<0 || z>=img.depth()) switch (boundary_conditions) { // Out-of-bound access along z
+          case 0 : return 0; // Dirichlet
+          case 1 : z = cimg::cut(z,0,img.depth() - 1); break; // Neumann
+          case 2 : z = cimg::mod(z,img.depth()); break; // Periodic
+          default : { // Mirror
+            const int d2 = 2*img.depth(), mz = cimg::mod(z,d2);
+            z = mz<img.depth()?mz:d2 - mz - 1;
+          }
+          }
+
+        if (y<0 || y>=img.height()) switch (boundary_conditions) { // Out-of-bound access along y
+          case 0 : return 0; // Dirichlet
+          case 1 : y = cimg::cut(y,0,img.height() - 1); break; // Neumann
+          case 2 : y = cimg::mod(y,img.height()); break; // Periodic
+          default : { // Mirror
+            const int h2 = 2*img.height(), my = cimg::mod(y,h2);
+            y = my<img.height()?my:h2 - my - 1;
+          }
+          }
+
         switch (interpolation) {
         case 2 : // Cubic interpolation
           switch (boundary_conditions) {
           case 3 : { // Mirror
-            const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(), s2 = 2*img.spectrum(),
-              my = cimg::mod(y,h2),
-              mz = cimg::mod(z,d2),
-              mc = cimg::mod(c,s2);
+            const int w2 = 2*img.width();
             const float mx = cimg::mod((float)x,(float)w2);
-            return (double)img._cubic_atX(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
-                                          mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
+            return (double)img._cubic_atX(mx<img.width()?mx:w2 - mx - 1,y,z,c);
           }
           case 2 : // Periodic
-            return (double)img._cubic_atX_p((float)x,cimg::mod(y,img.height()),
-                                            cimg::mod(z,img.depth()),cimg::mod(c,img.spectrum()));
+            return (double)img._cubic_atX_p((float)x,y,z,c);
           case 1 : // Neumann
-            return (double)img._cubic_atX((float)x,
-                                          y<0?0:y>=img.height()?img.height() - 1:y,
-                                          z<0?0:z>=img.depth()?img.depth() - 1:z,
-                                          c<0?0:c>=img.spectrum()?img.spectrum() - 1:c);
+            return (double)img._cubic_atX((float)x,y,z,c);
           default : // Dirichlet
-            if (y<0 || y>=img.height() || z<0 || z>=img.depth() || c<0 || c>=img.spectrum()) return (T)0;
             return (double)img.cubic_atX((float)x,y,z,c,(T)0);
           }
         case 1 : // Linear interpolation
           switch (boundary_conditions) {
           case 3 : { // Mirror
-            const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(), s2 = 2*img.spectrum(),
-              my = cimg::mod(y,h2),
-              mz = cimg::mod(z,d2),
-              mc = cimg::mod(c,s2);
+            const int w2 = 2*img.width();
             const float mx = cimg::mod((float)x,(float)w2);
-            return (double)img._linear_atX(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
-                                           mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
+            return (double)img._linear_atX(mx<img.width()?mx:w2 - mx - 1,y,z,c);
           }
           case 2 : // Periodic
-            return (double)img._linear_atX_p((float)x,cimg::mod(y,img.height()),
-                                             cimg::mod(z,img.depth()),cimg::mod(c,img.spectrum()));
+            return (double)img._linear_atX_p((float)x,y,z,c);
           case 1 : // Neumann
-            return (double)img._linear_atX((float)x,
-                                           y<0?0:y>=img.height()?img.height() - 1:y,
-                                           z<0?0:z>=img.depth()?img.depth() - 1:z,
-                                           c<0?0:c>=img.spectrum()?img.spectrum() - 1:c);
+            return (double)img._linear_atX((float)x,y,z,c);
           default : // Dirichlet
-            if (y<0 || y>=img.height() || z<0 || z>=img.depth() || c<0 || c>=img.spectrum()) return (T)0;
             return (double)img.linear_atX((float)x,y,z,c,(T)0);
           }
         default : // Nearest neighbor interpolation
           switch (boundary_conditions) {
           case 3 : { // Mirror
             const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(), s2 = 2*img.spectrum(),
-              my = cimg::mod(y,h2),
-              mz = cimg::mod(z,d2),
-              mc = cimg::mod(c,s2),
+              w2 = 2*img.width(),
               mx = cimg::mod((int)x,w2);
-            return (double)img(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
-                               mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
+            return (double)img(mx<img.width()?mx:w2 - mx - 1,y,z,c);
           }
           case 2 : // Periodic
-            return (double)img((int)cimg::mod(x,(double)img._width),cimg::mod(y,img.height()),
-                               cimg::mod(z,img.depth()),cimg::mod(c,img.spectrum()));
+            return (double)img((int)cimg::mod(x,(double)img._width),y,z,c);
           case 1 : // Neumann
             return (double)img._atXYZC((int)x,y,z,c);
           default : // Dirichlet
@@ -30017,8 +30056,19 @@ namespace cimg_library {
         const double
           x = is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(3)):_mp_arg(3),
           y = is_relative?(mp.mem[_cimg_mp_slot_y] + _mp_arg(4)):_mp_arg(4);
-        const int
+        int
           z = (int)(is_relative?(mp.mem[_cimg_mp_slot_z] + _mp_arg(5)):_mp_arg(5));
+
+        if (z<0 || z>=img.depth()) switch (boundary_conditions) { // Out-of-bound access along z
+          case 0 : std::memset(ptrd,0,siz*sizeof(double)); return cimg::type<double>::nan(); // Dirichlet
+          case 1 : z = cimg::cut(z,0,img.depth() - 1); break; // Neumann
+          case 2 : z = cimg::mod(z,img.depth()); break; // Periodic
+          default : { // Mirror
+            const int d2 = 2*img.depth(), mz = cimg::mod(z,d2);
+            z = mz<img.depth()?mz:d2 - mz - 1;
+          }
+          }
+
         const ulongT whd = (ulongT)img._width*img._height*img._depth;
         const T *ptrs;
         switch (interpolation) {
@@ -30026,15 +30076,13 @@ namespace cimg_library {
           switch (boundary_conditions) {
           case 3 : { // Mirror
             const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(),
-              mz = cimg::mod(z,d2),
-              cz = mz<img.depth()?mz:d2 - mz - 1;
+              w2 = 2*img.width(), h2 = 2*img.height();
             const float
               mx = cimg::mod((float)x,(float)w2),
               my = cimg::mod((float)y,(float)h2),
               cx = mx<img.width()?mx:w2 - mx - 1,
               cy = my<img.height()?my:h2 - my - 1;
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atXY(cx,cy,cz,c);
+            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atXY(cx,cy,z,c);
           } break;
           case 2 : // Periodic
             cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atXY_p((float)x,(float)y,z,c);
@@ -30048,16 +30096,13 @@ namespace cimg_library {
         case 1 : // Linear interpolation
           switch (boundary_conditions) {
           case 3 : { // Mirror
-            const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(),
-              mz = cimg::mod(z,d2),
-              cz = mz<img.depth()?mz:d2 - mz - 1;
+            const int w2 = 2*img.width(), h2 = 2*img.height();
             const float
               mx = cimg::mod((float)x,(float)w2),
               my = cimg::mod((float)y,(float)h2),
               cx = mx<img.width()?mx:w2 - mx - 1,
               cy = my<img.height()?my:h2 - my - 1;
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atXY(cx,cy,cz,c);
+            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atXY(cx,cy,z,c);
           } break;
           case 2 : // Periodic
             cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atXY_p((float)x,(float)y,z,c);
@@ -30071,23 +30116,19 @@ namespace cimg_library {
         default : // Nearest neighbor interpolation
           switch (boundary_conditions) {
           case 3 : { // Mirror
-            const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(),
-              mz = cimg::mod(z,d2),
+            const int w2 = 2*img.width(), h2 = 2*img.height(),
               mx = cimg::mod((int)x,w2),
               my = cimg::mod((int)y,h2),
               cx = mx<img.width()?mx:w2 - mx - 1,
-              cy = my<img.height()?my:h2 - my - 1,
-              cz = mz<img.depth()?mz:d2 - mz - 1;
-            ptrs = &img(cx,cy,cz);
+              cy = my<img.height()?my:h2 - my - 1;
+            ptrs = &img(cx,cy,z);
             cimg_for_inC(img,0,siz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
           case 2 : { // Periodic
             const int
               cx = (int)cimg::mod(x,(double)img._width),
-              cy = (int)cimg::mod(y,(double)img._height),
-              cz = cimg::mod(z,img.depth());
-            ptrs = &img(cx,cy,cz);
+              cy = (int)cimg::mod(y,(double)img._height);
+            ptrs = &img(cx,cy,z);
             cimg_for_inC(img,0,siz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
           case 1 : { // Neumann
@@ -30115,25 +30156,41 @@ namespace cimg_library {
         const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
         const double
           x = is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(3)):_mp_arg(3);
-        const int
+        int
           y = (int)(is_relative?(mp.mem[_cimg_mp_slot_y] + _mp_arg(4)):_mp_arg(4)),
           z = (int)(is_relative?(mp.mem[_cimg_mp_slot_z] + _mp_arg(5)):_mp_arg(5));
+
+        if (z<0 || z>=img.depth()) switch (boundary_conditions) { // Out-of-bound access along z
+          case 0 : std::memset(ptrd,0,siz*sizeof(double)); return cimg::type<double>::nan(); // Dirichlet
+          case 1 : z = cimg::cut(z,0,img.depth() - 1); break; // Neumann
+          case 2 : z = cimg::mod(z,img.depth()); break; // Periodic
+          default : { // Mirror
+            const int d2 = 2*img.depth(), mz = cimg::mod(z,d2);
+            z = mz<img.depth()?mz:d2 - mz - 1;
+          }
+          }
+
+        if (y<0 || y>=img.height()) switch (boundary_conditions) { // Out-of-bound access along y
+          case 0 : std::memset(ptrd,0,siz*sizeof(double)); return cimg::type<double>::nan(); // Dirichlet
+          case 1 : y = cimg::cut(y,0,img.height() - 1); break; // Neumann
+          case 2 : y = cimg::mod(y,img.height()); break; // Periodic
+          default : { // Mirror
+            const int h2 = 2*img.height(), my = cimg::mod(y,h2);
+            y = my<img.height()?my:h2 - my - 1;
+          }
+          }
+
         const ulongT whd = (ulongT)img._width*img._height*img._depth;
         const T *ptrs;
         switch (interpolation) {
         case 2 : // Cubic interpolation
           switch (boundary_conditions) {
           case 3 : { // Mirror
-            const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(),
-              my = cimg::mod(y,h2),
-              mz = cimg::mod(z,d2),
-              cy = my<img.height()?my:h2 - my - 1,
-              cz = mz<img.depth()?mz:d2 - mz - 1;
+            const int w2 = 2*img.width();
             const float
               mx = cimg::mod((float)x,(float)w2),
               cx = mx<img.width()?mx:w2 - mx - 1;
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atX(cx,cy,cz,c);
+            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atX(cx,y,z,c);
           } break;
           case 2 : // Periodic
             cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atX_p((float)x,y,z,c);
@@ -30147,16 +30204,11 @@ namespace cimg_library {
         case 1 : // Linear interpolation
           switch (boundary_conditions) {
           case 3 : { // Mirror
-            const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(),
-              my = cimg::mod(y,h2),
-              mz = cimg::mod(z,d2),
-              cy = my<img.height()?my:h2 - my - 1,
-              cz = mz<img.depth()?mz:d2 - mz - 1;
+            const int w2 = 2*img.width();
             const float
               mx = cimg::mod((float)x,(float)w2),
               cx = mx<img.width()?mx:w2 - mx - 1;
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atX(cx,cy,cz,c);
+            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atX(cx,y,z,c);
           } break;
           case 2 : // Periodic
             cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atX_p((float)x,y,z,c);
@@ -30171,22 +30223,15 @@ namespace cimg_library {
           switch (boundary_conditions) {
           case 3 : { // Mirror
             const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(),
-              my = cimg::mod(y,h2),
-              mz = cimg::mod(z,d2),
+              w2 = 2*img.width(),
               mx = cimg::mod((int)x,w2),
-              cx = mx<img.width()?mx:w2 - mx - 1,
-              cy = my<img.height()?my:h2 - my - 1,
-              cz = mz<img.depth()?mz:d2 - mz - 1;
-            ptrs = &img(cx,cy,cz);
+              cx = mx<img.width()?mx:w2 - mx - 1;
+            ptrs = &img(cx,y,z);
             cimg_for_inC(img,0,siz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
           case 2 : { // Periodic
-            const int
-              cx = (int)cimg::mod(x,(double)img._width),
-              cy = cimg::mod(y,img.height()),
-              cz = cimg::mod(z,img.depth());
-            ptrs = &img(cx,cy,cz);
+            const int cx = (int)cimg::mod(x,(double)img._width);
+            ptrs = &img(cx,y,z);
             cimg_for_inC(img,0,siz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
           case 1 : { // Neumann
@@ -32403,53 +32448,89 @@ namespace cimg_library {
       return res;
     }
 
-    //! Compute eigenvalues and eigenvectors of the instance image, viewed as a symmetric matrix.
+    //! Compute eigenvalues and eigenvectors of a symmetric matrix (using cyclic Jacobi algorithm).
     /**
-       \param[out] val Vector of the estimated eigenvalues, in decreasing order.
-       \param[out] vec Matrix of the estimated eigenvectors, sorted by columns.
+       \param val Eigenvalues, sorted in decreasing order (column vector, size 1xn).
+       \param vec Eigenvectors, stored column by column: vec.get_column(i) is the
+       unit eigenvector associated with val[i].
     **/
     template<typename t>
     const CImg<T>& symmetric_eigen(CImg<t>& val, CImg<t>& vec) const {
       if (is_empty()) { val.assign(); vec.assign(); return *this; }
       if (_width!=_height || _depth>1 || _spectrum>1)
         throw CImgInstanceException(_cimg_instance
-                                    "eigen(): Instance is not a square matrix.",
+                                    "symmetric_eigen(): Instance is not a square matrix.",
                                     cimg_instance);
-      val.assign(1,_width);
-      vec.assign(_width,_width);
+      const int n = (int)_width;
 
-      if (_width==1) { val[0] = cimg::abs((*this)[0]); vec[0] = 1; return *this; }
-      if (_width==2) {
-        const double
-          a = (*this)[0], b = (*this)[1], c = (*this)[2], d = (*this)[3],
-          e = a + d, f = std::sqrt(std::max(e*e - 4*(a*d - b*c),0.0)),
-          l1 = 0.5*(e - f), l2 = 0.5*(e + f),
-          n = std::sqrt(cimg::sqr(l2 - a) + b*b);
-        val[0] = (t)l2;
-        val[1] = (t)l1;
-        if (n>0) { vec[0] = (t)(b/n); vec[2] = (t)((l2 - a)/n); } else { vec[0] = 1; vec[2] = 0; }
-        vec[1] = -vec[2];
-        vec[3] = vec[0];
-        return *this;
-      }
-      CImg<t> V(_width,_width);
-      Tfloat M = 0, m = (Tfloat)min_max(M), maxabs = cimg::max((Tfloat)1,cimg::abs(m),cimg::abs(M));
-      (CImg<Tfloat>(*this,false)/=maxabs).SVD(vec,val,V,false);
-      if (maxabs!=1) val*=maxabs;
-
-      // Retrieve signed eigenvalues (compute X^t.A.X, which is more robust than using sign(U_k.V_k)).
-      cimg_forY(val,p) {
-        const CImg<Tfloat> u = vec.get_column(p);
-        val[p] = u.dot((*this)*u);
+      // Work in double precision on the symmetrized matrix. a[i*n+j] = row i, column j.
+      CImg<doubleT> A(n,n), V(n,n,1,1,0);
+      double *const a = A._data, *const v = V._data;
+      for (int i = 0; i<n; ++i) {
+        for (int j = 0; j<n; ++j)
+          a[i*n + j] = 0.5*((double)(*this)(j,i) + (double)(*this)(i,j));
+        v[i*n + i] = 1;
       }
 
-      // Sort eigenvalues in decreasing order
-      CImg<intT> permutations;
-      CImg<t> tmp(_width);
-      val.sort(permutations,false);
-      cimg_forY(vec,k) {
-        cimg_forY(permutations,y) tmp(y) = vec(permutations(y),k);
-        std::memcpy(vec.data(0,k),tmp._data,sizeof(t)*_width);
+      double frob2 = 0;
+      for (int i = 0; i<n*n; ++i) frob2 += a[i]*a[i];
+      const double tol = 1e-32*frob2;   // ~ (DBL_EPSILON)^2 * ||A||_F^2
+
+      for (int sweep = 0; sweep<100; ++sweep) {
+        double off = 0;
+        for (int i = 1; i<n; ++i) for (int j = 0; j<i; ++j) off += a[i*n + j]*a[i*n + j];
+        if (off<=tol) break;
+
+        for (int p = 0; p<n - 1; ++p) for (int q = p + 1; q<n; ++q) {
+            const double apq = a[p*n + q];
+            if (apq==0) continue;
+            const double app = a[p*n + p], aqq = a[q*n + q],
+              theta = (aqq - app)/(2*apq),
+              tt = cimg::abs(theta)>1e150 ? 0.5/theta :
+              (theta>=0?1.:-1.)/(cimg::abs(theta) + std::sqrt(theta*theta + 1)),
+              c = 1/std::sqrt(tt*tt + 1),
+              s = tt*c;
+
+            // A <- A.J (columns p and q).
+            for (int k = 0; k<n; ++k) {
+              const double akp = a[k*n + p], akq = a[k*n + q];
+              a[k*n + p] = c*akp - s*akq;
+              a[k*n + q] = s*akp + c*akq;
+            }
+            // A <- J^T.A (rows p and q).
+            for (int k = 0; k<n; ++k) {
+              const double apk = a[p*n + k], aqk = a[q*n + k];
+              a[p*n + k] = c*apk - s*aqk;
+              a[q*n + k] = s*apk + c*aqk;
+            }
+            // Overwrite the 2x2 block with its exact analytical values.
+            a[p*n + p] = app - tt*apq;
+            a[q*n + q] = aqq + tt*apq;
+            a[p*n + q] = a[q*n + p] = 0;
+
+            // V <- V.J (accumulate eigenvectors as columns).
+            for (int k = 0; k<n; ++k) {
+              const double vkp = v[k*n + p], vkq = v[k*n + q];
+              v[k*n + p] = c*vkp - s*vkq;
+              v[k*n + q] = s*vkp + c*vkq;
+            }
+          }
+      }
+
+      // Sort eigenvalues in decreasing order (selection sort on a permutation).
+      CImg<intT> perm(n);
+      for (int i = 0; i<n; ++i) perm[i] = i;
+      for (int i = 0; i<n - 1; ++i) {
+        int m = i;
+        for (int j = i + 1; j<n; ++j) if (a[perm[j]*n + perm[j]]>a[perm[m]*n + perm[m]]) m = j;
+        cimg::swap(perm[i],perm[m]);
+      }
+
+      val.assign(1,n);
+      vec.assign(n,n);
+      for (int i = 0; i<n; ++i) {
+        val[i] = (t)a[perm[i]*n + perm[i]];
+        for (int k = 0; k<n; ++k) vec(i,k) = (t)v[k*n + perm[i]];  // column i = eigenvector i
       }
       return *this;
     }
@@ -32606,220 +32687,213 @@ namespace cimg_library {
     /**
        Compute the SVD decomposition \c *this=U*S*V' where \c U and \c V are orthogonal matrices
        and \c S is a diagonal matrix. \c V' denotes the matrix transpose of \c V.
+       All internal computations are done in \c double, whatever the pixel types are.
        \param[out] U First matrix of the SVD product.
        \param[out] S Coefficients of the second (diagonal) matrix of the SVD product.
          These coefficients are stored as a vector.
        \param[out] V Third matrix of the SVD product.
        \param sorting Indicates whether the diagonal coefficients are sorted (in decreasing order).
        \param max_iteration Maximum number of iterations considered for the algorithm convergence.
-       \param lambda Epsilon used for the algorithm convergence.
-       \note The instance matrix can be computed from \c U,\c S and \c V by
-       \code
-       const CImg<> A; // Input matrix (assumed to contain some values)
-       CImg<> U,S,V;
-       A.SVD(U,S,V)
-       \endcode
+       \param lambda Value added to the diagonal of the matrix before the decomposition.
     **/
     template<typename t>
     const CImg<T>& SVD(CImg<t>& U, CImg<t>& S, CImg<t>& V, const bool sorting=true,
                        const unsigned int max_iteration=40, const float lambda=0) const {
-      typedef _cimg_Ttfloat Ttfloat;
-      const Ttfloat eps = (Ttfloat)1e-8f;
       if (is_empty()) { U.assign(); S.assign(); V.assign(); }
       else if (_depth!=1 || _spectrum!=1)
         throw CImgInstanceException(_cimg_instance
                                     "SVD(): Instance has invalid dimensions (depth or channels different from 1).",
                                     cimg_instance);
       else {
-        U = *this;
-        if (lambda!=0) {
-          const unsigned int delta = std::min(U._width,U._height);
-          for (unsigned int i = 0; i<delta; ++i) U(i,i) = (t)(U(i,i) + lambda);
-        }
-        if (S.size()<_width) S.assign(1,_width);
-        if (V._width<_width || V._height<_height) V.assign(_width,_width);
-        CImg<t> rv1(_width);
-        Ttfloat anorm = 0, c, f, g = 0, h, s, scale = 0;
-        int l = 0;
+        const int m = (int)_height, n = (int)_width;
 
-        cimg_forX(U,i) {
+        // Working copy in double (a will become U), V, singular values w and superdiagonal rv1.
+        CImg<doubleT>
+          a(n,m,1,1,0), v(n,n,1,1,0), u(n,m,1,1,0), w(n,1,1,1,0),
+          rv1(n,1,1,1,0), hl(n,1,1,1,0), hr(n,1,1,1,0);
+        for (int y = 0; y<m; ++y) for (int x = 0; x<n; ++x) a(x,y) = (double)(*this)(x,y);
+        if (lambda!=0) for (int i = 0; i<std::min(m,n); ++i) a(i,i) += (double)lambda;
+
+        double anorm = 0, c, f, g = 0, h, s, scale = 0, x, y, z;
+        int l = 0, nm = 0;
+
+        // Householder bidiagonalization. The (normalized) Householder vectors are kept as is
+        // in a (left: column i, right: row i), with their coefficient h in hl[i] / hr[i].
+        for (int i = 0; i<n; ++i) {
           l = i + 1;
           rv1[i] = scale*g;
           g = s = scale = 0;
-          if (i<height()) {
-            for (int k = i; k<height(); ++k) scale+=cimg::abs(U(i,k));
-            if (scale) {
-              for (int k = i; k<height(); ++k) {
-                U(i,k)/=scale;
-                s+=U(i,k)*U(i,k);
-              }
-              f = U(i,i);
-              g = (Ttfloat)((f>=0?-1:1)*std::sqrt(s));
+          if (i<m) {
+            for (int k = i; k<m; ++k) scale += std::fabs(a(i,k));
+            if (scale!=0) {
+              for (int k = i; k<m; ++k) { a(i,k) /= scale; s += a(i,k)*a(i,k); }
+              f = a(i,i);
+              g = (f>=0?-1:1)*std::sqrt(s);
               h = f*g - s;
-              U(i,i) = f - g;
-              for (int j = l; j<width(); ++j) {
+              a(i,i) = f - g;
+              for (int j = l; j<n; ++j) {
                 s = 0;
-                for (int k = i; k<height(); ++k) s+=U(i,k)*U(j,k);
+                for (int k = i; k<m; ++k) s += a(i,k)*a(j,k);
                 f = s/h;
-                for (int k = i; k<height(); ++k) U(j,k)+=f*U(i,k);
+                for (int k = i; k<m; ++k) a(j,k) += f*a(i,k);
               }
-              for (int k = i; k<height(); ++k) U(i,k)*=scale;
+              hl[i] = h;
             }
           }
-          S[i] = scale*g;
+          w[i] = scale*g;
 
           g = s = scale = 0;
-          if (i<height() && i!=width() - 1) {
-            for (int k = l; k<width(); ++k) scale+=cimg::abs(U(k,i));
-            if (scale) {
-              for (int k = l; k<width(); ++k) {
-                U(k,i)/=scale;
-                s+=U(k,i)*U(k,i);
-              }
-              f = U(l,i);
-              g = (Ttfloat)((f>=0?-1:1)*std::sqrt(s));
+          if (i<m && i!=n - 1) {
+            for (int k = l; k<n; ++k) scale += std::fabs(a(k,i));
+            if (scale!=0) {
+              for (int k = l; k<n; ++k) { a(k,i) /= scale; s += a(k,i)*a(k,i); }
+              f = a(l,i);
+              g = (f>=0?-1:1)*std::sqrt(s);
               h = f*g - s;
-              U(l,i) = f - g;
-              for (int k = l; k<width(); ++k) rv1[k] = U(k,i)/h;
-              for (int j = l; j<height(); ++j) {
+              a(l,i) = f - g;
+              for (int k = l; k<n; ++k) rv1[k] = a(k,i)/h;
+              for (int j = l; j<m; ++j) {
                 s = 0;
-                for (int k = l; k<width(); ++k) s+=U(k,j)*U(k,i);
-                for (int k = l; k<width(); ++k) U(k,j)+=s*rv1[k];
+                for (int k = l; k<n; ++k) s += a(k,j)*a(k,i);
+                for (int k = l; k<n; ++k) a(k,j) += s*rv1[k];
               }
-              for (int k = l; k<width(); ++k) U(k,i)*=scale;
+              hr[i] = h;
             }
           }
-          anorm = (Ttfloat)std::max((float)anorm,(float)(cimg::abs(S[i]) + cimg::abs(rv1[i])));
+          anorm = std::max(anorm,std::fabs(w[i]) + std::fabs(rv1[i]));
         }
 
-        for (int i = width() - 1; i>=0; --i) {
-          if (i<width() - 1) {
-            if (g) {
-              for (int j = l; j<width(); ++j) V(i,j) =(U(j,i)/U(l,i))/g;
-              for (int j = l; j<width(); ++j) {
-                s = 0;
-                for (int k = l; k<width(); ++k) s+=U(k,i)*V(j,k);
-                for (int k = l; k<width(); ++k) V(j,k)+=s*V(i,k);
-              }
-            }
-            for (int j = l; j<width(); ++j) V(j,i) = V(i,j) = (t)0.;
-          }
-          V(i,i) = (t)1;
-          g = rv1[i];
-          l = i;
-        }
-
-        for (int i = std::min(width(),height()) - 1; i>=0; --i) {
+        // Accumulation of right-hand reflections: V = H_0*H_1*...*H_{n-2}, with H = I + u*u'/h.
+        for (int i = 0; i<n; ++i) v(i,i) = 1;
+        for (int i = n - 2; i>=0; --i) if (hr[i]!=0) {
           l = i + 1;
-          g = S[i];
-          for (int j = l; j<width(); ++j) U(j,i) = 0;
-          if (g) {
-            g = 1/g;
-            for (int j = l; j<width(); ++j) {
-              s = 0;
-              for (int k = l; k<height(); ++k) s+=U(i,k)*U(j,k);
-              f = (s/U(i,i))*g;
-              for (int k = i; k<height(); ++k) U(j,k)+=f*U(i,k);
-            }
-            for (int j = i; j<height(); ++j) U(i,j)*= g;
-          } else for (int j = i; j<height(); ++j) U(i,j) = 0;
-          ++U(i,i);
+          for (int j = l; j<n; ++j) {
+            s = 0;
+            for (int k = l; k<n; ++k) s += a(k,i)*v(j,k);
+            s /= hr[i];
+            for (int k = l; k<n; ++k) v(j,k) += s*a(k,i);
+          }
         }
 
-        for (int k = width() - 1; k>=0; --k) {
-          int nm = 0;
+        // Accumulation of left-hand reflections: U = H_0*H_1*...*H_{p-1} applied to the columns of the identity.
+        for (int i = 0; i<std::min(m,n); ++i) u(i,i) = 1;
+        for (int i = std::min(m,n) - 1; i>=0; --i) if (hl[i]!=0) {
+          for (int j = i; j<n; ++j) {
+            s = 0;
+            for (int k = i; k<m; ++k) s += a(i,k)*u(j,k);
+            s /= hl[i];
+            for (int k = i; k<m; ++k) u(j,k) += s*a(i,k);
+          }
+        }
+
+        // Diagonalization of the bidiagonal form (QR iterations with shift).
+        for (int k = n - 1; k>=0; --k) {
+          bool converged = false;
           for (unsigned int its = 0; its<max_iteration; ++its) {
             bool flag = true;
-            for (l = k; l>=1; --l) {
+            // Search for the largest l<=k such that rv1[l] or w[l-1] is negligible.
+            // Test relative to machine epsilon (as in NR), rv1[0] is always 0.
+            for (l = k; l>=0; --l) {
               nm = l - 1;
-              if (l==0 || cimg::abs(rv1[l])<=eps*anorm) { flag = false; break; }
-              if (cimg::abs(S[nm])<=eps*anorm) break;
+              if (l==0 || (std::fabs(rv1[l]) + anorm)==anorm) { flag = false; break; }
+              if ((std::fabs(w[nm]) + anorm)==anorm) break;
             }
-            if (flag) {
-              c = 0;
-              s = 1;
+            if (flag) {   // Cancellation of rv1[l] if w[l-1] is negligible.
+              c = 0; s = 1;
               for (int i = l; i<=k; ++i) {
                 f = s*rv1[i];
                 rv1[i] = c*rv1[i];
-                if ((cimg::abs(f) + anorm)==anorm) break;
-                g = S[i];
+                if ((std::fabs(f) + anorm)==anorm) break;
+                g = w[i];
                 h = cimg::hypot(f,g);
-                S[i] = h;
-                h = 1/h;
+                w[i] = h;
+                h = 1/h;                         // h>0 since |f| is not negligible here.
                 c = g*h;
                 s = -f*h;
-                cimg_forY(U,j) {
-                  const t y = U(nm,j), z = U(i,j);
-                  U(nm,j) = y*c + z*s;
-                  U(i,j) = z*c - y*s;
+                for (int j = 0; j<m; ++j) {
+                  y = u(nm,j); z = u(i,j);
+                  u(nm,j) = y*c + z*s;
+                  u(i,j) = z*c - y*s;
                 }
               }
             }
 
-            const t z = S[k];
-            if (l==k) { if (z<0) { S[k] = -z; cimg_forX(U,j) V(k,j) = -V(k,j); } break; }
-            nm = k - 1;
-            t x = S[l], y = S[nm];
-            g = rv1[nm];
-            h = rv1[k];
-            f = ((y - z)*(y + z) + (g - h)*(g + h))/std::max(eps,(Ttfloat)2*h*y);
-            g = cimg::hypot(f,(Ttfloat)1);
-            f = ((x - z)*(x + z) + h*((y/(f + (f>=0?g:-g))) - h))/std::max(eps,(Ttfloat)x);
+            z = w[k];
+            if (l==k) {   // Convergence: make the singular value positive.
+              if (z<0) { w[k] = -z; for (int j = 0; j<n; ++j) v(k,j) = -v(k,j); }
+              converged = true;
+              break;
+            }
+
+            // Wilkinson shift (protected divisors preserving sign).
+            x = w[l]; nm = k - 1; y = w[nm];
+            g = rv1[nm]; h = rv1[k];
+            f = ((y - z)*(y + z) + (g - h)*(g + h))/_SVD_safe(2*h*y);
+            g = cimg::hypot(f,1.);
+            f = ((x - z)*(x + z) + h*((y/_SVD_safe(f + (f>=0?g:-g))) - h))/_SVD_safe(x);
+
+            // QR step.
             c = s = 1;
             for (int j = l; j<=nm; ++j) {
               const int i = j + 1;
               g = rv1[i];
+              y = w[i];
               h = s*g;
               g = c*g;
-              t y1 = S[i], z1 = cimg::hypot(f,h);
-              rv1[j] = z1;
-              c = f/std::max(eps,(Ttfloat)z1);
-              s = h/std::max(eps,(Ttfloat)z1);
+              z = cimg::hypot(f,h);
+              rv1[j] = z;
+              if (z!=0) { c = f/z; s = h/z; } else { c = 1; s = 0; }
               f = x*c + g*s;
               g = g*c - x*s;
-              h = y1*s;
-              y1*=c;
-              cimg_forX(U,jj) {
-                const t x2 = V(j,jj), z2 = V(i,jj);
-                V(j,jj) = x2*c + z2*s;
-                V(i,jj) = z2*c - x2*s;
+              h = y*s;
+              y *= c;
+              for (int jj = 0; jj<n; ++jj) {
+                x = v(j,jj); z = v(i,jj);
+                v(j,jj) = x*c + z*s;
+                v(i,jj) = z*c - x*s;
               }
-              z1 = cimg::hypot(f,h);
-              S[j] = z1;
-              if (z1) {
-                z1 = 1/std::max(eps,(Ttfloat)z1);
-                c = f*z1;
-                s = h*z1;
-              }
-              f = c*g + s*y1;
-              x = c*y1 - s*g;
-              cimg_forY(U,jj) {
-                const t y2 = U(j,jj), z2 = U(i,jj);
-                U(j,jj) = y2*c + z2*s;
-                U(i,jj) = z2*c - y2*s;
+              z = cimg::hypot(f,h);
+              w[j] = z;
+              if (z!=0) { z = 1/z; c = f*z; s = h*z; }
+              f = c*g + s*y;
+              x = c*y - s*g;
+              for (int jj = 0; jj<m; ++jj) {
+                y = u(j,jj); z = u(i,jj);
+                u(j,jj) = y*c + z*s;
+                u(i,jj) = z*c - y*s;
               }
             }
             rv1[l] = 0;
             rv1[k] = f;
-            S[k] = x;
+            w[k] = x;
           }
+          if (!converged)
+            throw CImgInstanceException(_cimg_instance
+                                        "SVD(): No convergence after %u iterations.",
+                                        cimg_instance,max_iteration);
         }
 
-        if (sorting) {
-          CImg<intT> permutations;
-          CImg<t> tmp(_width);
-          S.sort(permutations,false);
-          cimg_forY(U,k) {
-            cimg_forY(permutations,y) tmp(y) = U(permutations(y),k);
-            std::memcpy(U.data(0,k),tmp._data,sizeof(t)*_width);
-          }
-          cimg_forY(V,k) {
-            cimg_forY(permutations,y) tmp(y) = V(permutations(y),k);
-            std::memcpy(V.data(0,k),tmp._data,sizeof(t)*_width);
-          }
+        // Sort singular values (in decreasing order), then copy into U, S, V (type t).
+        CImg<intT> perm(n);
+        for (int i = 0; i<n; ++i) perm[i] = i;
+        if (sorting)
+          for (int i = 1; i<n; ++i)
+            for (int j = i; j>0 && w[perm[j - 1]]<w[perm[j]]; --j) std::swap(perm[j],perm[j - 1]);
+
+        U.assign(n,m); S.assign(1,n); V.assign(n,n);
+        for (int c2 = 0; c2<n; ++c2) {
+          S[c2] = (t)w[perm[c2]];
+          for (int r = 0; r<m; ++r) U(c2,r) = (t)u(perm[c2],r);
+          for (int r = 0; r<n; ++r) V(c2,r) = (t)v(perm[c2],r);
         }
       }
       return *this;
+    }
+
+    // Protect a divisor against zero while PRESERVING its sign.
+    static double _SVD_safe(const double d) {
+      const double eps = 1e-32;
+      return std::fabs(d)<eps?(d>=0?eps:-eps):d;
     }
 
     //! Compute the SVD of the instance image, viewed as a general matrix.
@@ -47382,6 +47456,33 @@ namespace cimg_library {
       fftw_cleanup_threads();
 #endif
       cimg::mutex(12,0);
+#elif defined(cimg_use_pocketfft)
+      try {
+        const ulongT whd = (ulongT)real._width*real._height*real._depth;
+        CImg<double> buf(2*whd);
+        double *const ptrf = buf._data;
+        std::complex<double> *const data = (std::complex<double>*)ptrf;
+        const ptrdiff_t s = (ptrdiff_t)sizeof(std::complex<double>);
+        const pocketfft::shape_t shape{(size_t)real._width,(size_t)real._height,(size_t)real._depth};
+        const pocketfft::stride_t stride{s,s*(ptrdiff_t)real._width,s*(ptrdiff_t)real._width*(ptrdiff_t)real._height};
+        const pocketfft::shape_t axes{(size_t)(_axis=='x'?0:_axis=='y'?1:2)};
+        const double a = is_inverse?1.0/(_axis=='x'?real.width():_axis=='y'?real.height():real.depth()):1.0;
+        const size_t nthreads = nb_threads?(size_t)nb_threads:(size_t)cimg::nb_cpus();
+        cimg_forC(real,c) {
+          CImg<T> realc = real.get_shared_channel(c), imagc = imag.get_shared_channel(c);
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
+          cimg_rofoff(realc,i) { const ulongT i2 = 2*i; ptrf[i2] = (double)realc[i]; ptrf[i2 + 1] = (double)imagc[i]; }
+          pocketfft::c2c(shape,stride,stride,axes,!is_inverse,data,data,a,nthreads);
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
+          cimg_rofoff(realc,i) { const ulongT i2 = 2*i; realc[i] = (T)ptrf[i2]; imagc[i] = (T)ptrf[i2 + 1]; }
+        }
+      } catch (const CImgException&) {
+        throw;
+      } catch (const std::exception& e) {
+        throw CImgInstanceException("CImgList<%s>::FFT(): pocketfft failed for image (%u,%u,%u,%u) "
+                                    "along the %c-axis: %s",
+                                    pixel_type(),real._width,real._height,real._depth,real._spectrum,_axis,e.what());
+      }
 #else
       switch (_axis) {
       case 'x' : { // Fourier along X, using built-in functions
@@ -47590,6 +47691,35 @@ namespace cimg_library {
       fftw_cleanup_threads();
 #endif
       cimg::mutex(12,0);
+#elif defined(cimg_use_pocketfft)
+      try {
+        const ulongT whd = (ulongT)real._width*real._height*real._depth;
+        CImg<double> buf(2*whd);
+        double *const ptrf = buf._data;
+        std::complex<double> *const data = (std::complex<double>*)ptrf;
+        const ptrdiff_t s = (ptrdiff_t)sizeof(std::complex<double>);
+        const pocketfft::shape_t shape{(size_t)real._width,(size_t)real._height,(size_t)real._depth};
+        const pocketfft::stride_t stride{s,s*(ptrdiff_t)real._width,s*(ptrdiff_t)real._width*(ptrdiff_t)real._height};
+        pocketfft::shape_t axes;
+        if (real._width>1) axes.push_back(0);
+        if (real._height>1) axes.push_back(1);
+        if (real._depth>1) axes.push_back(2);
+        const double a = is_inverse?1.0/whd:1.0;
+        const size_t nthreads = nb_threads?(size_t)nb_threads:(size_t)cimg::nb_cpus();
+        if (!axes.empty()) cimg_forC(real,c) {
+          CImg<T> realc = real.get_shared_channel(c), imagc = imag.get_shared_channel(c);
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
+          cimg_rofoff(realc,i) { const ulongT i2 = 2*i; ptrf[i2] = (double)realc[i]; ptrf[i2 + 1] = (double)imagc[i]; }
+          pocketfft::c2c(shape,stride,stride,axes,!is_inverse,data,data,a,nthreads);
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
+          cimg_rofoff(realc,i) { const ulongT i2 = 2*i; realc[i] = (T)ptrf[i2]; imagc[i] = (T)ptrf[i2 + 1]; }
+        }
+      } catch (const CImgException&) {
+        throw;
+      } catch (const std::exception& e) {
+        throw CImgInstanceException("CImgList<%s>::FFT(): pocketfft failed for image (%u,%u,%u,%u): %s",
+                                    pixel_type(),real._width,real._height,real._depth,real._spectrum,e.what());
+      }
 #else
       if (real._depth>1) FFT(real,imag,'z',is_inverse);
       if (real._height>1) FFT(real,imag,'y',is_inverse);
@@ -64159,7 +64289,7 @@ namespace cimg_library {
       if (_allocated_width<n || _allocated_width>(n<<2)) {
         delete[] _data;
         _data = new CImg<T>[_allocated_width = std::max(16U,(unsigned int)cimg::nearest_pow2(n))];
-      }
+      } else for (unsigned int l = 0; l<_width; ++l) _data[l].assign(); // Empty previous images
       _width = n;
       return *this;
     }

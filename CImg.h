@@ -630,6 +630,18 @@ extern "C" {
 }
 #endif
 
+// Configure pocketfft support.
+// (https://github.com/mreineck/pocketfft, C++ header-only version)
+//
+// Define 'cimg_use_pocketfft' to compute the Fast Fourier Transform of image data with
+// pocketfft (BSD license), without restriction on the image size, when FFTW3 is not used
+// (see function 'CImg[List]<T>::FFT()').
+#if defined(cimg_use_pocketfft) && !defined(cimg_use_fftw3)
+#include <complex>
+#include <exception>
+#include "pocketfft_hdronly.h"
+#endif
+
 // Configure OpenEXR support.
 // (http://www.openexr.com/)
 //
@@ -6321,6 +6333,17 @@ namespace cimg_library {
                    cimg::t_bold(),
 #ifdef cimg_use_fftw3
                    "Yes",cimg::t_normal(),cimg::t_green(),"defined",
+#else
+                   "No",cimg::t_normal(),cimg::t_green(),"undefined",
+#endif
+                   cimg::t_normal());
+
+      std::fprintf(cimg::output(),"  > Using pocketfft library:  %s%-13s%s %s('cimg_use_pocketfft' %s)%s\n",
+                   cimg::t_bold(),
+#if defined(cimg_use_pocketfft) && !defined(cimg_use_fftw3)
+                   "Yes",cimg::t_normal(),cimg::t_green(),"defined",
+#elif defined(cimg_use_pocketfft)
+                   "No",cimg::t_normal(),cimg::t_green(),"defined, FFTW3 used",
 #else
                    "No",cimg::t_normal(),cimg::t_green(),"undefined",
 #endif
@@ -47418,6 +47441,33 @@ namespace cimg_library {
       fftw_cleanup_threads();
 #endif
       cimg::mutex(12,0);
+#elif defined(cimg_use_pocketfft)
+      try {
+        const ulongT whd = (ulongT)real._width*real._height*real._depth;
+        CImg<double> buf(2*whd);
+        double *const ptrf = buf._data;
+        std::complex<double> *const data = (std::complex<double>*)ptrf;
+        const ptrdiff_t s = (ptrdiff_t)sizeof(std::complex<double>);
+        const pocketfft::shape_t shape{(size_t)real._width,(size_t)real._height,(size_t)real._depth};
+        const pocketfft::stride_t stride{s,s*(ptrdiff_t)real._width,s*(ptrdiff_t)real._width*(ptrdiff_t)real._height};
+        const pocketfft::shape_t axes{(size_t)(_axis=='x'?0:_axis=='y'?1:2)};
+        const double a = is_inverse?1.0/(_axis=='x'?real.width():_axis=='y'?real.height():real.depth()):1.0;
+        const size_t nthreads = nb_threads?(size_t)nb_threads:(size_t)cimg::nb_cpus();
+        cimg_forC(real,c) {
+          CImg<T> realc = real.get_shared_channel(c), imagc = imag.get_shared_channel(c);
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
+          cimg_rofoff(realc,i) { const ulongT i2 = 2*i; ptrf[i2] = (double)realc[i]; ptrf[i2 + 1] = (double)imagc[i]; }
+          pocketfft::c2c(shape,stride,stride,axes,!is_inverse,data,data,a,nthreads);
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
+          cimg_rofoff(realc,i) { const ulongT i2 = 2*i; realc[i] = (T)ptrf[i2]; imagc[i] = (T)ptrf[i2 + 1]; }
+        }
+      } catch (const CImgException&) {
+        throw;
+      } catch (const std::exception& e) {
+        throw CImgInstanceException("CImgList<%s>::FFT(): pocketfft failed for image (%u,%u,%u,%u) "
+                                    "along the %c-axis: %s",
+                                    pixel_type(),real._width,real._height,real._depth,real._spectrum,_axis,e.what());
+      }
 #else
       switch (_axis) {
       case 'x' : { // Fourier along X, using built-in functions
@@ -47626,6 +47676,35 @@ namespace cimg_library {
       fftw_cleanup_threads();
 #endif
       cimg::mutex(12,0);
+#elif defined(cimg_use_pocketfft)
+      try {
+        const ulongT whd = (ulongT)real._width*real._height*real._depth;
+        CImg<double> buf(2*whd);
+        double *const ptrf = buf._data;
+        std::complex<double> *const data = (std::complex<double>*)ptrf;
+        const ptrdiff_t s = (ptrdiff_t)sizeof(std::complex<double>);
+        const pocketfft::shape_t shape{(size_t)real._width,(size_t)real._height,(size_t)real._depth};
+        const pocketfft::stride_t stride{s,s*(ptrdiff_t)real._width,s*(ptrdiff_t)real._width*(ptrdiff_t)real._height};
+        pocketfft::shape_t axes;
+        if (real._width>1) axes.push_back(0);
+        if (real._height>1) axes.push_back(1);
+        if (real._depth>1) axes.push_back(2);
+        const double a = is_inverse?1.0/whd:1.0;
+        const size_t nthreads = nb_threads?(size_t)nb_threads:(size_t)cimg::nb_cpus();
+        if (!axes.empty()) cimg_forC(real,c) {
+          CImg<T> realc = real.get_shared_channel(c), imagc = imag.get_shared_channel(c);
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
+          cimg_rofoff(realc,i) { const ulongT i2 = 2*i; ptrf[i2] = (double)realc[i]; ptrf[i2 + 1] = (double)imagc[i]; }
+          pocketfft::c2c(shape,stride,stride,axes,!is_inverse,data,data,a,nthreads);
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
+          cimg_rofoff(realc,i) { const ulongT i2 = 2*i; realc[i] = (T)ptrf[i2]; imagc[i] = (T)ptrf[i2 + 1]; }
+        }
+      } catch (const CImgException&) {
+        throw;
+      } catch (const std::exception& e) {
+        throw CImgInstanceException("CImgList<%s>::FFT(): pocketfft failed for image (%u,%u,%u,%u): %s",
+                                    pixel_type(),real._width,real._height,real._depth,real._spectrum,e.what());
+      }
 #else
       if (real._depth>1) FFT(real,imag,'z',is_inverse);
       if (real._height>1) FFT(real,imag,'y',is_inverse);

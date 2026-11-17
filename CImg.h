@@ -32403,53 +32403,89 @@ namespace cimg_library {
       return res;
     }
 
-    //! Compute eigenvalues and eigenvectors of the instance image, viewed as a symmetric matrix.
+    //! Compute eigenvalues and eigenvectors of a symmetric matrix (using cyclic Jacobi algorithm).
     /**
-       \param[out] val Vector of the estimated eigenvalues, in decreasing order.
-       \param[out] vec Matrix of the estimated eigenvectors, sorted by columns.
+       \param val Eigenvalues, sorted in decreasing order (column vector, size 1xn).
+       \param vec Eigenvectors, stored column by column: vec.get_column(i) is the
+       unit eigenvector associated with val[i].
     **/
     template<typename t>
     const CImg<T>& symmetric_eigen(CImg<t>& val, CImg<t>& vec) const {
       if (is_empty()) { val.assign(); vec.assign(); return *this; }
       if (_width!=_height || _depth>1 || _spectrum>1)
         throw CImgInstanceException(_cimg_instance
-                                    "eigen(): Instance is not a square matrix.",
+                                    "symmetric_eigen(): Instance is not a square matrix.",
                                     cimg_instance);
-      val.assign(1,_width);
-      vec.assign(_width,_width);
+      const int n = (int)_width;
 
-      if (_width==1) { val[0] = cimg::abs((*this)[0]); vec[0] = 1; return *this; }
-      if (_width==2) {
-        const double
-          a = (*this)[0], b = (*this)[1], c = (*this)[2], d = (*this)[3],
-          e = a + d, f = std::sqrt(std::max(e*e - 4*(a*d - b*c),0.0)),
-          l1 = 0.5*(e - f), l2 = 0.5*(e + f),
-          n = std::sqrt(cimg::sqr(l2 - a) + b*b);
-        val[0] = (t)l2;
-        val[1] = (t)l1;
-        if (n>0) { vec[0] = (t)(b/n); vec[2] = (t)((l2 - a)/n); } else { vec[0] = 1; vec[2] = 0; }
-        vec[1] = -vec[2];
-        vec[3] = vec[0];
-        return *this;
-      }
-      CImg<t> V(_width,_width);
-      Tfloat M = 0, m = (Tfloat)min_max(M), maxabs = cimg::max((Tfloat)1,cimg::abs(m),cimg::abs(M));
-      (CImg<Tfloat>(*this,false)/=maxabs).SVD(vec,val,V,false);
-      if (maxabs!=1) val*=maxabs;
-
-      // Retrieve signed eigenvalues (compute X^t.A.X, which is more robust than using sign(U_k.V_k)).
-      cimg_forY(val,p) {
-        const CImg<Tfloat> u = vec.get_column(p);
-        val[p] = u.dot((*this)*u);
+      // Work in double precision on the symmetrized matrix. a[i*n+j] = row i, column j.
+      CImg<doubleT> A(n,n), V(n,n,1,1,0);
+      double *const a = A._data, *const v = V._data;
+      for (int i = 0; i<n; ++i) {
+        for (int j = 0; j<n; ++j)
+          a[i*n + j] = 0.5*((double)(*this)(j,i) + (double)(*this)(i,j));
+        v[i*n + i] = 1;
       }
 
-      // Sort eigenvalues in decreasing order
-      CImg<intT> permutations;
-      CImg<t> tmp(_width);
-      val.sort(permutations,false);
-      cimg_forY(vec,k) {
-        cimg_forY(permutations,y) tmp(y) = vec(permutations(y),k);
-        std::memcpy(vec.data(0,k),tmp._data,sizeof(t)*_width);
+      double frob2 = 0;
+      for (int i = 0; i<n*n; ++i) frob2 += a[i]*a[i];
+      const double tol = 1e-32*frob2;   // ~ (DBL_EPSILON)^2 * ||A||_F^2
+
+      for (int sweep = 0; sweep<100; ++sweep) {
+        double off = 0;
+        for (int i = 1; i<n; ++i) for (int j = 0; j<i; ++j) off += a[i*n + j]*a[i*n + j];
+        if (off<=tol) break;
+
+        for (int p = 0; p<n - 1; ++p) for (int q = p + 1; q<n; ++q) {
+            const double apq = a[p*n + q];
+            if (apq==0) continue;
+            const double app = a[p*n + p], aqq = a[q*n + q],
+              theta = (aqq - app)/(2*apq),
+              tt = cimg::abs(theta)>1e150 ? 0.5/theta :
+              (theta>=0?1.:-1.)/(cimg::abs(theta) + std::sqrt(theta*theta + 1)),
+              c = 1/std::sqrt(tt*tt + 1),
+              s = tt*c;
+
+            // A <- A.J (columns p and q).
+            for (int k = 0; k<n; ++k) {
+              const double akp = a[k*n + p], akq = a[k*n + q];
+              a[k*n + p] = c*akp - s*akq;
+              a[k*n + q] = s*akp + c*akq;
+            }
+            // A <- J^T.A (rows p and q).
+            for (int k = 0; k<n; ++k) {
+              const double apk = a[p*n + k], aqk = a[q*n + k];
+              a[p*n + k] = c*apk - s*aqk;
+              a[q*n + k] = s*apk + c*aqk;
+            }
+            // Overwrite the 2x2 block with its exact analytical values.
+            a[p*n + p] = app - tt*apq;
+            a[q*n + q] = aqq + tt*apq;
+            a[p*n + q] = a[q*n + p] = 0;
+
+            // V <- V.J (accumulate eigenvectors as columns).
+            for (int k = 0; k<n; ++k) {
+              const double vkp = v[k*n + p], vkq = v[k*n + q];
+              v[k*n + p] = c*vkp - s*vkq;
+              v[k*n + q] = s*vkp + c*vkq;
+            }
+          }
+      }
+
+      // Sort eigenvalues in decreasing order (selection sort on a permutation).
+      CImg<intT> perm(n);
+      for (int i = 0; i<n; ++i) perm[i] = i;
+      for (int i = 0; i<n - 1; ++i) {
+        int m = i;
+        for (int j = i + 1; j<n; ++j) if (a[perm[j]*n + perm[j]]>a[perm[m]*n + perm[m]]) m = j;
+        cimg::swap(perm[i],perm[m]);
+      }
+
+      val.assign(1,n);
+      vec.assign(n,n);
+      for (int i = 0; i<n; ++i) {
+        val[i] = (t)a[perm[i]*n + perm[i]];
+        for (int k = 0; k<n; ++k) vec(i,k) = (t)v[k*n + perm[i]];  // column i = eigenvector i
       }
       return *this;
     }
@@ -32631,7 +32667,7 @@ namespace cimg_library {
                                     "SVD(): Instance has invalid dimensions (depth or channels different from 1).",
                                     cimg_instance);
       else {
-        U = *this;
+        U.assign(*this,false);
         if (lambda!=0) {
           const unsigned int delta = std::min(U._width,U._height);
           for (unsigned int i = 0; i<delta; ++i) U(i,i) = (t)(U(i,i) + lambda);
@@ -32654,7 +32690,7 @@ namespace cimg_library {
                 s+=U(i,k)*U(i,k);
               }
               f = U(i,i);
-              g = (Ttfloat)((f>=0?-1:1)*std::sqrt(s));
+              g = (Ttfloat)((f>=0?-1:1)*std::sqrt(std::max((Tfloat)0,s)));
               h = f*g - s;
               U(i,i) = f - g;
               for (int j = l; j<width(); ++j) {
@@ -32677,7 +32713,7 @@ namespace cimg_library {
                 s+=U(k,i)*U(k,i);
               }
               f = U(l,i);
-              g = (Ttfloat)((f>=0?-1:1)*std::sqrt(s));
+              g = (Ttfloat)((f>=0?-1:1)*std::sqrt(std::max((Tfloat)0,s)));
               h = f*g - s;
               U(l,i) = f - g;
               for (int k = l; k<width(); ++k) rv1[k] = U(k,i)/h;

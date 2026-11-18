@@ -3514,6 +3514,9 @@ namespace cimg_library {
       FFTW3_static() {
         fftw_init_threads();
       }
+      ~FFTW3_static() {
+        fftw_cleanup_threads();
+      }
     }; // struct FFTW3_static { ...
     static FFTW3_static _FFTW3_static;
 #endif
@@ -16507,7 +16510,7 @@ namespace cimg_library {
           if (level[s - expr._data]==clevel &&
               *ns!='=' && pc!='=' && pc!='>' && pc!='<' && pc!='!' &&
               pc!='+' && pc!='-' && pc!='*' && pc!='/' && pc!='%' &&
-              pc!='>' && pc!='<' && pc!='&' && pc!='|' && pc!='^') {
+              pc!='&' && pc!='|' && pc!='^') {
             variable_name.assign(ss,(unsigned int)(s + 1 - ss)).back() = 0;
             cimg::strpare(variable_name,false,true);
             const unsigned int l_variable_name = (unsigned int)std::strlen(variable_name);
@@ -17448,7 +17451,7 @@ namespace cimg_library {
             _cimg_mp_scalar2(eq,arg1,arg2);
           }
 
-        for (s = se3, ns = se2, ps = se4; s>ss; --s, --ns)
+        for (s = se3, ns = se2, ps = se4; s>ss; --s, --ns, --ps)
           if (*s=='<' && *ns=='=' && *ps!='$' && level[s - expr._data]==clevel) { // Less than or equal to ('<=')
             _cimg_mp_op("Operator '<='");
             arg1 = compile(ss,s,depth1,0,block_flags);
@@ -17461,7 +17464,7 @@ namespace cimg_library {
             _cimg_mp_scalar2(lte,arg1,arg2);
           }
 
-        for (s = se3, ns = se2, ps = se4; s>ss; --s, --ns)
+        for (s = se3, ns = se2, ps = se4; s>ss; --s, --ns, --ps)
           if (*s=='>' && *ns=='=' && *ps!='$' && level[s - expr._data]==clevel) { // Greater than or equal to ('>=')
             _cimg_mp_op("Operator '>='");
             arg1 = compile(ss,s,depth1,0,block_flags);
@@ -47452,9 +47455,6 @@ namespace cimg_library {
 
       fftw_destroy_plan(data_plan);
       fftw_free(data_in);
-#ifndef cimg_use_fftw3_singlethread
-      fftw_cleanup_threads();
-#endif
       cimg::mutex(12,0);
 #elif defined(cimg_use_pocketfft)
       try {
@@ -47687,9 +47687,6 @@ namespace cimg_library {
       }
       fftw_destroy_plan(data_plan);
       fftw_free(data_in);
-#ifndef cimg_use_fftw3_singlethread
-      fftw_cleanup_threads();
-#endif
       cimg::mutex(12,0);
 #elif defined(cimg_use_pocketfft)
       try {

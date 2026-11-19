@@ -5221,7 +5221,7 @@ namespace cimg_library {
 #if cimg_use_cpp11==1 && !defined(_MSC_VER)
       return std::hypot(x,y);
 #else
-      const double aa = cimg::abs((double)a), ab = cimg::abs((double)b);
+      const double aa = cimg::abs((double)x), ab = cimg::abs((double)y);
       if (aa>ab) { const double r = ab/aa; return (T)(aa*std::sqrt(1 + r*r)); }
       if (ab>0) { const double r = aa/ab; return (T)(ab*std::sqrt(1 + r*r)); }
       return 0;

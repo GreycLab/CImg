@@ -22818,8 +22818,7 @@ namespace cimg_library {
                      op==mp_vargmin?mp_vargmin2:
                      op==mp_vargminabs?mp_vargminabs2:
                      op==mp_vavg?mp_vavg2:
-                     op==mp_vavg?mp_vavg2:
-                     op==mp_vkth?mp_vkth:
+                     op==mp_vkth?mp_vkth2:
                      op==mp_vmax?mp_vmax2:
                      op==mp_vmaxabs?mp_vmaxabs2:
                      op==mp_vmedian?mp_vmedian2:
@@ -22827,7 +22826,8 @@ namespace cimg_library {
                      op==mp_vminabs?mp_vminabs2:
                      op==mp_vprod?mp_vprod2:
                      op==mp_vstd?mp_vstd2:
-                     op==mp_vsum?mp_vsum2:(mp_func)0;
+                     op==mp_vsum?mp_vsum2:
+                     op==mp_vvar?mp_vvar2:(mp_func)0;
                  opcode[0] = (ulongT)op;
               }
               opcode.move_to(code);
@@ -29206,7 +29206,7 @@ namespace cimg_library {
       }
 
       static double mp_vargkth2(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc2(1);
+        _cimg_mp_vfunc2(0);
       }
 
       static double mp_vargmax(_cimg_math_parser& mp) {
@@ -29214,7 +29214,7 @@ namespace cimg_library {
       }
 
       static double mp_vargmax2(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc2(e0>=e1?0:1);
+        _cimg_mp_vfunc2(e1>e0?1:0);
       }
 
       static double mp_vargmaxabs(_cimg_math_parser& mp) {
@@ -29222,7 +29222,7 @@ namespace cimg_library {
       }
 
       static double mp_vargmaxabs2(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc2(cimg::abs(e0)>=cimg::abs(e1)?0:1);
+        _cimg_mp_vfunc2(cimg::abs(e1)>cimg::abs(e0)?1:0);
       }
 
       static double mp_vargmin(_cimg_math_parser& mp) {
@@ -29230,7 +29230,7 @@ namespace cimg_library {
       }
 
       static double mp_vargmin2(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc2(e0<=e1?0:1);
+        _cimg_mp_vfunc2(e1<e0?1:0);
       }
 
       static double mp_vargminabs(_cimg_math_parser& mp) {

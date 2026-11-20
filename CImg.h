@@ -21045,6 +21045,7 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"log(",4)) { // Natural logarithm
               _cimg_mp_op("Function 'log()'");
+              p3 = code.size();
               arg1 = compile(ss4,se1,depth1,0,block_flags);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(std::log(mem[arg1]));
 
@@ -21053,7 +21054,8 @@ namespace cimg_library {
               mp_func fn = (mp_func)(pop?pop[0]:0);
 
               if (is_vector(arg1)) { // Vector-valued result
-                if (is_sth && fn==mp_vector_increment && pop[1]==arg1) { // Spot case 'log(1 + X)'
+                if (p3>code.size() && is_comp_vector(arg1) && is_sth && // Spot case 'log(1 + X)'
+                    fn==mp_vector_increment && pop[1]==arg1) {
                   pop[0] = (ulongT)mp_vector_log1p;
                   _cimg_mp_return(arg1);
                 }
@@ -21061,7 +21063,8 @@ namespace cimg_library {
               }
 
               // Scalar result.
-              if (is_sth && fn==mp_increment && pop[1]==arg1) { // Spot case 'log(1 + x)'
+              if (p3>code.size() && is_comp_scalar(arg1)&& is_sth && // Spot case 'log(1 + x)'
+                  fn==mp_increment && pop[1]==arg1) {
                 pop[0] = (ulongT)mp_log1p;
                 _cimg_mp_return(arg1);
               }

@@ -3514,9 +3514,6 @@ namespace cimg_library {
       FFTW3_static() {
         fftw_init_threads();
       }
-      ~FFTW3_static() {
-        fftw_cleanup_threads();
-      }
     }; // struct FFTW3_static { ...
     static FFTW3_static _FFTW3_static;
 #endif

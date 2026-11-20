@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 408
+#define cimg_version 409
 
 /*-----------------------------------------------------------
  #
@@ -31177,7 +31177,7 @@ namespace cimg_library {
                                     "minabs(): Empty instance.",
                                     cimg_instance);
       T *ptr_minabs = _data;
-      T minabs_value = *ptr_minabs;
+      T minabs_value = cimg::abs(*ptr_minabs);
       cimg_for(*this,ptrs,T) {
         const T ma = cimg::abs(*ptrs);
         if (ma<minabs_value) { minabs_value = ma; ptr_minabs = ptrs; }
@@ -31192,7 +31192,7 @@ namespace cimg_library {
                                     "minabs(): Empty instance.",
                                     cimg_instance);
       const T *ptr_minabs = _data;
-      T minabs_value = *ptr_minabs;
+      T minabs_value = cimg::abs(*ptr_minabs);
       cimg_for(*this,ptrs,T) {
         const T ma = cimg::abs(*ptrs);
         if (ma<minabs_value) { minabs_value = ma; ptr_minabs = ptrs; }
@@ -31235,7 +31235,7 @@ namespace cimg_library {
                                     "maxabs(): Empty instance.",
                                     cimg_instance);
       T *ptr_maxabs = _data;
-      T maxabs_value = *ptr_maxabs;
+      T maxabs_value = cimg::*ptr_maxabs;
       cimg_for(*this,ptrs,T) {
         const T ma = cimg::abs(*ptrs);
         if (ma>maxabs_value) { maxabs_value = ma; ptr_maxabs = ptrs; }

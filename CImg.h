@@ -16870,13 +16870,13 @@ namespace cimg_library {
                 if (is_vector(arg1)) { // Vector
                   if (is_vector(arg3)) { // From vector
                     if (arg1!=arg3) {
-                      is_sth = code.size()?true:false;
+                      is_sth = code.size()>0;
                       CImg<ulongT> &pop = is_sth?code.back():CImg<ulongT>::empty();
                       mp_func fn = (mp_func)(pop?pop[0]:0);
                       if (is_sth &&
                           (fn==mp_cumulate || fn==mp_equalize || fn==mp_mirror || fn==mp_noise || fn==mp_normalize ||
                            fn==mp_permute || fn==mp_reverse || fn==mp_shift || fn==mp_sort) &&
-                          pop[1]==arg3 && pop[2]==arg1) {
+                          is_comp_vector(arg3) && pop[1]==arg3 && pop[2]==arg1) {
                         // Spot cases 'X = func(X)' -> call in-place version of 'func()'.
                         pop[0] = (ulongT)(fn==mp_cumulate?mp_cumulate_ip:
                                           fn==mp_equalize?mp_equalize_ip:

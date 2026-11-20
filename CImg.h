@@ -31240,7 +31240,7 @@ namespace cimg_library {
                                     "maxabs(): Empty instance.",
                                     cimg_instance);
       T *ptr_maxabs = _data;
-      T maxabs_value = *ptr_maxabs;
+      T maxabs_value = cimg::abs(*ptr_maxabs);
       cimg_for(*this,ptrs,T) {
         const T ma = cimg::abs(*ptrs);
         if (ma>maxabs_value) { maxabs_value = ma; ptr_maxabs = ptrs; }
@@ -31255,7 +31255,7 @@ namespace cimg_library {
                                     "maxabs(): Empty instance.",
                                     cimg_instance);
       const T *ptr_maxabs = _data;
-      T maxabs_value = *ptr_maxabs;
+      T maxabs_value = cimg::abs(*ptr_maxabs);
       cimg_for(*this,ptrs,T) {
         const T ma = cimg::abs(*ptrs);
         if (ma>maxabs_value) { maxabs_value = ma; ptr_maxabs = ptrs; }

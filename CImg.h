@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 408
+#define cimg_version 409
 
 /*-----------------------------------------------------------
  #
@@ -5222,6 +5222,8 @@ namespace cimg_library {
       return std::hypot(x,y);
 #else
       const double aa = cimg::abs((double)x), ab = cimg::abs((double)y);
+      if (cimg::type<double>::is_inf(aa) || cimg::type<double>::is_inf(ab)) return (T)cimg::type<double>::inf();
+      if (cimg::type<double>::is_nan(aa) || cimg::type<double>::is_nan(ab)) return (T)cimg::type<double>::nan();
       if (aa>ab) { const double r = ab/aa; return (T)(aa*std::sqrt(1 + r*r)); }
       if (ab>0) { const double r = aa/ab; return (T)(ab*std::sqrt(1 + r*r)); }
       return 0;
@@ -16868,13 +16870,13 @@ namespace cimg_library {
                 if (is_vector(arg1)) { // Vector
                   if (is_vector(arg3)) { // From vector
                     if (arg1!=arg3) {
-                      is_sth = code.size()?true:false;
+                      is_sth = code.size()>0;
                       CImg<ulongT> &pop = is_sth?code.back():CImg<ulongT>::empty();
                       mp_func fn = (mp_func)(pop?pop[0]:0);
                       if (is_sth &&
                           (fn==mp_cumulate || fn==mp_equalize || fn==mp_mirror || fn==mp_noise || fn==mp_normalize ||
                            fn==mp_permute || fn==mp_reverse || fn==mp_shift || fn==mp_sort) &&
-                          pop[1]==arg3 && pop[2]==arg1) {
+                          is_comp_vector(arg3) && pop[1]==arg3 && pop[2]==arg1) {
                         // Spot cases 'X = func(X)' -> call in-place version of 'func()'.
                         pop[0] = (ulongT)(fn==mp_cumulate?mp_cumulate_ip:
                                           fn==mp_equalize?mp_equalize_ip:
@@ -21043,6 +21045,7 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"log(",4)) { // Natural logarithm
               _cimg_mp_op("Function 'log()'");
+              p3 = code.size();
               arg1 = compile(ss4,se1,depth1,0,block_flags);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(std::log(mem[arg1]));
 
@@ -21051,7 +21054,8 @@ namespace cimg_library {
               mp_func fn = (mp_func)(pop?pop[0]:0);
 
               if (is_vector(arg1)) { // Vector-valued result
-                if (is_sth && fn==mp_vector_increment && pop[1]==arg1) { // Spot case 'log(1 + X)'
+                if (p3>code.size() && is_comp_vector(arg1) && is_sth && // Spot case 'log(1 + X)'
+                    fn==mp_vector_increment && pop[1]==arg1) {
                   pop[0] = (ulongT)mp_vector_log1p;
                   _cimg_mp_return(arg1);
                 }
@@ -21059,7 +21063,8 @@ namespace cimg_library {
               }
 
               // Scalar result.
-              if (is_sth && fn==mp_increment && pop[1]==arg1) { // Spot case 'log(1 + x)'
+              if (p3>code.size() && is_comp_scalar(arg1)&& is_sth && // Spot case 'log(1 + x)'
+                  fn==mp_increment && pop[1]==arg1) {
                 pop[0] = (ulongT)mp_log1p;
                 _cimg_mp_return(arg1);
               }
@@ -22813,8 +22818,7 @@ namespace cimg_library {
                      op==mp_vargmin?mp_vargmin2:
                      op==mp_vargminabs?mp_vargminabs2:
                      op==mp_vavg?mp_vavg2:
-                     op==mp_vavg?mp_vavg2:
-                     op==mp_vkth?mp_vkth:
+                     op==mp_vkth?mp_vkth2:
                      op==mp_vmax?mp_vmax2:
                      op==mp_vmaxabs?mp_vmaxabs2:
                      op==mp_vmedian?mp_vmedian2:
@@ -22822,7 +22826,8 @@ namespace cimg_library {
                      op==mp_vminabs?mp_vminabs2:
                      op==mp_vprod?mp_vprod2:
                      op==mp_vstd?mp_vstd2:
-                     op==mp_vsum?mp_vsum2:(mp_func)0;
+                     op==mp_vsum?mp_vsum2:
+                     op==mp_vvar?mp_vvar2:(mp_func)0;
                  opcode[0] = (ulongT)op;
               }
               opcode.move_to(code);
@@ -29201,7 +29206,7 @@ namespace cimg_library {
       }
 
       static double mp_vargkth2(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc2(1);
+        _cimg_mp_vfunc2(0);
       }
 
       static double mp_vargmax(_cimg_math_parser& mp) {
@@ -29209,7 +29214,7 @@ namespace cimg_library {
       }
 
       static double mp_vargmax2(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc2(e0>=e1?0:1);
+        _cimg_mp_vfunc2(e1>e0?1:0);
       }
 
       static double mp_vargmaxabs(_cimg_math_parser& mp) {
@@ -29217,7 +29222,7 @@ namespace cimg_library {
       }
 
       static double mp_vargmaxabs2(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc2(cimg::abs(e0)>=cimg::abs(e1)?0:1);
+        _cimg_mp_vfunc2(cimg::abs(e1)>cimg::abs(e0)?1:0);
       }
 
       static double mp_vargmin(_cimg_math_parser& mp) {
@@ -29225,7 +29230,7 @@ namespace cimg_library {
       }
 
       static double mp_vargmin2(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc2(e0<=e1?0:1);
+        _cimg_mp_vfunc2(e1<e0?1:0);
       }
 
       static double mp_vargminabs(_cimg_math_parser& mp) {
@@ -31177,7 +31182,7 @@ namespace cimg_library {
                                     "minabs(): Empty instance.",
                                     cimg_instance);
       T *ptr_minabs = _data;
-      T minabs_value = *ptr_minabs;
+      T minabs_value = cimg::abs(*ptr_minabs);
       cimg_for(*this,ptrs,T) {
         const T ma = cimg::abs(*ptrs);
         if (ma<minabs_value) { minabs_value = ma; ptr_minabs = ptrs; }
@@ -31192,7 +31197,7 @@ namespace cimg_library {
                                     "minabs(): Empty instance.",
                                     cimg_instance);
       const T *ptr_minabs = _data;
-      T minabs_value = *ptr_minabs;
+      T minabs_value = cimg::abs(*ptr_minabs);
       cimg_for(*this,ptrs,T) {
         const T ma = cimg::abs(*ptrs);
         if (ma<minabs_value) { minabs_value = ma; ptr_minabs = ptrs; }
@@ -31235,7 +31240,7 @@ namespace cimg_library {
                                     "maxabs(): Empty instance.",
                                     cimg_instance);
       T *ptr_maxabs = _data;
-      T maxabs_value = *ptr_maxabs;
+      T maxabs_value = cimg::abs(*ptr_maxabs);
       cimg_for(*this,ptrs,T) {
         const T ma = cimg::abs(*ptrs);
         if (ma>maxabs_value) { maxabs_value = ma; ptr_maxabs = ptrs; }
@@ -31250,7 +31255,7 @@ namespace cimg_library {
                                     "maxabs(): Empty instance.",
                                     cimg_instance);
       const T *ptr_maxabs = _data;
-      T maxabs_value = *ptr_maxabs;
+      T maxabs_value = cimg::abs(*ptr_maxabs);
       cimg_for(*this,ptrs,T) {
         const T ma = cimg::abs(*ptrs);
         if (ma>maxabs_value) { maxabs_value = ma; ptr_maxabs = ptrs; }

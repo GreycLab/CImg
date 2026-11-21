@@ -49013,9 +49013,9 @@ namespace cimg_library {
                                    const float radius=50, const float size_z=100, const unsigned int subdivisions=24) {
       primitives.assign();
       if (!subdivisions) return CImg<floatT>();
-      CImgList<floatT> vertices(2,1,3,1,1,
-                                0.,0.,0.,
-                                0.,0.,size_z);
+      CImgList<floatT> vertices(2);
+      CImg<floatT>::vector(0,0,0).move_to(vertices[0]);
+      CImg<floatT>::vector(0,0,size_z).move_to(vertices[1]);
       for (float delta = 360.f/subdivisions, angle = 0; angle<360; angle+=delta) {
         const float a = (float)(angle*cimg::PI/180);
         CImg<floatT>::vector((float)(radius*std::cos(a)),(float)(radius*std::sin(a)),0.f).move_to(vertices);

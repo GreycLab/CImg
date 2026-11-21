@@ -13637,11 +13637,17 @@ namespace cimg_library {
        - It has been mainly defined for compatibility with STL naming conventions.
     **/
     T& back() {
+      if (is_empty()) throw CImgInstanceException(_cimg_instance
+                                                  "back(): Empty instance.",
+                                                  cimg_instance);
       return *(_data + size() - 1);
     }
 
     //! Return a reference to the last pixel value \const.
     const T& back() const {
+      if (is_empty()) throw CImgInstanceException(_cimg_instance
+                                                  "back(): Empty instance.",
+                                                  cimg_instance);
       return *(_data + size() - 1);
     }
 
@@ -16907,7 +16913,7 @@ namespace cimg_library {
                   } else add_opcode(mp_vector_init,arg1,size(arg1),1,arg3,0); // From scalar
                 } else { // Scalar
                   if (arg1!=arg3) {
-                    is_sth = code.size()?true:false;
+                    is_sth = code.size()>0;
                     CImg<ulongT> &pop = is_sth?code.back():CImg<ulongT>::empty();
                     mp_func fn = (mp_func)(pop?pop[0]:0);
                     if (is_sth)
@@ -17017,7 +17023,7 @@ namespace cimg_library {
                 _cimg_mp_check_type(arg2,2,3,size(arg1));
                 if (is_vector(arg2)) { // From vector
                   if (arg1!=arg2) {
-                    is_sth = code.size()?true:false;
+                    is_sth = code.size()>0;
                     CImg<ulongT> &pop = is_sth?code.back():CImg<ulongT>::empty();
                     mp_func fn = (mp_func)(pop?pop[0]:0);
                     if (is_sth &&
@@ -17063,7 +17069,7 @@ namespace cimg_library {
               if (is_reserved(arg1) && arg1>_cimg_mp_slot_c) { // Scalar variable: (s) = scalar
                 _cimg_mp_check_type(arg2,2,1,0);
                 if (arg1!=arg2) {
-                  is_sth = code.size()?true:false;
+                  is_sth = code.size()>0;
                   CImg<ulongT> &pop = is_sth?code.back():CImg<ulongT>::empty();
                   mp_func fn = (mp_func)(pop?pop[0]:0);
                   if (is_sth)
@@ -21046,7 +21052,7 @@ namespace cimg_library {
               arg1 = compile(ss4,se1,depth1,0,block_flags);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(std::log(mem[arg1]));
 
-              is_sth = code.size()?true:false;
+              is_sth = code.size()>0;
               CImg<ulongT> &pop = is_sth?code.back():CImg<ulongT>::empty();
               mp_func fn = (mp_func)(pop?pop[0]:0);
 
@@ -22727,10 +22733,10 @@ namespace cimg_library {
                   arg3 = size(arg2);
                   arg4+=arg3;
                   CImg<ulongT>::vector(arg2,arg3).move_to(l_opcode);
-                  const CImg<ulongT> &rcode_back = rcode.back();
-                  is_sth&=p3>p1 && rcode_back[1]==arg2 &&
-                    (rcode_back[0]==(ulongT)mp_string_init ||
-                     rcode_back[0]==(ulongT)mp_vector_init) && variable_def.size()==p2 && !is_comp_vector(arg2);
+                  const CImg<ulongT> &rcode_back = rcode?rcode.back():CImg<ulongT>::const_empty();
+                  is_sth&=p3>p1 && rcode_back &&
+                    (rcode_back[0]==(ulongT)mp_string_init || rcode_back[0]==(ulongT)mp_vector_init) &&
+                    rcode_back[1]==arg2 && variable_def.size()==p2 && !is_comp_vector(arg2);
                   // ^^ Tricky part: detect if 'arg2' is a newly constructed vector not assigned to a variable
                   // (i.e. a vector-valued literal).
                 } else {
@@ -23450,10 +23456,10 @@ namespace cimg_library {
                 arg2 = size(arg1);
                 arg3+=arg2;
                 CImg<ulongT>::vector(arg1,arg2).move_to(l_opcode);
-                const CImg<ulongT> &rcode_back = rcode.back();
-                is_sth&=p3>p1 && rcode_back[1]==arg1 &&
-                  (rcode_back[0]==(ulongT)mp_string_init ||
-                   rcode_back[0]==(ulongT)mp_vector_init) && variable_def.size()==p2 && !is_comp_vector(arg1);
+                const CImg<ulongT> &rcode_back = rcode?rcode.back():CImg<ulongT>::const_empty();
+                is_sth&=p3>p1 && rcode_back &&
+                  (rcode_back[0]==(ulongT)mp_string_init || rcode_back[0]==(ulongT)mp_vector_init) &&
+                  rcode_back[1]==arg1 && variable_def.size()==p2 && !is_comp_vector(arg1);
                 // ^^ Tricky part: detect if 'arg1' is a newly constructed vector not assigned to a variable
                 // (i.e. a vector-valued literal).
               } else {
@@ -24179,7 +24185,7 @@ namespace cimg_library {
 
         // Search for built-in constant.
         if (cimg::type<double>::is_nan(val)) return _cimg_mp_slot_nan;
-        if (val==(double)(int)val) {
+        if (val>=-5 && val<=10 && val==(double)(int)val) {
           if (val>=0 && val<=10) return (unsigned int)val;
           if (val<0 && val>=-5) return (unsigned int)(10 - val);
         }
@@ -64809,12 +64815,18 @@ namespace cimg_library {
     //! Return a reference to the last image of the list.
     /**
     **/
-    const CImg<T>& back() const {
+    CImg<T>& back() {
+      if (is_empty()) throw CImgInstanceException(_cimglist_instance
+                                                  "back(): Empty instance.",
+                                                  cimglist_instance);
       return *(_data + _width - 1);
     }
 
     //! Return a reference to the last image of the list \const.
-    CImg<T>& back() {
+    const CImg<T>& back() const {
+      if (is_empty()) throw CImgInstanceException(_cimglist_instance
+                                                  "back(): Empty instance.",
+                                                  cimglist_instance);
       return *(_data + _width - 1);
     }
 

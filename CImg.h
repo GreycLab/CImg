@@ -2496,20 +2496,20 @@ namespace cimg_library {
     // Mandatory because Microsoft's _snprintf() and _vsnprintf() do not add the '\0' character
     // at the end of the string.
 #if cimg_OS==2 && defined(_MSC_VER)
-    inline int _snprintf(char *const s, const size_t size, const char *const format, ...) {
-      va_list ap;
-      va_start(ap,format);
-      const int result = _vsnprintf(s,size,format,ap);
-      va_end(ap);
-      return result;
-    }
-
     inline int _vsnprintf(char *const s, const size_t size, const char *const format, va_list ap) {
       int result = -1;
       cimg::mutex(6);
       if (size) result = _vsnprintf_s(s,size,_TRUNCATE,format,ap);
       if (result==-1) result = _vscprintf(format,ap);
       cimg::mutex(6,0);
+      return result;
+    }
+
+    inline int _snprintf(char *const s, const size_t size, const char *const format, ...) {
+      va_list ap;
+      va_start(ap,format);
+      const int result = _vsnprintf(s,size,format,ap);
+      va_end(ap);
       return result;
     }
 
@@ -2526,19 +2526,19 @@ namespace cimg_library {
       return result;
     }
 
+    inline int _vsnprintf(char *const s, const size_t size, const char* format, va_list ap) {
+      cimg::mutex(6);
+      const int result = std::vsnprintf(s,size,format,ap);
+      cimg::mutex(6,0);
+      return result;
+    }
+
     inline int _snprintf(char *const s, const size_t n, const char *const format, ...) {
       cimg::mutex(6);
       va_list args;
       va_start(args,format);
       const int result = std::vsnprintf(s,n,format,args);
       va_end(args);
-      cimg::mutex(6,0);
-      return result;
-    }
-
-    inline int _vsnprintf(char *const s, const size_t size, const char* format, va_list ap) {
-      cimg::mutex(6);
-      const int result = std::vsnprintf(s,size,format,ap);
       cimg::mutex(6,0);
       return result;
     }
@@ -49013,9 +49013,9 @@ namespace cimg_library {
                                    const float radius=50, const float size_z=100, const unsigned int subdivisions=24) {
       primitives.assign();
       if (!subdivisions) return CImg<floatT>();
-      CImgList<floatT> vertices(2,1,3,1,1,
-                                0.,0.,0.,
-                                0.,0.,size_z);
+      CImgList<floatT> vertices(2);
+      CImg<floatT>::vector(0,0,0).move_to(vertices[0]);
+      CImg<floatT>::vector(0,0,size_z).move_to(vertices[1]);
       for (float delta = 360.f/subdivisions, angle = 0; angle<360; angle+=delta) {
         const float a = (float)(angle*cimg::PI/180);
         CImg<floatT>::vector((float)(radius*std::cos(a)),(float)(radius*std::sin(a)),0.f).move_to(vertices);

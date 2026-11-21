@@ -2496,20 +2496,20 @@ namespace cimg_library {
     // Mandatory because Microsoft's _snprintf() and _vsnprintf() do not add the '\0' character
     // at the end of the string.
 #if cimg_OS==2 && defined(_MSC_VER)
-    inline int _snprintf(char *const s, const size_t size, const char *const format, ...) {
-      va_list ap;
-      va_start(ap,format);
-      const int result = _vsnprintf(s,size,format,ap);
-      va_end(ap);
-      return result;
-    }
-
     inline int _vsnprintf(char *const s, const size_t size, const char *const format, va_list ap) {
       int result = -1;
       cimg::mutex(6);
       if (size) result = _vsnprintf_s(s,size,_TRUNCATE,format,ap);
       if (result==-1) result = _vscprintf(format,ap);
       cimg::mutex(6,0);
+      return result;
+    }
+
+    inline int _snprintf(char *const s, const size_t size, const char *const format, ...) {
+      va_list ap;
+      va_start(ap,format);
+      const int result = _vsnprintf(s,size,format,ap);
+      va_end(ap);
       return result;
     }
 
@@ -2526,19 +2526,19 @@ namespace cimg_library {
       return result;
     }
 
+    inline int _vsnprintf(char *const s, const size_t size, const char* format, va_list ap) {
+      cimg::mutex(6);
+      const int result = std::vsnprintf(s,size,format,ap);
+      cimg::mutex(6,0);
+      return result;
+    }
+
     inline int _snprintf(char *const s, const size_t n, const char *const format, ...) {
       cimg::mutex(6);
       va_list args;
       va_start(args,format);
       const int result = std::vsnprintf(s,n,format,args);
       va_end(args);
-      cimg::mutex(6,0);
-      return result;
-    }
-
-    inline int _vsnprintf(char *const s, const size_t size, const char* format, va_list ap) {
-      cimg::mutex(6);
-      const int result = std::vsnprintf(s,size,format,ap);
       cimg::mutex(6,0);
       return result;
     }

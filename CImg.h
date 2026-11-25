@@ -34290,6 +34290,9 @@ namespace cimg_library {
       cimg_abort_init;
       if (result_end) result_end->assign();
 
+      std::fprintf(stderr,"\nDEBUG : %u,%u,%u,%u\n",
+                   _width,_height,_depth,_spectrum);
+
       // Detect value sequence.
       if (mode&1) {
         double value;
@@ -34361,17 +34364,30 @@ namespace cimg_library {
               mp.end_t();
 
             } else if (*expression=='>' || *expression=='+' || !is_parallelizable) {
+
+              std::fprintf(stderr,"\nPOUET\n");
+
               CImg<doubleT> res(1,mp.result_dim);
+
+              res.print("RES");
+
               mp.begin_t();
               cimg_forYZ(*this,y,z) {
+                print("THIS0");
                 cimg_abort_test;
-                if (mode&4) cimg_forX(*this,x) mp(x,y,z,0);
+                if (mode&4) {
+                  cimg_forX(*this,x) {
+                    std::fprintf(stderr,"\nPOUET0 (%d,%d,%d)\n",x,y,z);
+                    mp(x,y,z,0);
+                  }
+                }
                 else cimg_forX(*this,x) {
                     mp(x,y,z,0,res._data);
                     const double *const ptrs = res._data;
                     T *_ptrd = ptrd++;
                     for (unsigned int n = 0; n<N; ++n) _ptrd[n*whd] = (T)ptrs[n];
                   }
+                print("THIS1");
               }
               mp.end_t();
 

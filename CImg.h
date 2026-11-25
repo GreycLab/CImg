@@ -32531,8 +32531,8 @@ namespace cimg_library {
       // Sort eigenvalues in decreasing order (selection sort on a permutation).
       CImg<intT> perm(n);
       for (int i = 0; i<n; ++i) perm[i] = i;
-      for (int i = 0; i + 1<n; ++i) {
-        int m = i;
+      for (long i = 0; i<(long)n - 1; ++i) {
+        int m = (int)i;
         for (int j = i + 1; j<n; ++j) if (a[perm[j]*n + perm[j]]>a[perm[m]*n + perm[m]]) m = j;
         cimg::swap(perm[i],perm[m]);
       }

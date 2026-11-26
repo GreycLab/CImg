@@ -27226,21 +27226,21 @@ namespace cimg_library {
         if (is_vector) {
           const longT whd = (longT)img.size()/img.spectrum();
           T *ptr0 = &img[pos0], *ptr1 = &img[pos1];
-          if (pos0>=0 && pos0<=whd && pos1>=0 && pos1<=whd)
+          if (pos0>=0 && pos0<whd && pos1>=0 && pos1<whd)
             for (unsigned int c = 0; c<img._spectrum; ++c) {
               cimg::swap(*ptr0,*ptr1);
               ptr0+=whd;
               ptr1+=whd;
             } else throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'swap()': "
                                                "Out-of-bounds offsets %ld and %ld (min offset: 0, max offset: %ld).",
-                                               mp.imgin.pixel_type(),pos0,pos1,whd);
+                                               mp.imgin.pixel_type(),pos0,pos1,whd - 1);
         } else {
           const longT whds = (longT)img.size();
-          if (pos0>=0 && pos0<=whds && pos1>=0 && pos1<=whds)
+          if (pos0>=0 && pos0<whds && pos1>=0 && pos1<whds)
             cimg::swap(img[pos0],img[pos1]);
           else throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'swap()': "
                                            "Out-of-bounds offsets %ld and %ld (min offset: 0, max offset: %ld).",
-                                           mp.imgin.pixel_type(),pos0,pos1,whds);
+                                           mp.imgin.pixel_type(),pos0,pos1,whds - 1);
         }
         return cimg::type<double>::nan();
       }

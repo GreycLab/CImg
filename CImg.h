@@ -23100,10 +23100,10 @@ namespace cimg_library {
               }
             }
             if (arg3!=~0U) {
-              _cimg_mp_check_const_scalar(3,arg3,3);
-              _cimg_mp_check_const_scalar(4,arg4,3);
-              _cimg_mp_check_const_scalar(5,arg5,3);
-              _cimg_mp_check_const_scalar(6,arg6,3);
+              _cimg_mp_check_const_scalar(arg3,3,3);
+              _cimg_mp_check_const_scalar(arg4,4,3);
+              _cimg_mp_check_const_scalar(arg5,5,3);
+              _cimg_mp_check_const_scalar(arg6,6,3);
               arg3 = (unsigned int)mem[arg3];
               arg4 = (unsigned int)mem[arg4];
               arg5 = (unsigned int)mem[arg5];

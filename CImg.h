@@ -16551,9 +16551,9 @@ namespace cimg_library {
                   } else p2 = imgin._spectrum;
                   if (!p2) _cimg_mp_return(0);
                   _cimg_mp_check_type(arg2,2,2,p2);
-                  if (!is_comp_vector(arg2)) { add_opcode(mp_vector_copy,arg3 = vector(p2),arg2,p2); arg2 = arg3; }
+                  if (!is_comp_vector(arg2)) { add_opcode(mp_vector_copy,pos = vector(p2),arg2,p2); arg2 = pos; }
                 } else {
-                  if (!is_comp_scalar(arg2)) { add_opcode(mp_copy,arg3 = scalar(),arg2); arg2 = arg3; }
+                  if (!is_comp_scalar(arg2)) { add_opcode(mp_copy,pos = scalar(),arg2); arg2 = pos; }
                   p2 = 0;
                 }
 
@@ -16624,8 +16624,11 @@ namespace cimg_library {
                   } else p2 = imgin._spectrum;
                   if (!p2) _cimg_mp_return(0);
                   _cimg_mp_check_type(arg5,2,2,p2);
-                } else p2 = 0;
-
+                  if (!is_comp_vector(arg2)) { add_opcode(mp_vector_copy,pos = vector(p2),arg5,p2); arg5 = pos; }
+                } else {
+                  if (!is_comp_scalar(arg2)) { add_opcode(mp_copy,pos = scalar(),arg5); arg5 = pos; }
+                  p2 = 0;
+                }
 
                 if (p_ref) {
                   *p_ref = *ss=='I' || *ss=='J'?5:3;
@@ -16687,6 +16690,7 @@ namespace cimg_library {
                 }
 
                 // Case of non-constant index -> return assigned value + linked reference.
+                if (!is_comp_scalar(arg3)) { add_opcode(mp_copy,pos = scalar(),arg3); arg3 = pos; }
                 if (p_ref) {
                   *p_ref = 1;
                   p_ref[1] = arg1;

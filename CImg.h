@@ -17600,7 +17600,7 @@ namespace cimg_library {
             }
 
             // Right fusion: Spot cases 'a + (b - c)', 'a + (b*c)' and 'a + (b/c)'.
-            if (!ptr1 && code.size()>p3 && is_scalar(arg2)) {
+            if (!ptr1 && code.size()>p3 && is_comp_scalar(arg2)) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
               if ((op==mp_sub || op==mp_mul || op==mp_div) && pop[1]==arg2) {
@@ -17688,7 +17688,7 @@ namespace cimg_library {
             }
 
             // Right fusion: Spot cases 'a - (b*c)' and 'a - (b/c)'.
-            if (!ptr1 && code.size()>p3 && is_scalar(arg2)) {
+            if (!ptr1 && code.size()>p3 && is_comp_scalar(arg2)) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
               if ((op==mp_mul || op==mp_div) && pop[1]==arg2) {
@@ -17816,7 +17816,7 @@ namespace cimg_library {
               }
 
               // Right fusion: Spot case 'a*(b/c)'.
-              if (!ptr1 && code.size()>p3 && is_scalar(arg2)) {
+              if (!ptr1 && code.size()>p3 && is_comp_scalar(arg2)) {
                 CImg<ulongT>& pop = code.back();
                 op = (mp_func)*pop;
                 if (op==mp_div && pop[1]==arg2) {

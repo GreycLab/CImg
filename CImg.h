@@ -17403,14 +17403,14 @@ namespace cimg_library {
             arg2 = compile(s + 1,se,depth1,0,block_flags);
             _cimg_mp_check_type(arg2,2,3,size(arg1));
             if (is_vector(arg1) || is_vector(arg2)) {
-              if (!arg2) _cimg_mp_same(arg1);
-              if (!arg1) _cimg_mp_same(arg2);
+              if (!arg2) _cimg_mp_vector1(int,arg1);
+              if (!arg1) _cimg_mp_vector1(int,arg2);
               _cimg_mp_vector2(bitwise_or,arg1,arg2);
             }
             if (is_const_scalar(arg1) && is_const_scalar(arg2))
               _cimg_mp_const_scalar((longT)mem[arg1] | (longT)mem[arg2]);
-            if (!arg2) _cimg_mp_same(arg1);
-            if (!arg1) _cimg_mp_same(arg2);
+            if (!arg2) _cimg_mp_scalar1(int,arg1);
+            if (!arg1) _cimg_mp_scalar1(int,arg2);
             _cimg_mp_scalar2(bitwise_or,arg1,arg2);
           }
 
@@ -17522,13 +17522,13 @@ namespace cimg_library {
             arg2 = compile(s + 2,se,depth1,0,block_flags);
             _cimg_mp_check_type(arg2,2,3,size(arg1));
             if (is_vector(arg1) || is_vector(arg2)) {
-              if (!arg2) _cimg_mp_same(arg1);
+              if (!arg2) _cimg_mp_vector1(int,arg1);
               _cimg_mp_vector2(bitwise_left_shift,arg1,arg2);
             }
             if (is_const_scalar(arg1) && is_const_scalar(arg2))
               _cimg_mp_const_scalar(cimg::bsl(mem[arg1],(int)mem[arg2]));
             if (!arg1) _cimg_mp_return(0);
-            if (!arg2) _cimg_mp_same(arg1);
+            if (!arg2) _cimg_mp_scalar1(int,arg1);
             _cimg_mp_scalar2(bitwise_left_shift,arg1,arg2);
           }
 
@@ -17539,13 +17539,13 @@ namespace cimg_library {
             arg2 = compile(s + 2,se,depth1,0,block_flags);
             _cimg_mp_check_type(arg2,2,3,size(arg1));
             if (is_vector(arg1) || is_vector(arg2)) {
-              if (!arg2) _cimg_mp_same(arg1);
+              if (!arg2) _cimg_mp_vector1(int,arg1);
               _cimg_mp_vector2(bitwise_right_shift,arg1,arg2);
             }
             if (is_const_scalar(arg1) && is_const_scalar(arg2))
               _cimg_mp_const_scalar(cimg::bsr(mem[arg1],(int)mem[arg2]));
             if (!arg1) _cimg_mp_return(0);
-            if (!arg2) _cimg_mp_same(arg1);
+            if (!arg2) _cimg_mp_scalar1(int,arg1);
             _cimg_mp_scalar2(bitwise_right_shift,arg1,arg2);
           }
 

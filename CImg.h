@@ -26189,11 +26189,13 @@ namespace cimg_library {
             mp.eval(p_cond,p_body); // Evaluate condition
             if (mp.break_type==1) break;
             is_cond = (bool)mp.mem[mem_cond];
-            if (is_cond && !mp.break_type) mp.eval(p_body,p_post); // Evaluate body
-            if (mp.break_type==1) break;
-            mp.break_type = 0;
-            mp.eval(p_post,p_end); // Evaluate post-code
-            if (mp.break_type==1) break;
+            if (is_cond) {
+              if (!mp.break_type) mp.eval(p_body,p_post); // Evaluate body
+              if (mp.break_type==1) break;
+              mp.break_type = 0;
+              mp.eval(p_post,p_end); // Evaluate post-code
+              if (mp.break_type==1) break;
+            }
             mp.break_type = 0;
           } while (is_cond);
 

@@ -17328,17 +17328,22 @@ namespace cimg_library {
         for (s = ss1; s<se1; ++s)
           if (*s=='?' && level[s - expr._data]==clevel) { // Ternary operator 'cond?expr1:expr2'
             _cimg_mp_op("Operator '?:'");
-            s1 = s + 1; while (s1<se1 && (*s1!=':' || level[s1 - expr._data]!=clevel)) ++s1;
+            unsigned int nb_q = 0;
+            for (s1 = s + 1; s1<se1; ++s1)
+              if (level[s1 - expr._data]==clevel) {
+                if (*s1=='?') ++nb_q; else if (*s1==':') { if (!nb_q) break; --nb_q; }
+              }
+            const bool has_else = (s1<se1);
             arg1 = compile(ss,s,depth1,0,block_flags);
             _cimg_mp_check_type(arg1,1,1,0);
             if (is_const_scalar(arg1)) {
-              if ((bool)mem[arg1]) return compile(s + 1,*s1!=':'?se:s1,depth1,0,block_flags);
-              else return *s1!=':'?0:compile(++s1,se,depth1,0,block_flags);
+              if ((bool)mem[arg1]) return compile(s + 1,has_else?s1:se,depth1,0,block_flags);
+              else return has_else?compile(s1 + 1,se,depth1,0,block_flags):0;
             }
             p2 = code._width;
-            arg2 = compile(s + 1,*s1!=':'?se:s1,depth1,0,block_flags);
+            arg2 = compile(s + 1,has_else?s1:se,depth1,0,block_flags);
             p3 = code._width;
-            arg3 = *s1==':'?compile(++s1,se,depth1,0,block_flags):
+            arg3 = has_else?compile(s1 + 1,se,depth1,0,block_flags):
               is_vector(arg2)?vector(size(arg2),0):0;
             _cimg_mp_check_type(arg3,3,is_vector(arg2)?2:1,size(arg2));
             arg4 = size(arg2);
@@ -28776,9 +28781,11 @@ namespace cimg_library {
           _sort_index = _mp_arg(8);
         const bool
           bad_start = !(_start>(double)cimg::type<int>::min() - 1 && _start<(double)cimg::type<int>::max() + 1),
-          bad_nb_elts = has_nb_elts && !(_nb_elts>(double)cimg::type<int>::min() - 1 && _nb_elts<(double)cimg::type<int>::max() + 1),
+          bad_nb_elts = has_nb_elts &&
+            !(_nb_elts>(double)cimg::type<int>::min() - 1 && _nb_elts<(double)cimg::type<int>::max() + 1),
           bad_siz_elt = !(_siz_elt>(double)cimg::type<int>::min() - 1 && _siz_elt<(double)cimg::type<int>::max() + 1),
-          bad_sort_index = !(_sort_index>(double)cimg::type<int>::min() - 1 && _sort_index<(double)cimg::type<int>::max() + 1);
+          bad_sort_index = !(_sort_index>(double)cimg::type<int>::min() - 1 &&
+                             _sort_index<(double)cimg::type<int>::max() + 1);
         const int
           siz = (int)mp.opcode[3],
           starting_index = bad_start?-1:(int)_start,
@@ -28793,7 +28800,8 @@ namespace cimg_library {
                                       "Invalid arguments 'starting_index=%g', 'nb_elts=%g', 'siz_elt=%g' and "
                                       "'sort_index=%g', for sorting a vector of size %u.",
                                       mp.imgin.pixel_type(),
-                                      _start,has_nb_elts?_nb_elts:(double)nb_elts,_siz_elt,_sort_index,(unsigned int)siz);
+                                      _start,has_nb_elts?_nb_elts:(double)nb_elts,_siz_elt,_sort_index,
+                                      (unsigned int)siz);
         const int end_index = starting_index + nb_elts*siz_elt;
         const bool is_increasing = (bool)_mp_arg(4);
         if (nb_elts) {
@@ -28822,9 +28830,11 @@ namespace cimg_library {
           _sort_index = _mp_arg(8);
         const bool
           bad_start = !(_start>(double)cimg::type<int>::min() - 1 && _start<(double)cimg::type<int>::max() + 1),
-          bad_nb_elts = has_nb_elts && !(_nb_elts>(double)cimg::type<int>::min() - 1 && _nb_elts<(double)cimg::type<int>::max() + 1),
+          bad_nb_elts = has_nb_elts &&
+            !(_nb_elts>(double)cimg::type<int>::min() - 1 && _nb_elts<(double)cimg::type<int>::max() + 1),
           bad_siz_elt = !(_siz_elt>(double)cimg::type<int>::min() - 1 && _siz_elt<(double)cimg::type<int>::max() + 1),
-          bad_sort_index = !(_sort_index>(double)cimg::type<int>::min() - 1 && _sort_index<(double)cimg::type<int>::max() + 1);
+          bad_sort_index = !(_sort_index>(double)cimg::type<int>::min() - 1 &&
+                             _sort_index<(double)cimg::type<int>::max() + 1);
         const int
           siz = (int)mp.opcode[3],
           starting_index = bad_start?-1:(int)_start,
@@ -28839,7 +28849,8 @@ namespace cimg_library {
                                       "Invalid arguments 'starting_index=%g', 'nb_elts=%g', 'siz_elt=%g' and "
                                       "'sort_index=%g', for sorting a vector of size %u.",
                                       mp.imgin.pixel_type(),
-                                      _start,has_nb_elts?_nb_elts:(double)nb_elts,_siz_elt,_sort_index,(unsigned int)siz);
+                                      _start,has_nb_elts?_nb_elts:(double)nb_elts,_siz_elt,_sort_index,
+                                      (unsigned int)siz);
         if (nb_elts>1) {
           const bool is_increasing = (bool)_mp_arg(4);
           // Sort region.

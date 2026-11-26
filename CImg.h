@@ -17561,7 +17561,7 @@ namespace cimg_library {
             p3 = code.size();
             arg1 = compile(ss,s,depth1,0,block_flags);
 
-            // Spot cases '(a + b) + c', '(a - b) + c', '(a*b) + c' and '(a/b) + c'.
+            // Left fusion: Spot cases '(a + b) + c', '(a - b) + c', '(a*b) + c' and '(a/b) + c'.
             if (code.size()>p3 && is_comp_scalar(arg1)) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
@@ -17572,17 +17572,9 @@ namespace cimg_library {
             }
             p3 = code.size();
             arg2 = compile(s + 1,se,depth1,0,block_flags);
-
-            // Spot cases 'a + (b - c)', 'a + (b*c)' and 'a + (b/c)'.
-            if (!ptr1 && is_scalar(arg2) && code.size()>p3) {
-              CImg<ulongT>& pop = code.back();
-              op = (mp_func)*pop;
-              if ((op==mp_sub || op==mp_mul || op==mp_div) && pop[1]==arg2) {
-                p2 = code.size() - 1;
-                ptr2 = pop.data();
-              }
-            }
             _cimg_mp_check_type(arg2,2,3,size(arg1));
+
+            // Check for trivial particular cases.
             if (!arg2) _cimg_mp_same(arg1);
             if (!arg1) _cimg_mp_same(arg2);
             if (is_vector(arg1) || is_vector(arg2)) {
@@ -17591,7 +17583,23 @@ namespace cimg_library {
               _cimg_mp_vector2(add,arg1,arg2);
             }
             if (is_const_scalar(arg1) && is_const_scalar(arg2)) _cimg_mp_const_scalar(mem[arg1] + mem[arg2]);
-            if (p1<code.size() && code[p1].data()==ptr1 && ptr1[1]==(ulongT)arg1) {
+
+            if (ptr1 && code.size()>p3) { // Check that left fusion is still possible
+              for (unsigned int k = p3; k<code.size(); ++k)
+                if (code[k]._height<2 || !is_comp_scalar(code[k][1])) { ptr1 = 0; break; }
+            }
+
+            // Right fusion: Spot cases 'a + (b - c)', 'a + (b*c)' and 'a + (b/c)'.
+            if (!ptr1 && code.size()>p3 && is_scalar(arg2)) {
+              CImg<ulongT>& pop = code.back();
+              op = (mp_func)*pop;
+              if ((op==mp_sub || op==mp_mul || op==mp_div) && pop[1]==arg2) {
+                p2 = code.size() - 1;
+                ptr2 = pop.data();
+              }
+            }
+
+            if (ptr1 && p1<code.size() && code[p1].data()==ptr1 && ptr1[1]==(ulongT)arg1) { // Left fusion
               arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
               op = (mp_func)*ptr1;
               code.remove(p1);
@@ -17611,7 +17619,7 @@ namespace cimg_library {
               else if (op==mp_mul) _cimg_mp_scalar3(add_mul,arg2,arg3,arg4); // Particular case '(a*b) + c'
               _cimg_mp_scalar3(div_add,arg3,arg4,arg2); // Particular case '(a/b) + c'
             }
-            if (p2<code.size() && code[p2].data()==ptr2 && ptr2[1]==(ulongT)arg2) {
+            if (p2<code.size() && code[p2].data()==ptr2 && ptr2[1]==(ulongT)arg2) { // Right fusion
               arg3 = (unsigned int)ptr2[2]; arg4 = (unsigned int)ptr2[3];
               op = (mp_func)*ptr2;
               code.remove(p2);
@@ -17641,7 +17649,7 @@ namespace cimg_library {
             p3 = code.size();
             arg1 = compile(ss,s,depth1,0,block_flags);
 
-            // Spot cases '(a - b) - c', '(a*b) - c' and '(a/b) - c'.
+            // Left fusion: Spot cases '(a - b) - c', '(a*b) - c' and '(a/b) - c'.
             if (code.size()>p3 && is_comp_scalar(arg1)) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
@@ -17652,17 +17660,9 @@ namespace cimg_library {
             }
             p3 = code.size();
             arg2 = compile(s + 1,se,depth1,0,block_flags);
-
-            // Spot cases 'a - (b*c)' and 'a - (b/c)'.
-            if (!ptr1 && is_scalar(arg2) && code.size()>p3) {
-              CImg<ulongT>& pop = code.back();
-              op = (mp_func)*pop;
-              if ((op==mp_mul || op==mp_div) && pop[1]==arg2) {
-                p2 = code.size() - 1;
-                ptr2 = pop.data();
-              }
-            }
             _cimg_mp_check_type(arg2,2,3,size(arg1));
+
+            // Check for trivial particular cases.
             if (!arg2) _cimg_mp_same(arg1);
             if (is_vector(arg1) || is_vector(arg2)) {
               if (!arg1) _cimg_mp_vector1(minus,arg2);
@@ -17671,7 +17671,23 @@ namespace cimg_library {
             }
             if (is_const_scalar(arg1) && is_const_scalar(arg2)) _cimg_mp_const_scalar(mem[arg1] - mem[arg2]);
             if (!arg1) _cimg_mp_scalar1(minus,arg2);
-            if (p1<code.size() && code[p1].data()==ptr1 && ptr1[1]==(ulongT)arg1) {
+
+            if (ptr1 && code.size()>p3) { // Check that left fusion is still possible
+              for (unsigned int k = p3; k<code.size(); ++k)
+                if (code[k]._height<2 || !is_comp_scalar(code[k][1])) { ptr1 = 0; break; }
+            }
+
+            // Right fusion: Spot cases 'a - (b*c)' and 'a - (b/c)'.
+            if (!ptr1 && code.size()>p3 && is_scalar(arg2)) {
+              CImg<ulongT>& pop = code.back();
+              op = (mp_func)*pop;
+              if ((op==mp_mul || op==mp_div) && pop[1]==arg2) {
+                p2 = code.size() - 1;
+                ptr2 = pop.data();
+              }
+            }
+
+            if (ptr1 && p1<code.size() && code[p1].data()==ptr1 && ptr1[1]==(ulongT)arg1) { // Left fusion
               arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
               op = (mp_func)*ptr1;
               code.remove(p1);
@@ -17685,7 +17701,7 @@ namespace cimg_library {
               else if (op==mp_mul) _cimg_mp_scalar3(mul_sub,arg3,arg4,arg2); // Particular case '(a*b) - c'
               _cimg_mp_scalar3(div_sub,arg3,arg4,arg2); // Particular case '(a/b) - c'
             }
-            if (p2<code.size() && code[p2].data()==ptr2 && ptr2[1]==(ulongT)arg2) {
+            if (p2<code.size() && code[p2].data()==ptr2 && ptr2[1]==(ulongT)arg2) { // Right fusion
               arg3 = (unsigned int)ptr2[2]; arg4 = (unsigned int)ptr2[3];
               op = (mp_func)*ptr2;
               code.remove(p2);
@@ -17756,7 +17772,7 @@ namespace cimg_library {
               p3 = code.size();
               arg1 = compile(ss,s,depth1,0,block_flags);
 
-              // Spot cases '(a*b)*c' and '(a/b)*c'.
+              // Left fusion: Spot cases '(a*b)*c' and '(a/b)*c'.
               if (code.size()>p3 && is_comp_scalar(arg1)) {
                 CImg<ulongT>& pop = code.back();
                 op = (mp_func)*pop;
@@ -17768,16 +17784,6 @@ namespace cimg_library {
               p3 = code.size();
               arg2 = compile(s + 1,se,depth1,0,block_flags);
 
-              // Spot case 'a*(b/c)'.
-              if (!ptr1 && is_scalar(arg2) && code.size()>p3) {
-                CImg<ulongT>& pop = code.back();
-                op = (mp_func)*pop;
-                if (op==mp_div && pop[1]==arg2) {
-                  p2 = code.size() - 1;
-                  ptr2 = pop.data();
-                }
-              }
-
               p3 = size(arg2);
               if (p3>0 && (ulongT)size(arg1)==(ulongT)p3*p3) { // Particular case of 'square matrix*vector'
                 pos = vector(p3);
@@ -17786,12 +17792,30 @@ namespace cimg_library {
                 _cimg_mp_return(pos);
               }
               _cimg_mp_check_type(arg2,2,3,size(arg1));
+
+              // Check for trivial particular cases.
               if (arg2==1) _cimg_mp_same(arg1);
               if (arg1==1) _cimg_mp_same(arg2);
               if (is_vector(arg1) || is_vector(arg2)) _cimg_mp_vector2(mul,arg1,arg2);
               if (is_const_scalar(arg1) && is_const_scalar(arg2)) _cimg_mp_const_scalar(mem[arg1]*mem[arg2]);
               if (!arg1 || !arg2) _cimg_mp_return(0);
-              if (p1<code.size() && code[p1].data()==ptr1 && ptr1[1]==(ulongT)arg1) {
+
+              if (ptr1 && code.size()>p3) { // Check that left fusion is still possible
+                for (unsigned int k = p3; k<code.size(); ++k)
+                  if (code[k]._height<2 || !is_comp_scalar(code[k][1])) { ptr1 = 0; break; }
+              }
+
+              // Right fusion: Spot case 'a*(b/c)'.
+              if (!ptr1 && code.size()>p3 && is_scalar(arg2)) {
+                CImg<ulongT>& pop = code.back();
+                op = (mp_func)*pop;
+                if (op==mp_div && pop[1]==arg2) {
+                  p2 = code.size() - 1;
+                  ptr2 = pop.data();
+                }
+              }
+
+              if (ptr1 && p1<code.size() && code[p1].data()==ptr1 && ptr1[1]==(ulongT)arg1) { // Left fusion
                 arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
                 op = (mp_func)*ptr1;
                 code.remove(p1);
@@ -17810,7 +17834,7 @@ namespace cimg_library {
                 }
               }
               if (p2<code.size() && code[p2].data()==ptr2 && *ptr2==(ulongT)mp_div &&
-                  ptr2[1]==(ulongT)arg2) { // Particular case 'a*(b/c)'
+                  ptr2[1]==(ulongT)arg2) { // Right fusion: Particular case 'a*(b/c)'
                 arg3 = (unsigned int)ptr2[2]; arg4 = (unsigned int)ptr2[3];
                 code.remove(p2);
                 if (is_const_scalar(arg1)) {
@@ -17827,7 +17851,7 @@ namespace cimg_library {
               p3 = code.size();
               arg1 = compile(ss,s,depth1,0,block_flags);
 
-              // Spot case 'a/b/c'.
+              // Left fusion: Spot case 'a/b/c'.
               if (code.size()>p3 && is_scalar(arg1)) {
                 CImg<ulongT>& pop = code.back();
                 op = (mp_func)*pop;
@@ -17838,13 +17862,21 @@ namespace cimg_library {
               }
               arg2 = compile(s + 1,se,depth1,0,block_flags);
               _cimg_mp_check_type(arg2,2,3,size(arg1));
+
+              // Check for trivial particular cases.
               if (arg2==1) _cimg_mp_same(arg1);
               if (is_vector(arg1) || is_vector(arg2)) _cimg_mp_vector2(div,arg1,arg2);
               if (is_const_scalar(arg1) && is_const_scalar(arg2))
                 _cimg_mp_const_scalar(mem[arg1]/mem[arg2]);
               if (!arg1) _cimg_mp_return(0);
-              if (p1<code.size() && code[p1].data()==ptr1 && *ptr1==(ulongT)mp_div &&
-                  ptr1[1]==(ulongT)arg1) { // Particular case '(a/b)/c'
+
+              if (ptr1 && code.size()>p3) { // Check that left fusion is still possible
+                for (unsigned int k = p3; k<code.size(); ++k)
+                  if (code[k]._height<2 || !is_comp_scalar(code[k][1])) { ptr1 = 0; break; }
+              }
+
+              if (ptr1 && p1<code.size() && code[p1].data()==ptr1 && *ptr1==(ulongT)mp_div &&
+                  ptr1[1]==(ulongT)arg1) { // Left fusion: Particular case '(a/b)/c'
                 arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
                 code.remove(p1);
                 if (is_const_scalar(arg2)) {

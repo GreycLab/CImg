@@ -18565,11 +18565,9 @@ namespace cimg_library {
               (l_opcode>'y').move_to(opcode);
               opcode[2] = opcode._height - 4;
               if (is_const_scalar(arg1)) {
-                p3-=1; // Number of args
-                if (*ss3=='0') arg1 = (unsigned int)(mem[arg1]<0?mem[arg1] + p3:mem[arg1] + 1);
-                else arg1 = (unsigned int)(mem[arg1]<0?mem[arg1] + p3:mem[arg1]);
-                if (arg1<p3) _cimg_mp_return(opcode[4 + arg1]);
-                if (p2) {
+                const longT i = _mp_nth_index(mem[arg1],*ss3!='0',p3 - 2);
+                if (i>=0) _cimg_mp_return(opcode[5 + i]);
+                if (p2) { // Out-of-bounds : zeros (vector) ou 0 (scalar)
                   pos = vector(p2);
                   std::memset(&mem[pos] + 1,0,p2*sizeof(double));
                   return_comp = true;
@@ -24756,34 +24754,38 @@ namespace cimg_library {
         return _mp_arg(2) + _mp_arg(3) - _mp_arg(4);
       }
 
-      static double mp_arg0(_cimg_math_parser& mp) {
-        const int _ind = (int)_mp_arg(4);
-        const unsigned int
-          nb_args = (unsigned int)mp.opcode[2],
-          ind = _ind<0?_ind + nb_args:_ind + 1U,
-          siz = (unsigned int)mp.opcode[3];
-        if (siz>0) {
-          if (ind>=nb_args) std::memset(&_mp_arg(1) + 1,0,siz*sizeof(double));
-          else std::memcpy(&_mp_arg(1) + 1,&_mp_arg(ind + 4) + 1,siz*sizeof(double));
-          return cimg::type<double>::nan();
-        }
-        if (ind>=nb_args) return 0;
-        return _mp_arg(ind + 4);
+      // Convert the index argument of arg0()/arg1() as a 0-based index in the value list.
+      // Return -1 if the index is out-of-bounds or not finite.
+      //   arg0 : 0-based (0..n-1), negative index counted from the end (-1 = last).
+      //   arg1 : 1-based (1..n),   negative index counted from the end (-1 = last), 0 invalide.
+      static longT _mp_nth_index(const double v, const bool is_one_based, const unsigned int nb_values) {
+        if (!cimg::type<double>::is_finite(v) || v<=-(double)nb_values - 1 || v>=(double)nb_values + 1)
+          return -1;
+        longT i = (longT)v;
+        if (i<0) i+=(longT)nb_values;
+        else if (is_one_based) --i;
+        return i>=0 && i<(longT)nb_values?i:-1;
       }
 
-      static double mp_arg1(_cimg_math_parser& mp) {
-        const int _ind = (int)_mp_arg(4);
+      static double _mp_argn(_cimg_math_parser& mp, const bool is_one_based) {
         const unsigned int
-          nb_args = (unsigned int)mp.opcode[2],
-          ind = _ind<0?_ind + nb_args:(unsigned int)_ind,
+          nb_values = (unsigned int)mp.opcode[2] - 1,
           siz = (unsigned int)mp.opcode[3];
-        if (siz>0) {
-          if (ind>=nb_args) std::memset(&_mp_arg(1) + 1,0,siz*sizeof(double));
-          else std::memcpy(&_mp_arg(1) + 1,&_mp_arg(ind + 4) + 1,siz*sizeof(double));
+        const longT i = _mp_nth_index(_mp_arg(4),is_one_based,nb_values);
+        if (siz) { // Vector
+          double *const ptrd = &_mp_arg(1) + 1;
+          if (i<0) std::memset(ptrd,0,siz*sizeof(double));
+          else std::memcpy(ptrd,&_mp_arg(5 + i) + 1,siz*sizeof(double));
           return cimg::type<double>::nan();
         }
-        if (ind>=nb_args) return 0;
-        return _mp_arg(ind + 4);
+        return i<0?0.:_mp_arg(5 + i); // Scalar
+      }
+
+      static double mp_arg0(_cimg_math_parser& mp) {
+        return _mp_argn(mp,false);
+      }
+      static double mp_arg1(_cimg_math_parser& mp) {
+        return _mp_argn(mp,true);
       }
 
       static double mp_argkth(_cimg_math_parser& mp) {
@@ -24802,7 +24804,7 @@ namespace cimg_library {
             ptr+=len;
           }
         }
-        longT ind = (longT)cimg::round(_mp_arg(3));
+        longT ind = (longT)_mp_arg(3);
         ++values._data; --values._width; // Skip first value
         if (ind<0) ind+=values.width() + 1;
         ind = cimg::cut(ind,(longT)1,(longT)values.width());

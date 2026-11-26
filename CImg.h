@@ -20253,14 +20253,14 @@ namespace cimg_library {
                   arg3 = (unsigned int)mem[arg3];
                   arg4 = (unsigned int)mem[arg4];
                   arg5 = (unsigned int)mem[arg5];
-                  p1 = size(arg1);
-                  if (p1!=arg2*arg3*arg4*arg5) {
+                  p2 = size(arg1);
+                  if (p2!=arg2*arg3*arg4*arg5) {
                     _cimg_mp_strerr;
                     throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                                 "CImg<%s>::%s: %s: Input vector size (%u values) and its specified "
                                                 "geometry (%u,%u,%u,%u) (%u values) do not match.",
                                                 pixel_type(),_cimg_mp_calling_function,s_op,
-                                                p1,arg2,arg3,arg4,arg5,arg2*arg3*arg4*arg5);
+                                                p2,arg2,arg3,arg4,arg5,arg2*arg3*arg4*arg5);
                   }
                   CImg<ulongT>::vector((ulongT)mp_vector_fill_ext,arg1,arg2,arg3,arg4,arg5,arg6,size(arg6)).
                     move_to(code,p1);

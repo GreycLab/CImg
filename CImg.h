@@ -29044,9 +29044,10 @@ namespace cimg_library {
         double _m = _mp_arg(2), _M = _mp_arg(3);
         const bool include_min = (bool)_mp_arg(4), include_max = (bool)_mp_arg(5);
         if (_m>_M) cimg::swap(_m,_M);
-        const int
-          m = cimg::type<cimg_uint64>::cut(std::ceil(_m)) + (include_min?0:1),
-          M = cimg::type<cimg_uint64>::cut(std::floor(_M)) - (include_max?0:1);
+        const cimg_int64
+          m = cimg::type<cimg_int64>::cut(include_min?std::ceil(_m):std::floor(_m) + 1),
+          M = cimg::type<cimg_int64>::cut(include_max?std::floor(_M):std::ceil(_M) - 1);
+        if (m>M) return cimg::type<double>::nan();
         return (double)(m + mp._rand_int_0_N(M - m));
       }
 
@@ -29059,30 +29060,30 @@ namespace cimg_library {
           for (unsigned int k = 0; k<sizM; ++k) {
             double _m = _m0, _M = ptr1[k];
             if (_m>_M) cimg::swap(_m,_M);
-            const int
-              m = cimg::type<cimg_uint64>::cut(std::ceil(_m)) + (include_min?0:1),
-              M = cimg::type<cimg_uint64>::cut(std::floor(_M)) - (include_max?0:1);
-            ptrd[k] = (double)(m + mp._rand_int_0_N(M - m));
+            const cimg_int64
+              m = cimg::type<cimg_int64>::cut(include_min?std::ceil(_m):std::floor(_m) + 1),
+              M = cimg::type<cimg_int64>::cut(include_max?std::floor(_M):std::ceil(_M) - 1);
+            ptrd[k] = m>M?cimg::type<double>::nan():(double)(m + mp._rand_int_0_N(M - m));
           }
         } else if (sizm && !sizM) { // vsss
           const double *const ptr0 = &_mp_arg(2) + 1, _M1 = _mp_arg(4);
           for (unsigned int k = 0; k<sizm; ++k) {
             double _m = ptr0[k], _M = _M1;
             if (_m>_M) cimg::swap(_m,_M);
-            const int
-              m = cimg::type<cimg_uint64>::cut(std::ceil(_m)) + (include_min?0:1),
-              M = cimg::type<cimg_uint64>::cut(std::floor(_M)) - (include_max?0:1);
-            ptrd[k] = (double)(m + mp._rand_int_0_N(M - m));
+            const cimg_int64
+              m = cimg::type<cimg_int64>::cut(include_min?std::ceil(_m):std::floor(_m) + 1),
+              M = cimg::type<cimg_int64>::cut(include_max?std::floor(_M):std::ceil(_M) - 1);
+            ptrd[k] = m>M?cimg::type<double>::nan():(double)(m + mp._rand_int_0_N(M - m));
           }
         } else { // vvss
           const double *const ptr0 = &_mp_arg(2) + 1, *const ptr1 = &_mp_arg(4) + 1;
           for (unsigned int k = 0; k<sizm; ++k) {
             double _m = ptr0[k], _M = ptr1[k];
             if (_m>_M) cimg::swap(_m,_M);
-            const int
-              m = cimg::type<cimg_uint64>::cut(std::ceil(_m)) + (include_min?0:1),
-              M = cimg::type<cimg_uint64>::cut(std::floor(_M)) - (include_max?0:1);
-            ptrd[k] = (double)(m + mp._rand_int_0_N(M - m));
+            const cimg_int64
+              m = cimg::type<cimg_int64>::cut(include_min?std::ceil(_m):std::floor(_m) + 1),
+              M = cimg::type<cimg_int64>::cut(include_max?std::floor(_M):std::ceil(_M) - 1);
+            ptrd[k] = m>M?cimg::type<double>::nan():(double)(m + mp._rand_int_0_N(M - m));
           }
         }
         return cimg::type<double>::nan();

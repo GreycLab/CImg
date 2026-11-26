@@ -23125,7 +23125,7 @@ namespace cimg_library {
             arg1 = !is_hypot && s!=ss4?compile(ss4,s,depth1,0,block_flags):2; // P
             _cimg_mp_check_const_scalar(arg1,0,0);
             val = mem[arg1];
-            arg3 = 0; // Number of arguments
+            arg3 = arg4 = 0; // Number of arguments / Number of values
             is_sth = true; // Indicates that all arguments are constant
             if (val==0 || val==1 || val==2 || cimg::type<double>::is_inf(val))
               CImg<ulongT>::vector(0,0,0).move_to(l_opcode);
@@ -23135,21 +23135,42 @@ namespace cimg_library {
               ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                              (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
               arg2 = compile(s,ns,depth1,0,block_flags);
-              CImg<ulongT>::vector(arg2,size(arg2)).move_to(l_opcode);
+              p2 = size(arg2);
+              CImg<ulongT>::vector(arg2,p2).move_to(l_opcode);
               is_sth&=is_const_scalar(arg2);
-              ++arg3;
+              ++arg3; arg4+=std::max(1U,p2);
               s = ns;
             }
             (l_opcode>'y').move_to(opcode);
-            op = val==2?(is_hypot && opcode._height<8?mp_vector_hypot:mp_vector_norm2):
-                 val==1?mp_vector_norm1:!val?mp_vector_norm0:
+
+            if (val==2 && is_hypot && arg4>=2 && arg4<=3) { // Particular case: 'hypoth2/3()'
+              op = arg4==2?mp_hypot2:mp_hypot3;
+              CImg<ulongT> _opcode = arg4==3?CImg<ulongT>::vector((ulongT)op,0,0,0,0):
+                                             CImg<ulongT>::vector((ulongT)op,0,0,0);
+              pos = 2;
+              for (unsigned int k = 3; k<opcode._height; k+=2) {
+                arg1 = (unsigned int)opcode[k];
+                p1 = (unsigned int)opcode[k + 1];
+                if (!p1) _opcode[pos++] = (ulongT)arg1;
+                else for (unsigned int p = 1; p<=p1; ++p) _opcode[pos++] = (ulongT)(arg1 + p);
+              }
+              _opcode.move_to(opcode);
+              if (is_sth) _cimg_mp_const_scalar(op(*this));
+              opcode[1] = pos = scalar();
+              opcode.move_to(code);
+              return_comp = true;
+              _cimg_mp_return(pos);
+            }
+
+            op = val==2?mp_vector_norm2:val==1?mp_vector_norm1:!val?mp_vector_norm0:
                  cimg::type<double>::is_inf(val)?mp_vector_norminf:mp_vector_normp;
             opcode[0] = (ulongT)op;
             opcode[2] = arg3;
             if (is_sth) _cimg_mp_const_scalar(op(*this));
-            if (arg3==1 && !opcode.back()) { // Single scalar argument
-              if (val>0) { _cimg_mp_scalar1(abs,opcode[opcode._height - 2]); }
-              else { _cimg_mp_scalar2(neq,opcode[opcode._height - 2],0); }
+            if (arg4==1) { // Single scalar argument
+              p1 = (unsigned int)opcode[opcode._height - 1];
+              arg1 = (unsigned int)opcode[opcode._height - 2] + (p1?1:0);
+              if (val>0) { _cimg_mp_scalar1(abs,arg1); } else { _cimg_mp_scalar2(neq,arg1,0); }
             }
             opcode[1] = pos = scalar();
             opcode.move_to(code);
@@ -25722,7 +25743,7 @@ namespace cimg_library {
           _mp_dbg(vector_f2ui) _mp_dbg(vector_factorial) _mp_dbg(vector_fibonacci) _mp_dbg(vector_fill)
           _mp_dbg(vector_fill_ext) _mp_dbg(vector_floor) _mp_dbg(vector_frac) _mp_dbg(vector_gamma)
           _mp_dbg(vector_gauss) _mp_dbg(vector_gt_sv) _mp_dbg(vector_gt_vs) _mp_dbg(vector_gt_vv)
-          _mp_dbg(vector_gte_sv) _mp_dbg(vector_gte_vs) _mp_dbg(vector_gte_vv) _mp_dbg(vector_hypot)
+          _mp_dbg(vector_gte_sv) _mp_dbg(vector_gte_vs) _mp_dbg(vector_gte_vv) _mp_dbg(hypot2) _mp_dbg(hypot3)
           _mp_dbg(vector_increment) _mp_dbg(vector_init) _mp_dbg(vector_int) _mp_dbg(vector_isbool)
           _mp_dbg(vector_isfinite) _mp_dbg(vector_isinf) _mp_dbg(vector_isint) _mp_dbg(vector_isnan)
           _mp_dbg(vector_lerp) _mp_dbg(vector_log) _mp_dbg(vector_log10) _mp_dbg(vector_log1p) _mp_dbg(vector_log2)
@@ -26297,6 +26318,14 @@ namespace cimg_library {
         if ((unsigned int)mp.opcode[6]!=~0U) max_value = _mp_arg(6);
         CImg<doubleT>(ptrd,nb_levels,1,1,1,true) = img.get_histogram(nb_levels,min_value,max_value);
         return cimg::type<double>::nan();
+      }
+
+      static double mp_hypot2(_cimg_math_parser& mp) {
+        return cimg::hypot(_mp_arg(2),_mp_arg(3));
+      }
+
+      static double mp_hypot3(_cimg_math_parser& mp) {
+        return cimg::hypot(_mp_arg(2),_mp_arg(3),_mp_arg(4));
       }
 
       static double mp_i(_cimg_math_parser& mp) {
@@ -29582,15 +29611,6 @@ namespace cimg_library {
         ss.back() = 0;
         CImg<doubleT>(ptrd,w,h,d,s,true)._fill(ss,true,3,&mp.imglist,"mp_image_fill",0,0);
         return cimg::type<double>::nan();
-      }
-
-      static double mp_vector_hypot(_cimg_math_parser& mp) {
-        switch ((unsigned int)mp.opcode[2]) {
-        case 5 : return cimg::abs(_mp_arg(4));
-        case 6 : return cimg::hypot(_mp_arg(4),_mp_arg(5));
-        case 7 : return cimg::hypot(_mp_arg(4),_mp_arg(5),_mp_arg(6));
-        };
-        return mp_vector_norm2(mp);
       }
 
       static double mp_vector_init(_cimg_math_parser& mp) {

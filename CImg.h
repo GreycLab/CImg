@@ -26967,6 +26967,32 @@ namespace cimg_library {
         return (double)img.spectrum();
       }
 
+      // Return the stats 'k' of the image '#ind' (shared cache between threads).
+      // k = 0..14 : index in get_stats() ; k = ~0U : median value (cache 'list_median').
+      static double _mp_list_stat(_cimg_math_parser& mp, const unsigned int ind, const unsigned int k) {
+        const bool is_median = k==~0U;
+        CImgList<doubleT> &cache = is_median?mp.list_median:mp.list_stats;
+        double res = cimg::type<double>::nan();
+        cimg::mutex(13);
+        if (cache.size()!=mp.imglist._width) cache.assign(mp.imglist._width);
+        const bool is_cached = (bool)cache[ind];
+        if (is_cached) res = is_median?cache(ind,0):cache(ind,k);
+        cimg::mutex(13,0);
+        if (is_cached) return res;
+        const CImg<T> &img = mp.imglist[ind];
+        CImg<doubleT> st;
+        if (img) {
+          if (is_median) CImg<doubleT>::vector((double)img.median()).move_to(st);
+          else img.get_stats().move_to(st);
+        }
+        if (!st) return res;
+        res = is_median?st[0]:(k<(unsigned int)st.size()?st[k]:cimg::type<double>::nan());
+        cimg::mutex(13);
+        if (cache.size()==mp.imglist._width && !cache[ind]) st.move_to(cache[ind]);
+        cimg::mutex(13,0);
+        return res;
+      }
+
       static double mp_image_stats(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         unsigned int ind = (unsigned int)mp.opcode[2];
@@ -26978,6 +27004,13 @@ namespace cimg_library {
           CImg<doubleT>(ptrd,15,1,1,1,true) = mp.imglist[ind].get_stats();
         }
         return cimg::type<double>::nan();
+      }
+
+      static double mp_image_stats_static(_cimg_math_parser& mp) {
+        const unsigned int
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width()),
+          k = (unsigned int)mp.opcode[3];
+        return _mp_list_stat(mp,ind,k);
       }
 
       static double mp_image_stats_cm(_cimg_math_parser& mp) {
@@ -27026,9 +27059,7 @@ namespace cimg_library {
 
       static double mp_image_stats_ic_static(_cimg_math_parser& mp) {
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
-        if (!mp.list_median) mp.list_median.assign(mp.imglist._width);
-        if (!mp.list_median[ind]) CImg<doubleT>::vector(mp.imglist[ind].median()).move_to(mp.list_median[ind]);
-        return *mp.list_median[ind];
+        return _mp_list_stat(mp,ind,~0U);
       }
 
       static double mp_image_stats_id(_cimg_math_parser& mp) {
@@ -27038,23 +27069,12 @@ namespace cimg_library {
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         }
         const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        return (double)std::sqrt(img.variance());
+        return (double)std::sqrt(img.variance(0));
       }
 
       static double mp_image_stats_id_static(_cimg_math_parser& mp) {
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
-        bool get_stats = false;
-        cimg::mutex(13);
-        if (!mp.list_stats || mp.list_stats.size()!=mp.imglist._width) mp.list_stats.assign(mp.imglist._width);
-        if (!mp.list_stats[ind]) get_stats = true;
-        cimg::mutex(13,0);
-        if (get_stats) {
-          CImg<Tdouble> st = mp.imglist[ind].get_stats();
-          cimg::mutex(13);
-          st.move_to(mp.list_stats[ind]);
-          cimg::mutex(13,0);
-        }
-        return mp.list_stats[ind].is_empty()?cimg::type<double>::nan():std::sqrt(mp.list_stats(ind,3));
+        return std::sqrt(_mp_list_stat(mp,ind,3));
       }
 
       static double mp_image_stats_im(_cimg_math_parser& mp) {
@@ -27114,25 +27134,7 @@ namespace cimg_library {
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         }
         const CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        return (double)img.variance();
-      }
-
-      static double mp_image_stats_static(_cimg_math_parser& mp) {
-        const unsigned int
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width()),
-          k = (unsigned int)mp.opcode[3];
-        bool get_stats = false;
-        cimg::mutex(13);
-        if (!mp.list_stats || mp.list_stats.size()!=mp.imglist._width) mp.list_stats.assign(mp.imglist._width);
-        if (!mp.list_stats[ind]) get_stats = true;
-        cimg::mutex(13,0);
-        if (get_stats) {
-          CImg<Tdouble> st = mp.imglist[ind].get_stats();
-          cimg::mutex(13);
-          st.move_to(mp.list_stats[ind]);
-          cimg::mutex(13,0);
-        }
-        return mp.list_stats[ind].is_empty()?cimg::type<double>::nan():mp.list_stats(ind,k);
+        return (double)img.variance(0);
       }
 
       static double mp_image_stats_xm(_cimg_math_parser& mp) {
@@ -27784,7 +27786,7 @@ namespace cimg_library {
       }
 
       static double mp_med2(_cimg_math_parser& mp) {
-        return (_mp_arg(2) + _mp_arg(3))/2;
+        return cimg::median(_mp_arg(2),_mp_arg(3));
       }
 
       static double* _mp_mem_copy_double(_cimg_math_parser& mp, const unsigned int ind, const ulongT *const p_ref,
@@ -29272,7 +29274,7 @@ namespace cimg_library {
       static double _mp_vargkth(CImg<doubleT>& vec) {
         const double val = (+vec).get_shared_points(1,vec.width() - 1).
           kth_smallest((ulongT)cimg::cut((longT)*vec - 1,(longT)0,(longT)vec.width() - 2));
-        cimg_for_inX(vec,1,vec.width() - 1,ind) if (vec[ind]==val) return ind - 1.;
+        cimg_for_inX(vec,1,vec.width() - 1,ind) if (vec[ind]==val) return ind;
         return 1.;
       }
 
@@ -29281,7 +29283,7 @@ namespace cimg_library {
       }
 
       static double mp_vargkth2(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc2(0);
+        _cimg_mp_vfunc2(1);
       }
 
       static double mp_vargmax(_cimg_math_parser& mp) {
@@ -29920,7 +29922,7 @@ namespace cimg_library {
       }
 
       static double mp_vstd(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(std::sqrt(vec.variance()));
+        _cimg_mp_vfunc(std::sqrt(vec.variance(0)));
       }
 
       static double mp_vstd2(_cimg_math_parser& mp) {
@@ -29936,7 +29938,7 @@ namespace cimg_library {
       }
 
       static double mp_vvar(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(vec.variance());
+        _cimg_mp_vfunc(vec.variance(0));
       }
 
       static double mp_vvar2(_cimg_math_parser& mp) {

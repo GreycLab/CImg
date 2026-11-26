@@ -16069,6 +16069,7 @@ namespace cimg_library {
           _0_index(~0U),_1_index(~0U),result_dim(0),result_end_dim(0),
         is_fill(_is_fill),is_noncritical_run(false),is_parallelizable(true),need_input_copy(false),
         calling_function(funcname?funcname:"cimg_math_parser"),
+        s_op(0),ss_op(0),
         result_end(0),
         user_macro(0),
         rng((cimg::_rand(),cimg::rng())) {
@@ -16186,7 +16187,9 @@ namespace cimg_library {
         break_type(0),constcache_size(0),debug_indent(0),result_dim(0),result_end_dim(0),
         is_fill(false),is_noncritical_run(false),is_parallelizable(true),need_input_copy(false),
         calling_function(0),
+        s_op(0),ss_op(0),
         result_end(0),
+        user_macro(0),
         rng(0) {
         mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Makes it possible to skip 'is_empty?' test in operator()()
         result = mem._data;
@@ -16204,8 +16207,10 @@ namespace cimg_library {
         is_fill(mp.is_fill),is_noncritical_run(mp.is_noncritical_run),is_parallelizable(mp.is_parallelizable),
           need_input_copy(mp.need_input_copy),
         calling_function(0),
+        s_op(0),ss_op(0),
         result(mem._data + (mp.result - mp.mem._data)),
-          result_end(mp.result_end?mem._data + (mp.result_end - mp.mem._data):0),
+        result_end(mp.result_end?mem._data + (mp.result_end - mp.mem._data):0),
+        user_macro(0),
         rng((cimg::_rand(),cimg::rng())) {
 
 #if cimg_use_openmp!=0

@@ -23476,10 +23476,11 @@ namespace cimg_library {
             _cimg_mp_scalar7(ixyzc1_nearest_dirichlet,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,
                              _cimg_mp_slot_c,0,0);
           case 'I' : // I#ind
+            _cimg_mp_check_const_index(arg1);
             p2 = p1!=~0U?imglist[p1]._spectrum:imglist._width?~0U:0;
             if (!p2) _cimg_mp_return(0);
             pos = vector(p2);
-            add_opcode(mp_Joff,pos,p1,0,0,p2);
+            add_opcode(mp_Joff,pos,arg1,0,0,p2);
             return_comp = true;
             _cimg_mp_return(pos);
           case 'R' : // R#ind

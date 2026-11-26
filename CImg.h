@@ -26219,7 +26219,7 @@ namespace cimg_library {
         const double *ptrs = &_mp_arg(2) + 1;
         const ulongT siz = (ulongT)mp.opcode[3];
         CImg<charT> ss(siz + 1);
-        cimg_forX(ss,i) ss[i] = (char)ptrs[i];
+        cimg_for_inX(ss,0,ss.width() - 2,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
         return (double)cimg::fsize(ss);
       }
@@ -27389,7 +27389,7 @@ namespace cimg_library {
         const double *const ptrs = &_mp_arg(2) + (siz?1:0);
         if (!siz) { char str[2] = {}; *str = *ptrs; return (double)cimg::is_directory(str); }
         CImg<charT> ss(siz + 1);
-        cimg_forX(ss,i) ss[i] = (char)ptrs[i];
+        cimg_for_inX(ss,0,ss.width() - 2,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
         return (double)cimg::is_directory(ss);
       }
@@ -27399,7 +27399,7 @@ namespace cimg_library {
         const double *const ptrs = &_mp_arg(2) + (siz?1:0);
         if (!siz) { char str[2] = {}; *str = *ptrs; return (double)cimg::is_file(str); }
         CImg<charT> ss(siz + 1);
-        cimg_forX(ss,i) ss[i] = (char)ptrs[i];
+        cimg_for_inX(ss,0,ss.width() - 2,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
         return (double)cimg::is_file(ss);
       }
@@ -27795,35 +27795,44 @@ namespace cimg_library {
       }
 
       static double* _mp_mem_copy_double(_cimg_math_parser& mp, const unsigned int ind, const ulongT *const p_ref,
-                                         const longT siz, const long inc) {
+                                         const longT siz, const longT inc) {
         const longT
-          off = *p_ref?p_ref[1] + (longT)mp.mem[(longT)p_ref[2]] + 1:ind,
-          eoff = off + (siz - 1)*inc;
-        if (off<0 || eoff>=mp.mem.width())
+          mem_size = (longT)mp.mem.width(),
+          base = *p_ref?(longT)p_ref[1] + 1:(longT)ind;
+        const double _dyn = *p_ref?mp.mem[(longT)p_ref[2]]:0;
+        const bool bad_dyn = *p_ref && !(_dyn>-(double)mem_size - 1 && _dyn<(double)mem_size);
+        const longT off = bad_dyn?(_dyn<0?-1:mem_size):base + (*p_ref?(longT)_dyn:0);
+        if (bad_dyn || siz<=0 || mem_size<=0 || off<0 || off >= mem_size ||
+            (siz>1 && (inc>0?inc>(mem_size - 1 - off)/(siz - 1):inc<-(off/(siz - 1))))) {
+          const longT eoff = bad_dyn?off:cimg::type<longT>::cut((double)off + (double)(siz - 1)*(double)inc);
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'copy()': "
                                       "Out-of-bounds variable pointer "
                                       "(length: %ld, increment: %ld, offset start: %ld, "
                                       "offset end: %ld, offset max: %u).",
-                                      mp.imgin.pixel_type(),siz,inc,off,eoff,mp.mem._width - 1);
+                                      mp.imgin.pixel_type(),siz,inc,off,eoff,
+                                      mp.mem._width?mp.mem._width - 1:0U);
+        }
         return &mp.mem[off];
       }
 
       static T* _mp_mem_copy_T(_cimg_math_parser& mp, const ulongT *const p_ref,
-                               const longT siz, const long inc, const bool is_out) {
-        const unsigned ind = (unsigned int)p_ref[1];
+                               const longT siz, const longT inc, const bool is_out) {
+        const unsigned int ind = (unsigned int)p_ref[1];
         const CImg<T> &img = is_out?
           (ind==~0U?mp.imgout:mp.imglist[cimg::mod((int)mp.mem[ind],mp.imglist.width())]):
           (ind==~0U?mp.imgin:mp.imglist[cimg::mod((int)mp.mem[ind],mp.imglist.width())]);
         const bool is_relative = (bool)p_ref[2];
-        int ox, oy, oz, oc;
         longT off = 0;
         if (is_relative) {
-          ox = (int)mp.mem[_cimg_mp_slot_x];
-          oy = (int)mp.mem[_cimg_mp_slot_y];
-          oz = (int)mp.mem[_cimg_mp_slot_z];
-          oc = (int)mp.mem[_cimg_mp_slot_c];
+          const int
+            ox = (int)mp.mem[_cimg_mp_slot_x],
+            oy = (int)mp.mem[_cimg_mp_slot_y],
+            oz = (int)mp.mem[_cimg_mp_slot_z],
+            oc = (int)mp.mem[_cimg_mp_slot_c];
           off = img.offset(ox,oy,oz,oc);
         }
+        const longT img_size = (longT)img.size();
+        bool bad_off = false;
         if ((*p_ref)%2) {
           const int
             x = (int)mp.mem[p_ref[3]],
@@ -27831,14 +27840,23 @@ namespace cimg_library {
             z = (int)mp.mem[p_ref[5]],
             c = *p_ref==5?0:(int)mp.mem[p_ref[6]];
           off+=img.offset(x,y,z,c);
-        } else off+=(longT)mp.mem[p_ref[3]];
-        const longT eoff = off + (siz - 1)*inc;
-        if (off<0 || eoff>=(longT)img.size())
+        } else {
+          const double _doff = mp.mem[p_ref[3]];
+          bad_off = !(_doff>-(double)img_size - 1 - (double)off && _doff<(double)img_size - (double)off);
+          if (!bad_off) off+=(longT)_doff;
+          else off = _doff<0?-1:img_size;
+        }
+        if (bad_off || siz<=0 || img_size<=0 || off<0 || off >= img_size ||
+            (siz>1 && (inc>0?inc>(img_size - 1 - off)/(siz - 1)
+                                :inc<-(off/(siz - 1))))) {
+          const longT eoff = bad_off?off:cimg::type<longT>::cut((double)off + (double)(siz - 1)*(double)inc);
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'copy()': "
                                       "Out-of-bounds image pointer "
                                       "(length: %ld, increment: %ld, offset start: %ld, "
                                       "offset end: %ld, offset max: %lu).",
-                                      mp.imgin.pixel_type(),siz,inc,off,eoff,img.size() - 1);
+                                      mp.imgin.pixel_type(),siz,inc,off,eoff,
+                                      img.size()?(unsigned long)(img.size() - 1):0UL);
+        }
         return (T*)&img[off];
       }
 
@@ -27857,10 +27875,17 @@ namespace cimg_library {
             double *ptrd = _mp_mem_copy_double(mp,(unsigned int)mp.opcode[2],&mp.opcode[8],siz,inc_d);
             const double *ptrs = _mp_mem_copy_double(mp,(unsigned int)mp.opcode[3],&mp.opcode[15],siz,inc_s);
             if (inc_d==1 && inc_s==1 && _opacity>=1) {
-              if (ptrs + siz - 1<ptrd || ptrs>ptrd + siz - 1) std::memcpy(ptrd,ptrs,siz*sizeof(double));
-              else std::memmove(ptrd,ptrs,siz*sizeof(double));
+              if (ptrs + siz - 1<ptrd || ptrs>ptrd + siz - 1) std::memcpy(ptrd,ptrs,(size_t)siz*sizeof(double));
+              else std::memmove(ptrd,ptrs,(size_t)siz*sizeof(double));
             } else {
-              if (ptrs + (siz - 1)*inc_s<ptrd || ptrs>ptrd + (siz - 1)*inc_d) {
+              const double
+                *const ptrs_end = ptrs + (siz - 1)*inc_s,
+                *const ptrd_end = ptrd + (siz - 1)*inc_d,
+                *const ptrs_min = inc_s>=0?ptrs:ptrs_end,
+                *const ptrs_max = inc_s>=0?ptrs_end:ptrs,
+                *const ptrd_min = inc_d>=0?ptrd:ptrd_end,
+                *const ptrd_max = inc_d>=0?ptrd_end:ptrd;
+              if (ptrs_max<ptrd_min || ptrs_min>ptrd_max) {
                 if (_opacity>=1) while (siz-->0) { *ptrd = *ptrs; ptrd+=inc_d; ptrs+=inc_s; }
                 else while (siz-->0) { *ptrd = omopacity**ptrd + opacity**ptrs; ptrd+=inc_d; ptrs+=inc_s; }
               } else { // Overlapping buffers
@@ -27875,7 +27900,7 @@ namespace cimg_library {
             double *ptrd = _mp_mem_copy_double(mp,(unsigned int)mp.opcode[2],&mp.opcode[8],siz,inc_d);
             const T *ptrs = _mp_mem_copy_T(mp,&mp.opcode[15],siz,inc_s,false);
             if (_opacity>=1) while (siz-->0) { *ptrd = *ptrs; ptrd+=inc_d; ptrs+=inc_s; }
-            else while (siz-->0) { *ptrd = omopacity**ptrd + _opacity**ptrs; ptrd+=inc_d; ptrs+=inc_s; }
+            else while (siz-->0) { *ptrd = omopacity**ptrd + opacity**ptrs; ptrd+=inc_d; ptrs+=inc_s; }
           } else if (!is_doubled && is_doubles) { // (T*) <- (double*)
             T *ptrd = _mp_mem_copy_T(mp,&mp.opcode[8],siz,inc_d,true);
             const double *ptrs = _mp_mem_copy_double(mp,(unsigned int)mp.opcode[3],&mp.opcode[15],siz,inc_s);
@@ -27885,18 +27910,25 @@ namespace cimg_library {
             T *ptrd = _mp_mem_copy_T(mp,&mp.opcode[8],siz,inc_d,true);
             const T *ptrs = _mp_mem_copy_T(mp,&mp.opcode[15],siz,inc_s,false);
             if (inc_d==1 && inc_s==1 && _opacity>=1) {
-              if (ptrs + siz - 1<ptrd || ptrs>ptrd + siz - 1) std::memcpy(ptrd,ptrs,siz*sizeof(T));
-              else std::memmove(ptrd,ptrs,siz*sizeof(T));
+              if (ptrs + siz - 1<ptrd || ptrs>ptrd + siz - 1) std::memcpy(ptrd,ptrs,(size_t)siz*sizeof(T));
+              else std::memmove(ptrd,ptrs,(size_t)siz*sizeof(T));
             } else {
-              if (ptrs + (siz - 1)*inc_s<ptrd || ptrs>ptrd + (siz - 1)*inc_d) {
+              const T
+                *const ptrs_end = ptrs + (siz - 1)*inc_s,
+                *const ptrd_end = ptrd + (siz - 1)*inc_d,
+                *const ptrs_min = inc_s>=0?ptrs:ptrs_end,
+                *const ptrs_max = inc_s>=0?ptrs_end:ptrs,
+                *const ptrd_min = inc_d>=0?ptrd:ptrd_end,
+                *const ptrd_max = inc_d>=0?ptrd_end:ptrd;
+              if (ptrs_max<ptrd_min || ptrs_min>ptrd_max) {
                 if (_opacity>=1) while (siz-->0) { *ptrd = *ptrs; ptrd+=inc_d; ptrs+=inc_s; }
-                else while (siz-->0) { *ptrd = omopacity**ptrd + opacity**ptrs; ptrd+=inc_d; ptrs+=inc_s; }
+                else while (siz-->0) { *ptrd = (T)(omopacity**ptrd + opacity**ptrs); ptrd+=inc_d; ptrs+=inc_s; }
               } else { // Overlapping buffers
                 CImg<T> buf((unsigned int)siz);
                 cimg_for(buf,ptr,T) { *ptr = *ptrs; ptrs+=inc_s; }
                 ptrs = buf;
                 if (_opacity>=1) while (siz-->0) { *ptrd = *(ptrs++); ptrd+=inc_d; }
-                else while (siz-->0) { *ptrd = omopacity**ptrd + opacity**(ptrs++); ptrd+=inc_d; }
+                else while (siz-->0) { *ptrd = (T)(omopacity**ptrd + opacity**(ptrs++)); ptrd+=inc_d; }
               }
             }
           }
@@ -28123,7 +28155,7 @@ namespace cimg_library {
             }
           } else { // L-p
             for (unsigned int i = 0; i<siz; ++i) res+=(double)std::pow(cimg::abs(*(ptrs++)),p);
-            res = (double)std::pow(res,1.0/p);
+            res = (double)std::pow(res,1/p);
           }
           return res>0?res:0;
         }
@@ -28425,7 +28457,7 @@ namespace cimg_library {
 
         CImg<charT> ss(siz + 1 - ind);
         ptrs+=1 + ind;
-        cimg_forX(ss,i) ss[i] = (char)ptrs[i];
+        cimg_for_inX(ss,0,ss.width() - 2,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
 
         const char *s = ss._data;
@@ -29271,21 +29303,30 @@ namespace cimg_library {
 
       static double mp_vector_crop(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
-        const double *ptrs = &_mp_arg(2) + 1;
+        const double
+          *ptrs = &_mp_arg(2) + 1,
+          _start = _mp_arg(4),
+          _step = _mp_arg(6);
+        const bool
+          bad_start = !(_start>=(double)cimg::type<longT>::min() && _start<(double)cimg::type<longT>::max()),
+          bad_step  = !(_step>=(double)cimg::type<longT>::min() && _step<(double)cimg::type<longT>::max());
         const longT
           length = (longT)mp.opcode[3],
-          start = (longT)_mp_arg(4),
+          start = bad_start?(_start<0?cimg::type<longT>::min():cimg::type<longT>::max()):(longT)_start,
           sublength = (longT)mp.opcode[5],
-          step = (longT)_mp_arg(6),
-          end = start + step*(sublength - 1);
-        if (sublength<=0 || start<0 || start>=length || end<0 || end>=length)
+          step = bad_step?(_step<0?cimg::type<longT>::min():cimg::type<longT>::max()):(longT)_step;
+        if (bad_start || bad_step || length<=0 || sublength<=0 || start<0 || start>=length ||
+            (sublength>1 && (step>0?step>(length - 1 - start)/(sublength - 1):step<-(start/(sublength - 1)))))
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Value accessor '[]': "
                                       "Out-of-bounds sub-vector request "
                                       "(length: %ld, start: %ld, sub-length: %ld, step: %ld).",
-                                      mp.imgin.pixel_type(),length,start,sublength,step);
+                                      mp.imgin.pixel_type(), length, start, sublength, step);
         ptrs+=start;
-        if (step==1) std::memcpy(ptrd,ptrs,sublength*sizeof(double));
-        else for (longT k = 0; k<sublength; ++k) { *(ptrd++) = *ptrs; ptrs+=step; }
+        if (step==1) std::memmove(ptrd,ptrs,(size_t)sublength * sizeof(double));
+        else {
+          for (longT k = 0; k<sublength - 1; ++k) { *(ptrd++) = *ptrs; ptrs += step; }
+          *ptrd = *ptrs;
+        }
         return cimg::type<double>::nan();
       }
 
@@ -32538,7 +32579,7 @@ namespace cimg_library {
             if (apq==0) continue;
             const double app = a[p*n + p], aqq = a[q*n + q],
               theta = (aqq - app)/(2*apq),
-              tt = cimg::abs(theta)>1e150 ? 0.5/theta :
+              tt = cimg::abs(theta)>1e150?0.5/theta:
               (theta>=0?1.:-1.)/(cimg::abs(theta) + std::sqrt(theta*theta + 1)),
               c = 1/std::sqrt(tt*tt + 1),
               s = tt*c;
@@ -59527,7 +59568,7 @@ namespace cimg_library {
       uint8_t *imgData = config.output.u.RGBA.rgba;
       T *ptr_r = _data, *ptr_g = _data + 1UL*width*height,
         *ptr_b = _data + 2UL*width*height;
-      T *ptr_a = _spectrum==3 ? NULL : _data + 3UL*width*height;
+      T *ptr_a = _spectrum==3?NULL:_data + 3UL*width*height;
       cimg_forY(*this,y) {
         const unsigned char *ptrs = (unsigned char*)&imgData[y*width*_spectrum];
         cimg_forX(*this,x) {

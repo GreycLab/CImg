@@ -17337,8 +17337,8 @@ namespace cimg_library {
             arg1 = compile(ss,s,depth1,0,block_flags);
             _cimg_mp_check_type(arg1,1,1,0);
             if (is_const_scalar(arg1)) {
-              if ((bool)mem[arg1]) return compile(s + 1,has_else?s1:se,depth1,0,block_flags);
-              else return has_else?compile(s1 + 1,se,depth1,0,block_flags):0;
+              if ((bool)mem[arg1]) { _cimg_mp_return(compile(s + 1,has_else?s1:se,depth1,0,block_flags)); }
+              else { _cimg_mp_return(has_else?compile(s1 + 1,se,depth1,0,block_flags):0); }
             }
             p2 = code._width;
             arg2 = compile(s + 1,has_else?s1:se,depth1,0,block_flags);
@@ -20590,8 +20590,8 @@ namespace cimg_library {
               arg1 = compile(ss3,s1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,1,1,0);
               if (is_const_scalar(arg1)) {
-                if ((bool)mem[arg1]) return compile(++s1,s2,depth1,0,block_flags);
-                else return s2<se1?compile(++s2,se1,depth1,0,block_flags):0;
+                if ((bool)mem[arg1]) { _cimg_mp_return(compile(++s1,s2,depth1,0,block_flags)); }
+                else { _cimg_mp_return(s2<se1?compile(++s2,se1,depth1,0,block_flags):0); }
               }
               p2 = code._width;
               arg2 = compile(++s1,s2,depth1,0,block_flags);

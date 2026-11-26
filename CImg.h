@@ -28768,54 +28768,83 @@ namespace cimg_library {
       static double mp_sort(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
         const double *const ptrs = &_mp_arg(2) + 1;
+        const bool has_nb_elts = mp.opcode[6]!=~0U;
+        const double
+          _start = _mp_arg(5),
+          _nb_elts = has_nb_elts?_mp_arg(6):0,
+          _siz_elt = _mp_arg(7),
+          _sort_index = _mp_arg(8);
+        const bool
+          bad_start = !(_start>(double)cimg::type<int>::min() - 1 && _start<(double)cimg::type<int>::max() + 1),
+          bad_nb_elts = has_nb_elts && !(_nb_elts>(double)cimg::type<int>::min() - 1 && _nb_elts<(double)cimg::type<int>::max() + 1),
+          bad_siz_elt = !(_siz_elt>(double)cimg::type<int>::min() - 1 && _siz_elt<(double)cimg::type<int>::max() + 1),
+          bad_sort_index = !(_sort_index>(double)cimg::type<int>::min() - 1 && _sort_index<(double)cimg::type<int>::max() + 1);
         const int
           siz = (int)mp.opcode[3],
-          starting_index = (int)_mp_arg(5),
-          nb_elts = mp.opcode[6]==~0U?siz:(int)_mp_arg(6),
-          siz_elt = (int)_mp_arg(7),
-          sort_index = (int)_mp_arg(8),
-          end_index = starting_index + nb_elts*siz_elt;
-        const bool is_increasing = (bool)_mp_arg(4);
-        if (starting_index<0 || nb_elts<0 || siz_elt<=0 || sort_index<0 || sort_index>=siz_elt || end_index>siz)
+          starting_index = bad_start?-1:(int)_start,
+          siz_elt = bad_siz_elt?-1:(int)_siz_elt,
+          sort_index = bad_sort_index?-1:(int)_sort_index,
+          nb_elts = has_nb_elts?(bad_nb_elts?-1:(int)_nb_elts):
+            (siz_elt>0 && starting_index>=0 && starting_index<=siz?(siz - starting_index) / siz_elt:0);
+        if (bad_start || bad_nb_elts || bad_siz_elt || bad_sort_index || siz<0 ||
+            starting_index<0 || starting_index>siz || nb_elts<0 || siz_elt<=0 || sort_index<0 || sort_index>=siz_elt ||
+            nb_elts>(siz - starting_index) / siz_elt)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'sort()': "
                                       "Invalid arguments 'starting_index=%g', 'nb_elts=%g', 'siz_elt=%g' and "
                                       "'sort_index=%g', for sorting a vector of size %u.",
                                       mp.imgin.pixel_type(),
-                                      _mp_arg(5),mp.opcode[6]==~0U?siz:_mp_arg(6),_mp_arg(7),_mp_arg(8),siz);
+                                      _start,has_nb_elts?_nb_elts:(double)nb_elts,_siz_elt,_sort_index,(unsigned int)siz);
+        const int end_index = starting_index + nb_elts*siz_elt;
+        const bool is_increasing = (bool)_mp_arg(4);
         if (nb_elts) {
           if (starting_index>0) // Recopy left side
-            std::memcpy(ptrd,ptrs,starting_index*sizeof(double));
+            std::memmove(ptrd,ptrs,(size_t)starting_index*sizeof(double));
           if (end_index<siz) // Recopy right side
-            std::memcpy(ptrd + end_index,ptrs + end_index,(siz - end_index)*sizeof(double));
+            std::memmove(ptrd + end_index,ptrs + end_index,(size_t)(siz - end_index)*sizeof(double));
 
           // Sort region.
           CImg<doubleT>(ptrd + starting_index,siz_elt,nb_elts,1,1,true) =
             CImg<doubleT>(ptrs + starting_index,siz_elt,nb_elts,1,1,true).
-            get_shift(-(int)sort_index,0,0,0,2).sort(is_increasing,siz_elt>1?'y':0).shift((int)sort_index,0,0,0,2);
+            get_shift(-sort_index,0,0,0,2).sort(is_increasing,siz_elt>1?'y':0).shift(sort_index,0,0,0,2);
+        } else if (siz>0) {
+          std::memmove(ptrd,ptrs,(size_t)siz * sizeof(double));
         }
         return cimg::type<double>::nan();
       }
 
       static double mp_sort_ip(_cimg_math_parser& mp) { // In-place version
         double *const ptrs = &_mp_arg(2) + 1;
+        const bool has_nb_elts = mp.opcode[6]!=~0U;
+        const double
+          _start = _mp_arg(5),
+          _nb_elts = has_nb_elts?_mp_arg(6):0,
+          _siz_elt = _mp_arg(7),
+          _sort_index = _mp_arg(8);
+        const bool
+          bad_start = !(_start>(double)cimg::type<int>::min() - 1 && _start<(double)cimg::type<int>::max() + 1),
+          bad_nb_elts = has_nb_elts && !(_nb_elts>(double)cimg::type<int>::min() - 1 && _nb_elts<(double)cimg::type<int>::max() + 1),
+          bad_siz_elt = !(_siz_elt>(double)cimg::type<int>::min() - 1 && _siz_elt<(double)cimg::type<int>::max() + 1),
+          bad_sort_index = !(_sort_index>(double)cimg::type<int>::min() - 1 && _sort_index<(double)cimg::type<int>::max() + 1);
         const int
           siz = (int)mp.opcode[3],
-          starting_index = (int)_mp_arg(5),
-          nb_elts = mp.opcode[6]==~0U?siz:(int)_mp_arg(6),
-          siz_elt = (int)_mp_arg(7),
-          sort_index = (int)_mp_arg(8),
-          end_index = starting_index + nb_elts*siz_elt;
-        const bool is_increasing = (bool)_mp_arg(4);
-        if (starting_index<0 || nb_elts<0 || siz_elt<=0 || sort_index<0 || sort_index>=siz_elt || end_index>siz)
+          starting_index = bad_start?-1:(int)_start,
+          siz_elt = bad_siz_elt?-1:(int)_siz_elt,
+          sort_index = bad_sort_index?-1:(int)_sort_index,
+          nb_elts = has_nb_elts?(bad_nb_elts?-1:(int)_nb_elts):
+            (siz_elt>0 && starting_index>=0 && starting_index<=siz?(siz - starting_index)/siz_elt:0);
+        if (bad_start || bad_nb_elts || bad_siz_elt || bad_sort_index || siz<0 ||
+            starting_index<0 || starting_index>siz || nb_elts<0 || siz_elt<=0 || sort_index<0 || sort_index>=siz_elt ||
+            nb_elts>(siz - starting_index)/siz_elt)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'sort()': "
                                       "Invalid arguments 'starting_index=%g', 'nb_elts=%g', 'siz_elt=%g' and "
                                       "'sort_index=%g', for sorting a vector of size %u.",
                                       mp.imgin.pixel_type(),
-                                      _mp_arg(5),mp.opcode[6]==~0U?siz:_mp_arg(6),_mp_arg(7),_mp_arg(8),siz);
-        if (nb_elts) {
+                                      _start,has_nb_elts?_nb_elts:(double)nb_elts,_siz_elt,_sort_index,(unsigned int)siz);
+        if (nb_elts>1) {
+          const bool is_increasing = (bool)_mp_arg(4);
           // Sort region.
           CImg<doubleT>(ptrs + starting_index,siz_elt,nb_elts,1,1,true).
-            shift(-(int)sort_index,0,0,0,2).sort(is_increasing,siz_elt>1?'y':0).shift((int)sort_index,0,0,0,2);
+            shift(-sort_index,0,0,0,2).sort(is_increasing,siz_elt>1?'y':0).shift(sort_index,0,0,0,2);
         }
         return cimg::type<double>::nan();
       }

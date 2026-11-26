@@ -16034,7 +16034,6 @@ namespace cimg_library {
 #define _cimg_mp_scalar5(op,i1,i2,i3,i4,i5) _cimg_mp_return(scalar5(mp_##op,i1,i2,i3,i4,i5))
 #define _cimg_mp_scalar6(op,i1,i2,i3,i4,i5,i6) _cimg_mp_return(scalar6(mp_##op,i1,i2,i3,i4,i5,i6))
 #define _cimg_mp_scalar7(op,i1,i2,i3,i4,i5,i6,i7) _cimg_mp_return(scalar7(mp_##op,i1,i2,i3,i4,i5,i6,i7))
-#define _cimg_mp_scalar8(op,i1,i2,i3,i4,i5,i6,i7,i8) _cimg_mp_return(scalar8(mp_##op,i1,i2,i3,i4,i5,i6,i7,i8))
 #define _cimg_mp_strerr \
   *se = saved_char; \
   for (s0 = ss; s0>expr._data && *s0!=';'; --s0) {} \
@@ -17449,7 +17448,7 @@ namespace cimg_library {
             if (p1 || p2) {
               if (p1 && p2 && p1!=p2) _cimg_mp_return(0);
               pos = scalar();
-              add_opcode(mp_vector_eq,pos,arg1,p1,arg2,p2,11,1);
+              add_opcode(mp_vector_eq,pos,arg1,p1,arg2,p2,11,1,false);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -18159,7 +18158,7 @@ namespace cimg_library {
             else if (arg2==3 || (arg2==~0U && _cimg_mp_boundary==3)) // Mirror boundary conditions
               op = is_relative?mp_joff_mirror:mp_ioff_mirror;
             else op = is_relative?mp_joff:mp_ioff; // Generic case
-            pos = scalar3(op,p1,arg1,arg2==~0U?_cimg_mp_boundary:arg2);
+            pos = scalar3(op,p1,arg1,arg2==~0U?_cimg_mp_boundary:arg2,false);
             memtype[pos] = -1; // Prevent from being used in further optimization
             _cimg_mp_return(pos);
           }
@@ -18215,7 +18214,7 @@ namespace cimg_library {
               p_ref[2] = arg2;
               if (is_comp_scalar(arg2)) memtype[arg2] = -1; // Prevent from being used in further optimization
             }
-            pos = scalar3(mp_vector_off,arg1,size(arg1),arg2);
+            pos = scalar3(mp_vector_off,arg1,size(arg1),arg2,false);
             memtype[pos] = -1; // Prevent from being used in further optimization
             _cimg_mp_return(pos);
           }
@@ -18999,12 +18998,12 @@ namespace cimg_library {
               }
               if (is_vector(arg1)) {
                 if (!ref[0]) ++arg1;
-                else if (ref[0]>=4 && arg4==~0U) arg4 = scalar1(mp_image_whd,ref[1]);
+                else if (ref[0]>=4 && arg4==~0U) arg4 = scalar1(mp_image_whd,ref[1],false);
               }
               if (is_vector(arg2)) {
                 if (arg3==~0U) arg3 = const_scalar(size(arg2));
                 if (!ref[7]) ++arg2;
-                if (ref[7]>=4 && arg5==~0U) arg5 = scalar1(mp_image_whd,ref[8]);
+                if (ref[7]>=4 && arg5==~0U) arg5 = scalar1(mp_image_whd,ref[8],false);
               }
               if (arg3==~0U) arg3 = 1;
               if (arg4==~0U) arg4 = 1;
@@ -19051,7 +19050,7 @@ namespace cimg_library {
               if (arg3!=~0U) _cimg_mp_check_type(arg3,3,1,0);
               if (arg4!=~0U) _cimg_mp_check_type(arg4,4,1,0);
               if (arg3==~0U && arg4==~0U && size(arg1)<2) _cimg_mp_const_scalar(0);
-              _cimg_mp_scalar5(cov,arg1,arg2,size(arg1),arg3,arg4);
+              _cimg_mp_return(scalar5(mp_cov,arg1,arg2,size(arg1),arg3,arg4,false));
             }
 
             if (!std::strncmp(ss,"critical(",9)) { // Critical section (single thread at a time)
@@ -19621,7 +19620,7 @@ namespace cimg_library {
               arg1 = compile(ss4,se1,depth1,0,block_flags);
               _cimg_mp_check_matrix_square(arg1,1);
               p1 = (unsigned int)cimg::round(std::sqrt((float)size(arg1)));
-              _cimg_mp_scalar2(det,arg1,p1);
+              _cimg_mp_return(scalar2(mp_det,arg1,p1,false));
             }
 
             if (!std::strncmp(ss,"diag(",5)) { // Diagonal matrix
@@ -19726,7 +19725,7 @@ namespace cimg_library {
               arg2 = compile(++s1,se1,depth1,0,block_flags);
               if (is_vector(arg1)) {
                 _cimg_mp_check_type(arg2,2,2,size(arg1));
-                _cimg_mp_scalar3(dot,arg1,arg2,size(arg1));
+                _cimg_mp_return(scalar3(mp_dot,arg1,arg2,size(arg1),false));
               }
               _cimg_mp_check_type(arg2,2,1,0);
               _cimg_mp_scalar2(mul,arg1,arg2);
@@ -20353,12 +20352,12 @@ namespace cimg_library {
                 _cimg_mp_return(11);
               if (p1!=~0U) {
                 if (size(arg2)>1)
-                  _cimg_mp_scalar6(image_find_seq,p1,arg2,size(arg2),arg3,arg4,arg5);
-                _cimg_mp_scalar5(image_find,p1,arg2 + (size(arg2)?1:0),arg3,arg4,arg5);
+                  _cimg_mp_return(scalar6(mp_image_find_seq,p1,arg2,size(arg2),arg3,arg4,arg5,false));
+                _cimg_mp_return(scalar5(mp_image_find,p1,arg2 + (size(arg2)?1:0),arg3,arg4,arg5,false));
               }
               if (size(arg2)>1)
-                _cimg_mp_scalar7(find_seq,arg1,size(arg1),arg2,size(arg2),arg3,arg4,arg5);
-              _cimg_mp_scalar6(find,arg1,size(arg1),arg2 + (size(arg2)?1:0),arg3,arg4,arg5);
+                _cimg_mp_return(scalar7(mp_find_seq,arg1,size(arg1),arg2,size(arg2),arg3,arg4,arg5,false));
+              _cimg_mp_return(scalar6(mp_find,arg1,size(arg1),arg2 + (size(arg2)?1:0),arg3,arg4,arg5,false));
             }
 
             if (*ss1=='o' && *ss2=='r' && *ss3=='(') { // For loop
@@ -21346,7 +21345,7 @@ namespace cimg_library {
               arg1 = compile(ss4,s1,depth1,0,block_flags);
               arg2 = compile(++s1,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg2,2,is_scalar(arg1)?1:2,size(arg1));
-              _cimg_mp_scalar3(mse,arg1,arg2,size(arg1));
+              _cimg_mp_return(scalar3(mp_mse,arg1,arg2,size(arg1),false));
             }
 
             if (!std::strncmp(ss,"mul(",4)) { // Matrix multiplication
@@ -21466,7 +21465,7 @@ namespace cimg_library {
               arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):2;
               _cimg_mp_check_type(arg2,0,1,0);
               p1 = size(arg1);
-              _cimg_mp_scalar3(normp,arg1,p1,arg2);
+              _cimg_mp_return(scalar3(mp_normp,arg1,p1,arg2,false));
             }
             break;
 
@@ -22200,7 +22199,7 @@ namespace cimg_library {
               _cimg_mp_check_type(arg2,2,1,0);
               p1 = size(arg1);
               if (!p1) _cimg_mp_return(0);
-              _cimg_mp_return(scalar3(*ss8=='a'?mp_softargmax:mp_softargmin,arg1,p1,arg2));
+              _cimg_mp_return(scalar3(*ss8=='a'?mp_softargmax:mp_softargmin,arg1,p1,arg2,false));
             }
 
             if (!std::strncmp(ss,"softmax(",8) || !std::strncmp(ss,"softmin(",8)) { // Softmax & Softmin
@@ -22585,7 +22584,7 @@ namespace cimg_library {
               arg1 = compile(ss6,se1,depth1,0,block_flags);
               _cimg_mp_check_matrix_square(arg1,1);
               p1 = (unsigned int)cimg::round(std::sqrt((float)size(arg1)));
-              _cimg_mp_scalar2(trace,arg1,p1);
+              _cimg_mp_return(scalar2(mp_trace,arg1,p1,false));
             }
 
             if (!std::strncmp(ss,"transpose(",10)) { // Matrix transpose
@@ -23613,7 +23612,7 @@ namespace cimg_library {
               if (!list_stats[p1]) list_stats[p1].assign(1,15,1,1,0).fill(imglist[p1].get_stats(),false);
               _cimg_mp_const_scalar(list_stats(p1,arg2));
             }
-            _cimg_mp_scalar2(image_stats_static,arg1,arg2);
+            _cimg_mp_return(scalar2(mp_image_stats_static,arg1,arg2,false));
           }
         }
 
@@ -24418,8 +24417,9 @@ namespace cimg_library {
       }
 
       unsigned int scalar1(const mp_func op,
-                           const unsigned int arg1) {
-        const unsigned int pos =
+                           const unsigned int arg1,
+                           const bool enable_reuse=true) {
+        const unsigned int pos = !enable_reuse?(return_comp = true, scalar()):
           arg1!=~0U && arg1>_cimg_mp_slot_c && is_comp_scalar(arg1) && op!=mp_copy?arg1:
           ((return_comp = true), scalar());
         add_opcode(op,pos,arg1);
@@ -24427,8 +24427,9 @@ namespace cimg_library {
       }
 
       unsigned int scalar2(const mp_func op,
-                           const unsigned int arg1, const unsigned int arg2) {
-        const unsigned int pos =
+                           const unsigned int arg1, const unsigned int arg2,
+                           const bool enable_reuse=true) {
+        const unsigned int pos = !enable_reuse?(return_comp = true, scalar()):
           arg1!=~0U && arg1>_cimg_mp_slot_c && is_comp_scalar(arg1)?arg1:
           arg2!=~0U && arg2>_cimg_mp_slot_c && is_comp_scalar(arg2)?arg2:
           ((return_comp = true), scalar());
@@ -24437,8 +24438,9 @@ namespace cimg_library {
       }
 
       unsigned int scalar3(const mp_func op,
-                           const unsigned int arg1, const unsigned int arg2, const unsigned int arg3) {
-        const unsigned int pos =
+                           const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
+                           const bool enable_reuse=true) {
+        const unsigned int pos = !enable_reuse?(return_comp = true, scalar()):
           arg1!=~0U && arg1>_cimg_mp_slot_c && is_comp_scalar(arg1)?arg1:
           arg2!=~0U && arg2>_cimg_mp_slot_c && is_comp_scalar(arg2)?arg2:
           arg3!=~0U && arg3>_cimg_mp_slot_c && is_comp_scalar(arg3)?arg3:
@@ -24449,8 +24451,9 @@ namespace cimg_library {
 
       unsigned int scalar4(const mp_func op,
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
-                           const unsigned int arg4) {
-        const unsigned int pos =
+                           const unsigned int arg4,
+                           const bool enable_reuse=true) {
+        const unsigned int pos = !enable_reuse?(return_comp = true, scalar()):
           arg1!=~0U && arg1>_cimg_mp_slot_c && is_comp_scalar(arg1)?arg1:
           arg2!=~0U && arg2>_cimg_mp_slot_c && is_comp_scalar(arg2)?arg2:
           arg3!=~0U && arg3>_cimg_mp_slot_c && is_comp_scalar(arg3)?arg3:
@@ -24462,8 +24465,9 @@ namespace cimg_library {
 
       unsigned int scalar5(const mp_func op,
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
-                           const unsigned int arg4, const unsigned int arg5) {
-        const unsigned int pos =
+                           const unsigned int arg4, const unsigned int arg5,
+                           const bool enable_reuse=true) {
+        const unsigned int pos = !enable_reuse?(return_comp = true, scalar()):
           arg1!=~0U && arg1>_cimg_mp_slot_c && is_comp_scalar(arg1)?arg1:
           arg2!=~0U && arg2>_cimg_mp_slot_c && is_comp_scalar(arg2)?arg2:
           arg3!=~0U && arg3>_cimg_mp_slot_c && is_comp_scalar(arg3)?arg3:
@@ -24476,8 +24480,9 @@ namespace cimg_library {
 
       unsigned int scalar6(const mp_func op,
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
-                           const unsigned int arg4, const unsigned int arg5, const unsigned int arg6) {
-        const unsigned int pos =
+                           const unsigned int arg4, const unsigned int arg5, const unsigned int arg6,
+                           const bool enable_reuse=true) {
+        const unsigned int pos = !enable_reuse?(return_comp = true, scalar()):
           arg1!=~0U && arg1>_cimg_mp_slot_c && is_comp_scalar(arg1)?arg1:
           arg2!=~0U && arg2>_cimg_mp_slot_c && is_comp_scalar(arg2)?arg2:
           arg3!=~0U && arg3>_cimg_mp_slot_c && is_comp_scalar(arg3)?arg3:
@@ -24492,8 +24497,9 @@ namespace cimg_library {
       unsigned int scalar7(const mp_func op,
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
                            const unsigned int arg4, const unsigned int arg5, const unsigned int arg6,
-                           const unsigned int arg7) {
-        const unsigned int pos =
+                           const unsigned int arg7,
+                           const bool enable_reuse=true) {
+        const unsigned int pos = !enable_reuse?(return_comp = true, scalar()):
           arg1!=~0U && arg1>_cimg_mp_slot_c && is_comp_scalar(arg1)?arg1:
           arg2!=~0U && arg2>_cimg_mp_slot_c && is_comp_scalar(arg2)?arg2:
           arg3!=~0U && arg3>_cimg_mp_slot_c && is_comp_scalar(arg3)?arg3:
@@ -24503,24 +24509,6 @@ namespace cimg_library {
           arg7!=~0U && arg7>_cimg_mp_slot_c && is_comp_scalar(arg7)?arg7:
           ((return_comp = true), scalar());
         add_opcode(op,pos,arg1,arg2,arg3,arg4,arg5,arg6,arg7);
-        return pos;
-      }
-
-      unsigned int scalar8(const mp_func op,
-                           const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
-                           const unsigned int arg4, const unsigned int arg5, const unsigned int arg6,
-                           const unsigned int arg7, const unsigned int arg8) {
-        const unsigned int pos =
-          arg1!=~0U && arg1>_cimg_mp_slot_c && is_comp_scalar(arg1)?arg1:
-          arg2!=~0U && arg2>_cimg_mp_slot_c && is_comp_scalar(arg2)?arg2:
-          arg3!=~0U && arg3>_cimg_mp_slot_c && is_comp_scalar(arg3)?arg3:
-          arg4!=~0U && arg4>_cimg_mp_slot_c && is_comp_scalar(arg4)?arg4:
-          arg5!=~0U && arg5>_cimg_mp_slot_c && is_comp_scalar(arg5)?arg5:
-          arg6!=~0U && arg6>_cimg_mp_slot_c && is_comp_scalar(arg6)?arg6:
-          arg7!=~0U && arg7>_cimg_mp_slot_c && is_comp_scalar(arg7)?arg7:
-          arg8!=~0U && arg8>_cimg_mp_slot_c && is_comp_scalar(arg8)?arg8:
-          ((return_comp = true), scalar());
-        add_opcode(op,pos,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
         return pos;
       }
 

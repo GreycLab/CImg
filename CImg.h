@@ -17515,7 +17515,7 @@ namespace cimg_library {
             _cimg_mp_scalar2(gt,arg1,arg2);
           }
 
-        for (s = se3, ns = se2, ps = se4; s>ss; --s, --ns)
+        for (s = se3, ns = se2, ps = se4; s>ss; --s, --ns, --ps)
           if (*s=='<' && *ns=='<' && *ps!='$' && level[s - expr._data]==clevel) { // Left bit shift ('<<')
             _cimg_mp_op("Operator '<<'");
             arg1 = compile(ss,s,depth1,0,block_flags);
@@ -17532,7 +17532,7 @@ namespace cimg_library {
             _cimg_mp_scalar2(bitwise_left_shift,arg1,arg2);
           }
 
-        for (s = se3, ns = se2, ps = se4; s>ss; --s, --ns)
+        for (s = se3, ns = se2, ps = se4; s>ss; --s, --ns, --ps)
           if (*s=='>' && *ns=='>' && *ps!='$' && level[s - expr._data]==clevel) { // Right bit shift ('>>')
             _cimg_mp_op("Operator '>>'");
             arg1 = compile(ss,s,depth1,0,block_flags);

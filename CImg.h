@@ -18467,12 +18467,15 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"abs(",4)) { // Absolute value
               _cimg_mp_op("Function 'abs()'");
+              p3 = code.size();
               arg1 = compile(ss4,se1,depth1,0,block_flags);
-              if (code) { // Spot 'abs(maxabs())' and 'abs(minabs())' cases
+              if (code.size()>p3) { // Spot 'abs(maxabs())' and 'abs(minabs())' cases
                 CImg<ulongT> &pop = code.back();
                 op = (mp_func)*pop;
-                if (op==mp_maxabs) { pop[0] = (ulongT)mp_absmaxabs; _cimg_mp_return(pop[1]); }
-                else if (op==mp_minabs) { pop[0] = (ulongT)mp_absminabs; _cimg_mp_return(pop[1]); }
+                if (pop[1]==arg1) {
+                  if (op==mp_maxabs) { pop[0] = (ulongT)mp_absmaxabs; _cimg_mp_return(pop[1]); }
+                  else if (op==mp_minabs) { pop[0] = (ulongT)mp_absminabs; _cimg_mp_return(pop[1]); }
+                }
               }
               if (is_vector(arg1)) _cimg_mp_vector1(abs,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(cimg::abs(mem[arg1]));
@@ -24020,7 +24023,8 @@ namespace cimg_library {
       }
 
       bool is_const_integer(const unsigned int arg) const {
-        return memtype[arg]==1 && (double)(int)mem[arg]==mem[arg];
+        const double val = mem[arg];
+        return memtype[arg]==1 && std::isfinite(val) && std::trunc(val)==val;
       }
 
       // Return true if specified value is a scalar reserved value (e.g. variable).
@@ -24062,7 +24066,7 @@ namespace cimg_library {
         }
         const double val = mem[arg];
 
-        if (!((!mode || (double)(int)mem[arg]==mem[arg]) &&
+        if (!((!mode || (std::isfinite(val) && std::trunc(val)==val)) &&
               (mode<2 || mem[arg]>=(mode==3)))) {
           const char *const s_arg = s_argth(n_arg);
           char *s0;

@@ -22055,7 +22055,7 @@ namespace cimg_library {
               }
               p1 = size(arg1);
               p2 = size(arg2);
-              _cimg_mp_scalar6(vector_eq,arg1,p1,arg2,p2,arg3,arg4);
+              _cimg_mp_return(scalar6(mp_vector_eq,arg1,p1,arg2,p2,arg3,arg4,false));
             }
 
 #ifdef cimg_mp_func_set

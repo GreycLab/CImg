@@ -17226,11 +17226,12 @@ namespace cimg_library {
             arg2 = compile(s + 1,se,depth1,0,block_flags); // Value to apply
 
             // Check for particular case to be simplified.
-            if ((op==mp_self_add || op==mp_self_sub) && !arg2) _cimg_mp_return(arg1);
-            if ((op==mp_self_mul || op==mp_self_div || op==mp_self_pow) && arg2==1) _cimg_mp_return(arg1);
-            if (op==mp_self_pow && (arg2==0 || arg2==2)) {
-              if (!arg2) add_opcode(mp_copy,arg1,1);
-              else add_opcode(mp_sqr,arg1,arg1);
+            if (((op==mp_self_add || op==mp_self_sub) && !arg2) ||
+                ((op==mp_self_mul || op==mp_self_div || op==mp_self_pow) && arg2==1))
+              _cimg_mp_return(arg1);
+            if (op==mp_self_pow && (arg2==0 || arg2==2) && !*ref && is_scalar(arg1)) {
+              if (arg2) add_opcode(mp_sqr,arg1,arg1);
+              else add_opcode(mp_copy,arg1,1);
               _cimg_mp_return(arg1);
             }
 

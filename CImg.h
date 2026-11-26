@@ -17427,7 +17427,6 @@ namespace cimg_library {
             _cimg_mp_op("Operator '!='");
             arg1 = compile(ss,s,depth1,0,block_flags);
             arg2 = compile(s + 2,se,depth1,0,block_flags);
-            if (arg1==arg2) _cimg_mp_return(0);
             p1 = size(arg1);
             p2 = size(arg2);
             if (p1 || p2) {
@@ -17447,7 +17446,6 @@ namespace cimg_library {
             _cimg_mp_op("Operator '=='");
             arg1 = compile(ss,s,depth1,0,block_flags);
             arg2 = compile(s + 2,se,depth1,0,block_flags);
-            if (arg1==arg2) _cimg_mp_return(1);
             p1 = size(arg1);
             p2 = size(arg2);
             if (p1 || p2) {
@@ -17471,7 +17469,6 @@ namespace cimg_library {
             if (is_vector(arg1) || is_vector(arg2)) _cimg_mp_vector2(lte,arg1,arg2);
             if (is_const_scalar(arg1) && is_const_scalar(arg2))
               _cimg_mp_const_scalar(mem[arg1]<=mem[arg2]);
-            if (arg1==arg2) _cimg_mp_return(1);
             _cimg_mp_scalar2(lte,arg1,arg2);
           }
 
@@ -17484,7 +17481,6 @@ namespace cimg_library {
             if (is_vector(arg1) || is_vector(arg2)) _cimg_mp_vector2(gte,arg1,arg2);
             if (is_const_scalar(arg1) && is_const_scalar(arg2))
               _cimg_mp_const_scalar(mem[arg1]>=mem[arg2]);
-            if (arg1==arg2) _cimg_mp_return(1);
             _cimg_mp_scalar2(gte,arg1,arg2);
           }
 
@@ -17745,7 +17741,7 @@ namespace cimg_library {
             _cimg_mp_scalar2(div,arg1,arg2);
           }
 
-        // Check for multiplication, division and modulo operators (they have all the same priority).
+        // Check for multiplication, division and modulo operators (they have the same precedence).
         for (s = se2, ns = se1, ps = se3; s>ss; --s, --ns, --ps)
           if (level[s - expr._data]==clevel) {
             if (*s=='*') { // Multiplication ('*')

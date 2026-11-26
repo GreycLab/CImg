@@ -17913,13 +17913,8 @@ namespace cimg_library {
             if (arg2==1) _cimg_mp_same(arg1);
             pos = vector(2);
             if (!arg2) add_opcode(mp_complex_one,pos);
-            else if (arg2==2) {
-              if (is_scalar(arg1)) {
-                add_opcode(mp_vector_init,pos,2,2,0,arg1,0,0);
-                arg1 = pos;
-              }
-              add_opcode(mp_complex_sqr,pos,2,arg1);
-            } else {
+            else if (arg2==2) add_opcode(mp_complex_sqr,pos,2,complex_vector(arg1));
+            else {
               if (is_vector(arg1) && is_vector(arg2)) add_opcode(mp_complex_pow_vv,pos,arg1,arg2);
               else if (is_vector(arg1) && is_scalar(arg2)) add_opcode(mp_complex_pow_vs,pos,arg1,arg2);
               else if (is_scalar(arg1) && is_vector(arg2)) add_opcode(mp_complex_pow_sv,pos,arg1,arg2);
@@ -18752,11 +18747,7 @@ namespace cimg_library {
               arg1 = compile(ss6,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) {
-                add_opcode(mp_vector_init,pos,2,2,0,arg1,0,0);
-                arg1 = pos;
-              }
-              add_opcode(mp_complex_conj,pos,2,arg1);
+              add_opcode(mp_complex_conj,pos,2,complex_vector(arg1));
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -18766,11 +18757,7 @@ namespace cimg_library {
               arg1 = compile(ss5,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) {
-                add_opcode(mp_vector_init,pos,2,2,0,arg1,0,0);
-                arg1 = pos;
-              }
-              add_opcode(mp_complex_cos,pos,2,arg1);
+              add_opcode(mp_complex_cos,pos,2,complex_vector(arg1));
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -18780,11 +18767,7 @@ namespace cimg_library {
               arg1 = compile(ss6,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) {
-                add_opcode(mp_vector_init,pos,2,2,0,arg1,0,0);
-                arg1 = pos;
-              }
-              add_opcode(mp_complex_cosh,pos,2,arg1);
+              add_opcode(mp_complex_cosh,pos,2,complex_vector(arg1));
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -18802,11 +18785,7 @@ namespace cimg_library {
               arg1 = compile(ss5,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) {
-                add_opcode(mp_vector_init,pos,2,2,0,arg1,0,0);
-                arg1 = pos;
-              }
-              add_opcode(mp_complex_exp,pos,2,arg1);
+              add_opcode(mp_complex_exp,pos,2,complex_vector(arg1));
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -18816,11 +18795,7 @@ namespace cimg_library {
               arg1 = compile(ss5,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) {
-                add_opcode(mp_vector_init,pos,2,2,0,arg1,0,0);
-                arg1 = pos;
-              }
-              add_opcode(mp_complex_log,pos,2,arg1);
+              add_opcode(mp_complex_log,pos,2,complex_vector(arg1));
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -19303,11 +19278,7 @@ namespace cimg_library {
               arg1 = compile(ss5,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) {
-                add_opcode(mp_vector_init,pos,2,2,0,arg1,0,0);
-                arg1 = pos;
-              }
-              add_opcode(mp_complex_sin,pos,2,arg1);
+              add_opcode(mp_complex_sin,pos,2,complex_vector(arg1));
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -19317,11 +19288,7 @@ namespace cimg_library {
               arg1 = compile(ss6,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) {
-                add_opcode(mp_vector_init,pos,2,2,0,arg1,0,0);
-                arg1 = pos;
-              }
-              add_opcode(mp_complex_sinh,pos,2,arg1);
+              add_opcode(mp_complex_sinh,pos,2,complex_vector(arg1));
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -19331,11 +19298,7 @@ namespace cimg_library {
               arg1 = compile(ss5,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) {
-                add_opcode(mp_vector_init,pos,2,2,0,arg1,0,0);
-                arg1 = pos;
-              }
-              add_opcode(mp_complex_sqr,pos,2,arg1);
+              add_opcode(mp_complex_sqr,pos,2,complex_vector(arg1));
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -19345,11 +19308,7 @@ namespace cimg_library {
               arg1 = compile(ss6,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) {
-                add_opcode(mp_vector_init,pos,2,2,0,arg1,0,0);
-                arg1 = pos;
-              }
-              add_opcode(mp_complex_sqrt,pos,2,arg1);
+              add_opcode(mp_complex_sqrt,pos,2,complex_vector(arg1));
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -19359,11 +19318,7 @@ namespace cimg_library {
               arg1 = compile(ss5,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) {
-                add_opcode(mp_vector_init,pos,2,2,0,arg1,0,0);
-                arg1 = pos;
-              }
-              add_opcode(mp_complex_tan,pos,2,arg1);
+              add_opcode(mp_complex_tan,pos,2,complex_vector(arg1));
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -19373,11 +19328,7 @@ namespace cimg_library {
               arg1 = compile(ss6,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              if (is_scalar(arg1)) {
-                add_opcode(mp_vector_init,pos,2,2,0,arg1,0,0);
-                arg1 = pos;
-              }
-              add_opcode(mp_complex_tanh,pos,2,arg1);
+              add_opcode(mp_complex_tanh,pos,2,complex_vector(arg1));
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -24535,6 +24486,13 @@ namespace cimg_library {
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3) {
         const unsigned int pos = is_comp_vector(arg1)?arg1:((return_comp = true), vector(siz));
         add_opcode(op,pos,siz,arg1,arg2,arg3);
+        return pos;
+      }
+
+      unsigned int complex_vector(const unsigned int arg) {
+        if (is_vector(arg)) return arg;
+        const unsigned int pos = vector(2);
+        add_opcode(mp_vector_init,pos,2,2,arg,0,0,0); // (arg,0), (0,0) -> [arg,0]
         return pos;
       }
 

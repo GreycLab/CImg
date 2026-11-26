@@ -16899,7 +16899,8 @@ namespace cimg_library {
                         is_sth = is_comp_vector(arg3) && pop[1]==arg3 &&
                           fn!=mp_set_Ioff_v && fn!=mp_set_Joff_v && fn!=mp_set_Ixyz_v && fn!=mp_set_Jxyz_v;
                         if (is_sth)
-                          for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg3) { is_sth = false; break; }
+                          for (unsigned int k = 2; k<pop.size(); ++k)
+                            if (pop[k]==arg3 || pop[k]==arg1) { is_sth = false; break; }
                         if (is_sth) {
                           // Spot case 'X = f(...)' -> make 'f()' write directly into variable slot.
                           pop[1] = arg1;

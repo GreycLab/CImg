@@ -17562,7 +17562,7 @@ namespace cimg_library {
             arg1 = compile(ss,s,depth1,0,block_flags);
 
             // Spot cases '(a + b) + c', '(a - b) + c', '(a*b) + c' and '(a/b) + c'.
-            if (is_scalar(arg1) && code.size()>p3) {
+            if (code.size()>p3 && is_comp_scalar(arg1)) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
               if ((op==mp_add || op==mp_sub || op==mp_mul || op==mp_div) && pop[1]==arg1) {
@@ -17642,7 +17642,7 @@ namespace cimg_library {
             arg1 = compile(ss,s,depth1,0,block_flags);
 
             // Spot cases '(a - b) - c', '(a*b) - c' and '(a/b) - c'.
-            if (is_scalar(arg1) && code.size()>p3) {
+            if (code.size()>p3 && is_comp_scalar(arg1)) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
               if ((op==mp_sub || op==mp_mul || op==mp_div) && pop[1]==arg1) {
@@ -17757,7 +17757,7 @@ namespace cimg_library {
               arg1 = compile(ss,s,depth1,0,block_flags);
 
               // Spot cases '(a*b)*c' and '(a/b)*c'.
-              if (is_scalar(arg1) && code.size()>p3) {
+              if (code.size()>p3 && is_comp_scalar(arg1)) {
                 CImg<ulongT>& pop = code.back();
                 op = (mp_func)*pop;
                 if ((op==mp_mul || op==mp_div) && pop[1]==arg1) {
@@ -17828,7 +17828,7 @@ namespace cimg_library {
               arg1 = compile(ss,s,depth1,0,block_flags);
 
               // Spot case 'a/b/c'.
-              if (is_scalar(arg1) && code.size()>p3) {
+              if (code.size()>p3 && is_scalar(arg1)) {
                 CImg<ulongT>& pop = code.back();
                 op = (mp_func)*pop;
                 if (op==mp_div && pop[1]==arg1) {
@@ -18471,7 +18471,8 @@ namespace cimg_library {
               _cimg_mp_op("Function 'abs()'");
               p3 = code.size();
               arg1 = compile(ss4,se1,depth1,0,block_flags);
-              if (code.size()>p3) { // Spot 'abs(maxabs())' and 'abs(minabs())' cases
+              if (code.size()>p3 &&
+                  (is_comp_scalar(arg1) || is_comp_vector(arg1))) { // Spot 'abs(maxabs())' and 'abs(minabs())' cases
                 CImg<ulongT> &pop = code.back();
                 op = (mp_func)*pop;
                 if (pop[1]==arg1) {
@@ -21015,7 +21016,7 @@ namespace cimg_library {
               mp_func fn = (mp_func)(pop?pop[0]:0);
 
               if (is_vector(arg1)) { // Vector-valued result
-                if (code.size()>p3 && is_comp_vector(arg1) && is_sth && // Spot case 'log(1 + X)'
+                if (code.size()>p3 && is_comp_vector(arg1) && // Spot case 'log(1 + X)'
                     fn==mp_vector_increment && pop[1]==arg1) {
                   pop[0] = (ulongT)mp_vector_log1p;
                   _cimg_mp_return(arg1);
@@ -21024,7 +21025,7 @@ namespace cimg_library {
               }
 
               // Scalar result.
-              if (code.size()>p3 && is_comp_scalar(arg1)&& is_sth && // Spot case 'log(1 + x)'
+              if (code.size()>p3 && is_comp_scalar(arg1) && // Spot case 'log(1 + x)'
                   fn==mp_increment && pop[1]==arg1) {
                 pop[0] = (ulongT)mp_log1p;
                 _cimg_mp_return(arg1);

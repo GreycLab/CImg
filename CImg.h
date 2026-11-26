@@ -17784,10 +17784,10 @@ namespace cimg_library {
               p3 = code.size();
               arg2 = compile(s + 1,se,depth1,0,block_flags);
 
-              p3 = size(arg2);
-              if (p3>0 && (ulongT)size(arg1)==(ulongT)p3*p3) { // Particular case of 'square matrix*vector'
-                pos = vector(p3);
-                add_opcode(mp_matrix_mul,pos,arg1,arg2,p3,p3,1);
+              arg3 = size(arg2);
+              if (arg3>0 && (ulongT)size(arg1)==(ulongT)arg3*arg3) { // Particular case of 'square matrix*vector'
+                pos = vector(arg3);
+                add_opcode(mp_matrix_mul,pos,arg1,arg2,arg3,arg3,1);
                 return_comp = true;
                 _cimg_mp_return(pos);
               }

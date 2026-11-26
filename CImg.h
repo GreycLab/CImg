@@ -17608,7 +17608,7 @@ namespace cimg_library {
                   if (is_const_scalar(arg3)) _cimg_mp_scalar2(add,arg4,const_scalar(mem[arg2] + mem[arg3]));
                   if (is_const_scalar(arg4)) _cimg_mp_scalar2(add,arg3,const_scalar(mem[arg2] + mem[arg4]));
                 }
-                _cimg_mp_scalar3(add_add,arg2,arg3,arg4);
+                _cimg_mp_scalar3(add_add,arg3,arg4,arg2);
               } else if (op==mp_sub) { // Particular case '(a - b) + c'
                 if (is_const_scalar(arg2)) {
                   if (is_const_scalar(arg3)) _cimg_mp_scalar2(sub,const_scalar(mem[arg2] + mem[arg3]),arg4);

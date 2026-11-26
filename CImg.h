@@ -16551,7 +16551,11 @@ namespace cimg_library {
                   } else p2 = imgin._spectrum;
                   if (!p2) _cimg_mp_return(0);
                   _cimg_mp_check_type(arg2,2,2,p2);
-                } else p2 = 0;
+                  if (!is_comp_vector(arg2)) { add_opcode(mp_vector_copy,arg3 = vector(p2),arg2,p2); arg2 = arg3; }
+                } else {
+                  if (!is_comp_scalar(arg2)) { add_opcode(mp_copy,arg3 = scalar(),arg2); arg2 = arg3; }
+                  p2 = 0;
+                }
 
                 if (p_ref) {
                   *p_ref = *ss=='I' || *ss=='J'?4:2;
@@ -16910,7 +16914,7 @@ namespace cimg_library {
                           pop[1] = arg1;
                           if (mempos==arg3 + size(arg3) + 1) {
                             mempos-=size(arg3) + 1;
-                            std::memset(&memtype[mempos],0,sizeof(int)*size(arg3) + 1);
+                            std::memset(&memtype[mempos],0,sizeof(intT)*(size(arg3) + 1));
                           }
                         } else add_opcode(mp_vector_copy,arg1,arg3,size(arg1));
                       }

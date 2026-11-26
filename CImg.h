@@ -28604,7 +28604,7 @@ namespace cimg_library {
         CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
         const longT
           off = (longT)(img.offset((int)mp.mem[_cimg_mp_slot_x],(int)mp.mem[_cimg_mp_slot_y],
-                                   (int)mp.mem[_cimg_mp_slot_z],(int)mp.mem[_cimg_mp_slot_c]) + _mp_arg(3)),
+                                   (int)mp.mem[_cimg_mp_slot_z]) + _mp_arg(3)),
           whd = (longT)img.width()*img.height()*img.depth();
         const T val = (T)_mp_arg(1);
         if (off>=0 && off<whd) {
@@ -28638,7 +28638,7 @@ namespace cimg_library {
         CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
         const longT
           off = (longT)(img.offset((int)mp.mem[_cimg_mp_slot_x],(int)mp.mem[_cimg_mp_slot_y],
-                                   (int)mp.mem[_cimg_mp_slot_z],(int)mp.mem[_cimg_mp_slot_c]) + _mp_arg(3)),
+                                   (int)mp.mem[_cimg_mp_slot_z]) + _mp_arg(3)),
           whd = (longT)img.width()*img.height()*img.depth();
         const double *ptrs = &_mp_arg(1) + 1;
         if (off>=0 && off<whd) {

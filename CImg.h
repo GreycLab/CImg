@@ -17745,124 +17745,124 @@ namespace cimg_library {
             _cimg_mp_scalar2(div,arg1,arg2);
           }
 
-        for (s = se2; s>ss; --s) if (*s=='*' && level[s - expr._data]==clevel) { // Multiplication ('*')
-            _cimg_mp_op("Operator '*'");
-            p1 = p2 = ~0U;
-            const ulongT *ptr1 = 0, *ptr2 = 0;
-            p3 = code.size();
-            arg1 = compile(ss,s,depth1,0,block_flags);
-
-            // Spot cases '(a*b)*c' and '(a/b)*c'.
-            if (is_scalar(arg1) && code.size()>p3) {
-              CImg<ulongT>& pop = code.back();
-              op = (mp_func)*pop;
-              if ((op==mp_mul || op==mp_div) && pop[1]==arg1) {
-                p1 = code.size() - 1;
-                ptr1 = pop.data();
-              }
-            }
-            arg2 = compile(s + 1,se,depth1,0,block_flags);
-
-            // Spot case 'a*(b/c)'.
-            if (!ptr1 && is_scalar(arg2) && code.size()>p3) {
-              CImg<ulongT>& pop = code.back();
-              op = (mp_func)*pop;
-              if (op==mp_div && pop[1]==arg2) {
-                p2 = code.size() - 1;
-                ptr2 = pop.data();
-              }
-            }
-
-            p3 = size(arg2);
-            if (p3>0 && (ulongT)size(arg1)==(ulongT)p3*p3) { // Particular case of 'square matrix*vector'
-              pos = vector(p3);
-              add_opcode(mp_matrix_mul,pos,arg1,arg2,p3,p3,1);
-              return_comp = true;
-              _cimg_mp_return(pos);
-            }
-            _cimg_mp_check_type(arg2,2,3,size(arg1));
-            if (arg2==1) _cimg_mp_same(arg1);
-            if (arg1==1) _cimg_mp_same(arg2);
-            if (is_vector(arg1) || is_vector(arg2)) _cimg_mp_vector2(mul,arg1,arg2);
-            if (is_const_scalar(arg1) && is_const_scalar(arg2)) _cimg_mp_const_scalar(mem[arg1]*mem[arg2]);
-            if (!arg1 || !arg2) _cimg_mp_return(0);
-            if (p1<code.size() && code[p1].data()==ptr1 && ptr1[1]==(ulongT)arg1) {
-              arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
-              op = (mp_func)*ptr1;
-              code.remove(p1);
-              if (op==mp_mul) { // Particular case '(a*b)*c'
-                if (is_const_scalar(arg2)) {
-                  if (is_const_scalar(arg3)) _cimg_mp_scalar2(mul,arg4,const_scalar(mem[arg2]*mem[arg3]));
-                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(mul,arg3,const_scalar(mem[arg2]*mem[arg4]));
-                }
-                _cimg_mp_scalar3(mul_mul,arg3,arg4,arg2);
-              } else { // Particular case '(a/b)*c'
-                if (is_const_scalar(arg2)) {
-                  if (is_const_scalar(arg3)) _cimg_mp_scalar2(div,const_scalar(mem[arg3]*mem[arg2]),arg4);
-                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(mul,arg3,const_scalar(mem[arg2]/mem[arg4]));
-                }
-                _cimg_mp_scalar3(mul_div,arg2,arg3,arg4);
-              }
-            }
-            if (p2<code.size() && code[p2].data()==ptr2 && *ptr2==(ulongT)mp_div &&
-                ptr2[1]==(ulongT)arg2) { // Particular case 'a*(b/c)'
-              arg3 = (unsigned int)ptr2[2]; arg4 = (unsigned int)ptr2[3];
-              code.remove(p2);
-              if (is_const_scalar(arg1)) {
-                if (is_const_scalar(arg3)) _cimg_mp_scalar2(div,const_scalar(mem[arg1]*mem[arg3]),arg4);
-                if (is_const_scalar(arg4)) _cimg_mp_scalar2(mul,arg3,const_scalar(mem[arg1]/mem[arg4]));
-              }
-              _cimg_mp_scalar3(mul_div,arg1,arg3,arg4);
-            }
-            _cimg_mp_scalar2(mul,arg1,arg2);
-          }
-
-        for (s = se2; s>ss; --s) if (*s=='/' && level[s - expr._data]==clevel) { // Division ('/')
-            _cimg_mp_op("Operator '/'");
-            p1 = ~0U;
-            const ulongT *ptr1 = 0;
-            p3 = code.size();
-            arg1 = compile(ss,s,depth1,0,block_flags);
-
-            // Spot case 'a/b/c'.
-            if (is_scalar(arg1) && code.size()>p3) {
-              CImg<ulongT>& pop = code.back();
-              op = (mp_func)*pop;
-              if (op==mp_div && pop[1]==arg1) {
-                p1 = code.size() - 1;
-                ptr1 = pop.data();
-              }
-            }
-            arg2 = compile(s + 1,se,depth1,0,block_flags);
-            _cimg_mp_check_type(arg2,2,3,size(arg1));
-            if (arg2==1) _cimg_mp_same(arg1);
-            if (is_vector(arg1) || is_vector(arg2)) _cimg_mp_vector2(div,arg1,arg2);
-            if (is_const_scalar(arg1) && is_const_scalar(arg2))
-              _cimg_mp_const_scalar(mem[arg1]/mem[arg2]);
-            if (!arg1) _cimg_mp_return(0);
-            if (p1<code.size() && code[p1].data()==ptr1 && *ptr1==(ulongT)mp_div &&
-                ptr1[1]==(ulongT)arg1) { // Particular case '(a/b)/c'
-              arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
-              code.remove(p1);
-              if (is_const_scalar(arg2)) {
-                if (is_const_scalar(arg3)) _cimg_mp_scalar2(div,const_scalar(mem[arg3]/mem[arg2]),arg4);
-                if (is_const_scalar(arg4)) _cimg_mp_scalar2(div,arg3,const_scalar(mem[arg2]*mem[arg4]));
-              }
-              _cimg_mp_scalar3(div_div,arg3,arg4,arg2);
-            }
-            _cimg_mp_scalar2(div,arg1,arg2);
-          }
-
+        // Check for multiplication, division and modulo operators (they have all the same priority).
         for (s = se2, ns = se1, ps = se3; s>ss; --s, --ns, --ps)
-          if (*s=='%' && *ns!='^' && *ps!='$' && level[s - expr._data]==clevel) { // Modulo ('%')
-            _cimg_mp_op("Operator '%'");
-            arg1 = compile(ss,s,depth1,0,block_flags);
-            arg2 = compile(s + 1,se,depth1,0,block_flags);
-            _cimg_mp_check_type(arg2,2,3,size(arg1));
-            if (is_vector(arg1) || is_vector(arg2)) _cimg_mp_vector2(modulo,arg1,arg2);
-            if (is_const_scalar(arg1) && is_const_scalar(arg2))
-              _cimg_mp_const_scalar(cimg::mod(mem[arg1],mem[arg2]));
-            _cimg_mp_scalar2(modulo,arg1,arg2);
+          if (level[s - expr._data]==clevel) {
+            if (*s=='*') { // Multiplication ('*')
+              _cimg_mp_op("Operator '*'");
+              p1 = p2 = ~0U;
+              const ulongT *ptr1 = 0, *ptr2 = 0;
+              p3 = code.size();
+              arg1 = compile(ss,s,depth1,0,block_flags);
+
+              // Spot cases '(a*b)*c' and '(a/b)*c'.
+              if (is_scalar(arg1) && code.size()>p3) {
+                CImg<ulongT>& pop = code.back();
+                op = (mp_func)*pop;
+                if ((op==mp_mul || op==mp_div) && pop[1]==arg1) {
+                  p1 = code.size() - 1;
+                  ptr1 = pop.data();
+                }
+              }
+              p3 = code.size();
+              arg2 = compile(s + 1,se,depth1,0,block_flags);
+
+              // Spot case 'a*(b/c)'.
+              if (!ptr1 && is_scalar(arg2) && code.size()>p3) {
+                CImg<ulongT>& pop = code.back();
+                op = (mp_func)*pop;
+                if (op==mp_div && pop[1]==arg2) {
+                  p2 = code.size() - 1;
+                  ptr2 = pop.data();
+                }
+              }
+
+              p3 = size(arg2);
+              if (p3>0 && (ulongT)size(arg1)==(ulongT)p3*p3) { // Particular case of 'square matrix*vector'
+                pos = vector(p3);
+                add_opcode(mp_matrix_mul,pos,arg1,arg2,p3,p3,1);
+                return_comp = true;
+                _cimg_mp_return(pos);
+              }
+              _cimg_mp_check_type(arg2,2,3,size(arg1));
+              if (arg2==1) _cimg_mp_same(arg1);
+              if (arg1==1) _cimg_mp_same(arg2);
+              if (is_vector(arg1) || is_vector(arg2)) _cimg_mp_vector2(mul,arg1,arg2);
+              if (is_const_scalar(arg1) && is_const_scalar(arg2)) _cimg_mp_const_scalar(mem[arg1]*mem[arg2]);
+              if (!arg1 || !arg2) _cimg_mp_return(0);
+              if (p1<code.size() && code[p1].data()==ptr1 && ptr1[1]==(ulongT)arg1) {
+                arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
+                op = (mp_func)*ptr1;
+                code.remove(p1);
+                if (op==mp_mul) { // Particular case '(a*b)*c'
+                  if (is_const_scalar(arg2)) {
+                    if (is_const_scalar(arg3)) _cimg_mp_scalar2(mul,arg4,const_scalar(mem[arg2]*mem[arg3]));
+                    if (is_const_scalar(arg4)) _cimg_mp_scalar2(mul,arg3,const_scalar(mem[arg2]*mem[arg4]));
+                  }
+                  _cimg_mp_scalar3(mul_mul,arg3,arg4,arg2);
+                } else { // Particular case '(a/b)*c'
+                  if (is_const_scalar(arg2)) {
+                    if (is_const_scalar(arg3)) _cimg_mp_scalar2(div,const_scalar(mem[arg3]*mem[arg2]),arg4);
+                    if (is_const_scalar(arg4)) _cimg_mp_scalar2(mul,arg3,const_scalar(mem[arg2]/mem[arg4]));
+                  }
+                  _cimg_mp_scalar3(mul_div,arg2,arg3,arg4);
+                }
+              }
+              if (p2<code.size() && code[p2].data()==ptr2 && *ptr2==(ulongT)mp_div &&
+                  ptr2[1]==(ulongT)arg2) { // Particular case 'a*(b/c)'
+                arg3 = (unsigned int)ptr2[2]; arg4 = (unsigned int)ptr2[3];
+                code.remove(p2);
+                if (is_const_scalar(arg1)) {
+                  if (is_const_scalar(arg3)) _cimg_mp_scalar2(div,const_scalar(mem[arg1]*mem[arg3]),arg4);
+                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(mul,arg3,const_scalar(mem[arg1]/mem[arg4]));
+                }
+                _cimg_mp_scalar3(mul_div,arg1,arg3,arg4);
+              }
+              _cimg_mp_scalar2(mul,arg1,arg2);
+            } else if (*s=='/') { // Division ('/')
+              _cimg_mp_op("Operator '/'");
+              p1 = ~0U;
+              const ulongT *ptr1 = 0;
+              p3 = code.size();
+              arg1 = compile(ss,s,depth1,0,block_flags);
+
+              // Spot case 'a/b/c'.
+              if (is_scalar(arg1) && code.size()>p3) {
+                CImg<ulongT>& pop = code.back();
+                op = (mp_func)*pop;
+                if (op==mp_div && pop[1]==arg1) {
+                  p1 = code.size() - 1;
+                  ptr1 = pop.data();
+                }
+              }
+              arg2 = compile(s + 1,se,depth1,0,block_flags);
+              _cimg_mp_check_type(arg2,2,3,size(arg1));
+              if (arg2==1) _cimg_mp_same(arg1);
+              if (is_vector(arg1) || is_vector(arg2)) _cimg_mp_vector2(div,arg1,arg2);
+              if (is_const_scalar(arg1) && is_const_scalar(arg2))
+                _cimg_mp_const_scalar(mem[arg1]/mem[arg2]);
+              if (!arg1) _cimg_mp_return(0);
+              if (p1<code.size() && code[p1].data()==ptr1 && *ptr1==(ulongT)mp_div &&
+                  ptr1[1]==(ulongT)arg1) { // Particular case '(a/b)/c'
+                arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
+                code.remove(p1);
+                if (is_const_scalar(arg2)) {
+                  if (is_const_scalar(arg3)) _cimg_mp_scalar2(div,const_scalar(mem[arg3]/mem[arg2]),arg4);
+                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(div,arg3,const_scalar(mem[arg2]*mem[arg4]));
+                }
+                _cimg_mp_scalar3(div_div,arg3,arg4,arg2);
+              }
+              _cimg_mp_scalar2(div,arg1,arg2);
+            } else if (*s=='%' && *ns!='^' && *ps!='$') { // Modulo ('%')
+              _cimg_mp_op("Operator '%'");
+              arg1 = compile(ss,s,depth1,0,block_flags);
+              arg2 = compile(s + 1,se,depth1,0,block_flags);
+              _cimg_mp_check_type(arg2,2,3,size(arg1));
+              if (is_vector(arg1) || is_vector(arg2)) _cimg_mp_vector2(modulo,arg1,arg2);
+              if (is_const_scalar(arg1) && is_const_scalar(arg2))
+                _cimg_mp_const_scalar(cimg::mod(mem[arg1],mem[arg2]));
+              _cimg_mp_scalar2(modulo,arg1,arg2);
+            }
           }
 
         if (se1>ss) {

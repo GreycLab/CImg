@@ -22325,7 +22325,7 @@ namespace cimg_library {
                       arg4 = compile(s1,s2,depth1,0,block_flags); // Depth
                       _cimg_mp_check_const_scalar(arg4,4,3);
                       arg4 = (unsigned int)mem[arg4];
-                      arg5 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0; // Spectrum
+                      arg5 = s2<se1?compile(++s2,se1,depth1,0,block_flags):1; // Spectrum
                       _cimg_mp_check_const_scalar(arg5,5,3);
                       arg5 = (unsigned int)mem[arg5];
                     }

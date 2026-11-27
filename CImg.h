@@ -16720,7 +16720,7 @@ namespace cimg_library {
                 unsigned int mlen = (unsigned int)(se - s  + 1);
                 CImg<charT>(s,mlen).move_to(macro_body,0);
                 bool is_variadic = false, need_cleaning = false;
-                const char cvoid = 25;
+                const char cvoid = 25, csharp = 26;
 
                 p1 = 1; // Index of current parsed argument
                 for (s = s0 + 1; s<=s1; ++p1, s = ns + 1) { // Parse function arguments
@@ -16779,11 +16779,15 @@ namespace cimg_library {
                     p2 = (unsigned int)(s3 - s2); // Argument length
                     for (ps = std::strstr(macro_body[0],s2); ps; ps = std::strstr(ps,s2)) { // Replace by arg number
                       if (!((ps>macro_body[0]._data && cimg::is_varchar(*(ps - 1))) || cimg::is_varchar(*(ps + p2)))) {
-                        if (ps>macro_body[0]._data && *(ps - 1)=='#') { // Remove pre-number sign
-                          *(ps - 1) = (char)p1; std::memset(ps,cvoid,p2); ps+=p2; need_cleaning = true;
-                          if (*ps=='#') { *(ps++) = cvoid; need_cleaning = true; } // Had pre & post number signs
-                        } else if (*(ps + p2)=='#') { // Remove post-number sign
-                          *(ps++) = (char)p1; std::memset(ps,cvoid,p2); ps+=p2; need_cleaning = true;
+                        if (ps>macro_body[0]._data && (*(ps - 1)=='#' || *(ps - 1)==csharp)) { // Remove pre-number sign
+                          *(ps - 1) = csharp; *(ps++) = (char)p1;
+                          if (p2>1) { std::memset(ps,cvoid,p2 - 1); ps+=p2 - 1; }
+                          need_cleaning = true;
+                          if (*ps=='#' || *ps==csharp) { *(ps++) = csharp; } // Had pre & post number signs
+                        } else if (*(ps + p2)=='#' || *(ps + p2)==csharp) { // Remove post-number sign
+                          *(ps++) = (char)p1;
+                          if (p2>1) { std::memset(ps,cvoid,p2 - 1); ps+=p2 - 1; }
+                          *(ps++) = csharp; need_cleaning = true;
                         } else if (is_variadic) { // Replace variadic argument
                           *(ps++) = (char)p1;
                           p3 = p2 - 1;
@@ -16826,7 +16830,7 @@ namespace cimg_library {
                 if (need_cleaning) {
                   char *mpd = macro_body[0]._data;
                   const char *mps = mpd;
-                  for (unsigned int l = 0; l<mlen; ++l) { const char c = *(mps++); if (c!=cvoid) *(mpd++) = c; }
+                  for (unsigned int l = 0; l<mlen; ++l) { const char c = *(mps++); if (c!=cvoid && c!=csharp) *(mpd++) = c; }
                   macro_body[0]._width = (unsigned int)(mpd - macro_body[0]._data);
                 } else macro_body[0]._width = mlen;
 

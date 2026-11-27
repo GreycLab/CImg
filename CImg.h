@@ -16891,7 +16891,7 @@ namespace cimg_library {
                       if (is_sth &&
                           (fn==mp_cumulate || fn==mp_equalize || fn==mp_mirror || fn==mp_noise || fn==mp_normalize ||
                            fn==mp_permute || fn==mp_reverse || fn==mp_shift || fn==mp_sort) &&
-                          is_comp_vector(arg3) && pop[1]==arg3 && pop[2]==arg1) {
+                          pop[1]==arg3 && pop[2]==arg1 && is_comp_vector(arg3)) {
                         // Spot cases 'X = func(X)' -> call in-place version of 'func()'.
                         pop[0] = (ulongT)(fn==mp_cumulate?mp_cumulate_ip:
                                           fn==mp_equalize?mp_equalize_ip:
@@ -16905,14 +16905,16 @@ namespace cimg_library {
                         pop[1] = (ulongT)_cimg_mp_slot_nan;
                         if (mempos==arg3 + size(arg3) + 1) {
                           mempos-=size(arg3) + 1;
-                          std::memset(&memtype[mempos],0,sizeof(int)*size(arg3) + 1);
+                          std::memset(&memtype[mempos],0,sizeof(intT)*(size(arg3) + 1));
                         }
                       } else {
                         is_sth = is_comp_vector(arg3) && pop[1]==arg3 &&
                           fn!=mp_set_Ioff_v && fn!=mp_set_Joff_v && fn!=mp_set_Ixyz_v && fn!=mp_set_Jxyz_v;
-                        if (is_sth)
+                        if (is_sth) {
+                          const unsigned int arg1_end = arg1 + size(arg1);
                           for (unsigned int k = 2; k<pop.size(); ++k)
-                            if (pop[k]==arg3 || pop[k]==arg1) { is_sth = false; break; }
+                            if (pop[k]==arg3 || (pop[k]>=arg1 && pop[k]<=arg1_end)) { is_sth = false; break; }
+                        }
                         if (is_sth) {
                           // Spot case 'X = f(...)' -> make 'f()' write directly into variable slot.
                           pop[1] = arg1;
@@ -17056,21 +17058,23 @@ namespace cimg_library {
                       pop[1] = (ulongT)_cimg_mp_slot_nan;
                       if (mempos==arg2 + size(arg2) + 1) {
                         mempos-=size(arg2) + 1;
-                        std::memset(&memtype[mempos],0,sizeof(int)*size(arg2) + 1);
+                        std::memset(&memtype[mempos],0,sizeof(int)*(size(arg2) + 1));
                       }
                     } else {
                       is_sth = is_comp_vector(arg2) && pop[1]==arg2 &&
                         fn!=mp_set_Ioff_v && fn!=mp_set_Joff_v &&
                         fn!=mp_set_Ixyz_v && fn!=mp_set_Jxyz_v;
-                      if (is_sth)
+                      if (is_sth) {
+                        const unsigned int arg1_end = arg1 + size(arg1);
                         for (unsigned int k = 2; k<pop.size(); ++k)
-                          if (pop[k]==arg2 || pop[k]==arg1) { is_sth = false; break; }
+                          if (pop[k]==arg2 || (pop[k]>=arg1 && pop[k]<=arg1_end)) { is_sth = false; break; }
+                      }
                       if (is_sth) {
                         // Spot case '(X) = f(...)' -> make 'f()' write directly into variable slot.
                         pop[1] = arg1;
                         if (mempos==arg2 + size(arg2) + 1) {
                           mempos-=size(arg2) + 1;
-                          std::memset(&memtype[mempos],0,sizeof(int)*size(arg2) + 1);
+                          std::memset(&memtype[mempos],0,sizeof(int)*(size(arg2) + 1));
                         }
                       } else add_opcode(mp_vector_copy,arg1,arg2,size(arg1));
                     }

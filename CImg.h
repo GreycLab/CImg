@@ -19014,7 +19014,7 @@ namespace cimg_library {
               _cimg_mp_check_type(arg3,3,1,0);
               _cimg_mp_check_type(arg4,4,1,0);
               _cimg_mp_check_type(arg5,5,1,0);
-              _cimg_mp_check_type(arg6,5,1,0);
+              _cimg_mp_check_type(arg6,6,1,0);
               CImg<ulongT>(1,22).move_to(code);
               code.back().get_shared_rows(0,7).fill((ulongT)mp_mem_copy,p1,arg1,arg2,arg3,arg4,arg5,arg6);
               code.back().get_shared_rows(8,21).fill(ref);
@@ -19083,7 +19083,7 @@ namespace cimg_library {
                 _cimg_mp_check_list();
                 pos = 2;
                 is_sth = true;
-              } else { p1 = ~0U; s0 = ss5; need_input_copy = true; pos = 1; }
+              } else { p1 = ~0U; s0 = ss5; pos = 1; }
               if (s0<se1) for (s = s0; s<se; ++s, ++pos) {
                   ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                  (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
@@ -19096,6 +19096,7 @@ namespace cimg_library {
               (l_opcode>'y').move_to(opcode);
 
               if (!opcode || is_sth) { // Image crop
+                if (p1==~0U) need_input_copy = true;
                 arg1 = 0; arg2 = (p1!=~0U);
                 switch (opcode._height) {
                 case 0 : case 1 :

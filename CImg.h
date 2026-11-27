@@ -21603,9 +21603,10 @@ namespace cimg_library {
               _cimg_mp_scalar1(rad2deg,arg1);
             }
 
-            if ((cimg_sscanf(ss,"rand%u%c",&(arg1=~0U),&sep)==2 && sep=='(' && arg1>0) ||
-                !std::strncmp(ss,"rand(#",6) ||
-                (!std::strncmp(ss,"rand",4) && ss4<se1 && *ss4!='(' && (s=std::strchr(ss4,'('))!=0)) { // Random vector
+            if ((cimg_sscanf(ss,"rand%u%c",&(arg1=~0U),&sep)==2 && sep=='(' && arg1>0) || // Random vector
+                ((arg1=~0U)==~0U &&
+                 (!std::strncmp(ss,"rand(#",6) ||
+                  (!std::strncmp(ss,"rand",4) && ss4<se1 && *ss4!='(' && (s=std::strchr(ss4,'('))!=0)))) {
               _cimg_mp_op("Function 'rand()'");
               p3 = 0;
               if (arg1==~0U && *ss4!='(') {
@@ -22582,26 +22583,27 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"unref(",6)) { // Un-reference variable
               _cimg_mp_op("Function 'unref()'");
-              arg1=~0U;
+              pos = ~0U;
               for (s0 = ss6; s0<se1; s0 = s1) {
                 if (s0>ss6 && *s0==',') ++s0;
                 s1 = s0; while (s1<se1 && *s1!=',') ++s1;
-                c1 = *s1;
                 if (s1>s0) {
-                  *s1 = 0;
-                  get_variable_pos(s0,arg1,arg2);
-                  if (arg2!=~0U) reserved_label[arg2] = ~0U;
+                  variable_name.assign(s0,(unsigned int)(s1 - s0 + 1)).back() = 0;
+                  cimg::strpare(variable_name,false,true);
+                  if (!*variable_name) compile(s0,s0,depth1,0,block_flags); // Will throw a 'missing argument' exception
+                  get_variable_pos(variable_name,arg1,arg2);
+                  if (arg2!=~0U) { pos = reserved_label[arg2]; reserved_label[arg2] = ~0U; }
                   else if (arg1!=~0U) {
+                    pos = variable_pos[arg1];
                     variable_def.remove(arg1);
                     if (arg1<variable_pos._width - 1)
                       std::memmove(variable_pos._data + arg1,variable_pos._data + arg1 + 1,
                                    sizeof(uintT)*(variable_pos._width - arg1 - 1));
                     --variable_pos._width;
-                  }
-                  *s1 = c1;
+                  } else pos = ~0U;
                 } else compile(s0,s1,depth1,0,block_flags); // Will throw a 'missing argument' exception
               }
-              _cimg_mp_return(arg1!=~0U?arg1:_cimg_mp_slot_nan); // Return value of last specified variable
+              _cimg_mp_return(pos!=~0U?pos:_cimg_mp_slot_nan); // Return value of last specified variable
             }
 
             if (!std::strncmp(ss,"uppercase(",10)) { // Upper case
@@ -22639,8 +22641,9 @@ namespace cimg_library {
             }
 
             if ((cimg_sscanf(ss,"vector%u%c",&(arg1=~0U),&sep)==2 && sep=='(' && arg1>0) ||
-                !std::strncmp(ss,"vector(",7) ||
-                (!std::strncmp(ss,"vector",6) && ss7<se1 && (s=std::strchr(ss7,'('))!=0)) { // Vector
+                ((arg1=~0U)==~0U &&
+                 (!std::strncmp(ss,"vector(",7) ||
+                  (!std::strncmp(ss,"vector",6) && ss7<se1 && (s=std::strchr(ss7,'('))!=0)))) { // Vector
               _cimg_mp_op("Function 'vector()'");
               arg2 = 0; // Number of specified values
               if (arg1==~0U && *ss6!='(') {

@@ -16551,9 +16551,15 @@ namespace cimg_library {
                   } else p2 = imgin._spectrum;
                   if (!p2) _cimg_mp_return(0);
                   _cimg_mp_check_type(arg2,2,2,p2);
-                  if (!is_comp_vector(arg2)) { add_opcode(mp_vector_copy,pos = vector(p2),arg2,p2); arg2 = pos; }
+                  if (p_ref && !is_comp_vector(arg2)) {
+                    add_opcode(mp_vector_copy,pos = vector(p2),arg2,p2);
+                    arg2 = pos;
+                  }
                 } else {
-                  if (!is_comp_scalar(arg2)) { add_opcode(mp_copy,pos = scalar(),arg2); arg2 = pos; }
+                  if (p_ref && !is_comp_scalar(arg2)) {
+                    add_opcode(mp_copy,pos = scalar(),arg2);
+                    arg2 = pos;
+                  }
                   p2 = 0;
                 }
 

@@ -16006,7 +16006,7 @@ namespace cimg_library {
 
       unsigned int break_type, constcache_size, debug_indent, mem_img_index, mem_img_median, mem_img_norm, mempos,
         _0_index, _1_index, result_dim, result_end_dim;
-      bool is_end_code, is_fill, is_noncritical_run, is_parallelizable, need_input_copy, return_comp;
+      bool is_end_code, is_pixelwise_evaluation, is_noncritical_run, is_parallelizable, need_input_copy, return_comp;
       const char *const calling_function, *s_op, *ss_op;
       double *result, *result_end;
       char *user_macro;
@@ -16057,7 +16057,7 @@ namespace cimg_library {
 
       _cimg_math_parser(const char *const expression, const char *const funcname=0,
                         const CImg<T>& img_input=CImg<T>::const_empty(), CImg<T> *const img_output=0,
-                        CImgList<T> *const list_images=0, const bool _is_fill=false):
+                        CImgList<T> *const list_images=0, const bool _is_pixelwise_evaluation=false):
         code(_code),code_begin_t(_code_begin_t),code_end_t(_code_end_t),
         list_median(_list_median),list_norm(_list_norm),list_stats(_list_stats),
         imglist(list_images?*list_images:CImgList<T>::empty()),
@@ -16067,8 +16067,8 @@ namespace cimg_library {
         imgin(img_input),
         break_type(0),constcache_size(0),debug_indent(0),mem_img_index(~0U),mem_img_median(~0U),mem_img_norm(~0U),
           _0_index(~0U),_1_index(~0U),result_dim(0),result_end_dim(0),
-        is_fill(_is_fill),is_noncritical_run(false),is_parallelizable(true),need_input_copy(false),
-        calling_function(funcname?funcname:"cimg_math_parser"),
+        is_pixelwise_evaluation(_is_pixelwise_evaluation),is_noncritical_run(false),is_parallelizable(true),
+        need_input_copy(false),calling_function(funcname?funcname:"cimg_math_parser"),
         s_op(0),ss_op(0),
         result_end(0),
         user_macro(0),
@@ -16185,7 +16185,7 @@ namespace cimg_library {
         p_break((CImg<ulongT>*)(cimg_ulong)-2),p_code_end(0),
         imgin(CImg<T>::const_empty()),
         break_type(0),constcache_size(0),debug_indent(0),result_dim(0),result_end_dim(0),
-        is_fill(false),is_noncritical_run(false),is_parallelizable(true),need_input_copy(false),
+        is_pixelwise_evaluation(false),is_noncritical_run(false),is_parallelizable(true),need_input_copy(false),
         calling_function(0),
         s_op(0),ss_op(0),
         result_end(0),
@@ -16204,8 +16204,8 @@ namespace cimg_library {
         p_break(mp.p_break),p_code_end(mp.p_code_end),
         imgin(mp.imgin),
         break_type(0),constcache_size(0),debug_indent(0),result_dim(mp.result_dim),result_end_dim(mp.result_end_dim),
-        is_fill(mp.is_fill),is_noncritical_run(mp.is_noncritical_run),is_parallelizable(mp.is_parallelizable),
-          need_input_copy(mp.need_input_copy),
+        is_pixelwise_evaluation(mp.is_pixelwise_evaluation),is_noncritical_run(mp.is_noncritical_run),
+        is_parallelizable(mp.is_parallelizable),need_input_copy(mp.need_input_copy),
         calling_function(0),
         s_op(0),ss_op(0),
         result(mem._data + (mp.result - mp.mem._data)),
@@ -26959,10 +26959,10 @@ namespace cimg_library {
           d = (unsigned int)(_d>=0?_d:-_d*img.depth()/100),
           s = (unsigned int)(_s>=0?_s:-_s*img.spectrum()/100),
           interp = (int)_mp_arg(7);
-        if (mp.is_fill && img._data==mp.imgout._data) {
+        if (mp.is_pixelwise_evaluation && img._data==mp.imgout._data) {
           cimg::mutex(6,0);
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'resize()': "
-                                      "Cannot both fill/eval and resize image (%u,%u,%u,%u) "
+                                      "Cannot both do pixelwise evaluation and resize image (%u,%u,%u,%u) "
                                       "to new dimensions (%u,%u,%u,%u).",
                                       img.pixel_type(),img._width,img._height,img._depth,img._spectrum,w,h,d,s);
         }
@@ -28478,16 +28478,14 @@ namespace cimg_library {
         }
         CImg(1,1,1,1,0).move_to(_str);
         CImg<charT> str = _str>'x';
-#if cimg_use_openmp==0
-        const unsigned int n_thread = 0;
-#else
-        const unsigned int n_thread = omp_get_thread_num();
-#endif
-        cimg_mp_func_run(str._data,n_thread && mp.is_noncritical_run);
+        cimg_mp_func_run(str._data);
         return cimg::type<double>::nan();
       }
 #else
-      static double mp_run(_cimg_math_parser& mp) { cimg::unused(mp); return cimg::type<double>::nan(); }
+      static double mp_run(_cimg_math_parser& mp) {
+        cimg::unused(mp);
+        return cimg::type<double>::nan();
+      }
 #endif
 
       static double mp_s2v(_cimg_math_parser& mp) {
@@ -28964,7 +28962,10 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 #else
-      static double mp_store(_cimg_math_parser& mp) { cimg::unused(mp); return cimg::type<double>::nan(); }
+      static double mp_store(_cimg_math_parser& mp) {
+        cimg::unused(mp);
+        return cimg::type<double>::nan();
+      }
 #endif
 
       static double mp_string(_cimg_math_parser& mp) {
@@ -34478,6 +34479,7 @@ namespace cimg_library {
                                  calling_function,base,
                                  cimg::type<T>::string()==cimg::type<t>::string()?(CImg<t>*)this:&base,
                                  list_images,true);
+          mp.is_pixelwise_evaluation = true;
           if (!provides_copy && expression &&
               *expression!='>' && *expression!='<' && *expression!=':' &&
               mp.need_input_copy)
@@ -34544,7 +34546,6 @@ namespace cimg_library {
                 _cimg_math_parser_t
                   *const _mp = omp_get_thread_num()?new _cimg_math_parser_t(mp):&mp,
                   &lmp = *_mp;
-                lmp.is_fill = true;
                 cimg_pragma_openmp(barrier)
                 lmp.begin_t();
 
@@ -34602,7 +34603,6 @@ namespace cimg_library {
                 _cimg_math_parser_t
                   *const _mp = omp_get_thread_num()?new _cimg_math_parser_t(mp):&mp,
                   &lmp = *_mp;
-                lmp.is_fill = true;
                 cimg_pragma_openmp(barrier)
                 lmp.begin_t();
 

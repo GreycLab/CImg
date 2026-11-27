@@ -16940,7 +16940,7 @@ namespace cimg_library {
                     CImg<ulongT> &pop = is_sth?code.back():CImg<ulongT>::empty();
                     mp_func fn = (mp_func)(pop?pop[0]:0);
                     if (is_sth)
-                      is_sth = is_sth && is_comp_scalar(arg3) && pop[1]==arg3 &&
+                      is_sth = is_comp_scalar(arg3) && pop[1]==arg3 &&
                         fn!=mp_set_ioff && fn!=mp_set_joff &&
                         fn!=mp_set_ixyzc && fn!=mp_set_jxyzc &&
                         fn!=mp_set_Ioff_s && fn!=mp_set_Joff_s &&
@@ -17069,7 +17069,7 @@ namespace cimg_library {
                         std::memset(&memtype[mempos],0,sizeof(int)*(size(arg2) + 1));
                       }
                     } else {
-                      is_sth = is_comp_vector(arg2) && pop[1]==arg2 &&
+                      is_sth = is_sth && is_comp_vector(arg2) && pop[1]==arg2 &&
                         fn!=mp_set_Ioff_v && fn!=mp_set_Joff_v &&
                         fn!=mp_set_Ixyz_v && fn!=mp_set_Jxyz_v;
                       if (is_sth) {
@@ -19430,11 +19430,11 @@ namespace cimg_library {
               } else { p1 = 11; s1 = s0; } // Default: #-1
               _cimg_mp_check_list();
               if (is_n) {
-                s0 = next_arg(s1,se1,clevel1);
+                s0 = s1; s1 = next_arg(s0,se1,clevel1);
                 arg1 = compile(s0,s1++,depth1,0,block_flags); // Count
               } else arg1 = ~0U;
               if (is_insert) {
-                s0 = next_arg(s1,se1,clevel1);
+                s0 = s1; s1 = next_arg(s0,se1,clevel1);
                 arg2 = compile(s0,s1++,depth1,0,block_flags); // Position
               } else if (is_push_heap) arg2 = ~0U - 1;
               else arg2 = ~0U;

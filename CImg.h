@@ -21832,7 +21832,7 @@ namespace cimg_library {
                   s = ns;
                   ++pos;
                 }
-                if (pos<1 || pos>10) {
+                if (pos<1 || s<se) {
                   _cimg_mp_strerr;
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                               "CImg<%s>::%s: %s: %s arguments, in expression '%s'.",
@@ -23866,7 +23866,10 @@ namespace cimg_library {
           if (!is_escaped && !next_is_escaped && *ps=='\\') next_is_escaped = true;
           if (!is_escaped && *ps=='\'') { // Non-escaped character
             if (!mode && ps>_expr._data && *(ps - 1)=='[') next_mode = mode = 2; // Start vector-string
-            else if (mode==2 && *(ps + 1)==']') next_mode = !mode; // End vector-string
+            else if (mode==2) {
+              const char *pt = ps + 1; while (*pt && cimg::is_blank(*pt)) ++pt;
+              if (*pt==']') next_mode = !mode; // End vector-string
+            }
             else if (mode<2) next_mode = mode?(mode = 0):1; // Start/end char-string
           }
           *(pd++) = (unsigned int)(mode>=1 || is_escaped?_level + (mode==1):

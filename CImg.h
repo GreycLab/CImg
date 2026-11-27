@@ -19918,7 +19918,7 @@ namespace cimg_library {
                 _cimg_mp_check_notnan_index(p1,ss + 9);
                 _cimg_mp_check_list();
               } else { p1 = ~0U; s0 = ss8; }
-              if (s0==se1) compile(s0,se1,depth1,0,block_flags); // 'missing' argument error
+              if (s0>=se1) compile(se1,se1,depth1,0,block_flags); // 'missing' argument error
               CImg<ulongT>::vector((ulongT)mp_ellipse,_cimg_mp_slot_nan,0,p1).move_to(l_opcode);
               for (s = s0; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
@@ -21476,7 +21476,7 @@ namespace cimg_library {
                 _cimg_mp_check_list();
                 pos = 2;
               } else { p1 = ~0U; s0 = ss8; pos = 1; }
-              if (s0==se1) compile(s0,se1,depth1,0,block_flags); // 'missing' argument error
+              if (s0>=se1) compile(se1,se1,depth1,0,block_flags); // 'missing' argument error
               CImg<ulongT>::vector((ulongT)mp_polygon,_cimg_mp_slot_nan,0,p1).move_to(l_opcode);
               for (s = s0; s<se; ++s, ++pos) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&

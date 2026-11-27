@@ -17446,41 +17446,25 @@ namespace cimg_library {
           }
 
         for (s = se3, ns = se2; s>ss; --s, --ns)
-          if (*s=='!' && *ns=='=' && level[s - expr._data]==clevel) { // Not equal to ('!=')
-            _cimg_mp_op("Operator '!='");
+          if (*ns=='=' && (*s=='!' || *s=='=') && level[s - expr._data]==clevel) { // Equality ('!=' and '==')
+            const bool is_eq = (*s=='=');
+            _cimg_mp_op(is_eq?"Operator '=='":"Operator '!='");
             arg1 = compile(ss,s,depth1,0,block_flags);
             arg2 = compile(s + 2,se,depth1,0,block_flags);
             p1 = size(arg1);
             p2 = size(arg2);
             if (p1 || p2) {
-              if (p1 && p2 && p1!=p2) _cimg_mp_return(1);
+              if (p1 && p2 && p1!=p2) _cimg_mp_return((unsigned int)!is_eq);
               pos = scalar();
-              add_opcode(mp_vector_neq,pos,arg1,p1,arg2,p2,11,1);
+              if (is_eq) add_opcode(mp_vector_eq,pos,arg1,p1,arg2,p2,11,1,false);
+              else add_opcode(mp_vector_neq,pos,arg1,p1,arg2,p2,11,1);
               return_comp = true;
               _cimg_mp_return(pos);
             }
             if (is_const_scalar(arg1) && is_const_scalar(arg2))
-              _cimg_mp_const_scalar(mem[arg1]!=mem[arg2]);
+              _cimg_mp_const_scalar(is_eq?mem[arg1]==mem[arg2]:mem[arg1]!=mem[arg2]);
+            if (is_eq) _cimg_mp_scalar2(eq,arg1,arg2);
             _cimg_mp_scalar2(neq,arg1,arg2);
-          }
-
-        for (s = se3, ns = se2; s>ss; --s, --ns)
-          if (*s=='=' && *ns=='=' && level[s - expr._data]==clevel) { // Equal to ('==')
-            _cimg_mp_op("Operator '=='");
-            arg1 = compile(ss,s,depth1,0,block_flags);
-            arg2 = compile(s + 2,se,depth1,0,block_flags);
-            p1 = size(arg1);
-            p2 = size(arg2);
-            if (p1 || p2) {
-              if (p1 && p2 && p1!=p2) _cimg_mp_return(0);
-              pos = scalar();
-              add_opcode(mp_vector_eq,pos,arg1,p1,arg2,p2,11,1,false);
-              return_comp = true;
-              _cimg_mp_return(pos);
-            }
-            if (is_const_scalar(arg1) && is_const_scalar(arg2))
-              _cimg_mp_const_scalar(mem[arg1]==mem[arg2]);
-            _cimg_mp_scalar2(eq,arg1,arg2);
           }
 
         for (s = se3, ns = se2, ps = se4; s>ss; --s, --ns, --ps)

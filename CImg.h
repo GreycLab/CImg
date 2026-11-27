@@ -26065,7 +26065,9 @@ namespace cimg_library {
 
         // Forward search.
         if (step>0) {
-          const double *const nptre = max_iterations==~0U?ptre:std::min(ptre,ptr + step*max_iterations);
+          const ulongT rem = (ulongT)(ptre - ptr), ustep = (ulongT)step;
+          const double *const nptre = max_iterations==~0U || (ulongT)max_iterations>(rem - 1)/ustep?
+            ptre:ptr + ustep*max_iterations;
           if (cimg::type<double>::is_nan(val))
             while (ptr<nptre && !cimg::type<double>::is_nan(*ptr)) ptr+=step;
           else
@@ -26074,7 +26076,9 @@ namespace cimg_library {
         }
 
         // Backward search.
-        const double *const nptrb = max_iterations==~0U?ptrb:std::max(ptrb,ptr + step*((longT)max_iterations - 1));
+        const ulongT rem = (ulongT)(ptr - ptrb), ustep = (ulongT)(-(longT)step);
+        const double *const nptrb = max_iterations==~0U || (ulongT)(max_iterations - 1)>rem/ustep?
+          ptrb:ptr - ustep*(max_iterations - 1);
         if (cimg::type<double>::is_nan(val))
           while (ptr>=nptrb && !cimg::type<double>::is_nan(*ptr)) ptr+=step;
         else
@@ -26841,7 +26845,9 @@ namespace cimg_library {
 
         // Forward search.
         if (step>0) {
-          const T *const nptre = max_iterations==~0U?ptre:std::min(ptre,ptr + step*max_iterations);
+          const ulongT rem = (ulongT)(ptre - ptr), ustep = (ulongT)step;
+          const T *const nptre = max_iterations==~0U || (ulongT)max_iterations>(rem - 1)/ustep?
+            ptre:ptr + ustep*max_iterations;
           if (cimg::type<double>::is_nan(val))
             while (ptr<nptre && !cimg::type<double>::is_nan(*ptr)) ptr+=step;
           else
@@ -26850,7 +26856,9 @@ namespace cimg_library {
         }
 
         // Backward search.
-        const T *const nptrb = max_iterations==~0U?ptrb:std::max(ptrb,ptr + step*((longT)max_iterations - 1));
+        const ulongT rem = (ulongT)(ptr - ptrb), ustep = (ulongT)(-(longT)step);
+        const T *const nptrb = max_iterations==~0U || (ulongT)(max_iterations - 1)>rem/ustep?
+          ptrb:ptr - ustep*(max_iterations - 1);
         if (cimg::type<double>::is_nan(val))
           while (ptr>=nptrb && !cimg::type<double>::is_nan(*ptr)) ptr+=step;
         else
@@ -28517,7 +28525,7 @@ namespace cimg_library {
         int err = 0;
         char sep;
         if (*s=='0' && (s[1]=='x' || s[1]=='X') &&
-            ((s[2]>='0' && s[2]<='9') || (s[2]>='a' && s[2]<='f') || (s[2]>='a' && s[2]<='f'))) { // Hexadecimal number
+            ((s[2]>='0' && s[2]<='9') || (s[2]>='a' && s[2]<='f') || (s[2]>='A' && s[2]<='F'))) { // Hexadecimal number
           val = (double)cimg::strtoll(s + 2,0,16);
           err = 1;
         } else if (*s=='0' && (s[1]=='b' || s[1]=='B') && (s[2]=='0' || s[2]=='1')) { // Binary number
@@ -29157,7 +29165,8 @@ namespace cimg_library {
         const cimg_int64
           m = cimg::type<cimg_int64>::cut(std::ceil(_m)),
           M = cimg::type<cimg_int64>::cut(std::floor(_M));
-        return (double)(m + _rand_int_0_N(M - m));
+        if (m>M) return cimg::type<double>::nan();
+        return (double)(m + _rand_int_0_N((cimg_uint64)M - (cimg_uint64)m));
       }
 
       static double mp_rand_int_ext(_cimg_math_parser& mp) {
@@ -29168,7 +29177,7 @@ namespace cimg_library {
           m = cimg::type<cimg_int64>::cut(include_min?std::ceil(_m):std::floor(_m) + 1),
           M = cimg::type<cimg_int64>::cut(include_max?std::floor(_M):std::ceil(_M) - 1);
         if (m>M) return cimg::type<double>::nan();
-        return (double)(m + mp._rand_int_0_N(M - m));
+        return (double)(m + mp._rand_int_0_N((cimg_uint64)M - (cimg_uint64)m));
       }
 
       static double mp_vector_rand_int_ext(_cimg_math_parser& mp) {
@@ -29183,7 +29192,7 @@ namespace cimg_library {
             const cimg_int64
               m = cimg::type<cimg_int64>::cut(include_min?std::ceil(_m):std::floor(_m) + 1),
               M = cimg::type<cimg_int64>::cut(include_max?std::floor(_M):std::ceil(_M) - 1);
-            ptrd[k] = m>M?cimg::type<double>::nan():(double)(m + mp._rand_int_0_N(M - m));
+            ptrd[k] = m>M?cimg::type<double>::nan():(double)(m + mp._rand_int_0_N((cimg_uint64)M - (cimg_uint64)m));
           }
         } else if (sizm && !sizM) { // vsss
           const double *const ptr0 = &_mp_arg(2) + 1, _M1 = _mp_arg(4);
@@ -29193,7 +29202,7 @@ namespace cimg_library {
             const cimg_int64
               m = cimg::type<cimg_int64>::cut(include_min?std::ceil(_m):std::floor(_m) + 1),
               M = cimg::type<cimg_int64>::cut(include_max?std::floor(_M):std::ceil(_M) - 1);
-            ptrd[k] = m>M?cimg::type<double>::nan():(double)(m + mp._rand_int_0_N(M - m));
+            ptrd[k] = m>M?cimg::type<double>::nan():(double)(m + mp._rand_int_0_N((cimg_uint64)M - (cimg_uint64)m));
           }
         } else { // vvss
           const double *const ptr0 = &_mp_arg(2) + 1, *const ptr1 = &_mp_arg(4) + 1;
@@ -29203,7 +29212,7 @@ namespace cimg_library {
             const cimg_int64
               m = cimg::type<cimg_int64>::cut(include_min?std::ceil(_m):std::floor(_m) + 1),
               M = cimg::type<cimg_int64>::cut(include_max?std::floor(_M):std::ceil(_M) - 1);
-            ptrd[k] = m>M?cimg::type<double>::nan():(double)(m + mp._rand_int_0_N(M - m));
+            ptrd[k] = m>M?cimg::type<double>::nan():(double)(m + mp._rand_int_0_N((cimg_uint64)M - (cimg_uint64)m));
           }
         }
         return cimg::type<double>::nan();
@@ -29330,6 +29339,7 @@ namespace cimg_library {
       return sizd?cimg::type<double>::nan():*ptrd;
 
       static double _mp_vargkth(CImg<doubleT>& vec) {
+        if (vec._width<2) return cimg::type<double>::nan();
         const double val = (+vec).get_shared_points(1,vec.width() - 1).
           kth_smallest((ulongT)cimg::cut((longT)*vec - 1,(longT)0,(longT)vec.width() - 2));
         cimg_for_inX(vec,1,vec.width() - 1,ind) if (vec[ind]==val) return ind;
@@ -29913,9 +29923,14 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
+      static double _mp_vkth(CImg<doubleT>& vec) {
+        if (vec._width<2) return cimg::type<double>::nan();
+        return vec.get_shared_points(1,vec.width() - 1).
+          kth_smallest((ulongT)cimg::cut((longT)*vec - 1,(longT)0,(longT)vec.width() - 2));
+      }
+
       static double mp_vkth(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(vec.get_shared_points(1,vec.width() - 1).
-                       kth_smallest((ulongT)cimg::cut((longT)*vec - 1,(longT)0,(longT)vec.width() - 2)));
+        _cimg_mp_vfunc(_mp_vkth(vec));
       }
 
       static double mp_vkth2(_cimg_math_parser& mp) {

@@ -16830,7 +16830,10 @@ namespace cimg_library {
                 if (need_cleaning) {
                   char *mpd = macro_body[0]._data;
                   const char *mps = mpd;
-                  for (unsigned int l = 0; l<mlen; ++l) { const char c = *(mps++); if (c!=cvoid && c!=csharp) *(mpd++) = c; }
+                  for (unsigned int l = 0; l<mlen; ++l) {
+                    const char c = *(mps++);
+                    if (c!=cvoid && c!=csharp) *(mpd++) = c;
+                  }
                   macro_body[0]._width = (unsigned int)(mpd - macro_body[0]._data);
                 } else macro_body[0]._width = mlen;
 
@@ -20951,7 +20954,7 @@ namespace cimg_library {
               _cimg_mp_check_type(arg1,1,3,p1);
               _cimg_mp_check_type(arg2,2,3,p1);
               _cimg_mp_check_type(arg3,3,3,p1);
-              if (is_const_scalar(arg3)) { // Optimize constant cases
+              if (is_const_scalar(arg3) && size(arg1)==size(arg2)) { // Optimize constant cases
                 if (!arg3) _cimg_mp_same(arg1);
                 if (arg3==1) _cimg_mp_same(arg2);
                 if (is_const_scalar(arg1) && is_const_scalar(arg2)) {

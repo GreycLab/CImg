@@ -16912,7 +16912,7 @@ namespace cimg_library {
                           std::memset(&memtype[mempos],0,sizeof(intT)*(size(arg3) + 1));
                         }
                       } else {
-                        is_sth = is_comp_vector(arg3) && pop[1]==arg3 &&
+                        is_sth = is_sth && is_comp_vector(arg3) && pop[1]==arg3 &&
                           fn!=mp_set_Ioff_v && fn!=mp_set_Joff_v && fn!=mp_set_Ixyz_v && fn!=mp_set_Jxyz_v;
                         if (is_sth) {
                           const unsigned int arg1_end = arg1 + size(arg1);
@@ -16936,7 +16936,7 @@ namespace cimg_library {
                     CImg<ulongT> &pop = is_sth?code.back():CImg<ulongT>::empty();
                     mp_func fn = (mp_func)(pop?pop[0]:0);
                     if (is_sth)
-                      is_sth = is_comp_scalar(arg3) && pop[1]==arg3 &&
+                      is_sth = is_sth && is_comp_scalar(arg3) && pop[1]==arg3 &&
                         fn!=mp_set_ioff && fn!=mp_set_joff &&
                         fn!=mp_set_ixyzc && fn!=mp_set_jxyzc &&
                         fn!=mp_set_Ioff_s && fn!=mp_set_Joff_s &&

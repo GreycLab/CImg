@@ -18027,8 +18027,14 @@ namespace cimg_library {
 
           // Find opening bracket for the offset.
           s0 = se1; while (s0>ss && (*s0!='[' || level[s0 - expr._data]!=clevel)) --s0;
-          if (s0>ss) { s1 = s0; do { --s1; } while (cimg::is_blank(*s1)); cimg::swap(*s0,*++s1); }
-          is_sth=s0>ss && *(s0-1)==']'; // Particular case s.a. '..[..][..]' ?
+          if (s0>ss && cimg::is_blank(*(s0 - 1))) {
+            _cimg_mp_strerr;
+            throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                        "CImg<%s>::%s: %s: Unexpected blank character before '[', "
+                                        "in expression '%s'.",
+                                        pixel_type(),_cimg_mp_calling_function,s_op,s0);
+          }
+          is_sth = s0>ss && *(s0 - 1)==']'; // Particular case s.a. '..[..][..]' ?
           is_relative = *ss=='j' || *ss=='J';
 
           if (!is_sth && (*ss=='I' || *ss=='J') && *ss1=='[' &&

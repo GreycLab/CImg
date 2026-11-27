@@ -18438,7 +18438,7 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"abscut(",7)) { // Cut of absolute value
               _cimg_mp_op("Function 'abscut()'");
-              s1 = next_arg(ss3,se1,clevel1);
+              s1 = next_arg(ss7,se1,clevel1);
               arg1 = compile(ss7,s1,depth1,0,block_flags);
               s2 = next_arg(++s1,se1,clevel1);
               arg2 = compile(s1,s2,depth1,0,block_flags);
@@ -18811,7 +18811,7 @@ namespace cimg_library {
               }
               l_opcode[0].move_to(opcode);
 
-              if (arg1<12 || arg1>opcode._height) {
+              if (arg1<12 || s<se) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: %s arguments provided, in expression '%s'.",

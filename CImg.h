@@ -27274,14 +27274,15 @@ namespace cimg_library {
           pos1 = (longT)_mp_arg(4);
         const bool is_vector = (bool)_mp_arg(5);
         if (is_vector) {
-          const longT whd = (longT)img.size()/img.spectrum();
-          T *ptr0 = &img[pos0], *ptr1 = &img[pos1];
-          if (pos0>=0 && pos0<whd && pos1>=0 && pos1<whd)
+          const longT whd = (longT)img._width*img._height*img._depth;
+          if (pos0>=0 && pos0<whd && pos1>=0 && pos1<whd && img._spectrum) {
+            T *ptr0 = &img[pos0], *ptr1 = &img[pos1];
             for (unsigned int c = 0; c<img._spectrum; ++c) {
               cimg::swap(*ptr0,*ptr1);
               ptr0+=whd;
               ptr1+=whd;
-            } else throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'swap()': "
+            }
+          } else throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'swap()': "
                                                "Out-of-bounds offsets %ld and %ld (min offset: 0, max offset: %ld).",
                                                mp.imgin.pixel_type(),pos0,pos1,whd - 1);
         } else {

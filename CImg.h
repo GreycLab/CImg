@@ -18970,6 +18970,7 @@ namespace cimg_library {
               if (arg3==~0U) arg3 = 1;
               if (arg4==~0U) arg4 = 1;
               if (arg5==~0U) arg5 = 1;
+              if (!is_inside_critical && ref[0]>=2) is_parallelizable = false;
               _cimg_mp_check_type(arg3,3,1,0);
               _cimg_mp_check_type(arg4,4,1,0);
               _cimg_mp_check_type(arg5,5,1,0);
@@ -27878,6 +27879,7 @@ namespace cimg_library {
       static T* _mp_mem_copy_T(_cimg_math_parser& mp, const ulongT *const p_ref,
                                const longT siz, const longT inc, const bool is_out) {
         const unsigned int ind = (unsigned int)p_ref[1];
+        if (ind!=~0U) mp_check_list(mp,"copy");
         const CImg<T> &img = is_out?
           (ind==~0U?mp.imgout:mp.imglist[cimg::mod((int)mp.mem[ind],mp.imglist.width())]):
           (ind==~0U?mp.imgin:mp.imglist[cimg::mod((int)mp.mem[ind],mp.imglist.width())]);
@@ -29521,7 +29523,7 @@ namespace cimg_library {
             throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
                                         "Mask vector (%lu values) and specified sprite geometry (%u,%u,%u,%u) "
                                         "(%lu values) do not match.",
-                                        mp.imgin.pixel_type(),sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
+                                        mp.imgin.pixel_type(),sizM,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
           const CImg<doubleT> M(&_mp_arg(18) + 1,dx,dy,dz,(unsigned int)(sizM/(dx*dy*dz)),true);
           D.draw_image(x,y,z,c,S,M,opacity,(float)_mp_arg(20));
         } else D.draw_image(x,y,z,c,S,opacity);

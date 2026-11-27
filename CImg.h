@@ -16688,6 +16688,7 @@ namespace cimg_library {
                   compile(ss,ve1 + 1,depth1,0,block_flags); // Variable is not a vector -> error
 
                 arg2 = compile(++s0,ve1,depth1,0,block_flags); // Index
+                p3 = code.size();
                 arg3 = compile(s + 1,se,depth1,0,block_flags); // Value to assign
                 _cimg_mp_check_type(arg3,2,1,0);
 
@@ -16695,7 +16696,30 @@ namespace cimg_library {
                   nb = (int)mem[arg2];
                   if (nb>=0 && nb<(int)size(arg1)) {
                     arg1+=nb + 1;
-                    add_opcode(mp_copy,arg1,arg3);
+                    if (arg1!=arg3) {
+                      is_sth = code.size()>0;
+                      CImg<ulongT> &pop = is_sth?code.back():CImg<ulongT>::empty();
+                      mp_func fn = (mp_func)(pop?pop[0]:0);
+                      if (is_sth)
+                        is_sth = is_comp_scalar(arg3) && pop[1]==arg3 &&
+                          fn!=mp_set_ioff && fn!=mp_set_joff &&
+                          fn!=mp_set_ixyzc && fn!=mp_set_jxyzc &&
+                          fn!=mp_set_Ioff_s && fn!=mp_set_Joff_s &&
+                          fn!=mp_set_Ixyz_s && fn!=mp_set_Jxyz_s &&
+                          fn!=mp_vector_set_off;
+                      if (is_sth) {
+                        for (unsigned int k = 2; k<pop.size(); ++k)
+                          if (pop[k]==arg3 || pop[k]==arg1) { is_sth = false; break; }
+                        for (unsigned int i = p3; is_sth && i<code.size() - 1; ++i)
+                          for (unsigned int k = 1; k<code[i].size(); ++k)
+                            if (code[i][k]==arg3) { is_sth = false; break; }
+                      }
+                      if (is_sth) {
+                        pop[1] = arg1;
+                        if (mempos==arg3 + 1) memtype[--mempos] = 0;
+                      } else add_opcode(mp_copy,arg1,arg3);
+                    }
+                    return_comp = false;
                     _cimg_mp_return(arg1);
                   }
                   compile(ss,s,depth1,0,block_flags); // Out-of-bounds reference -> error

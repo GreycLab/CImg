@@ -17562,9 +17562,7 @@ namespace cimg_library {
         for (s = se2, ns = se1, ps = pexpr._data + (se3 - expr._data); s>ss; --ns, --s, --ps)
           if (*s=='+' && (*ns!='+' || ns!=se1) && *ps!='-' && *ps!='+' && *ps!='*' && *ps!='/' && *ps!='%' &&
               *ps!='&' && *ps!='|' && *ps!='^' && *ps!='!' && *ps!='~' && *ps!='#' &&
-              (*ps!='e' || !(ps - pexpr._data>ss - expr._data && (*(ps - 1)=='.' || (*(ps - 1)>='0' &&
-                                                                                     *(ps - 1)<='9')))) &&
-              level[s - expr._data]==clevel) { // Addition ('+')
+              level[s - expr._data]==clevel && !is_scientific_sign(ss,s,se)) { // Addition ('+')
             _cimg_mp_op("Operator '+'");
             p1 = p2 = ~0U;
             const ulongT *ptr1 = 0, *ptr2 = 0;
@@ -17650,9 +17648,7 @@ namespace cimg_library {
         for (s = se2, ns = se1, ps = pexpr._data + (se3 - expr._data); s>ss; --ns, --s, --ps)
           if (*s=='-' && (*ns!='-' || ns!=se1) && *ps!='-' && *ps!='+' && *ps!='*' && *ps!='/' && *ps!='%' &&
               *ps!='&' && *ps!='|' && *ps!='^' && *ps!='!' && *ps!='~' && *ps!='#' &&
-              (*ps!='e' || !(ps - pexpr._data>ss - expr._data && (*(ps - 1)=='.' || (*(ps - 1)>='0' &&
-                                                                                     *(ps - 1)<='9')))) &&
-              level[s - expr._data]==clevel) { // Subtraction ('-')
+              level[s - expr._data]==clevel && !is_scientific_sign(ss,s,se)) { // Subtraction ('-')
             _cimg_mp_op("Operator '-'");
             p1 = p2 = ~0U;
             const ulongT *ptr1 = 0, *ptr2 = 0;
@@ -24559,6 +24555,24 @@ namespace cimg_library {
         const unsigned int pos = vector(2);
         add_opcode(mp_vector_init,pos,2,2,arg,0,0,0); // (arg,0), (0,0) -> [arg,0]
         return pos;
+      }
+
+      // Check if '+' or '-' at 's' (in sub-expression [ss, se)) is a scientific-notation exponent sign.
+      static bool is_scientific_sign(const char *const ss, const char *const s, const char *const se) {
+        if (!ss || !s || !se || s<=ss || s + 1>=se) return false;
+        const char prev = *(s - 1), next = *(s + 1);
+        if ((prev!='e' && prev!='E') || next<'0' || next>'9') return false;
+        const char *t = s - 1;
+        bool has_digit = false;
+        unsigned int nb_dots = 0;
+        while (t>ss) {
+          const char c = *(t - 1);
+          if (c>='0' && c<='9') has_digit = true;
+          else if (c=='.') { if (++nb_dots>1) return false; }
+          else return has_digit && !cimg::is_varchar(c);
+          --t;
+        }
+        return has_digit;
       }
 
       // Evaluation mathematical operators and functions, known by the parser.

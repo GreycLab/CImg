@@ -16856,6 +16856,7 @@ namespace cimg_library {
               // Assign variable (direct).
               get_variable_pos(variable_name,arg1,arg2);
               arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U;
+              p3 = code.size();
               arg3 = compile(s + 1,se,depth1,0,block_flags|(arg1==~0U?32:0));
               is_sth = return_comp; // is arg3 a new blank object?
               if (is_const) _cimg_mp_check_const_scalar(arg3,2,0);
@@ -16925,6 +16926,10 @@ namespace cimg_library {
                           const unsigned int arg1_end = arg1 + size(arg1);
                           for (unsigned int k = 2; k<pop.size(); ++k)
                             if (pop[k]==arg3 || (pop[k]>=arg1 && pop[k]<=arg1_end)) { is_sth = false; break; }
+                          const unsigned int arg3_end = arg3 + size(arg3);
+                          for (unsigned int i = p3; is_sth && i<code.size() - 1; ++i)
+                            for (unsigned int k = 1; k<code[i].size(); ++k)
+                              if (code[i][k]>=arg3 && code[i][k]<=arg3_end) { is_sth = false; break; }
                         }
                         if (is_sth) {
                           // Spot case 'X = f(...)' -> make 'f()' write directly into variable slot.
@@ -16949,8 +16954,12 @@ namespace cimg_library {
                         fn!=mp_set_Ioff_s && fn!=mp_set_Joff_s &&
                         fn!=mp_set_Ixyz_s && fn!=mp_set_Jxyz_s &&
                         fn!=mp_vector_set_off;
-                    if (is_sth)
+                    if (is_sth) {
                       for (unsigned int k = 2; k<pop.size(); ++k) if (pop[k]==arg3) { is_sth = false; break; }
+                      for (unsigned int i = p3; is_sth && i<code.size() - 1; ++i)
+                        for (unsigned int k = 1; k<code[i].size(); ++k)
+                          if (code[i][k]==arg3) { is_sth = false; break; }
+                    }
                     if (is_sth) {
                       // Spot case 'x = f(...)' -> make 'f()' write directly into variable slot.
                       pop[1] = arg1;
@@ -16971,6 +16980,7 @@ namespace cimg_library {
             if (l_variable_name>2 && (std::strchr(variable_name,'(') || std::strchr(variable_name,'['))) {
               ref.assign(7);
               arg1 = compile(ss,s,depth1,ref,block_flags); // Lvalue slot
+              p3 = code.size();
               arg2 = compile(s + 1,se,depth1,0,block_flags); // Value to assign
 
               if (*ref==1) { // Vector value (scalar): (V[k]) = scalar
@@ -17079,6 +17089,10 @@ namespace cimg_library {
                         const unsigned int arg1_end = arg1 + size(arg1);
                         for (unsigned int k = 2; k<pop.size(); ++k)
                           if (pop[k]==arg2 || (pop[k]>=arg1 && pop[k]<=arg1_end)) { is_sth = false; break; }
+                        const unsigned int arg2_end = arg2 + size(arg2);
+                        for (unsigned int i = p3; is_sth && i<code.size() - 1; ++i)
+                          for (unsigned int k = 1; k<code[i].size(); ++k)
+                            if (code[i][k]>=arg2 && code[i][k]<=arg2_end) { is_sth = false; break; }
                       }
                       if (is_sth) {
                         // Spot case '(X) = f(...)' -> make 'f()' write directly into variable slot.
@@ -17108,9 +17122,13 @@ namespace cimg_library {
                       fn!=mp_set_Ioff_s && fn!=mp_set_Joff_s &&
                       fn!=mp_set_Ixyz_s && fn!=mp_set_Jxyz_s &&
                       fn!=mp_vector_set_off;
-                  if (is_sth)
+                  if (is_sth) {
                     for (unsigned int k = 2; k<pop.size(); ++k)
                       if (pop[k]==arg2 || pop[k]==arg1) { is_sth = false; break; }
+                    for (unsigned int i = p3; is_sth && i<code.size() - 1; ++i)
+                      for (unsigned int k = 1; k<code[i].size(); ++k)
+                        if (code[i][k]==arg2) { is_sth = false; break; }
+                  }
                   if (is_sth) {
                     // Spot case '(x) = f(...)' -> make 'f()' write directly into variable slot.
                     pop[1] = arg1;

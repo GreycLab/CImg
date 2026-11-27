@@ -16624,9 +16624,13 @@ namespace cimg_library {
                   } else p2 = imgin._spectrum;
                   if (!p2) _cimg_mp_return(0);
                   _cimg_mp_check_type(arg5,2,2,p2);
-                  if (!is_comp_vector(arg2)) { add_opcode(mp_vector_copy,pos = vector(p2),arg5,p2); arg5 = pos; }
+                  if (p_ref && !is_comp_vector(arg5)) {
+                    add_opcode(mp_vector_copy,pos = vector(p2),arg5,p2); arg5 = pos;
+                  }
                 } else {
-                  if (!is_comp_scalar(arg2)) { add_opcode(mp_copy,pos = scalar(),arg5); arg5 = pos; }
+                  if (p_ref && !is_comp_scalar(arg5)) {
+                    add_opcode(mp_copy,pos = scalar(),arg5); arg5 = pos;
+                  }
                   p2 = 0;
                 }
 
@@ -17604,14 +17608,10 @@ namespace cimg_library {
             if (is_const_scalar(arg1) && is_const_scalar(arg2))
               _cimg_mp_const_scalar(is_add?mem[arg1] + mem[arg2]:mem[arg1] - mem[arg2]);
             if (!is_add && !arg1) _cimg_mp_scalar1(minus,arg2);
-
-            if (ptr1 && code.size()>p3) { // Check that left fusion is still possible
-              for (unsigned int k = p3; k<code.size(); ++k)
-                if (code[k]._height<2 || !is_comp_scalar(code[k][1])) { ptr1 = 0; break; }
-            }
+            if (ptr1 && !can_fuse_left(p3)) ptr1 = 0; // Check that left fusion is still possible
 
             // Right fusion: Spot cases 'a + (b - c)', 'a +/- (b*c)' and 'a +/- (b/c)'.
-            if (!ptr1 && code.size()>p3 && is_scalar(arg2)) {
+            if (!ptr1 && code.size()>p3 && is_comp_scalar(arg2)) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
               if ((is_add?(op==mp_sub || op==mp_mul || op==mp_div):(op==mp_mul || op==mp_div)) && pop[1]==arg2) {
@@ -17765,11 +17765,7 @@ namespace cimg_library {
               if (is_vector(arg1) || is_vector(arg2)) _cimg_mp_vector2(mul,arg1,arg2);
               if (is_const_scalar(arg1) && is_const_scalar(arg2)) _cimg_mp_const_scalar(mem[arg1]*mem[arg2]);
               if (!arg1 || !arg2) _cimg_mp_return(0);
-
-              if (ptr1 && code.size()>p3) { // Check that left fusion is still possible
-                for (unsigned int k = p3; k<code.size(); ++k)
-                  if (code[k]._height<2 || !is_comp_scalar(code[k][1])) { ptr1 = 0; break; }
-              }
+              if (ptr1 && !can_fuse_left(p3)) ptr1 = 0; // Check that left fusion is still possible
 
               // Right fusion: Spot case 'a*(b/c)'.
               if (!ptr1 && code.size()>p3 && is_comp_scalar(arg2)) {
@@ -17818,7 +17814,7 @@ namespace cimg_library {
               arg1 = compile(ss,s,depth1,0,block_flags);
 
               // Left fusion: Spot case 'a/b/c'.
-              if (code.size()>p3 && is_scalar(arg1)) {
+              if (code.size()>p3 && is_comp_scalar(arg1)) {
                 CImg<ulongT>& pop = code.back();
                 op = (mp_func)*pop;
                 if (op==mp_div && pop[1]==arg1) {
@@ -17826,6 +17822,7 @@ namespace cimg_library {
                   ptr1 = pop.data();
                 }
               }
+              p3 = code.size();
               arg2 = compile(s + 1,se,depth1,0,block_flags);
               _cimg_mp_check_type(arg2,2,3,size(arg1));
 
@@ -17835,11 +17832,7 @@ namespace cimg_library {
               if (is_const_scalar(arg1) && is_const_scalar(arg2))
                 _cimg_mp_const_scalar(mem[arg1]/mem[arg2]);
               if (!arg1) _cimg_mp_return(0);
-
-              if (ptr1 && code.size()>p3) { // Check that left fusion is still possible
-                for (unsigned int k = p3; k<code.size(); ++k)
-                  if (code[k]._height<2 || !is_comp_scalar(code[k][1])) { ptr1 = 0; break; }
-              }
+              if (ptr1 && !can_fuse_left(p3)) ptr1 = 0; // Check that left fusion is still possible
 
               if (ptr1 && p1<code.size() && code[p1].data()==ptr1 && *ptr1==(ulongT)mp_div &&
                   ptr1[1]==(ulongT)arg1) { // Left fusion: Particular case '(a/b)/c'
@@ -24515,6 +24508,21 @@ namespace cimg_library {
         const unsigned int pos = vector(2);
         add_opcode(mp_vector_init,pos,2,2,arg,0,0,0); // (arg,0), (0,0) -> [arg,0]
         return pos;
+      }
+
+      // Check if all opcodes emitted in [p3, code.size()) are pure scalar computations safe
+      // to reorder before left fusion.
+      bool can_fuse_left(const unsigned int p3) const {
+        for (unsigned int k = p3; k<code.size(); ++k) {
+          if (code[k]._height<2 || !is_comp_scalar(code[k][1])) return false;
+          const mp_func fn = (mp_func)code[k][0];
+          if (fn==mp_vector_set_off ||
+              fn==mp_set_ioff || fn==mp_set_joff ||
+              fn==mp_set_ixyzc || fn==mp_set_jxyzc ||
+              fn==mp_set_Ioff_s || fn==mp_set_Joff_s ||
+              fn==mp_set_Ixyz_s || fn==mp_set_Jxyz_s) return false;
+        }
+        return true;
       }
 
       // Check if '+' or '-' at 's' (in sub-expression [ss, se)) is a scientific-notation exponent sign.

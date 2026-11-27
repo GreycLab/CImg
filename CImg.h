@@ -24832,6 +24832,7 @@ namespace cimg_library {
             ptr+=len;
           }
         }
+        if (values._width<2) return cimg::type<double>::nan();
         longT ind = (longT)_mp_arg(3);
         ++values._data; --values._width; // Skip first value
         if (ind<0) ind+=values.width() + 1;
@@ -27530,6 +27531,7 @@ namespace cimg_library {
             ptr+=len;
           }
         }
+        if (values._width<2) return cimg::type<double>::nan();
         longT ind = (longT)values[0];
         ++values._data; --values._width; // Skip first value
         if (ind<0) ind+=values.width() + 1;

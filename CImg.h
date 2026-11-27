@@ -17559,21 +17559,22 @@ namespace cimg_library {
             _cimg_mp_scalar2(bitwise_right_shift,arg1,arg2);
           }
 
-        for (s = se2, ns = se1, ps = pexpr._data + (se3 - expr._data); s>ss; --ns, --s, --ps)
-          if (*s=='+' && (*ns!='+' || ns!=se1) && *ps!='-' && *ps!='+' && *ps!='*' && *ps!='/' && *ps!='%' &&
-              *ps!='&' && *ps!='|' && *ps!='^' && *ps!='!' && *ps!='~' && *ps!='#' &&
-              level[s - expr._data]==clevel && !is_scientific_sign(ss,s,se)) { // Addition ('+')
-            _cimg_mp_op("Operator '+'");
+        for (s = se2; s>ss; --s)
+          if ((*s=='+' || *s=='-') && level[s - expr._data]==clevel &&
+              is_binary_add_sub(ss,s,se)) { // Addition ('+') and Subtraction ('-')
+            const bool is_add = (*s=='+');
+            _cimg_mp_op(is_add?"Operator '+'":"Operator '-'");
             p1 = p2 = ~0U;
             const ulongT *ptr1 = 0, *ptr2 = 0;
             p3 = code.size();
             arg1 = compile(ss,s,depth1,0,block_flags);
 
-            // Left fusion: Spot cases '(a + b) + c', '(a - b) + c', '(a*b) + c' and '(a/b) + c'.
+            // Left fusion: Spot cases '(a + b) + c', '(a - b) +/- c', '(a*b) +/- c' and '(a/b) +/- c'.
             if (code.size()>p3 && is_comp_scalar(arg1)) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
-              if ((op==mp_add || op==mp_sub || op==mp_mul || op==mp_div) && pop[1]==arg1) {
+              if ((is_add?(op==mp_add || op==mp_sub || op==mp_mul || op==mp_div):
+                   (op==mp_sub || op==mp_mul || op==mp_div)) && pop[1]==arg1) {
                 p1 = code.size() - 1;
                 ptr1 = pop.data();
               }
@@ -17584,24 +17585,32 @@ namespace cimg_library {
 
             // Check for trivial particular cases.
             if (!arg2) _cimg_mp_same(arg1);
-            if (!arg1) _cimg_mp_same(arg2);
+            if (is_add && !arg1) _cimg_mp_same(arg2);
             if (is_vector(arg1) || is_vector(arg2)) {
-              if (arg1==1) _cimg_mp_vector1(increment,arg2);
-              if (arg2==1) _cimg_mp_vector1(increment,arg1);
-              _cimg_mp_vector2(add,arg1,arg2);
+              if (is_add) {
+                if (arg1==1) _cimg_mp_vector1(increment,arg2);
+                if (arg2==1) _cimg_mp_vector1(increment,arg1);
+                _cimg_mp_vector2(add,arg1,arg2);
+              } else {
+                if (!arg1) _cimg_mp_vector1(minus,arg2);
+                if (arg2==1) _cimg_mp_vector1(decrement,arg1);
+                _cimg_mp_vector2(sub,arg1,arg2);
+              }
             }
-            if (is_const_scalar(arg1) && is_const_scalar(arg2)) _cimg_mp_const_scalar(mem[arg1] + mem[arg2]);
+            if (is_const_scalar(arg1) && is_const_scalar(arg2))
+              _cimg_mp_const_scalar(is_add?mem[arg1] + mem[arg2]:mem[arg1] - mem[arg2]);
+            if (!is_add && !arg1) _cimg_mp_scalar1(minus,arg2);
 
             if (ptr1 && code.size()>p3) { // Check that left fusion is still possible
               for (unsigned int k = p3; k<code.size(); ++k)
                 if (code[k]._height<2 || !is_comp_scalar(code[k][1])) { ptr1 = 0; break; }
             }
 
-            // Right fusion: Spot cases 'a + (b - c)', 'a + (b*c)' and 'a + (b/c)'.
-            if (!ptr1 && code.size()>p3 && is_comp_scalar(arg2)) {
+            // Right fusion: Spot cases 'a + (b - c)', 'a +/- (b*c)' and 'a +/- (b/c)'.
+            if (!ptr1 && code.size()>p3 && is_scalar(arg2)) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
-              if ((op==mp_sub || op==mp_mul || op==mp_div) && pop[1]==arg2) {
+              if ((is_add?(op==mp_sub || op==mp_mul || op==mp_div):(op==mp_mul || op==mp_div)) && pop[1]==arg2) {
                 p2 = code.size() - 1;
                 ptr2 = pop.data();
               }
@@ -17611,111 +17620,58 @@ namespace cimg_library {
               arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
               op = (mp_func)*ptr1;
               code.remove(p1);
-              if (op==mp_add) { // Particular case '(a + b) + c'
-                if (is_const_scalar(arg2)) {
-                  if (is_const_scalar(arg3)) _cimg_mp_scalar2(add,arg4,const_scalar(mem[arg2] + mem[arg3]));
-                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(add,arg3,const_scalar(mem[arg2] + mem[arg4]));
-                }
-                _cimg_mp_scalar3(add_add,arg3,arg4,arg2);
-              } else if (op==mp_sub) { // Particular case '(a - b) + c'
-                if (is_const_scalar(arg2)) {
-                  if (is_const_scalar(arg3)) _cimg_mp_scalar2(sub,const_scalar(mem[arg2] + mem[arg3]),arg4);
-                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(add,arg3,const_scalar(mem[arg2] - mem[arg4]));
-                }
-                _cimg_mp_scalar3(add_sub,arg2,arg3,arg4);
+              if (is_add) {
+                if (op==mp_add) { // Particular case '(a + b) + c'
+                  if (is_const_scalar(arg2)) {
+                    if (is_const_scalar(arg3)) _cimg_mp_scalar2(add,arg4,const_scalar(mem[arg2] + mem[arg3]));
+                    if (is_const_scalar(arg4)) _cimg_mp_scalar2(add,arg3,const_scalar(mem[arg2] + mem[arg4]));
+                  }
+                  _cimg_mp_scalar3(add_add,arg3,arg4,arg2);
+                } else if (op==mp_sub) { // Particular case '(a - b) + c'
+                  if (is_const_scalar(arg2)) {
+                    if (is_const_scalar(arg3)) _cimg_mp_scalar2(sub,const_scalar(mem[arg2] + mem[arg3]),arg4);
+                    if (is_const_scalar(arg4)) _cimg_mp_scalar2(add,arg3,const_scalar(mem[arg2] - mem[arg4]));
+                  }
+                  _cimg_mp_scalar3(add_sub,arg2,arg3,arg4);
+                } else if (op==mp_mul) _cimg_mp_scalar3(add_mul,arg2,arg3,arg4); // Particular case '(a*b) + c'
+                _cimg_mp_scalar3(div_add,arg3,arg4,arg2); // Particular case '(a/b) + c'
+              } else {
+                if (op==mp_sub) { // Particular case '(a - b) - c'
+                  if (is_const_scalar(arg2)) {
+                    if (is_const_scalar(arg3)) _cimg_mp_scalar2(sub,const_scalar(mem[arg3] - mem[arg2]),arg4);
+                    if (is_const_scalar(arg4)) _cimg_mp_scalar2(sub,arg3,const_scalar(mem[arg2] + mem[arg4]));
+                  }
+                  _cimg_mp_scalar3(sub_sub,arg3,arg4,arg2);
+                } else if (op==mp_mul) _cimg_mp_scalar3(mul_sub,arg3,arg4,arg2); // Particular case '(a*b) - c'
+                _cimg_mp_scalar3(div_sub,arg3,arg4,arg2); // Particular case '(a/b) - c'
               }
-              else if (op==mp_mul) _cimg_mp_scalar3(add_mul,arg2,arg3,arg4); // Particular case '(a*b) + c'
-              _cimg_mp_scalar3(div_add,arg3,arg4,arg2); // Particular case '(a/b) + c'
             }
             if (p2<code.size() && code[p2].data()==ptr2 && ptr2[1]==(ulongT)arg2) { // Right fusion
               arg3 = (unsigned int)ptr2[2]; arg4 = (unsigned int)ptr2[3];
               op = (mp_func)*ptr2;
               code.remove(p2);
-              if (op==mp_sub) { // Particular case 'a + (b - c)'
-                if (is_const_scalar(arg1)) {
-                  if (is_const_scalar(arg3)) _cimg_mp_scalar2(sub,const_scalar(mem[arg1] + mem[arg3]),arg4);
-                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(add,arg3,const_scalar(mem[arg1] - mem[arg4]));
-                }
-                _cimg_mp_scalar3(add_sub,arg1,arg3,arg4);
-              } else if (op==mp_mul) _cimg_mp_scalar3(add_mul,arg1,arg3,arg4); // Particular case 'a + (b*c)'
-              _cimg_mp_scalar3(div_add,arg3,arg4,arg1); // Particular case 'a + (b/c)'
-            }
-            if (arg2==1) _cimg_mp_scalar1(increment,arg1);
-            if (arg1==1) _cimg_mp_scalar1(increment,arg2);
-            _cimg_mp_scalar2(add,arg1,arg2);
-          }
-
-        for (s = se2, ns = se1, ps = pexpr._data + (se3 - expr._data); s>ss; --ns, --s, --ps)
-          if (*s=='-' && (*ns!='-' || ns!=se1) && *ps!='-' && *ps!='+' && *ps!='*' && *ps!='/' && *ps!='%' &&
-              *ps!='&' && *ps!='|' && *ps!='^' && *ps!='!' && *ps!='~' && *ps!='#' &&
-              level[s - expr._data]==clevel && !is_scientific_sign(ss,s,se)) { // Subtraction ('-')
-            _cimg_mp_op("Operator '-'");
-            p1 = p2 = ~0U;
-            const ulongT *ptr1 = 0, *ptr2 = 0;
-            p3 = code.size();
-            arg1 = compile(ss,s,depth1,0,block_flags);
-
-            // Left fusion: Spot cases '(a - b) - c', '(a*b) - c' and '(a/b) - c'.
-            if (code.size()>p3 && is_comp_scalar(arg1)) {
-              CImg<ulongT>& pop = code.back();
-              op = (mp_func)*pop;
-              if ((op==mp_sub || op==mp_mul || op==mp_div) && pop[1]==arg1) {
-                p1 = code.size() - 1;
-                ptr1 = pop.data();
+              if (is_add) {
+                if (op==mp_sub) { // Particular case 'a + (b - c)'
+                  if (is_const_scalar(arg1)) {
+                    if (is_const_scalar(arg3)) _cimg_mp_scalar2(sub,const_scalar(mem[arg1] + mem[arg3]),arg4);
+                    if (is_const_scalar(arg4)) _cimg_mp_scalar2(add,arg3,const_scalar(mem[arg1] - mem[arg4]));
+                  }
+                  _cimg_mp_scalar3(add_sub,arg1,arg3,arg4);
+                } else if (op==mp_mul) _cimg_mp_scalar3(add_mul,arg1,arg3,arg4); // Particular case 'a + (b*c)'
+                _cimg_mp_scalar3(div_add,arg3,arg4,arg1); // Particular case 'a + (b/c)'
+              } else {
+                if (op==mp_mul) _cimg_mp_scalar3(sub_mul,arg1,arg3,arg4); // Particular case 'a - (b*c)'
+                _cimg_mp_scalar3(sub_div,arg1,arg3,arg4); // Particular case 'a - (b/c)'
               }
             }
-            p3 = code.size();
-            arg2 = compile(s + 1,se,depth1,0,block_flags);
-            _cimg_mp_check_type(arg2,2,3,size(arg1));
-
-            // Check for trivial particular cases.
-            if (!arg2) _cimg_mp_same(arg1);
-            if (is_vector(arg1) || is_vector(arg2)) {
-              if (!arg1) _cimg_mp_vector1(minus,arg2);
-              if (arg2==1) _cimg_mp_vector1(decrement,arg1);
-              _cimg_mp_vector2(sub,arg1,arg2);
+            if (is_add) {
+              if (arg2==1) _cimg_mp_scalar1(increment,arg1);
+              if (arg1==1) _cimg_mp_scalar1(increment,arg2);
+              _cimg_mp_scalar2(add,arg1,arg2);
+            } else {
+              if (arg2==1) _cimg_mp_scalar1(decrement,arg1);
+              _cimg_mp_scalar2(sub,arg1,arg2);
             }
-            if (is_const_scalar(arg1) && is_const_scalar(arg2)) _cimg_mp_const_scalar(mem[arg1] - mem[arg2]);
-            if (!arg1) _cimg_mp_scalar1(minus,arg2);
-
-            if (ptr1 && code.size()>p3) { // Check that left fusion is still possible
-              for (unsigned int k = p3; k<code.size(); ++k)
-                if (code[k]._height<2 || !is_comp_scalar(code[k][1])) { ptr1 = 0; break; }
-            }
-
-            // Right fusion: Spot cases 'a - (b*c)' and 'a - (b/c)'.
-            if (!ptr1 && code.size()>p3 && is_comp_scalar(arg2)) {
-              CImg<ulongT>& pop = code.back();
-              op = (mp_func)*pop;
-              if ((op==mp_mul || op==mp_div) && pop[1]==arg2) {
-                p2 = code.size() - 1;
-                ptr2 = pop.data();
-              }
-            }
-
-            if (ptr1 && p1<code.size() && code[p1].data()==ptr1 && ptr1[1]==(ulongT)arg1) { // Left fusion
-              arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
-              op = (mp_func)*ptr1;
-              code.remove(p1);
-              if (op==mp_sub) { // Particular case '(a - b) - c'
-                if (is_const_scalar(arg2)) {
-                  if (is_const_scalar(arg3)) _cimg_mp_scalar2(sub,const_scalar(mem[arg3] - mem[arg2]),arg4);
-                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(sub,arg3,const_scalar(mem[arg2] + mem[arg4]));
-                }
-                _cimg_mp_scalar3(sub_sub,arg3,arg4,arg2);
-              }
-              else if (op==mp_mul) _cimg_mp_scalar3(mul_sub,arg3,arg4,arg2); // Particular case '(a*b) - c'
-              _cimg_mp_scalar3(div_sub,arg3,arg4,arg2); // Particular case '(a/b) - c'
-            }
-            if (p2<code.size() && code[p2].data()==ptr2 && ptr2[1]==(ulongT)arg2) { // Right fusion
-              arg3 = (unsigned int)ptr2[2]; arg4 = (unsigned int)ptr2[3];
-              op = (mp_func)*ptr2;
-              code.remove(p2);
-              if (op==mp_mul) _cimg_mp_scalar3(sub_mul,arg1,arg3,arg4); // Particular case 'a - (b*c)'
-              _cimg_mp_scalar3(sub_div,arg1,arg3,arg4); // Particular case 'a - (b/c)'
-            }
-            if (arg2==1) _cimg_mp_scalar1(decrement,arg1);
-            _cimg_mp_scalar2(sub,arg1,arg2);
           }
 
         for (s = se3, ns = se2; s>ss; --s, --ns)
@@ -24573,6 +24529,32 @@ namespace cimg_library {
           --t;
         }
         return has_digit;
+      }
+
+      // Check if '+' or '-' at 's' (in sub-expression [ss, se)) is a binary operator
+      // (not unary, '++'/'--', or exponent sign).
+      static bool is_binary_add_sub(const char *const ss, const char *const s, const char *const se) {
+        const char op = *s;
+        if ((op!='+' && op!='-') || s<=ss || s + 1>=se) return false;
+        if (is_scientific_sign(ss,s,se)) return false;
+        const char *q = s - 1;
+        while (q>ss && cimg::is_blank(*q)) --q;
+        const char c = *q;
+        if (c=='+' || c=='-') { // Binary only if preceded by postfix '++' or '--'
+          if (*(s + 1)==op || q<=ss + 1 || *(q - 1)!=c) return false;
+          const char *r = q - 2;
+          while (r>ss && cimg::is_blank(*r)) --r;
+          return cimg::is_varchar(*r) || *r==')' || *r==']';
+        }
+        if (c=='*' || c=='/' || c=='%' || c=='&' || c=='|' || c=='^' || c=='!' || c=='~' || c=='#') return false;
+        if (*(s + 1)==op) { // Adjacent signs (e.g. '1--2' vs 'a++ * 2'): binary only if followed by an operand
+          const char *t = s + 2;
+          while (t<se && cimg::is_blank(*t)) ++t;
+          if (t>=se) return false;
+          const char d = *t;
+          return cimg::is_varchar(d) || d=='.' || d=='(' || d=='[' || d=='!' || d=='~';
+        }
+        return true;
       }
 
       // Evaluation mathematical operators and functions, known by the parser.

@@ -17916,7 +17916,14 @@ namespace cimg_library {
             arg2 = compile(s + 1,se,depth1,0,block_flags);
             _cimg_mp_check_type(arg2,2,3,size(arg1));
             if (arg2==1) _cimg_mp_same(arg1);
-            if (is_vector(arg1) || is_vector(arg2)) _cimg_mp_vector2(pow,arg1,arg2);
+            if (is_vector(arg1) || is_vector(arg2)) {
+              if (is_vector(arg1) && is_scalar(arg2)) {
+                if (arg2==2) { _cimg_mp_vector1(sqr,arg1); }
+                if (arg2==11) _cimg_mp_return(vector2(mp_vector_div_sv,size(arg1),1,arg1));
+                if (is_const_scalar(arg2) && mem[arg2]==0.5) { _cimg_mp_vector1(sqrt,arg1); }
+              }
+              _cimg_mp_vector2(pow,arg1,arg2);
+            }
             if (is_const_scalar(arg1) && is_const_scalar(arg2)) _cimg_mp_const_scalar(std::pow(mem[arg1],mem[arg2]));
             switch (arg2) {
             case 0 : _cimg_mp_return(1);

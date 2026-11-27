@@ -25925,7 +25925,7 @@ namespace cimg_library {
                   if (i<i_end) {
                     opacity = (float)_mp_arg(i++);
                     if (r1<0 && r2<0) {
-                      pattern = (unsigned int)_mp_arg(i++);
+                      if (i<i_end) pattern = (unsigned int)_mp_arg(i++);
                       is_outlined = true;
                       r1 = -r1; r2 = -r2;
                     }

@@ -17192,7 +17192,7 @@ namespace cimg_library {
           }
         if (is_sth) goto cimg_skip_iterative_operator_parsing;
 
-        for (s = se2, ps = se3, ns = ps - 1; s>ss1; --s, --ps, --ns) // Here, ns = ps - 1
+        for (ns = ss, ps = ss1, s = ss2; s<se1; ++ns, ++ps, ++s) // Here, ns = ps - 1
           if (*s=='=' && (*ps=='*' || *ps=='/' || *ps=='^') && *ns==*ps &&
               level[s - expr._data]==clevel) { // Self-operators for complex numbers only (**=,//=,^^=)
             _cimg_mp_op(*ps=='*'?"Operator '**='":*ps=='/'?"Operator '//='":"Operator '^^='");
@@ -17240,7 +17240,7 @@ namespace cimg_library {
             _cimg_mp_return(arg1);
           }
 
-        for (s = se2, ps = se3, ns = ps - 1; s>ss1; --s, --ps, --ns) // Here, ns = ps - 1
+        for (ns = ss, ps = ss1, s = ss2; s<se1; ++ns, ++ps, ++s) // Here, ns = ps - 1
           if (*s=='=' && (*ps=='+' || *ps=='-' || *ps=='*' || *ps=='/' || (*ps=='%' && s[1]!='=') ||
                           *ps=='&' || *ps=='^' || *ps=='|' ||
                           (*ps=='>' && *ns=='>') || (*ps=='<' && *ns=='<')) &&

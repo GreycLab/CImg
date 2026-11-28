@@ -16527,18 +16527,21 @@ namespace cimg_library {
             _cimg_mp_op("Operator '='");
 
             // Assign image value (direct).
-            if (l_variable_name>2 && (*ss=='i' || *ss=='j' || *ss=='I' || *ss=='J') && (*ss1=='(' || *ss1=='[') &&
-                (reserved_label[(int)*ss]==~0U || *ss1=='(' || !is_vector(reserved_label[(int)*ss]))) {
+            s1 = ss1; while (s1<ve1 && cimg::is_blank(*s1)) ++s1;
+            if (l_variable_name>2 && (*ss=='i' || *ss=='j' || *ss=='I' || *ss=='J') && (*s1=='(' || *s1=='[') &&
+                (reserved_label[(int)*ss]==~0U || *s1=='(' || !is_vector(reserved_label[(int)*ss]))) {
               is_relative = *ss=='j' || *ss=='J';
 
-              if (*ss1=='[' && *ve1==']') { // i/j/I/J[_#ind,offset] = value
+              if (*s1=='[' && *ve1==']') { // i/j/I/J[_#ind,offset] = value
                 if (!is_inside_critical) is_parallelizable = false;
-                if (*ss2=='#') { // Index specified
-                  s0 = next_arg(ss3,ve1,clevel1);
-                  p1 = compile(ss3,s0++,depth1,0,block_flags);
-                  _cimg_mp_check_notnan_index(p1,ss3);
+                s0 = s1 + 1; while (s0<ve1 && cimg::is_blank(*s0)) ++s0;
+                if (*s0=='#') { // Index specified
+                  s1 = next_arg(++s0,ve1,clevel1);
+                  p1 = compile(s0,s1++,depth1,0,block_flags);
+                  _cimg_mp_check_notnan_index(p1,s0);
                   _cimg_mp_check_list();
-                } else { p1 = ~0U; s0 = ss2; }
+                  s0 = s1;
+                } else p1 = ~0U;
                 arg1 = compile(s0,ve1,depth1,0,block_flags); // Offset
                 _cimg_mp_check_type(arg1,0,1,0);
                 arg2 = compile(s + 1,se,depth1,0,block_flags); // Value to assign
@@ -16584,14 +16587,16 @@ namespace cimg_library {
                 _cimg_mp_return(arg2);
               }
 
-              if (*ss1=='(' && *ve1==')') { // i/j/I/J(_#ind,_x,_y,_z,_c) = value
+              if (*s1=='(' && *ve1==')') { // i/j/I/J(_#ind,_x,_y,_z,_c) = value
                 if (!is_inside_critical) is_parallelizable = false;
-                if (*ss2=='#') { // Index specified
-                  s0 = next_arg(ss3,ve1,clevel1);
-                  p1 = compile(ss3,s0++,depth1,0,block_flags);
-                  _cimg_mp_check_notnan_index(p1,ss3);
+                s0 = s1 + 1; while (s0<ve1 && cimg::is_blank(*s0)) ++s0;
+                if (*s0=='#') { // Index specified
+                  s1 = next_arg(++s0,ve1,clevel1);
+                  p1 = compile(s0,s1++,depth1,0,block_flags);
+                  _cimg_mp_check_notnan_index(p1,s0);
                   _cimg_mp_check_list();
-                } else { p1 = ~0U; s0 = ss2; }
+                  s0 = s1;
+                } else p1 = ~0U;
                 arg1 = is_relative?0U:(unsigned int)_cimg_mp_slot_x;
                 arg2 = is_relative?0U:(unsigned int)_cimg_mp_slot_y;
                 arg3 = is_relative?0U:(unsigned int)_cimg_mp_slot_z;
@@ -16672,18 +16677,19 @@ namespace cimg_library {
             // Assign vector value (direct).
             if (l_variable_name>3 && *ve1==']' && *ss!='[') {
               s0 = ve1; while (s0>ss && (*s0!='[' || level[s0 - expr._data]!=clevel)) --s0;
-              if (s0>ss && cimg::is_varname(ss,s0 - ss)) {
-                variable_name[s0 - ss] = 0; // Remove brackets in variable name
+              s1 = s0; while (s1>ss && cimg::is_blank(*(s1 - 1))) --s1;
+              if (s1>ss && cimg::is_varname(ss,s1 - ss)) {
+                variable_name[s1 - ss] = 0; // Remove brackets in variable name
                 if (*variable_name=='_' && (variable_name[1]=='0' || variable_name[1]=='1') &&
                     !variable_name[2]) // Force '_0' and '_1' to be allocated
-                  arg1 = compile(ss,s0,depth1,0,block_flags);
+                  arg1 = compile(ss,s1,depth1,0,block_flags);
                 else {
                   get_variable_pos(variable_name,arg1,arg2);
                   arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U; // Vector slot
                 }
 
                 if (arg1==~0U)
-                  compile(ss,s0,depth1,0,block_flags); // Variable does not exist -> error
+                  compile(ss,s1,depth1,0,block_flags); // Variable does not exist -> error
                 if (is_scalar(arg1))
                   compile(ss,ve1 + 1,depth1,0,block_flags); // Variable is not a vector -> error
 
@@ -16742,12 +16748,14 @@ namespace cimg_library {
             // Assign user-defined macro.
             if (l_variable_name>2 && *ve1==')' && *ss!='(') {
               s0 = ve1; while (s0>ss && *s0!='(') --s0;
-              if (cimg::is_varname(ss,s0 - ss) && std::strncmp(variable_name,"debug(",6) &&
-                  std::strncmp(variable_name,"print(",6)) { // Valid macro name
+              s2 = s0; while (s2>ss && cimg::is_blank(*(s2 - 1))) --s2;
+              if (cimg::is_varname(ss,s2 - ss) &&
+                  (s2 - ss!=5 || (std::strncmp(variable_name,"debug",5) &&
+                                  std::strncmp(variable_name,"print",5)))) { // Valid macro name
                 s0 = variable_name._data + (s0 - ss);
-                *s0 = 0;
+                variable_name[s2 - ss] = 0;
                 s1 = variable_name._data + l_variable_name - 1; // Pointer to closing parenthesis
-                CImg<charT>(variable_name._data,(unsigned int)(s0 - variable_name._data + 1)).move_to(macro_def,0);
+                CImg<charT>(variable_name._data,(unsigned int)(s2 - ss + 1)).move_to(macro_def,0);
                 ++s; while (*s && cimg::is_blank(*s)) ++s;
                 unsigned int mlen = (unsigned int)(se - s  + 1);
                 CImg<charT>(s,mlen).move_to(macro_body,0);
@@ -18097,11 +18105,9 @@ namespace cimg_library {
           // Find opening bracket for the offset.
           s0 = se1; while (s0>ss && (*s0!='[' || level[s0 - expr._data]!=clevel)) --s0;
           if (s0>ss && cimg::is_blank(*(s0 - 1))) {
-            _cimg_mp_strerr;
-            throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                        "CImg<%s>::%s: %s: Unexpected blank character before '[', "
-                                        "in expression '%s'.",
-                                        pixel_type(),_cimg_mp_calling_function,s_op,s0);
+            s1 = s0; do { --s1; } while (s1>ss && cimg::is_blank(*s1));
+            cimg::swap(*s0,*++s1);
+            s0 = s1;
           }
           is_sth = s0>ss && *(s0 - 1)==']'; // Particular case s.a. '..[..][..]' ?
           is_relative = *ss=='j' || *ss=='J';
@@ -18109,13 +18115,15 @@ namespace cimg_library {
           if (!is_sth && (*ss=='I' || *ss=='J') && *ss1=='[' &&
               (reserved_label[(int)*ss]==~0U ||
                !is_vector(reserved_label[(int)*ss]))) { // Image value as a vector
-            if (*ss2=='#') { // Index specified
-              s0 = next_arg(ss3,se1,clevel1);
-              p1 = compile(ss3,s0++,depth1,0,block_flags);
+            s0 = ss2; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+            if (*s0=='#') { // Index specified
+              s1 = next_arg(++s0,se1,clevel1);
+              p1 = compile(s0,s1++,depth1,0,block_flags);
               _cimg_mp_check_const_index(p1);
-              _cimg_mp_check_notnan_index(p1,ss3);
+              _cimg_mp_check_notnan_index(p1,s0);
               _cimg_mp_check_list();
-            } else { p1 = ~0U; s0 = ss2; }
+              s0 = s1;
+            } else p1 = ~0U;
             s1 = next_arg(s0,se1,clevel1);
             p2 = 1 + (p1!=~0U);
             arg1 = compile(s0,s1,depth1,0,block_flags); // Offset
@@ -18158,11 +18166,13 @@ namespace cimg_library {
           if (!is_sth && (*ss=='i' || *ss=='j') && *ss1=='[' &&
               (reserved_label[(int)*ss]==~0U ||
                !is_vector(reserved_label[(int)*ss]))) { // Image value as a scalar
-            if (*ss2=='#') { // Index specified
-              s0 = next_arg(ss3,se1,clevel1);
-              p1 = compile(ss3,s0++,depth1,0,block_flags);
-              _cimg_mp_check_notnan_index(p1,ss3);
-            } else { p1 = ~0U; s0 = ss2; }
+            s0 = ss2; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+            if (*s0=='#') { // Index specified
+              s1 = next_arg(++s0,se1,clevel1);
+              p1 = compile(s0,s1++,depth1,0,block_flags);
+              _cimg_mp_check_notnan_index(p1,s0);
+              s0 = s1;
+            } else p1 = ~0U;
             s1 = next_arg(s0,se1,clevel1);
             arg1 = compile(s0,s1,depth1,0,block_flags); // Offset
             arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):~0U; // Boundary
@@ -18256,13 +18266,15 @@ namespace cimg_library {
 
           // I/J(_#ind,_x,_y,_z,_interpolation,_boundary_conditions).
           if ((*ss=='I' || *ss=='J') && *ss1=='(') { // Image value as scalar
-            if (*ss2=='#') { // Index specified
-              s0 = next_arg(ss3,se1,clevel1);
-              p1 = compile(ss3,s0++,depth1,0,block_flags);
+            s0 = ss2; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+            if (*s0=='#') { // Index specified
+              s1 = next_arg(++s0,se1,clevel1);
+              p1 = compile(s0,s1++,depth1,0,block_flags);
               _cimg_mp_check_const_index(p1);
-              _cimg_mp_check_notnan_index(p1,ss3);
+              _cimg_mp_check_notnan_index(p1,s0);
               _cimg_mp_check_list();
-            } else { p1 = ~0U; s0 = ss2; }
+              s0 = s1;
+            } else p1 = ~0U;
             arg1 = is_relative?0U:(unsigned int)_cimg_mp_slot_x;
             arg2 = is_relative?0U:(unsigned int)_cimg_mp_slot_y;
             arg3 = is_relative?0U:(unsigned int)_cimg_mp_slot_z;
@@ -18367,11 +18379,13 @@ namespace cimg_library {
 
           // i/j(_#ind,_x,_y,_z,_c,_interpolation,_boundary_conditions).
           if ((*ss=='i' || *ss=='j') && *ss1=='(') { // Image value as scalar
-            if (*ss2=='#') { // Index specified
-              s0 = next_arg(ss3,se1,clevel1);
-              p1 = compile(ss3,s0++,depth1,0,block_flags);
-              _cimg_mp_check_notnan_index(p1,ss3);
-            } else { p1 = ~0U; s0 = ss2; }
+            s0 = ss2; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+            if (*s0=='#') { // Index specified
+              s1 = next_arg(++s0,se1,clevel1);
+              p1 = compile(s0,s1++,depth1,0,block_flags);
+              _cimg_mp_check_notnan_index(p1,s0);
+              s0 = s1;
+            } else p1 = ~0U;
             arg1 = is_relative?0U:(unsigned int)_cimg_mp_slot_x;
             arg2 = is_relative?0U:(unsigned int)_cimg_mp_slot_y;
             arg3 = is_relative?0U:(unsigned int)_cimg_mp_slot_z;
@@ -18697,13 +18711,15 @@ namespace cimg_library {
           case 'c' :
             if (!std::strncmp(ss,"c2o(",4)) { // Coordinates to offset
               _cimg_mp_op("Function 'c2o()'");
-              if (*ss4=='#') { // Index specified
-                s0 = next_arg(ss5,se1,clevel1);
-                p1 = compile(ss5,s0++,depth1,0,block_flags);
+              s0 = ss4; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+              if (*s0=='#') { // Index specified
+                s1 = next_arg(++s0,se1,clevel1);
+                p1 = compile(s0,s1++,depth1,0,block_flags);
                 p3 = 1;
-                _cimg_mp_check_notnan_index(p1,ss5);
+                _cimg_mp_check_notnan_index(p1,s0);
                 _cimg_mp_check_list();
-              } else { p1 = ~0U; s0 = ss4; p3 = 0; }
+                s0 = s1;
+              } else { p1 = ~0U; p3 = 0; }
               s1 = next_arg(s0,se1,clevel1);
               pos = compile(s0,s1,depth1,0,block_flags);
               p2 = size(pos);
@@ -18829,11 +18845,12 @@ namespace cimg_library {
 
             if (*ss1=='m' && *ss2=='(') { // Image c-coordinate of minimum value
               _cimg_mp_op("Function 'cm()'");
-              if (*ss3=='#') { // Index specified
-                p1 = compile(ss4,se1,depth1,0,block_flags);
-                _cimg_mp_check_notnan_index(p1,ss4);
+              s0 = ss3; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+              if (*s0=='#') { // Index specified
+                p1 = compile(++s0,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,s0);
                 _cimg_mp_check_list();
-              } else { if (ss3!=se1) break; p1 = ~0U; }
+              } else { if (s0!=se1) break; p1 = ~0U; }
               pos = scalar();
               add_opcode(mp_image_stats_cm,pos,p1);
               return_comp = true;
@@ -18842,11 +18859,12 @@ namespace cimg_library {
 
             if (*ss1=='M' && *ss2=='(') { // Image c-coordinate of maximum value
               _cimg_mp_op("Function 'cM()'");
-              if (*ss3=='#') { // Index specified
-                p1 = compile(ss4,se1,depth1,0,block_flags);
-                _cimg_mp_check_notnan_index(p1,ss4);
+              s0 = ss3; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+              if (*s0=='#') { // Index specified
+                p1 = compile(++s0,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,s0);
                 _cimg_mp_check_list();
-              } else { if (ss3!=se1) break; p1 = ~0U; }
+              } else { if (s0!=se1) break; p1 = ~0U; }
               pos = scalar();
               add_opcode(mp_image_stats_cM,pos,p1);
               return_comp = true;

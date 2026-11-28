@@ -16023,7 +16023,7 @@ namespace cimg_library {
 #define _cimg_mp_check_type(arg,n_arg,mode,N) check_type(arg,n_arg,mode,N,ss,se,saved_char)
 #define _cimg_mp_const_scalar(val) _cimg_mp_return(const_scalar((double)(val)))
 #define _cimg_mp_op(s) s_op = s; ss_op = ss
-#define _cimg_mp_return(x) { *se = saved_char; s_op = previous_s_op; ss_op = previous_ss_op; return x; }
+#define _cimg_mp_return(x) { *se = saved_char; s_op = previous_s_op; ss_op = previous_ss_op; return check_return(x); }
 #define _cimg_mp_return_nan() _cimg_mp_return(_cimg_mp_slot_nan)
 #define _cimg_mp_same(x) _cimg_mp_return(same(x));
 #define _cimg_mp_scalar0(op) _cimg_mp_return(scalar0(mp_##op))
@@ -22037,6 +22037,7 @@ namespace cimg_library {
               if (is_vector(arg3)) set_reserved_vector(arg3); // Prevent from being used in further optimization
               else if (is_comp_scalar(arg3)) memtype[arg3] = -1;
               *se1 = ')';
+              return_comp = false;
               _cimg_mp_return(arg3);
             }
 
@@ -24723,6 +24724,12 @@ namespace cimg_library {
         }
         return_comp = true;
         return scalar1(mp_copy,arg); // Scalar
+      }
+
+      // Reset 'return_comp' flag when returning a compile-time constant or built-in slot.
+      unsigned int check_return(const unsigned int arg) {
+        if (arg<=_cimg_mp_slot_c || (arg<memtype._width && is_const_scalar(arg))) return_comp = false;
+        return arg;
       }
 
       // Set reserved status to all values of a vector.

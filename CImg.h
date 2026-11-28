@@ -25896,9 +25896,9 @@ namespace cimg_library {
           is_push_heap?(is_n?"da_push_heap_n":"da_push_heap"):
           is_push?(is_n?"da_push_n":"da_push"):
           (is_n?"da_insert_n":"da_insert");
+        mp_check_list(mp,s_op);
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         CImg<T> &img = mp.imglist[ind];
-        mp_check_list(mp,s_op);
         const unsigned int
           dim = (unsigned int)(mp.opcode[5]==~0U?img._spectrum:mp.opcode[5]),
           dim1 = std::max(1U,dim),

@@ -23652,6 +23652,7 @@ namespace cimg_library {
                       k+=variable_name._width - 2;
                     } else {
                       std::memmove(_expr._data + k,_expr._data + k + 1,arg1 - k - 1);
+                      --_expr._width;
                       --k;
                     }
                   }

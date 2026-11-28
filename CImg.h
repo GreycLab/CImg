@@ -44435,91 +44435,139 @@ namespace cimg_library {
       if (is_empty() || (!sigma_x && !sigma_y && !sigma_z)) return *this;
       T edge_min, edge_max = guide.max_min(edge_min);
       if (edge_min==edge_max) return blur(sigma_x,sigma_y,sigma_z);
+
+      // Parameters of the memory-bounded strategy.
+      const float max_derived_sigma_r = 2;   // Never sample finer than sigma_r/2 along the value axis.
+      const unsigned int max_bins_r = 4096;  // Max number of bins along the value axis.
+      const double max_cells_ratio = 4;      // Max (spatial grid size)/(image size), with a floor.
+
+      const ulongT whd = (ulongT)_width*_height*_depth;
       const float
         edge_delta = (float)(edge_max - edge_min),
         _sigma_x = sigma_x>=0?sigma_x:-sigma_x*_width/100,
         _sigma_y = sigma_y>=0?sigma_y:-sigma_y*_height/100,
         _sigma_z = sigma_z>=0?sigma_z:-sigma_z*_depth/100,
-        _sigma_r = sigma_r>=0?sigma_r:-sigma_r*edge_delta/100,
-        _sampling_x = sampling_x?sampling_x:std::max(_sigma_x,1.f),
-        _sampling_y = sampling_y?sampling_y:std::max(_sigma_y,1.f),
-        _sampling_z = sampling_z?sampling_z:std::max(_sigma_z,1.f),
-        _sampling_r = sampling_r?sampling_r:std::max(_sigma_r,edge_delta/256),
-        derived_sigma_x = _sigma_x / _sampling_x,
-        derived_sigma_y = _sigma_y / _sampling_y,
-        derived_sigma_z = _sigma_z / _sampling_z,
-        derived_sigma_r = _sigma_r / _sampling_r;
-      const int
-        padding_x = (int)(2*derived_sigma_x) + 1,
-        padding_y = (int)(2*derived_sigma_y) + 1,
-        padding_z = (int)(2*derived_sigma_z) + 1,
-        padding_r = (int)(2*derived_sigma_r) + 1;
-      const unsigned int
-        bx = (unsigned int)((_width  - 1)/_sampling_x + 1 + 2*padding_x),
-        by = (unsigned int)((_height - 1)/_sampling_y + 1 + 2*padding_y),
-        bz = (unsigned int)((_depth  - 1)/_sampling_z + 1 + 2*padding_z),
-        br = (unsigned int)(edge_delta/_sampling_r + 1 + 2*padding_r);
-      if (bx>0 || by>0 || bz>0 || br>0) {
-        const bool is_3d = (_depth>1);
-        if (is_3d) { // 3D version of the algorithm
-          CImg<floatT> bgrid(bx,by,bz,br), bgridw(bx,by,bz,br);
-          cimg_forC(*this,c) {
-            const CImg<t> _guide = guide.get_shared_channel(c%guide._spectrum);
-            bgrid.fill(0); bgridw.fill(0);
-            cimg_forXYZ(*this,x,y,z) {
-              const T val = (*this)(x,y,z,c);
-              const float edge = (float)_guide(x,y,z);
-              const int
-                X = (int)cimg::round(x/_sampling_x) + padding_x,
-                Y = (int)cimg::round(y/_sampling_y) + padding_y,
-                Z = (int)cimg::round(z/_sampling_z) + padding_z,
-                R = (int)cimg::round((edge - edge_min)/_sampling_r) + padding_r;
-              bgrid(X,Y,Z,R)+=(float)val;
-              bgridw(X,Y,Z,R)+=1;
-            }
-            bgrid.blur(derived_sigma_x,derived_sigma_y,derived_sigma_z,true).deriche(derived_sigma_r,0,'c',false);
-            bgridw.blur(derived_sigma_x,derived_sigma_y,derived_sigma_z,true).deriche(derived_sigma_r,0,'c',false);
+        _sigma_r = sigma_r>=0?sigma_r:-sigma_r*edge_delta/100;
 
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(size(),4096))
-            cimg_forXYZ(*this,x,y,z) {
-              const float edge = (float)_guide(x,y,z);
+      // Spatial samplings (never finer than one pixel).
+      float
+        _sampling_x = std::max(sampling_x?sampling_x:_sigma_x,1.f),
+        _sampling_y = std::max(sampling_y?sampling_y:_sigma_y,1.f),
+        _sampling_z = std::max(sampling_z?sampling_z:_sigma_z,1.f);
+
+      // Sampling along the value axis (bounded below, to limit the number of bins).
+      float _sampling_r = sampling_r?sampling_r:std::max(_sigma_r,edge_delta/256);
+      _sampling_r = std::max(std::max(_sampling_r,_sigma_r/max_derived_sigma_r),edge_delta/max_bins_r);
+
+      // Size of one spatial layer of the grid. Coarsen the sampling if it is too large w.r.t. the image.
+      const double max_cells = std::max(max_cells_ratio*(double)whd,32768.);
+      float derived_sigma_x, derived_sigma_y, derived_sigma_z;
+      int padding_x, padding_y, padding_z;
+      unsigned int bx, by, bz;
+      for (;;) {
+        derived_sigma_x = _sigma_x/_sampling_x;
+        derived_sigma_y = _sigma_y/_sampling_y;
+        derived_sigma_z = _depth>1?_sigma_z/_sampling_z:0.f;
+        padding_x = (int)(2*derived_sigma_x) + 1;
+        padding_y = (int)(2*derived_sigma_y) + 1;
+        padding_z = _depth>1?(int)(2*derived_sigma_z) + 1:0;
+        bx = (unsigned int)((_width - 1)/_sampling_x + 1 + 2*padding_x);
+        by = (unsigned int)((_height - 1)/_sampling_y + 1 + 2*padding_y);
+        bz = _depth>1?(unsigned int)((_depth - 1)/_sampling_z + 1 + 2*padding_z):1U;
+        if ((double)bx*by*bz<=max_cells) break;
+        _sampling_x*=1.25f; _sampling_y*=1.25f; _sampling_z*=1.25f;
+      }
+
+      // Gaussian weights along the value axis, truncated at 3*sigma (in bins).
+      const float derived_sigma_r = _sigma_r/_sampling_r;
+      const int m = (int)std::ceil(3*derived_sigma_r);
+      CImg<floatT> wr(m + 1);
+      cimg_forX(wr,d)
+        wr[d] = derived_sigma_r>0?(float)std::exp(-(double)d*d/(2.*derived_sigma_r*derived_sigma_r)):(d==0?1.f:0.f);
+
+      // Bins 0..nb-1 along the value axis. Pixels are bucketed by floor(t), t=(edge-edge_min)/sampling_r,
+      // in buckets 0..nb-2 (so that bin floor(t)+1 always exists).
+      const int nb = (int)(edge_delta/_sampling_r) + 2;
+      const ulongT cs = (ulongT)bx*by*bz;                  // Size of one layer channel.
+      CImg<ulongT> order(whd), hist(nb), pos;              // Pixel offsets sorted by bucket.
+      CImg<floatT> tsorted(whd), vsorted(whd);             // Sorted t-values and channel values.
+      CImg<floatT> Oprev(bx,by,bz,2), Ocur(bx,by,bz,2);    // Only two dense layers in memory.
+      int last_gc = -1;
+
+      cimg_forC(*this,c) {
+        const int gc = c%guide._spectrum;
+        const CImg<t> _guide = guide.get_shared_channel(gc);
+
+        if (gc!=last_gc) { // (Re)build buckets (counting sort, stable) when the guide channel changes.
+          last_gc = gc;
+          const t *const pg = _guide._data;
+          hist.fill(0);
+          for (ulongT o = 0; o<whd; ++o) {
+            float tt = ((float)pg[o] - (float)edge_min)/_sampling_r; if (!(tt>0)) tt = 0;
+            ++hist[std::min((int)tt,nb - 2) + 1];
+          }
+          for (int b = 1; b<nb; ++b) hist[b]+=hist[b - 1];  // Bucket b = [hist[b],hist[b+1]).
+          pos = hist;
+          for (ulongT o = 0; o<whd; ++o) {
+            float tt = ((float)pg[o] - (float)edge_min)/_sampling_r; if (!(tt>0)) tt = 0;
+            const ulongT p = pos[std::min((int)tt,nb - 2)]++;
+            order[p] = o; tsorted[p] = tt;
+          }
+        }
+
+        T *const ptrd = data(0,0,0,c);
+        for (ulongT p = 0; p<whd; ++p) vsorted[p] = (float)ptrd[order[p]];
+
+        for (int k = 0; k<nb; ++k) {
+          const bool
+            has_prev = k>=1 && hist[k]>hist[k - 1],          // Bucket k-1 non-empty.
+            has_cur = k<=nb - 2 && hist[k + 1]>hist[k];      // Bucket k non-empty.
+
+          if (has_prev || has_cur) { // Build output layer k.
+            Ocur.fill(0);
+            float *const pO = Ocur._data;
+            const int bmax = std::min(nb - 2,k + m);
+            for (int b = std::max(0,k - m - 1); b<=bmax; ++b)
+              for (ulongT p = hist[b]; p<hist[b + 1]; ++p) {
+                const int s = b + (tsorted[p] - b>=0.5f?1:0), d = cimg::abs(s - k);  // Splat bin, distance.
+                if (d>m) continue;
+                const ulongT o = order[p];
+                const unsigned int
+                  x = (unsigned int)(o%_width),
+                  y = (unsigned int)((o/_width)%_height),
+                  z = (unsigned int)(o/((ulongT)_width*_height));
+                const ulongT
+                  X = (ulongT)((int)cimg::round(x/_sampling_x) + padding_x),
+                  Y = (ulongT)((int)cimg::round(y/_sampling_y) + padding_y),
+                  Z = (ulongT)((int)cimg::round(z/_sampling_z) + padding_z),
+                  off = X + (ulongT)bx*(Y + (ulongT)by*Z);
+                pO[off]+=wr[d]*vsorted[p];
+                pO[off + cs]+=wr[d];
+              }
+            Ocur.blur(derived_sigma_x,derived_sigma_y,derived_sigma_z,true);
+          }
+
+          if (has_prev) { // Slice pixels of bucket k-1, between layers k-1 (Oprev) and k (Ocur).
+            const int b = k - 1;
+            const longT p0 = (longT)hist[b], p1 = (longT)hist[b + 1];
+            cimg_pragma_openmp(parallel for cimg_openmp_if(p1 - p0>=1024))
+            for (longT p = p0; p<p1; ++p) {
+              const ulongT o = order[p];
+              const unsigned int
+                x = (unsigned int)(o%_width),
+                y = (unsigned int)((o/_width)%_height),
+                z = (unsigned int)(o/((ulongT)_width*_height));
               const float
+                f = std::min(tsorted[p] - b,1.f),
                 X = x/_sampling_x + padding_x,
                 Y = y/_sampling_y + padding_y,
                 Z = z/_sampling_z + padding_z,
-                R = (edge - edge_min)/_sampling_r + padding_r;
-              const float bval0 = bgrid._linear_atXYZC(X,Y,Z,R), bval1 = bgridw._linear_atXYZC(X,Y,Z,R);
-              (*this)(x,y,z,c) = (T)(bval0/bval1);
+                v0 = (1 - f)*Oprev._linear_atXYZ(X,Y,Z,0) + f*Ocur._linear_atXYZ(X,Y,Z,0),
+                v1 = (1 - f)*Oprev._linear_atXYZ(X,Y,Z,1) + f*Ocur._linear_atXYZ(X,Y,Z,1);
+              ptrd[o] = v1>0?(T)(v0/v1):(T)vsorted[p];
             }
           }
-        } else { // 2D version of the algorithm
-          CImg<floatT> bgrid(bx,by,br,2);
-          cimg_forC(*this,c) {
-            const CImg<t> _guide = guide.get_shared_channel(c%guide._spectrum);
-            bgrid.fill(0);
-            cimg_forXY(*this,x,y) {
-              const T val = (*this)(x,y,c);
-              const float edge = (float)_guide(x,y);
-              const int
-                X = (int)cimg::round(x/_sampling_x) + padding_x,
-                Y = (int)cimg::round(y/_sampling_y) + padding_y,
-                R = (int)cimg::round((edge - edge_min)/_sampling_r) + padding_r;
-              bgrid(X,Y,R,0)+=(float)val;
-              bgrid(X,Y,R,1)+=1;
-            }
-            bgrid.blur(derived_sigma_x,derived_sigma_y,0,true).blur(0,0,derived_sigma_r,false);
-
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(size(),4096))
-            cimg_forXY(*this,x,y) {
-              const float edge = (float)_guide(x,y);
-              const float
-                X = x/_sampling_x + padding_x,
-                Y = y/_sampling_y + padding_y,
-                R = (edge - edge_min)/_sampling_r + padding_r;
-              const float bval0 = bgrid._linear_atXYZ(X,Y,R,0), bval1 = bgrid._linear_atXYZ(X,Y,R,1);
-              (*this)(x,y,c) = (T)(bval0/bval1);
-            }
-          }
+          Oprev.swap(Ocur);
         }
       }
       return *this;

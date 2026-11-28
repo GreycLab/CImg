@@ -17707,11 +17707,13 @@ namespace cimg_library {
             if (!is_add && !arg1) _cimg_mp_scalar1(minus,arg2);
             if (ptr1 && !can_fuse_left(p3)) ptr1 = 0; // Check that left fusion is still possible
 
-            // Right fusion: Spot cases 'a + (b - c)', 'a +/- (b*c)' and 'a +/- (b/c)'.
+            // Right fusion: Spot cases 'a + (b + c)', 'a + (b - c)', 'a +/- (b*c)' and 'a +/- (b/c)'.
+            // Note: 'a - (b +/- c)' is not fused (no fused opcode would keep the same evaluation order).
             if (!ptr1 && code.size()>p3 && is_comp_scalar(arg2)) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
-              if ((op==mp_add || op==mp_sub || op==mp_mul || op==mp_div) && pop[1]==arg2) {
+              if ((is_add?(op==mp_add || op==mp_sub || op==mp_mul || op==mp_div):(op==mp_mul || op==mp_div)) &&
+                  pop[1]==arg2) {
                 p2 = code.size() - 1;
                 ptr2 = pop.data();
               }
@@ -17749,7 +17751,7 @@ namespace cimg_library {
                       _cimg_mp_scalar2(add,arg3,const_scalar(val));
                     }
                   }
-                  _cimg_mp_scalar3(add_sub,arg2,arg3,arg4);
+                  _cimg_mp_scalar3(sub_add,arg3,arg4,arg2); // '(a - b) + c' evaluated in that order
                 } else if (op==mp_mul) _cimg_mp_scalar3(add_mul,arg2,arg3,arg4); // Particular case '(a*b) + c'
                 _cimg_mp_scalar3(div_add,arg3,arg4,arg2); // Particular case '(a/b) + c'
               } else {
@@ -17803,7 +17805,7 @@ namespace cimg_library {
                       _cimg_mp_scalar2(add,arg3,const_scalar(val));
                     }
                   }
-                  _cimg_mp_scalar3(add_add,arg1,arg3,arg4);
+                  _cimg_mp_scalar3(add_add,arg3,arg4,arg1); // '(b + c) + a', same result as 'a + (b + c)'
                 } else if (op==mp_sub) { // Particular case 'a + (b - c)'
                   if (is_const_scalar(arg1)) {
                     if (is_const_scalar(arg3)) {
@@ -17817,7 +17819,7 @@ namespace cimg_library {
                       _cimg_mp_scalar2(add,arg3,const_scalar(val));
                     }
                   }
-                  _cimg_mp_scalar3(add_sub,arg1,arg3,arg4);
+                  _cimg_mp_scalar3(sub_add,arg3,arg4,arg1); // '(b - c) + a', same result as 'a + (b - c)'
                 } else if (op==mp_mul) _cimg_mp_scalar3(add_mul,arg1,arg3,arg4); // Particular case 'a + (b*c)'
                 _cimg_mp_scalar3(div_add,arg3,arg4,arg1); // Particular case 'a + (b/c)'
               } else {
@@ -29404,6 +29406,10 @@ namespace cimg_library {
           siz = (unsigned int)mp.opcode[2];
         while (siz-->0) mp.mem[ptrd++] = (double)*(ptrs++);
         return cimg::type<double>::nan();
+      }
+
+      static double mp_sub_add(_cimg_math_parser& mp) {
+        return _mp_arg(2) - _mp_arg(3) + _mp_arg(4);
       }
 
       static double mp_sub_div(_cimg_math_parser& mp) {

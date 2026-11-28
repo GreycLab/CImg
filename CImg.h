@@ -17955,6 +17955,8 @@ namespace cimg_library {
               // Check for trivial particular cases.
               if (arg2==1) _cimg_mp_same(arg1);
               if (arg1==1) _cimg_mp_same(arg2);
+              if (is_vector(arg1) && arg2==11) _cimg_mp_vector1(minus,arg1);
+              if (is_vector(arg2) && arg1==11) _cimg_mp_vector1(minus,arg2);
               if (is_vector(arg1) || is_vector(arg2)) _cimg_mp_vector2(mul,arg1,arg2);
               if (is_const_scalar(arg1) && is_const_scalar(arg2)) _cimg_mp_const_scalar(mem[arg1]*mem[arg2]);
               if (!arg1 || !arg2) _cimg_mp_return(0);
@@ -18053,9 +18055,24 @@ namespace cimg_library {
 
               // Check for trivial particular cases.
               if (arg2==1) _cimg_mp_same(arg1);
-              if (is_vector(arg1) || is_vector(arg2)) _cimg_mp_vector2(div,arg1,arg2);
               if (is_const_scalar(arg1) && is_const_scalar(arg2))
                 _cimg_mp_const_scalar(mem[arg1]/mem[arg2]);
+              if (arg2==11) {
+                if (is_vector(arg1)) _cimg_mp_vector1(minus,arg1);
+                _cimg_mp_scalar1(minus,arg1);
+              }
+              unsigned int inv_arg2 = ~0U;
+              if (is_const_scalar(arg2)) {
+                int exp = 0;
+                val = mem[arg2];
+                if (val && cimg::type<double>::is_finite(val) &&
+                    cimg::abs(std::frexp(val,&exp))==0.5 && exp>=-1000 && exp<=1000)
+                  inv_arg2 = const_scalar(1/val);
+              }
+              if (is_vector(arg1) || is_vector(arg2)) {
+                if (inv_arg2!=~0U) _cimg_mp_vector2(mul,arg1,inv_arg2);
+                _cimg_mp_vector2(div,arg1,arg2);
+              }
               if (!arg1) _cimg_mp_return(0);
               if (ptr1 && !can_fuse_left(p3)) ptr1 = 0; // Check that left fusion is still possible
 
@@ -18086,6 +18103,7 @@ namespace cimg_library {
                       _cimg_mp_scalar2(mul,arg3,const_scalar(val));
                     }
                   }
+                  if (inv_arg2!=~0U) _cimg_mp_scalar3(mul_mul,arg3,arg4,inv_arg2);
                   _cimg_mp_scalar3(mul_div,arg3,arg4,arg2);
                 } else { // Particular case '(a/b)/c'
                   if (is_const_scalar(arg2)) {
@@ -18096,6 +18114,7 @@ namespace cimg_library {
                       _cimg_mp_scalar2(div,arg3,const_scalar(val));
                     }
                   }
+                  if (inv_arg2!=~0U) _cimg_mp_scalar3(mul_div,inv_arg2,arg3,arg4);
                   _cimg_mp_scalar3(div_div,arg3,arg4,arg2);
                 }
               }
@@ -18121,6 +18140,7 @@ namespace cimg_library {
                   _cimg_mp_scalar3(mul_div,arg1,arg4,arg3);
                 }
               }
+              if (inv_arg2!=~0U) _cimg_mp_scalar2(mul,arg1,inv_arg2);
               _cimg_mp_scalar2(div,arg1,arg2);
             } else if (*s=='%' && *ns!='^' && *ps!='$') { // Modulo ('%')
               _cimg_mp_op("Operator '%'");

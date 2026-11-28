@@ -26550,7 +26550,9 @@ namespace cimg_library {
 
         // Forward search.
         if (step>0) {
-          const double *const nptr1e = max_iterations==~0U?ptr1e:std::min(ptr1e,ptr1 + step*max_iterations);
+          const ulongT rem = (ulongT)(ptr1e - ptr1), ustep = (ulongT)step;
+          const double *const nptr1e = max_iterations==~0U || (ulongT)max_iterations>(rem - 1)/ustep?
+            ptr1e:ptr1 + ustep*max_iterations;
           do {
             if (cimg::type<double>::is_nan(*ptr2b))
               while (ptr1<nptr1e && !cimg::type<double>::is_nan(*ptr1)) ptr1+=step;
@@ -26566,7 +26568,9 @@ namespace cimg_library {
         }
 
         // Backward search.
-        const double *const nptr1b = max_iterations==~0U?ptr1b:std::max(ptr1b,ptr1 + step*((longT)max_iterations - 1));
+        const ulongT rem = (ulongT)(ptr1 - ptr1b), ustep = (ulongT)(-(longT)step);
+        const double *const nptr1b = max_iterations==~0U || (ulongT)(max_iterations - 1)>rem/ustep?
+          ptr1b:ptr1 - ustep*(max_iterations - 1);
         do {
           if (cimg::type<double>::is_nan(*ptr2b))
             while (ptr1>=nptr1b && !cimg::type<double>::is_nan(*ptr1)) ptr1+=step;
@@ -27338,7 +27342,9 @@ namespace cimg_library {
 
         // Forward search.
         if (step>0) {
-          const T *const nptr1e = max_iterations==~0U?ptr1e:std::min(ptr1e,ptr1 + step*max_iterations);
+          const ulongT rem = (ulongT)(ptr1e - ptr1), ustep = (ulongT)step;
+          const T *const nptr1e = max_iterations==~0U || (ulongT)max_iterations>(rem - 1)/ustep?
+            ptr1e:ptr1 + ustep*max_iterations;
           do {
             if (cimg::type<double>::is_nan(*ptr2b))
               while (ptr1<nptr1e && !cimg::type<double>::is_nan(*ptr1)) ptr1+=step;
@@ -27354,7 +27360,9 @@ namespace cimg_library {
         }
 
         // Backward search.
-        const T *const nptr1b = max_iterations==~0U?ptr1b:std::max(ptr1b,ptr1 + step*((longT)max_iterations - 1));
+        const ulongT rem = (ulongT)(ptr1 - ptr1b), ustep = (ulongT)(-(longT)step);
+        const T *const nptr1b = max_iterations==~0U || (ulongT)(max_iterations - 1)>rem/ustep?
+          ptr1b:ptr1 - ustep*(max_iterations - 1);
         do {
           if (cimg::type<double>::is_nan(*ptr2b))
             while (ptr1>=nptr1b && !cimg::type<double>::is_nan(*ptr1)) ptr1+=step;

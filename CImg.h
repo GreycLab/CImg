@@ -16552,29 +16552,9 @@ namespace cimg_library {
                     p3 = (unsigned int)cimg::mod((int)mem[p1],imglist.width());
                     p2 = imglist[p3]._spectrum;
                   } else p2 = imgin._spectrum;
-                  if (!p2) _cimg_mp_return(0);
+                  if (!p2) { return_comp = false; _cimg_mp_return(0); }
                   _cimg_mp_check_type(arg2,2,2,p2);
-                  if (p_ref && !is_comp_vector(arg2)) {
-                    add_opcode(mp_vector_copy,pos = vector(p2),arg2,p2);
-                    arg2 = pos;
-                  }
-                } else {
-                  if (p_ref && !is_comp_scalar(arg2)) {
-                    add_opcode(mp_copy,pos = scalar(),arg2);
-                    arg2 = pos;
-                  }
-                  p2 = 0;
-                }
-
-                if (p_ref) {
-                  *p_ref = *ss=='I' || *ss=='J'?4:2;
-                  p_ref[1] = p1;
-                  p_ref[2] = (unsigned int)is_relative;
-                  p_ref[3] = arg1;
-                  if (is_vector(arg2)) set_reserved_vector(arg2); // Prevent from being used in further optimization
-                  else if (is_comp_scalar(arg2)) memtype[arg2] = -1;
-                  if (is_comp_scalar(arg1)) memtype[arg1] = -1;
-                }
+                } else p2 = 0;
 
                 if ((p1==~0U && imgout) || (p1!=~0U && imglist)) {
                   if (*ss>='i')
@@ -16583,6 +16563,34 @@ namespace cimg_library {
                     add_opcode(is_relative?mp_set_Joff_s:mp_set_Ioff_s,arg2,p1,arg1);
                   else
                     add_opcode(is_relative?mp_set_Joff_v:mp_set_Ioff_v,arg2,p1,arg1,size(arg2));
+                }
+
+                if (p_ref) {
+                  *p_ref = *ss=='I' || *ss=='J'?4:2;
+                  p_ref[1] = p1;
+                  p_ref[2] = (unsigned int)is_relative;
+                  p_ref[3] = arg1;
+                  if (is_scalar(arg2)) {
+                    if (*ss<'i') {
+                      if (p1!=~0U) {
+                        _cimg_mp_check_const_index(p1);
+                        p3 = (unsigned int)cimg::mod((int)mem[p1],imglist.width());
+                        p2 = imglist[p3]._spectrum;
+                      } else p2 = imgin._spectrum;
+                      if (!p2) { return_comp = false; _cimg_mp_return(0); }
+                      add_opcode(mp_vector_init,pos = vector(p2),p2,1,arg2,0);
+                      arg2 = pos;
+                      set_reserved_vector(arg2);
+                    } else {
+                      if (!is_comp_scalar(arg2)) { add_opcode(mp_copy,pos = scalar(),arg2); arg2 = pos; }
+                      memtype[arg2] = -1;
+                    }
+                  } else {
+                    if (!is_comp_vector(arg2)) { add_opcode(mp_vector_copy,pos = vector(p2),arg2,p2); arg2 = pos; }
+                    set_reserved_vector(arg2);
+                  }
+                  if (p1!=~0U && is_comp_scalar(p1)) memtype[p1] = -1;
+                  if (is_comp_scalar(arg1)) memtype[arg1] = -1;
                 }
                 _cimg_mp_return(arg2);
               }
@@ -16602,6 +16610,7 @@ namespace cimg_library {
                 arg3 = is_relative?0U:(unsigned int)_cimg_mp_slot_z;
                 arg4 = is_relative?0U:(unsigned int)_cimg_mp_slot_c;
                 arg5 = compile(s + 1,se,depth1,0,block_flags); // Value to assign
+                const bool is_comp_arg5 = return_comp;
                 _cimg_mp_check_type(arg5,2,*ss>='i'?1:3,0);
                 if (s0<ve1) { // X or [ X,_Y,_Z,_C ]
                   s1 = next_arg(s0,ve1,clevel1);
@@ -16633,16 +16642,17 @@ namespace cimg_library {
                     p3 = (unsigned int)cimg::mod((int)mem[p1],imglist.width());
                     p2 = imglist[p3]._spectrum;
                   } else p2 = imgin._spectrum;
-                  if (!p2) _cimg_mp_return(0);
+                  if (!p2) { return_comp = false; _cimg_mp_return(0); }
                   _cimg_mp_check_type(arg5,2,2,p2);
-                  if (p_ref && !is_comp_vector(arg5)) {
-                    add_opcode(mp_vector_copy,pos = vector(p2),arg5,p2); arg5 = pos;
-                  }
-                } else {
-                  if (p_ref && !is_comp_scalar(arg5)) {
-                    add_opcode(mp_copy,pos = scalar(),arg5); arg5 = pos;
-                  }
-                  p2 = 0;
+                } else p2 = 0;
+
+                if ((p1==~0U && imgout) || (p1!=~0U && imglist)) {
+                  if (*ss>='i')
+                    add_opcode(is_relative?mp_set_jxyzc:mp_set_ixyzc,arg5,p1,arg1,arg2,arg3,arg4);
+                  else if (is_scalar(arg5))
+                    add_opcode(is_relative?mp_set_Jxyz_s:mp_set_Ixyz_s,arg5,p1,arg1,arg2,arg3);
+                  else
+                    add_opcode(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v,arg5,p1,arg1,arg2,arg3,size(arg5));
                 }
 
                 if (p_ref) {
@@ -16653,23 +16663,31 @@ namespace cimg_library {
                   p_ref[4] = arg2;
                   p_ref[5] = arg3;
                   p_ref[6] = arg4;
-                  if (is_vector(arg5)) set_reserved_vector(arg5); // Prevent from being used in further optimization
-                  else if (is_comp_scalar(arg5)) memtype[arg5] = -1;
+                  if (is_scalar(arg5)) {
+                    if (*ss<'i') {
+                      if (p1!=~0U) {
+                        _cimg_mp_check_const_index(p1);
+                        p3 = (unsigned int)cimg::mod((int)mem[p1],imglist.width());
+                        p2 = imglist[p3]._spectrum;
+                      } else p2 = imgin._spectrum;
+                      if (!p2) { return_comp = false; _cimg_mp_return(0); }
+                      add_opcode(mp_vector_init,pos = vector(p2),p2,1,arg5,0);
+                      arg5 = pos;
+                      set_reserved_vector(arg5);
+                    } else {
+                      if (!is_comp_scalar(arg5)) { add_opcode(mp_copy,pos = scalar(),arg5); arg5 = pos; }
+                      memtype[arg5] = -1;
+                    }
+                  } else {
+                    if (!is_comp_vector(arg5)) { add_opcode(mp_vector_copy,pos = vector(p2),arg5,p2); arg5 = pos; }
+                    set_reserved_vector(arg5);
+                  }
                   if (p1!=~0U && is_comp_scalar(p1)) memtype[p1] = -1;
                   if (is_comp_scalar(arg1)) memtype[arg1] = -1;
                   if (is_comp_scalar(arg2)) memtype[arg2] = -1;
                   if (is_comp_scalar(arg3)) memtype[arg3] = -1;
                   if (is_comp_scalar(arg4)) memtype[arg4] = -1;
-                }
-
-                if ((p1==~0U && imgout) || (p1!=~0U && imglist)) {
-                  if (*ss>='i')
-                    add_opcode(is_relative?mp_set_jxyzc:mp_set_ixyzc,arg5,p1,arg1,arg2,arg3,arg4);
-                  else if (is_scalar(arg5))
-                    add_opcode(is_relative?mp_set_Jxyz_s:mp_set_Ixyz_s,arg5,p1,arg1,arg2,arg3);
-                  else
-                    add_opcode(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v,arg5,p1,arg1,arg2,arg3,size(arg5));
-                }
+                } else return_comp = is_comp_arg5;
                 _cimg_mp_return(arg5);
               }
             }
@@ -18715,7 +18733,7 @@ namespace cimg_library {
               s1 = ss6; while (s1<se1 && cimg::is_blank(*s1)) ++s1;
               if (s1!=se1) {
                 if (!is_inside_begin) code.swap(code_begin);
-                arg1 = compile(s1,se1,depth1,p_ref,2);
+                arg1 = compile(s1,se1,depth1,p_ref,block_flags | 2);
                 if (!is_inside_begin) code.swap(code_begin);
                 _cimg_mp_return(arg1);
               } else _cimg_mp_return_nan();
@@ -18726,7 +18744,7 @@ namespace cimg_library {
               s1 = ss8; while (s1<se1 && cimg::is_blank(*s1)) ++s1;
               if (s1!=se1) {
                 if (!is_inside_begin_t) code.swap(code_begin_t);
-                arg1 = compile(s1,se1,depth1,p_ref,4);
+                arg1 = compile(s1,se1,depth1,p_ref,block_flags | 4);
                 if (!is_inside_begin_t) code.swap(code_begin_t);
                 _cimg_mp_return(arg1);
               } else _cimg_mp_return_nan();

@@ -21962,7 +21962,8 @@ namespace cimg_library {
 
             if ((cimg_sscanf(ss,"rand%u%c",&(arg1=~0U),&sep)==2 && sep=='(' && arg1>0) || // Random vector
                 ((arg1=~0U)==~0U &&
-                 (!std::strncmp(ss,"rand(#",6) ||
+                 ((!std::strncmp(ss,"rand(",5) &&
+                   *(s = ss5 + std::strspn(ss5," "))=='#') ||
                   (!std::strncmp(ss,"rand",4) && ss4<se1 && *ss4!='(' && (s=std::strchr(ss4,'('))!=0)))) {
               _cimg_mp_op("Function 'rand()'");
               p3 = 0;
@@ -21972,6 +21973,7 @@ namespace cimg_library {
                 arg1 = (unsigned int)mem[arg1];
               } else s = std::strchr(ss4,'(') + 1;
 
+              while (s<se1 && cimg::is_blank(*s)) ++s;
               if (arg1==~0U && *s=='#') { // Number of elements specified as first argument with '#'
                 s0 = next_arg(++s,se1,clevel1);
                 arg1 = compile(s,s0++,depth1,0,block_flags);
@@ -21981,9 +21983,10 @@ namespace cimg_library {
                 s = s0;
               }
 
+              while (s<se1 && cimg::is_blank(*s)) ++s;
               arg2 = p2 = 0; arg3 = 1; arg4 = arg5 = ~0U;
               if (s<se1) {
-                s1 = next_arg(s + 1,se1,clevel1);
+                s1 = next_arg(s,se1,clevel1);
                 arg3 = compile(s,s1,depth1,0,block_flags);
                 if (s1<se1) {
                   s2 = next_arg(++s1,se1,clevel1);
@@ -22094,13 +22097,14 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"resize(",7)) { // Vector or image resize
               _cimg_mp_op("Function 'resize()'");
-              if (*ss7!='#') { // Vector
+              s0 = ss7; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+              if (*s0!='#') { // Vector
                 pos = 1;
-                for (s = ss7; s<se; ++s, ++pos) {
+                for (s = s0; s<se; ++s, ++pos) {
                   ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                  (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                   arg2 = compile(s,ns,depth1,0,block_flags);
-                  if (s!=ss7) _cimg_mp_check_type(arg2,pos,1,0);
+                  if (s!=s0) _cimg_mp_check_type(arg2,pos,1,0);
                   CImg<ulongT>::vector(arg2).move_to(l_opcode);
                   s = ns;
                 }
@@ -22174,14 +22178,15 @@ namespace cimg_library {
 
               } else { // Image
                 if (!is_inside_critical) is_parallelizable = false;
-                s0 = next_arg(ss8,se1,clevel1);
-                p1 = compile(ss8,s0++,depth1,0,block_flags);
+                s1 = next_arg(++s0,se1,clevel1);
+                p1 = compile(s0,s1++,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,s0);
                 _cimg_mp_check_list();
                 l_opcode.assign(); // Don't use 'opcode': it can be modified by further calls to 'compile()'!
                 CImg<ulongT>::vector((ulongT)mp_image_resize,_cimg_mp_slot_nan,p1,~0U,~0U,~0U,~0U,1,0,0,0,0,0).
                   move_to(l_opcode);
                 pos = 0;
-                for (s = s0; s<se && pos<10; ++s) {
+                for (s = s1; s<se && pos<10; ++s) {
                   ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                  (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                   arg1 = compile(s,ns,depth1,0,block_flags);
@@ -22313,11 +22318,12 @@ namespace cimg_library {
           case 's' :
             if (*ss1=='(') { // Image spectrum
               _cimg_mp_op("Function 's()'");
-              if (*ss2=='#') { // Index specified
-                p1 = compile(ss3,se1,depth1,0,block_flags);
-                _cimg_mp_check_notnan_index(p1,ss3);
+              s0 = ss2; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+              if (*s0=='#') { // Index specified
+                p1 = compile(++s0,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,s0);
                 _cimg_mp_check_list();
-              } else { if (ss2!=se1) break; p1 = ~0U; }
+              } else { if (s0!=se1) break; p1 = ~0U; }
               _cimg_mp_scalar1(image_spectrum,p1);
             }
 
@@ -22601,9 +22607,10 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"stats(",6)) { // Image/vector statistics
               _cimg_mp_op("Function 'stats()'");
-              if (*ss6!='#' && ss6!=se1) { // Vector
-                s1 = next_arg(ss6,se1,clevel1);
-                arg1 = compile(ss6,s1,depth1,0,block_flags); // Vector
+              s0 = ss6; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+              if (*s0!='#' && s0!=se1) { // Vector
+                s1 = next_arg(s0,se1,clevel1);
+                arg1 = compile(s0,s1,depth1,0,block_flags); // Vector
                 _cimg_mp_check_type(arg1,1,2,0);
                 p1 = size(arg1);
                 arg2 = arg3 = arg4 = arg5 = 1;
@@ -22640,11 +22647,11 @@ namespace cimg_library {
                 pos = vector(15);
                 add_opcode(mp_vector_stats,pos,arg1,arg2,arg3,arg4,arg5);
               } else { // Image
-                if (*ss6=='#') { // Index specified
-                  p1 = compile(ss7,se1,depth1,0,block_flags);
-                  _cimg_mp_check_notnan_index(p1,ss7);
+                if (*s0=='#') { // Index specified
+                  p1 = compile(++s0,se1,depth1,0,block_flags);
+                  _cimg_mp_check_notnan_index(p1,s0);
                   _cimg_mp_check_list();
-                } else { if (ss6!=se1) break; p1 = ~0U; }
+                } else { if (s0!=se1) break; p1 = ~0U; }
                 pos = vector(15);
                 add_opcode(mp_image_stats,pos,p1);
               }
@@ -22698,13 +22705,14 @@ namespace cimg_library {
               _cimg_mp_op("Function 'string()'");
               CImg<ulongT>::vector((ulongT)mp_string,0,0,0).move_to(l_opcode);
 
-              if (*ss7=='#') { // Output vector size specified with '#'
-                s0 = next_arg(ss8,se1,clevel1);
-                arg1 = compile(ss8,s0++,depth1,0,block_flags);
+              s = ss7; while (s<se1 && cimg::is_blank(*s)) ++s;
+              if (*s=='#') { // Output vector size specified with '#'
+                s0 = next_arg(++s,se1,clevel1);
+                arg1 = compile(s,s0++,depth1,0,block_flags);
                 _cimg_mp_check_const_scalar(arg1,1,3);
                 arg1 = (unsigned int)mem[arg1];
                 s = s0;
-              } else { arg1=~0U; s = ss7; }
+              } else arg1 = ~0U;
 
               p1 = 0;
               for (; s<se; ++s) {
@@ -22759,11 +22767,13 @@ namespace cimg_library {
             if (!std::strncmp(ss,"swap(",5)) { // Swap values
               _cimg_mp_op("Function 'swap()'");
 
-              if (*ss5=='#') { // Swap image values
-                s0 = next_arg(ss6,se1,clevel1); // #ind
-                p1 = compile(ss6,s0++,depth1,0,block_flags);
-                _cimg_mp_check_notnan_index(p1,ss6);
+              s0 = ss5; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+              if (*s0=='#') { // Swap image values
+                s1 = next_arg(++s0,se1,clevel1); // #ind
+                p1 = compile(s0,s1++,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,s0);
                 _cimg_mp_check_list();
+                s0 = s1;
                 s1 = next_arg(s0,se1,clevel1); // pos0
                 arg1 = compile(s0,s1,depth1,0,block_flags);
                 s2 = next_arg(++s1,se1,clevel1); // pos1
@@ -22929,11 +22939,11 @@ namespace cimg_library {
               p1 = size(arg1);
               if (p1>0) pos = is_comp_vector(arg1)?arg1:((return_comp = true), vector(p1));
               else {
-                pos = scalar();
                 if (is_const_scalar(arg1) && is_const_scalar(arg2)) {
                   val = mem[arg1];
                   _cimg_mp_const_scalar(val?(mem[arg2]?cimg::sign(val):val):0);
                 }
+                pos = ((return_comp = true), scalar());
               }
               add_opcode(mp_unitnorm,pos,arg1,p1,arg2);
               _cimg_mp_return(pos);
@@ -23010,6 +23020,7 @@ namespace cimg_library {
                 arg1 = (unsigned int)mem[arg1];
               } else s = std::strchr(ss6,'(') + 1;
 
+              while (s<se1 && cimg::is_blank(*s)) ++s;
               if (arg1==~0U && *s=='#') { // Number of elements specified as first argument with '#'
                 s0 = next_arg(++s,se1,clevel1);
                 arg1 = compile(s,s0++,depth1,0,block_flags);
@@ -23144,11 +23155,12 @@ namespace cimg_library {
           case 'w' :
             if (*ss1=='(') { // Image width
               _cimg_mp_op("Function 'w()'");
-              if (*ss2=='#') { // Index specified
-                p1 = compile(ss3,se1,depth1,0,block_flags);
-                _cimg_mp_check_notnan_index(p1,ss3);
+              s0 = ss2; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+              if (*s0=='#') { // Index specified
+                p1 = compile(++s0,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,s0);
                 _cimg_mp_check_list();
-              } else { if (ss2!=se1) break; p1 = ~0U; }
+              } else { if (s0!=se1) break; p1 = ~0U; }
               _cimg_mp_scalar1(image_width,p1);
             }
 
@@ -23226,21 +23238,23 @@ namespace cimg_library {
 
             if (*ss1=='h' && *ss2=='(') { // Image width*height
               _cimg_mp_op("Function 'wh()'");
-              if (*ss3=='#') { // Index specified
-                p1 = compile(ss4,se1,depth1,0,block_flags);
-                _cimg_mp_check_notnan_index(p1,ss4);
+              s0 = ss3; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+              if (*s0=='#') { // Index specified
+                p1 = compile(++s0,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,s0);
                 _cimg_mp_check_list();
-              } else { if (ss3!=se1) break; p1 = ~0U; }
+              } else { if (s0!=se1) break; p1 = ~0U; }
               _cimg_mp_scalar1(image_wh,p1);
             }
 
             if (*ss1=='h' && *ss2=='d' && *ss3=='(') { // Image width*height*depth
               _cimg_mp_op("Function 'whd()'");
-              if (*ss4=='#') { // Index specified
-                p1 = compile(ss5,se1,depth1,0,block_flags);
-                _cimg_mp_check_notnan_index(p1,ss5);
+              s0 = ss4; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+              if (*s0=='#') { // Index specified
+                p1 = compile(++s0,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,s0);
                 _cimg_mp_check_list();
-              } else { if (ss4!=se1) break; p1 = ~0U; }
+              } else { if (s0!=se1) break; p1 = ~0U; }
               _cimg_mp_scalar1(image_whd,p1);
             }
 
@@ -23263,11 +23277,12 @@ namespace cimg_library {
 
             if (*ss1=='h' && *ss2=='d' && *ss3=='s' && *ss4=='(') { // Image width*height*depth*spectrum
               _cimg_mp_op("Function 'whds()'");
-              if (*ss5=='#') { // Index specified
-                p1 = compile(ss6,se1,depth1,0,block_flags);
-                _cimg_mp_check_notnan_index(p1,ss6);
+              s0 = ss5; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+              if (*s0=='#') { // Index specified
+                p1 = compile(++s0,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,s0);
                 _cimg_mp_check_list();
-              } else { if (ss5!=se1) break; p1 = ~0U; }
+              } else { if (s0!=se1) break; p1 = ~0U; }
               _cimg_mp_scalar1(image_whds,p1);
             }
             break;
@@ -23275,11 +23290,12 @@ namespace cimg_library {
           case 'x' :
             if (*ss1=='m' && *ss2=='(') { // Image x-coordinate of minimum value
               _cimg_mp_op("Function 'xm()'");
-              if (*ss3=='#') { // Index specified
-                p1 = compile(ss4,se1,depth1,0,block_flags);
-                _cimg_mp_check_notnan_index(p1,ss4);
+              s0 = ss3; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+              if (*s0=='#') { // Index specified
+                p1 = compile(++s0,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,s0);
                 _cimg_mp_check_list();
-              } else { if (ss3!=se1) break; p1 = ~0U; }
+              } else { if (s0!=se1) break; p1 = ~0U; }
               pos = scalar();
               add_opcode(mp_image_stats_xm,pos,p1);
               return_comp = true;
@@ -23288,11 +23304,12 @@ namespace cimg_library {
 
             if (*ss1=='M' && *ss2=='(') { // Image x-coordinate of maximum value
               _cimg_mp_op("Function 'xM()'");
-              if (*ss3=='#') { // Index specified
-                p1 = compile(ss4,se1,depth1,0,block_flags);
-                _cimg_mp_check_notnan_index(p1,ss4);
+              s0 = ss3; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+              if (*s0=='#') { // Index specified
+                p1 = compile(++s0,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,s0);
                 _cimg_mp_check_list();
-              } else { if (ss3!=se1) break; p1 = ~0U; }
+              } else { if (s0!=se1) break; p1 = ~0U; }
               pos = scalar();
               add_opcode(mp_image_stats_xM,pos,p1);
               return_comp = true;
@@ -23315,11 +23332,12 @@ namespace cimg_library {
           case 'y' :
             if (*ss1=='m' && *ss2=='(') { // Image y-coordinate of minimum value
               _cimg_mp_op("Function 'ym()'");
-              if (*ss3=='#') { // Index specified
-                p1 = compile(ss4,se1,depth1,0,block_flags);
-                _cimg_mp_check_notnan_index(p1,ss4);
+              s0 = ss3; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+              if (*s0=='#') { // Index specified
+                p1 = compile(++s0,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,s0);
                 _cimg_mp_check_list();
-              } else { if (ss3!=se1) break; p1 = ~0U; }
+              } else { if (s0!=se1) break; p1 = ~0U; }
               pos = scalar();
               add_opcode(mp_image_stats_ym,pos,p1);
               return_comp = true;
@@ -23328,11 +23346,12 @@ namespace cimg_library {
 
             if (*ss1=='M' && *ss2=='(') { // Image y-coordinate of maximum value
               _cimg_mp_op("Function 'yM()'");
-              if (*ss3=='#') { // Index specified
-                p1 = compile(ss4,se1,depth1,0,block_flags);
-                _cimg_mp_check_notnan_index(p1,ss4);
+              s0 = ss3; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+              if (*s0=='#') { // Index specified
+                p1 = compile(++s0,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,s0);
                 _cimg_mp_check_list();
-              } else { if (ss3!=se1) break; p1 = ~0U; }
+              } else { if (s0!=se1) break; p1 = ~0U; }
               pos = scalar();
               add_opcode(mp_image_stats_yM,pos,p1);
               return_comp = true;
@@ -23343,11 +23362,12 @@ namespace cimg_library {
           case 'z' :
             if (*ss1=='m' && *ss2=='(') { // Image z-coordinate of minimum value
               _cimg_mp_op("Function 'zm()'");
-              if (*ss3=='#') { // Index specified
-                p1 = compile(ss4,se1,depth1,0,block_flags);
-                _cimg_mp_check_notnan_index(p1,ss4);
+              s0 = ss3; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+              if (*s0=='#') { // Index specified
+                p1 = compile(++s0,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,s0);
                 _cimg_mp_check_list();
-              } else { if (ss3!=se1) break; p1 = ~0U; }
+              } else { if (s0!=se1) break; p1 = ~0U; }
               pos = scalar();
               add_opcode(mp_image_stats_zm,pos,p1);
               return_comp = true;
@@ -23356,11 +23376,12 @@ namespace cimg_library {
 
             if (*ss1=='M' && *ss2=='(') { // Image z-coordinate of maximum value
               _cimg_mp_op("Function 'zM()'");
-              if (*ss3=='#') { // Index specified
-                p1 = compile(ss4,se1,depth1,0,block_flags);
-                _cimg_mp_check_notnan_index(p1,ss4);
+              s0 = ss3; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+              if (*s0=='#') { // Index specified
+                p1 = compile(++s0,se1,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,s0);
                 _cimg_mp_check_list();
-              } else { if (ss3!=se1) break; p1 = ~0U; }
+              } else { if (s0!=se1) break; p1 = ~0U; }
               pos = scalar();
               add_opcode(mp_image_stats_zM,pos,p1);
               return_comp = true;
@@ -23484,9 +23505,10 @@ namespace cimg_library {
           if ((*ss=='u' || *ss=='v') && *ss1=='(') { // Random value with uniform distribution in specified range
             is_sth = *ss=='v'; // is integer generator?
             _cimg_mp_op(is_sth?"Function 'v()'":"Function 'u()'");
-            if (*ss2==')') _cimg_mp_return(scalar0(is_sth?mp_rand_int_0_1:mp_rand_double_0_1));
-            s1 = next_arg(ss2,se1,clevel1);
-            arg1 = compile(ss2,s1,depth1,0,block_flags);
+            s0 = ss2; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
+            if (s0==se1) _cimg_mp_return(scalar0(is_sth?mp_rand_int_0_1:mp_rand_double_0_1));
+            s1 = next_arg(s0,se1,clevel1);
+            arg1 = compile(s0,s1,depth1,0,block_flags);
             arg3 = arg4 = 1;
             if (s1<se1) {
               s2 = next_arg(++s1,se1,clevel1);

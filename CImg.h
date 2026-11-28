@@ -22789,8 +22789,8 @@ namespace cimg_library {
                 p2 = size(arg2);
                 if (p2) p1+=p2;
                 else {
-                  if (is_const_scalar(arg2)) p1+=cimg_snprintf(variable_name.assign(24),24,"%.17g",mem[arg2]);
-                  else p1+=23;
+                  if (is_const_scalar(arg2)) p1+=cimg_snprintf(variable_name.assign(32),32,"%.17g",mem[arg2]);
+                  else p1+=24;
                 }
                 CImg<ulongT>::vector(arg2,p2).move_to(l_opcode);
                 s = ns;
@@ -26348,7 +26348,7 @@ namespace cimg_library {
             while (l<siz && ptr[l]) ++l;
             CImg<doubleT>(ptr,l,1,1,1,true).move_to(_str);
           } else { // Scalar argument -> number
-            it.assign(24);
+            it.assign(32);
             cimg_snprintf(it,it._width,"%.17g",_mp_arg(3 + 2*n));
             CImg<charT>::string(it,false,true).move_to(_str);
           }
@@ -28965,7 +28965,7 @@ namespace cimg_library {
             while (l<siz && ptr[l]) ++l;
             CImg<doubleT>(ptr,l,1,1,1,true).move_to(_str);
           } else { // Scalar argument -> number
-            it.assign(24);
+            it.assign(32);
             cimg_snprintf(it,it._width,"%.17g",_mp_arg(3 + 2*n));
             CImg<charT>::string(it,false,true).move_to(_str);
           }
@@ -29475,7 +29475,7 @@ namespace cimg_library {
             while (l<siz && ptr[l]) ++l;
             CImg<doubleT>(ptr,l,1,1,1,true).move_to(_str);
           } else { // Scalar argument -> number
-            it.assign(24);
+            it.assign(32);
             cimg_snprintf(it,it._width,"%.17g",_mp_arg(4 + 2*n));
             CImg<charT>::string(it,false,true).move_to(_str);
           }

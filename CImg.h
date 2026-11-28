@@ -30041,8 +30041,8 @@ namespace cimg_library {
             while (still_equal && n--) still_equal = *(ptr2++)==value;
           return still_equal;
         } // Scalar==scalar
+        if (cimg::type<double>::is_nan(_mp_arg(2))) return cimg::type<double>::is_nan(_mp_arg(4));
         if (case_sensitive) return _mp_arg(2)==_mp_arg(4);
-        else if (cimg::type<double>::is_nan(_mp_arg(2))) return cimg::type<double>::is_nan(_mp_arg(4));
         return cimg::lowercase(_mp_arg(2))==cimg::lowercase(_mp_arg(4));
       }
 

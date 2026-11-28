@@ -17531,7 +17531,7 @@ namespace cimg_library {
             if (is_const_scalar(arg1) && is_const_scalar(arg2))
               _cimg_mp_const_scalar(mem[arg1] || mem[arg2]);
             if (!arg1) _cimg_mp_scalar1(bool,arg2);
-            if (!arg2) _cimg_mp_scalar1(bool,arg1);
+            if (!arg2 && code._width==p2) _cimg_mp_scalar1(bool,arg1);
             pos = scalar();
             CImg<ulongT>::vector((ulongT)mp_logical_or,pos,arg1,arg2,code._width - p2).move_to(code,p2);
             return_comp = true;
@@ -17550,7 +17550,7 @@ namespace cimg_library {
             if (is_const_scalar(arg1) && is_const_scalar(arg2))
               _cimg_mp_const_scalar(mem[arg1] && mem[arg2]);
             if (is_const_scalar(arg1) && mem[arg1]) _cimg_mp_scalar1(bool,arg2);
-            if (is_const_scalar(arg2) && mem[arg2]) _cimg_mp_scalar1(bool,arg1);
+            if (is_const_scalar(arg2) && mem[arg2] && code._width==p2) _cimg_mp_scalar1(bool,arg1);
             pos = scalar();
             CImg<ulongT>::vector((ulongT)mp_logical_and,pos,arg1,arg2,code._width - p2).
               move_to(code,p2);

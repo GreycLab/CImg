@@ -23735,7 +23735,15 @@ namespace cimg_library {
               level.swap(_level);
               s0 = user_macro;
               user_macro = macro_def[l];
-              pos = compile(expr._data,expr._data + expr._width - 1,depth1,p_ref,block_flags);
+              try {
+                pos = compile(expr._data,expr._data + expr._width - 1,depth1,p_ref,block_flags);
+              } catch (...) {
+                user_macro = s0;
+                level.swap(_level);
+                pexpr.swap(_pexpr);
+                expr.swap(_expr);
+                throw;
+              }
               user_macro = s0;
               level.swap(_level);
               pexpr.swap(_pexpr);

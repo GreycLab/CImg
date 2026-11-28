@@ -23542,7 +23542,8 @@ namespace cimg_library {
             if (arg4==1) { // Single scalar argument
               p1 = (unsigned int)opcode[opcode._height - 1];
               arg1 = (unsigned int)opcode[opcode._height - 2] + (p1?1:0);
-              if (val>0) { _cimg_mp_scalar1(abs,arg1); } else { _cimg_mp_scalar2(neq,arg1,0); }
+              if (cimg::type<double>::is_nan(val)) _cimg_mp_return_nan();
+              if (val) { _cimg_mp_scalar1(abs,arg1); } else { _cimg_mp_scalar2(neq,arg1,0); }
             }
             opcode[1] = pos = scalar();
             opcode.move_to(code);

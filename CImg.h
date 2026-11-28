@@ -16477,8 +16477,8 @@ namespace cimg_library {
               img_stats.assign(1,15,1,1,0).fill(imgin.get_stats(),false);
               mem_img_stats.assign(1,15,1,1,~0U);
             }
-            if (mem_img_stats[arg2]==~0U) mem_img_stats[arg2] = const_scalar(img_stats[arg2]);
             if (arg1==8) _cimg_mp_const_scalar(std::sqrt(img_stats[arg2])); // id: std variation
+            if (mem_img_stats[arg2]==~0U) mem_img_stats[arg2] = const_scalar(img_stats[arg2]);
             _cimg_mp_return(mem_img_stats[arg2]);
           }
         } else if (ss3==se) { // Three-chars reserved variable
@@ -17523,6 +17523,7 @@ namespace cimg_library {
             if (is_const_scalar(arg1) && is_const_scalar(arg2))
               _cimg_mp_const_scalar(mem[arg1] || mem[arg2]);
             if (!arg1) _cimg_mp_scalar1(bool,arg2);
+            if (!arg2) _cimg_mp_scalar1(bool,arg1);
             pos = scalar();
             CImg<ulongT>::vector((ulongT)mp_logical_or,pos,arg1,arg2,code._width - p2).move_to(code,p2);
             return_comp = true;
@@ -17541,6 +17542,7 @@ namespace cimg_library {
             if (is_const_scalar(arg1) && is_const_scalar(arg2))
               _cimg_mp_const_scalar(mem[arg1] && mem[arg2]);
             if (is_const_scalar(arg1) && mem[arg1]) _cimg_mp_scalar1(bool,arg2);
+            if (is_const_scalar(arg2) && mem[arg2]) _cimg_mp_scalar1(bool,arg1);
             pos = scalar();
             CImg<ulongT>::vector((ulongT)mp_logical_and,pos,arg1,arg2,code._width - p2).
               move_to(code,p2);
@@ -17675,8 +17677,7 @@ namespace cimg_library {
             if (code.size()>p3 && is_comp_scalar(arg1)) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
-              if ((is_add?(op==mp_add || op==mp_sub || op==mp_mul || op==mp_div):
-                   (op==mp_sub || op==mp_mul || op==mp_div)) && pop[1]==arg1) {
+              if ((op==mp_add || op==mp_sub || op==mp_mul || op==mp_div) && pop[1]==arg1) {
                 p1 = code.size() - 1;
                 ptr1 = pop.data();
               }
@@ -17708,7 +17709,7 @@ namespace cimg_library {
             if (!ptr1 && code.size()>p3 && is_comp_scalar(arg2)) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
-              if ((is_add?(op==mp_sub || op==mp_mul || op==mp_div):(op==mp_mul || op==mp_div)) && pop[1]==arg2) {
+              if ((op==mp_add || op==mp_sub || op==mp_mul || op==mp_div) && pop[1]==arg2) {
                 p2 = code.size() - 1;
                 ptr2 = pop.data();
               }
@@ -17721,23 +17722,61 @@ namespace cimg_library {
               if (is_add) {
                 if (op==mp_add) { // Particular case '(a + b) + c'
                   if (is_const_scalar(arg2)) {
-                    if (is_const_scalar(arg3)) _cimg_mp_scalar2(add,arg4,const_scalar(mem[arg2] + mem[arg3]));
-                    if (is_const_scalar(arg4)) _cimg_mp_scalar2(add,arg3,const_scalar(mem[arg2] + mem[arg4]));
+                    if (is_const_scalar(arg3)) {
+                      val = mem[arg2] + mem[arg3];
+                      if (!val) _cimg_mp_same(arg4);
+                      _cimg_mp_scalar2(add,arg4,const_scalar(val));
+                    }
+                    if (is_const_scalar(arg4)) {
+                      val = mem[arg2] + mem[arg4];
+                      if (!val) _cimg_mp_same(arg3);
+                      _cimg_mp_scalar2(add,arg3,const_scalar(val));
+                    }
                   }
                   _cimg_mp_scalar3(add_add,arg3,arg4,arg2);
                 } else if (op==mp_sub) { // Particular case '(a - b) + c'
                   if (is_const_scalar(arg2)) {
-                    if (is_const_scalar(arg3)) _cimg_mp_scalar2(sub,const_scalar(mem[arg2] + mem[arg3]),arg4);
-                    if (is_const_scalar(arg4)) _cimg_mp_scalar2(add,arg3,const_scalar(mem[arg2] - mem[arg4]));
+                    if (is_const_scalar(arg3)) {
+                      val = mem[arg2] + mem[arg3];
+                      if (!val) _cimg_mp_scalar1(minus,arg4);
+                      _cimg_mp_scalar2(sub,const_scalar(val),arg4);
+                    }
+                    if (is_const_scalar(arg4)) {
+                      val = mem[arg2] - mem[arg4];
+                      if (!val) _cimg_mp_same(arg3);
+                      _cimg_mp_scalar2(add,arg3,const_scalar(val));
+                    }
                   }
                   _cimg_mp_scalar3(add_sub,arg2,arg3,arg4);
                 } else if (op==mp_mul) _cimg_mp_scalar3(add_mul,arg2,arg3,arg4); // Particular case '(a*b) + c'
                 _cimg_mp_scalar3(div_add,arg3,arg4,arg2); // Particular case '(a/b) + c'
               } else {
-                if (op==mp_sub) { // Particular case '(a - b) - c'
+                if (op==mp_add) { // Particular case '(a + b) - c'
                   if (is_const_scalar(arg2)) {
-                    if (is_const_scalar(arg3)) _cimg_mp_scalar2(sub,const_scalar(mem[arg3] - mem[arg2]),arg4);
-                    if (is_const_scalar(arg4)) _cimg_mp_scalar2(sub,arg3,const_scalar(mem[arg2] + mem[arg4]));
+                    if (is_const_scalar(arg3)) {
+                      val = mem[arg3] - mem[arg2];
+                      if (!val) _cimg_mp_same(arg4);
+                      _cimg_mp_scalar2(add,arg4,const_scalar(val));
+                    }
+                    if (is_const_scalar(arg4)) {
+                      val = mem[arg4] - mem[arg2];
+                      if (!val) _cimg_mp_same(arg3);
+                      _cimg_mp_scalar2(add,arg3,const_scalar(val));
+                    }
+                  }
+                  _cimg_mp_scalar3(add_sub,arg3,arg4,arg2);
+                } else if (op==mp_sub) { // Particular case '(a - b) - c'
+                  if (is_const_scalar(arg2)) {
+                    if (is_const_scalar(arg3)) {
+                      val = mem[arg3] - mem[arg2];
+                      if (!val) _cimg_mp_scalar1(minus,arg4);
+                      _cimg_mp_scalar2(sub,const_scalar(val),arg4);
+                    }
+                    if (is_const_scalar(arg4)) {
+                      val = mem[arg2] + mem[arg4];
+                      if (!val) _cimg_mp_same(arg3);
+                      _cimg_mp_scalar2(sub,arg3,const_scalar(val));
+                    }
                   }
                   _cimg_mp_scalar3(sub_sub,arg3,arg4,arg2);
                 } else if (op==mp_mul) _cimg_mp_scalar3(mul_sub,arg3,arg4,arg2); // Particular case '(a*b) - c'
@@ -17749,16 +17788,66 @@ namespace cimg_library {
               op = (mp_func)*ptr2;
               code.remove(p2);
               if (is_add) {
-                if (op==mp_sub) { // Particular case 'a + (b - c)'
+                if (op==mp_add) { // Particular case 'a + (b + c)'
                   if (is_const_scalar(arg1)) {
-                    if (is_const_scalar(arg3)) _cimg_mp_scalar2(sub,const_scalar(mem[arg1] + mem[arg3]),arg4);
-                    if (is_const_scalar(arg4)) _cimg_mp_scalar2(add,arg3,const_scalar(mem[arg1] - mem[arg4]));
+                    if (is_const_scalar(arg3)) {
+                      val = mem[arg1] + mem[arg3];
+                      if (!val) _cimg_mp_same(arg4);
+                      _cimg_mp_scalar2(add,arg4,const_scalar(val));
+                    }
+                    if (is_const_scalar(arg4)) {
+                      val = mem[arg1] + mem[arg4];
+                      if (!val) _cimg_mp_same(arg3);
+                      _cimg_mp_scalar2(add,arg3,const_scalar(val));
+                    }
+                  }
+                  _cimg_mp_scalar3(add_add,arg1,arg3,arg4);
+                } else if (op==mp_sub) { // Particular case 'a + (b - c)'
+                  if (is_const_scalar(arg1)) {
+                    if (is_const_scalar(arg3)) {
+                      val = mem[arg1] + mem[arg3];
+                      if (!val) _cimg_mp_scalar1(minus,arg4);
+                      _cimg_mp_scalar2(sub,const_scalar(val),arg4);
+                    }
+                    if (is_const_scalar(arg4)) {
+                      val = mem[arg1] - mem[arg4];
+                      if (!val) _cimg_mp_same(arg3);
+                      _cimg_mp_scalar2(add,arg3,const_scalar(val));
+                    }
                   }
                   _cimg_mp_scalar3(add_sub,arg1,arg3,arg4);
                 } else if (op==mp_mul) _cimg_mp_scalar3(add_mul,arg1,arg3,arg4); // Particular case 'a + (b*c)'
                 _cimg_mp_scalar3(div_add,arg3,arg4,arg1); // Particular case 'a + (b/c)'
               } else {
-                if (op==mp_mul) _cimg_mp_scalar3(sub_mul,arg1,arg3,arg4); // Particular case 'a - (b*c)'
+                if (op==mp_add) { // Particular case 'a - (b + c)'
+                  if (is_const_scalar(arg1)) {
+                    if (is_const_scalar(arg3)) {
+                      val = mem[arg1] - mem[arg3];
+                      if (!val) _cimg_mp_scalar1(minus,arg4);
+                      _cimg_mp_scalar2(sub,const_scalar(val),arg4);
+                    }
+                    if (is_const_scalar(arg4)) {
+                      val = mem[arg1] - mem[arg4];
+                      if (!val) _cimg_mp_scalar1(minus,arg3);
+                      _cimg_mp_scalar2(sub,const_scalar(val),arg3);
+                    }
+                  }
+                  _cimg_mp_scalar3(sub_sub,arg1,arg3,arg4);
+                } else if (op==mp_sub) { // Particular case 'a - (b - c)'
+                  if (is_const_scalar(arg1)) {
+                    if (is_const_scalar(arg3)) {
+                      val = mem[arg1] - mem[arg3];
+                      if (!val) _cimg_mp_same(arg4);
+                      _cimg_mp_scalar2(add,arg4,const_scalar(val));
+                    }
+                    if (is_const_scalar(arg4)) {
+                      val = mem[arg1] + mem[arg4];
+                      if (!val) _cimg_mp_scalar1(minus,arg3);
+                      _cimg_mp_scalar2(sub,const_scalar(val),arg3);
+                    }
+                  }
+                  _cimg_mp_scalar3(add_sub,arg1,arg4,arg3);
+                } else if (op==mp_mul) _cimg_mp_scalar3(sub_mul,arg1,arg3,arg4); // Particular case 'a - (b*c)'
                 _cimg_mp_scalar3(sub_div,arg1,arg3,arg4); // Particular case 'a - (b/c)'
               }
             }
@@ -17865,7 +17954,7 @@ namespace cimg_library {
               if (!ptr1 && code.size()>p3 && is_comp_scalar(arg2)) {
                 CImg<ulongT>& pop = code.back();
                 op = (mp_func)*pop;
-                if (op==mp_div && pop[1]==arg2) {
+                if ((op==mp_mul || op==mp_div) && pop[1]==arg2) {
                   p2 = code.size() - 1;
                   ptr2 = pop.data();
                 }
@@ -17877,33 +17966,65 @@ namespace cimg_library {
                 code.remove(p1);
                 if (op==mp_mul) { // Particular case '(a*b)*c'
                   if (is_const_scalar(arg2)) {
-                    if (is_const_scalar(arg3)) _cimg_mp_scalar2(mul,arg4,const_scalar(mem[arg2]*mem[arg3]));
-                    if (is_const_scalar(arg4)) _cimg_mp_scalar2(mul,arg3,const_scalar(mem[arg2]*mem[arg4]));
+                    if (is_const_scalar(arg3)) {
+                      val = mem[arg2]*mem[arg3];
+                      if (val==1) _cimg_mp_same(arg4);
+                      _cimg_mp_scalar2(mul,arg4,const_scalar(val));
+                    }
+                    if (is_const_scalar(arg4)) {
+                      val = mem[arg2]*mem[arg4];
+                      if (val==1) _cimg_mp_same(arg3);
+                      _cimg_mp_scalar2(mul,arg3,const_scalar(val));
+                    }
                   }
                   _cimg_mp_scalar3(mul_mul,arg3,arg4,arg2);
                 } else { // Particular case '(a/b)*c'
                   if (is_const_scalar(arg2)) {
                     if (is_const_scalar(arg3)) _cimg_mp_scalar2(div,const_scalar(mem[arg3]*mem[arg2]),arg4);
-                    if (is_const_scalar(arg4)) _cimg_mp_scalar2(mul,arg3,const_scalar(mem[arg2]/mem[arg4]));
+                    if (is_const_scalar(arg4)) {
+                      val = mem[arg2]/mem[arg4];
+                      if (val==1) _cimg_mp_same(arg3);
+                      _cimg_mp_scalar2(mul,arg3,const_scalar(val));
+                    }
                   }
                   _cimg_mp_scalar3(mul_div,arg2,arg3,arg4);
                 }
               }
-              if (p2<code.size() && code[p2].data()==ptr2 && *ptr2==(ulongT)mp_div &&
-                  ptr2[1]==(ulongT)arg2) { // Right fusion: Particular case 'a*(b/c)'
+              if (p2<code.size() && code[p2].data()==ptr2 && ptr2[1]==(ulongT)arg2) { // Right fusion
                 arg3 = (unsigned int)ptr2[2]; arg4 = (unsigned int)ptr2[3];
+                op = (mp_func)*ptr2;
                 code.remove(p2);
-                if (is_const_scalar(arg1)) {
-                  if (is_const_scalar(arg3)) _cimg_mp_scalar2(div,const_scalar(mem[arg1]*mem[arg3]),arg4);
-                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(mul,arg3,const_scalar(mem[arg1]/mem[arg4]));
+                if (op==mp_mul) { // Particular case 'a*(b*c)'
+                  if (is_const_scalar(arg1)) {
+                    if (is_const_scalar(arg3)) {
+                      val = mem[arg1]*mem[arg3];
+                      if (val==1) _cimg_mp_same(arg4);
+                      _cimg_mp_scalar2(mul,arg4,const_scalar(val));
+                    }
+                    if (is_const_scalar(arg4)) {
+                      val = mem[arg1]*mem[arg4];
+                      if (val==1) _cimg_mp_same(arg3);
+                      _cimg_mp_scalar2(mul,arg3,const_scalar(val));
+                    }
+                  }
+                  _cimg_mp_scalar3(mul_mul,arg1,arg3,arg4);
+                } else { // Particular case 'a*(b/c)'
+                  if (is_const_scalar(arg1)) {
+                    if (is_const_scalar(arg3)) _cimg_mp_scalar2(div,const_scalar(mem[arg1]*mem[arg3]),arg4);
+                    if (is_const_scalar(arg4)) {
+                      val = mem[arg1]/mem[arg4];
+                      if (val==1) _cimg_mp_same(arg3);
+                      _cimg_mp_scalar2(mul,arg3,const_scalar(val));
+                    }
+                  }
+                  _cimg_mp_scalar3(mul_div,arg1,arg3,arg4);
                 }
-                _cimg_mp_scalar3(mul_div,arg1,arg3,arg4);
               }
               _cimg_mp_scalar2(mul,arg1,arg2);
             } else if (*s=='/') { // Division ('/')
               _cimg_mp_op("Operator '/'");
-              p1 = ~0U;
-              const ulongT *ptr1 = 0;
+              p1 = p2 = ~0U;
+              const ulongT *ptr1 = 0, *ptr2 = 0;
               p3 = code.size();
               arg1 = compile(ss,s,depth1,0,block_flags);
 
@@ -17911,7 +18032,7 @@ namespace cimg_library {
               if (code.size()>p3 && is_comp_scalar(arg1)) {
                 CImg<ulongT>& pop = code.back();
                 op = (mp_func)*pop;
-                if (op==mp_div && pop[1]==arg1) {
+                if ((op==mp_mul || op==mp_div) && pop[1]==arg1) {
                   p1 = code.size() - 1;
                   ptr1 = pop.data();
                 }
@@ -17928,15 +18049,67 @@ namespace cimg_library {
               if (!arg1) _cimg_mp_return(0);
               if (ptr1 && !can_fuse_left(p3)) ptr1 = 0; // Check that left fusion is still possible
 
-              if (ptr1 && p1<code.size() && code[p1].data()==ptr1 && *ptr1==(ulongT)mp_div &&
-                  ptr1[1]==(ulongT)arg1) { // Left fusion: Particular case '(a/b)/c'
-                arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
-                code.remove(p1);
-                if (is_const_scalar(arg2)) {
-                  if (is_const_scalar(arg3)) _cimg_mp_scalar2(div,const_scalar(mem[arg3]/mem[arg2]),arg4);
-                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(div,arg3,const_scalar(mem[arg2]*mem[arg4]));
+              // Right fusion: Spot cases 'a/(b*c)' and 'a/(b/c)'.
+              if (!ptr1 && code.size()>p3 && is_comp_scalar(arg2)) {
+                CImg<ulongT>& pop = code.back();
+                op = (mp_func)*pop;
+                if ((op==mp_mul || op==mp_div) && pop[1]==arg2) {
+                  p2 = code.size() - 1;
+                  ptr2 = pop.data();
                 }
-                _cimg_mp_scalar3(div_div,arg3,arg4,arg2);
+              }
+
+              if (ptr1 && p1<code.size() && code[p1].data()==ptr1 && ptr1[1]==(ulongT)arg1) { // Left fusion
+                arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
+                op = (mp_func)*ptr1;
+                code.remove(p1);
+                if (op==mp_mul) { // Particular case '(a*b)/c'
+                  if (is_const_scalar(arg2)) {
+                    if (is_const_scalar(arg3)) {
+                      val = mem[arg3]/mem[arg2];
+                      if (val==1) _cimg_mp_same(arg4);
+                      _cimg_mp_scalar2(mul,arg4,const_scalar(val));
+                    }
+                    if (is_const_scalar(arg4)) {
+                      val = mem[arg4]/mem[arg2];
+                      if (val==1) _cimg_mp_same(arg3);
+                      _cimg_mp_scalar2(mul,arg3,const_scalar(val));
+                    }
+                  }
+                  _cimg_mp_scalar3(mul_div,arg3,arg4,arg2);
+                } else { // Particular case '(a/b)/c'
+                  if (is_const_scalar(arg2)) {
+                    if (is_const_scalar(arg3)) _cimg_mp_scalar2(div,const_scalar(mem[arg3]/mem[arg2]),arg4);
+                    if (is_const_scalar(arg4)) {
+                      val = mem[arg2]*mem[arg4];
+                      if (val==1) _cimg_mp_same(arg3);
+                      _cimg_mp_scalar2(div,arg3,const_scalar(val));
+                    }
+                  }
+                  _cimg_mp_scalar3(div_div,arg3,arg4,arg2);
+                }
+              }
+              if (p2<code.size() && code[p2].data()==ptr2 && ptr2[1]==(ulongT)arg2) { // Right fusion
+                arg3 = (unsigned int)ptr2[2]; arg4 = (unsigned int)ptr2[3];
+                op = (mp_func)*ptr2;
+                code.remove(p2);
+                if (op==mp_mul) { // Particular case 'a/(b*c)'
+                  if (is_const_scalar(arg1)) {
+                    if (is_const_scalar(arg3)) _cimg_mp_scalar2(div,const_scalar(mem[arg1]/mem[arg3]),arg4);
+                    if (is_const_scalar(arg4)) _cimg_mp_scalar2(div,const_scalar(mem[arg1]/mem[arg4]),arg3);
+                  }
+                  _cimg_mp_scalar3(div_div,arg1,arg3,arg4);
+                } else { // Particular case 'a/(b/c)'
+                  if (is_const_scalar(arg1)) {
+                    if (is_const_scalar(arg3)) {
+                      val = mem[arg1]/mem[arg3];
+                      if (val==1) _cimg_mp_same(arg4);
+                      _cimg_mp_scalar2(mul,arg4,const_scalar(val));
+                    }
+                    if (is_const_scalar(arg4)) _cimg_mp_scalar2(div,const_scalar(mem[arg1]*mem[arg4]),arg3);
+                  }
+                  _cimg_mp_scalar3(mul_div,arg1,arg4,arg3);
+                }
               }
               _cimg_mp_scalar2(div,arg1,arg2);
             } else if (*s=='%' && *ns!='^' && *ps!='$') { // Modulo ('%')

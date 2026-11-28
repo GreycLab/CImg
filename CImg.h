@@ -18945,7 +18945,12 @@ namespace cimg_library {
               s1 = ss6; while (s1<se1 && cimg::is_blank(*s1)) ++s1;
               if (s1!=se1) {
                 if (!is_inside_begin) code.swap(code_begin);
-                arg1 = compile(s1,se1,depth1,p_ref,block_flags | 2);
+                try {
+                  arg1 = compile(s1,se1,depth1,p_ref,block_flags | 2);
+                } catch (...) {
+                  if (!is_inside_begin) code.swap(code_begin);
+                  throw;
+                }
                 if (!is_inside_begin) code.swap(code_begin);
                 _cimg_mp_return(arg1);
               } else _cimg_mp_return_nan();
@@ -20325,7 +20330,12 @@ namespace cimg_library {
               s1 = ss4; while (s1<se1 && cimg::is_blank(*s1)) ++s1;
               if (s1!=se1) {
                 if (!is_inside_end) code.swap(code_end);
-                pos = compile(s1,se1,depth1,p_ref,block_flags | 8);
+                try {
+                  pos = compile(s1,se1,depth1,p_ref,block_flags | 8);
+                } catch (...) {
+                  if (!is_inside_end) code.swap(code_end);
+                  throw;
+                }
                 if (!is_inside_end) code.swap(code_end);
                 result_end_dim = size(pos);
                 result_end_index = pos;

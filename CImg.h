@@ -16709,7 +16709,7 @@ namespace cimg_library {
                 }
 
                 if (arg1==~0U)
-                  compile(ss,s1,depth1,0,block_flags); // Variable does not exist -> error
+                  arg1 = compile(ss,s1,depth1,0,block_flags); // Variable does not exist -> error (or built-in)
                 if (is_scalar(arg1))
                   compile(ss,ve1 + 1,depth1,0,block_flags); // Variable is not a vector -> error
 

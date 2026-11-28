@@ -17027,7 +17027,11 @@ namespace cimg_library {
                 _cimg_mp_check_type(arg2,2,1,0);
                 arg3 = ref[1]; // Vector slot
                 arg4 = ref[2]; // Index
-                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
+                if (p_ref) {
+                  std::memcpy(p_ref,ref,siz_ref);
+                  if (!is_comp_scalar(arg2)) { add_opcode(mp_copy,pos = scalar(),arg2); arg2 = pos; }
+                  memtype[arg2] = -1;
+                }
                 add_opcode(mp_vector_set_off,arg2,arg3,size(arg3),arg4);
                 _cimg_mp_return(arg2);
               }
@@ -17038,7 +17042,11 @@ namespace cimg_library {
                 p1 = ref[1]; // Index
                 is_relative = (bool)ref[2];
                 arg3 = ref[3]; // Offset
-                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
+                if (p_ref) {
+                  std::memcpy(p_ref,ref,siz_ref);
+                  if (!is_comp_scalar(arg2)) { add_opcode(mp_copy,pos = scalar(),arg2); arg2 = pos; }
+                  memtype[arg2] = -1;
+                }
                 if ((p1==~0U && imgout) || (p1!=~0U && imglist))
                   add_opcode(is_relative?mp_set_joff:mp_set_ioff,arg2,p1,arg3);
                 _cimg_mp_return(arg2);
@@ -17053,7 +17061,11 @@ namespace cimg_library {
                 arg4 = ref[4]; // Y
                 arg5 = ref[5]; // Z
                 arg6 = ref[6]; // C
-                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
+                if (p_ref) {
+                  std::memcpy(p_ref,ref,siz_ref);
+                  if (!is_comp_scalar(arg2)) { add_opcode(mp_copy,pos = scalar(),arg2); arg2 = pos; }
+                  memtype[arg2] = -1;
+                }
                 if ((p1==~0U && imgout) || (p1!=~0U && imglist))
                   add_opcode(is_relative?mp_set_jxyzc:mp_set_ixyzc,arg2,p1,arg3,arg4,arg5,arg6);
                 _cimg_mp_return(arg2);
@@ -17065,12 +17077,30 @@ namespace cimg_library {
                 p1 = ref[1]; // Index
                 is_relative = (bool)ref[2];
                 arg3 = ref[3]; // Offset
-                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
                 if ((p1==~0U && imgout) || (p1!=~0U && imglist)) {
                   if (is_scalar(arg2)) add_opcode(is_relative?mp_set_Joff_s:mp_set_Ioff_s,arg2,p1,arg3);
                   else {
                     _cimg_mp_check_const_index(p1);
                     add_opcode(is_relative?mp_set_Joff_v:mp_set_Ioff_v,arg2,p1,arg3,size(arg2));
+                  }
+                }
+                if (p_ref) {
+                  std::memcpy(p_ref,ref,siz_ref);
+                  if (is_scalar(arg2)) {
+                    if (size(arg1)) {
+                      add_opcode(mp_vector_init,pos = vector(size(arg1)),size(arg1),1,arg2,0);
+                      arg2 = pos;
+                      set_reserved_vector(arg2);
+                    } else {
+                      if (!is_comp_scalar(arg2)) { add_opcode(mp_copy,pos = scalar(),arg2); arg2 = pos; }
+                      memtype[arg2] = -1;
+                    }
+                  } else {
+                    if (!is_comp_vector(arg2)) {
+                      add_opcode(mp_vector_copy,pos = vector(size(arg2)),arg2,size(arg2));
+                      arg2 = pos;
+                    }
+                    set_reserved_vector(arg2);
                   }
                 }
                 _cimg_mp_return(arg2);
@@ -17084,12 +17114,30 @@ namespace cimg_library {
                 arg3 = ref[3]; // X
                 arg4 = ref[4]; // Y
                 arg5 = ref[5]; // Z
-                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
                 if ((p1==~0U && imgout) || (p1!=~0U && imglist)) {
                   if (is_scalar(arg2)) add_opcode(is_relative?mp_set_Jxyz_s:mp_set_Ixyz_s,arg2,p1,arg3,arg4,arg5);
                   else {
                     _cimg_mp_check_const_index(p1);
                     add_opcode(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v,arg2,p1,arg3,arg4,arg5,size(arg2));
+                  }
+                }
+                if (p_ref) {
+                  std::memcpy(p_ref,ref,siz_ref);
+                  if (is_scalar(arg2)) {
+                    if (size(arg1)) {
+                      add_opcode(mp_vector_init,pos = vector(size(arg1)),size(arg1),1,arg2,0);
+                      arg2 = pos;
+                      set_reserved_vector(arg2);
+                    } else {
+                      if (!is_comp_scalar(arg2)) { add_opcode(mp_copy,pos = scalar(),arg2); arg2 = pos; }
+                      memtype[arg2] = -1;
+                    }
+                  } else {
+                    if (!is_comp_vector(arg2)) {
+                      add_opcode(mp_vector_copy,pos = vector(size(arg2)),arg2,size(arg2));
+                      arg2 = pos;
+                    }
+                    set_reserved_vector(arg2);
                   }
                 }
                 _cimg_mp_return(arg2);

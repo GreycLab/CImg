@@ -16320,11 +16320,11 @@ namespace cimg_library {
           else if (!cimg::strcasecmp(s,"nan")) { val = cimg::type<double>::nan(); nb = 1; }
         } else if (*s=='0' && (s[1]=='x' || s[1]=='X') && s[2]!='-') { // Hexadecimal literal
           cimg_uint64 num;
-          if ((nb = cimg_sscanf(s + 2,cimg_fhex64 "%c",&num,&sep))==1 || (nb==2 && sep=='%'))
+          if ((nb = cimg_sscanf(s + 2,cimg_fhex64 "%c%c",&num,&sep,&end))==1 || (nb==2 && sep=='%'))
             val = (double)num;
         } else if (*s=='0' && (s[1]=='b' || s[1]=='B') && s[2]!='-') { // Binary literal
           variable_name.assign(65);
-          if ((nb = cimg_sscanf(s + 2,"%64[01]%c",variable_name.data(),&sep))==1 || (nb==2 && sep=='%'))
+          if ((nb = cimg_sscanf(s + 2,"%64[01]%c%c",variable_name.data(),&sep,&end))==1 || (nb==2 && sep=='%'))
             val = (double)cimg::strtoll(variable_name,0,2);
           variable_name.assign();
         }
@@ -17283,7 +17283,11 @@ namespace cimg_library {
               else if (*ps=='/') add_opcode(mp_complex_div_vv,arg1,arg1,arg2);
               else add_opcode(mp_complex_pow_vv,arg1,arg1,arg2);
             } else { // Complex **= scalar
-              if (arg2==1) _cimg_mp_return(arg1);
+              if (arg2==1) {
+                if (*ref && p_ref) std::memcpy(p_ref,ref,siz_ref);
+                else if (!*ref) return_comp = false;
+                _cimg_mp_return(arg1);
+              }
               if (*ps=='*') _cimg_mp_self_vector2(mp_self_vector_mul_s,arg1,arg2);
               else if (*ps=='/') _cimg_mp_self_vector2(mp_self_vector_div_s,arg1,arg2);
               else if (arg2==2) add_opcode(mp_complex_sqr,arg1,2,arg1);
@@ -17383,8 +17387,10 @@ namespace cimg_library {
             // Check for particular case to be simplified.
             if ((*ref || is_vector(arg1) || is_reserved(arg1)) &&
                 (((op==mp_self_add || op==mp_self_sub) && !arg2) ||
-                 ((op==mp_self_mul || op==mp_self_div || op==mp_self_pow) && arg2==1)))
+                 ((op==mp_self_mul || op==mp_self_div || op==mp_self_pow) && arg2==1))) {
+              if (*ref && p_ref) std::memcpy(p_ref,ref,siz_ref);
               _cimg_mp_return(arg1);
+            }
             if (op==mp_self_pow && (arg2==0 || arg2==2) && !*ref && is_scalar(arg1) && is_reserved(arg1)) {
               if (arg2) add_opcode(mp_sqr,arg1,arg1);
               else add_opcode(mp_copy,arg1,1);

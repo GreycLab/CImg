@@ -22806,6 +22806,7 @@ namespace cimg_library {
 
               s0 = ss5; while (s0<se1 && cimg::is_blank(*s0)) ++s0;
               if (*s0=='#') { // Swap image values
+                if (!is_inside_critical) is_parallelizable = false;
                 s1 = next_arg(++s0,se1,clevel1); // #ind
                 p1 = compile(s0,s1++,depth1,0,block_flags);
                 _cimg_mp_check_notnan_index(p1,s0);

@@ -27237,15 +27237,20 @@ namespace cimg_library {
           ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.imglist.width());
         }
         CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        unsigned int
-          dx = (unsigned int)mp.opcode[8],
-          dy = (unsigned int)mp.opcode[9],
-          dz = (unsigned int)mp.opcode[10],
-          dc = (unsigned int)mp.opcode[11];
-        dx = dx==~0U?img._width:(unsigned int)_mp_arg(8);
-        dy = dy==~0U?img._height:(unsigned int)_mp_arg(9);
-        dz = dz==~0U?img._depth:(unsigned int)_mp_arg(10);
-        dc = dc==~0U?img._spectrum:(unsigned int)_mp_arg(11);
+        if (!img._data) return cimg::type<double>::nan();
+        int
+          dx = (int)mp.opcode[8],
+          dy = (int)mp.opcode[9],
+          dz = (int)mp.opcode[10],
+          dc = (int)mp.opcode[11];
+        dx = (unsigned int)dx==~0U?(int)img._width:(int)_mp_arg(8);
+        dy = (unsigned int)dy==~0U?(int)img._height:(int)_mp_arg(9);
+        dz = (unsigned int)dz==~0U?(int)img._depth:(int)_mp_arg(10);
+        dc = (unsigned int)dc==~0U?(int)img._spectrum:(int)_mp_arg(11);
+        if (dx<=0 || dy<=0 || dz<=0 || dc<=0)
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
+                                      "Invalid specified sprite geometry (%d,%d,%d,%d).",
+                                      mp.imgin.pixel_type(),dx,dy,dz,dc);
 
         const ulongT sizS = mp.opcode[2];
         if (sizS<(ulongT)dx*dy*dz*dc)
@@ -27263,8 +27268,8 @@ namespace cimg_library {
               throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
                                           "Mask vector (%lu values) and specified sprite geometry (%u,%u,%u,%u) "
                                           "(%lu values) do not match.",
-                                          mp.imgin.pixel_type(),sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
-            const CImg<doubleT> M(&_mp_arg(13) + 1,dx,dy,dz,(unsigned int)(sizM/(dx*dy*dz)),true);
+                                          mp.imgin.pixel_type(),sizM,dx,dy,dz,dc,(ulongT)dx*dy*dz);
+            const CImg<doubleT> M(&_mp_arg(13) + 1,dx,dy,dz,(unsigned int)(sizM/((ulongT)dx*dy*dz)),true);
             img.draw_image(x,y,z,c,S,M,opacity,(float)_mp_arg(15));
           } else img.draw_image(x,y,z,c,S,opacity);
         }

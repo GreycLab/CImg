@@ -17236,7 +17236,7 @@ namespace cimg_library {
                 if (p1!=~0U) _cimg_mp_check_const_index(p1);
                 add_opcode(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v,arg1,p1,arg3,arg4,arg5,size(arg1));
               }
-            }
+            } else return_comp = false;
             _cimg_mp_return(arg1);
           }
 
@@ -17385,12 +17385,14 @@ namespace cimg_library {
             if (is_vector(arg1)) { // Vector variable: V += value
               _cimg_mp_check_type(arg2,2,3,size(arg1));
               _cimg_mp_self_vector2(is_scalar(arg2)?op_s:op_v,arg1,arg2);
+              return_comp = false;
               _cimg_mp_return(arg1);
             }
 
             if (is_reserved(arg1)) { // Scalar variable: s += scalar
               _cimg_mp_check_type(arg2,2,1,0);
               add_opcode(op,arg1,arg2);
+              return_comp = false;
               _cimg_mp_return(arg1);
             }
 
@@ -18064,11 +18066,13 @@ namespace cimg_library {
 
           if (is_vector(arg1)) { // Vector variable: V++
             _cimg_mp_self_vector1(op==mp_self_increment?mp_self_vector_increment:mp_self_vector_decrement,arg1);
+            if (is_sth) return_comp = false;
             _cimg_mp_return(pos);
           }
 
           if (is_reserved(arg1)) { // Scalar variable: s++
             add_opcode(op,arg1);
+            if (is_sth) return_comp = false;
             _cimg_mp_return(pos);
           }
 

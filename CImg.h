@@ -18221,6 +18221,12 @@ namespace cimg_library {
             if (arg2==1) _cimg_mp_same(arg1);
             if (is_vector(arg1) || is_vector(arg2)) {
               if (is_vector(arg1) && is_scalar(arg2)) {
+                if (!arg2) {
+                  pos = is_comp_vector(arg1)?arg1:((return_comp = true), vector(size(arg1)));
+                  return_comp = true;
+                  add_opcode(mp_vector_init,pos,size(arg1),1,1,0);
+                  _cimg_mp_return(pos);
+                }
                 if (arg2==2) { _cimg_mp_vector1(sqr,arg1); }
                 if (arg2==11) _cimg_mp_return(vector2(mp_vector_div_sv,size(arg1),1,arg1));
                 if (is_const_scalar(arg2) && mem[arg2]==0.5) { _cimg_mp_vector1(sqrt,arg1); }

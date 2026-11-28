@@ -28332,7 +28332,7 @@ namespace cimg_library {
             ox = (int)mp.mem[_cimg_mp_slot_x],
             oy = (int)mp.mem[_cimg_mp_slot_y],
             oz = (int)mp.mem[_cimg_mp_slot_z],
-            oc = (int)mp.mem[_cimg_mp_slot_c];
+            oc = *p_ref>=4?0:(int)mp.mem[_cimg_mp_slot_c];
           off = img.offset(ox,oy,oz,oc);
         }
         const longT img_size = (longT)img.size();

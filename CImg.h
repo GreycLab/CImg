@@ -16005,7 +16005,7 @@ namespace cimg_library {
       const CImg<T>& imgin;
 
       unsigned int break_type, constcache_size, debug_indent, mem_img_index, mem_img_median, mem_img_norm, mempos,
-        _0_index, _1_index, result_dim, result_end_dim;
+        _0_index, _1_index, result_dim, result_end_dim, result_end_index;
       bool is_end_code, is_pixelwise_evaluation, is_noncritical_run, is_parallelizable, need_input_copy, return_comp;
       const char *const calling_function, *s_op, *ss_op;
       double *result, *result_end;
@@ -16066,7 +16066,7 @@ namespace cimg_library {
         p_break((CImg<ulongT>*)(cimg_ulong)-2),
         imgin(img_input),
         break_type(0),constcache_size(0),debug_indent(0),mem_img_index(~0U),mem_img_median(~0U),mem_img_norm(~0U),
-          _0_index(~0U),_1_index(~0U),result_dim(0),result_end_dim(0),
+          _0_index(~0U),_1_index(~0U),result_dim(0),result_end_dim(0),result_end_index(~0U),
         is_pixelwise_evaluation(_is_pixelwise_evaluation),is_noncritical_run(false),is_parallelizable(true),
         need_input_copy(false),calling_function(funcname?funcname:"cimg_math_parser"),
         s_op(0),ss_op(0),
@@ -16160,6 +16160,7 @@ namespace cimg_library {
         if (mem._width>=256 && mem._width - mempos>=mem._width/2) mem.resize(mempos,1,1,1,-1);
         result_dim = size(ind_result);
         result = mem._data + ind_result;
+        result_end = result_end_index!=~0U?mem._data + result_end_index:0;
 
         // Free resources used for compiling expression and prepare evaluation.
         memtype.assign();
@@ -16184,7 +16185,7 @@ namespace cimg_library {
         imgout(CImg<T>::empty()),
         p_break((CImg<ulongT>*)(cimg_ulong)-2),p_code_end(0),
         imgin(CImg<T>::const_empty()),
-        break_type(0),constcache_size(0),debug_indent(0),result_dim(0),result_end_dim(0),
+        break_type(0),constcache_size(0),debug_indent(0),result_dim(0),result_end_dim(0),result_end_index(~0U),
         is_pixelwise_evaluation(false),is_noncritical_run(false),is_parallelizable(true),need_input_copy(false),
         calling_function(0),
         s_op(0),ss_op(0),
@@ -16204,6 +16205,7 @@ namespace cimg_library {
         p_break(mp.p_break),p_code_end(mp.p_code_end),
         imgin(mp.imgin),
         break_type(0),constcache_size(0),debug_indent(0),result_dim(mp.result_dim),result_end_dim(mp.result_end_dim),
+        result_end_index(~0U),
         is_pixelwise_evaluation(mp.is_pixelwise_evaluation),is_noncritical_run(mp.is_noncritical_run),
         is_parallelizable(mp.is_parallelizable),need_input_copy(mp.need_input_copy),
         calling_function(0),
@@ -20262,10 +20264,10 @@ namespace cimg_library {
               s1 = ss4; while (s1<se1 && cimg::is_blank(*s1)) ++s1;
               if (s1!=se1) {
                 if (!is_inside_end) code.swap(code_end);
-                pos = compile(s1,se1,depth1,p_ref,8);
+                pos = compile(s1,se1,depth1,p_ref,block_flags | 8);
                 if (!is_inside_end) code.swap(code_end);
                 result_end_dim = size(pos);
-                result_end = mem._data + pos;
+                result_end_index = pos;
                 is_end_code = true;
               }
               _cimg_mp_return_nan();

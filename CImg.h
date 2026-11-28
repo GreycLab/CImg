@@ -18423,8 +18423,14 @@ namespace cimg_library {
               s0 = s1;
             } else p1 = ~0U;
             s1 = next_arg(s0,se1,clevel1);
+            p2 = 1 + (p1!=~0U);
             arg1 = compile(s0,s1,depth1,0,block_flags); // Offset
-            arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):~0U; // Boundary
+            _cimg_mp_check_type(arg1,p2,1,0);
+            arg2 = ~0U;
+            if (s1<se1) {
+              arg2 = compile(++s1,se1,depth1,0,block_flags); // Boundary
+              _cimg_mp_check_type(arg2,p2 + 1,1,0);
+            }
             if (p_ref && arg2==~0U) {
               *p_ref = 2;
               p_ref[1] = p1;
@@ -18529,6 +18535,7 @@ namespace cimg_library {
             arg3 = is_relative?0U:(unsigned int)_cimg_mp_slot_z;
             arg4 = arg5 = ~0U;
             if (s0<se1) {
+              p3 = 1 + (p1!=~0U);
               s1 = next_arg(s0,se1,clevel1);
               arg1 = compile(s0,s1,depth1,0,block_flags);
               if (is_vector(arg1)) { // Coordinates specified as a vector
@@ -18541,18 +18548,28 @@ namespace cimg_library {
                 if (s1<se1) {
                   s2 = next_arg(++s1,se1,clevel1);
                   arg4 = compile(s1,s2,depth1,0,block_flags);
-                  arg5 = s2<se1?compile(++s2,se1,depth1,0,block_flags):~0U;
+                  _cimg_mp_check_type(arg4,p3 + 1,1,0);
+                  if (s2<se1) {
+                    arg5 = compile(++s2,se1,depth1,0,block_flags);
+                    _cimg_mp_check_type(arg5,p3 + 2,1,0);
+                  }
                 }
               } else if (s1<se1) {
                 s2 = next_arg(++s1,se1,clevel1);
                 arg2 = compile(s1,s2,depth1,0,block_flags);
+                _cimg_mp_check_type(arg2,p3 + 1,1,0);
                 if (s2<se1) {
                   s3 = next_arg(++s2,se1,clevel1);
                   arg3 = compile(s2,s3,depth1,0,block_flags);
+                  _cimg_mp_check_type(arg3,p3 + 2,1,0);
                   if (s3<se1) {
                     s2 = next_arg(++s3,se1,clevel1);
                     arg4 = compile(s3,s2,depth1,0,block_flags);
-                    arg5 = s2<se1?compile(++s2,se1,depth1,0,block_flags):~0U;
+                    _cimg_mp_check_type(arg4,p3 + 3,1,0);
+                    if (s2<se1) {
+                      arg5 = compile(++s2,se1,depth1,0,block_flags);
+                      _cimg_mp_check_type(arg5,p3 + 4,1,0);
+                    }
                   }
                 }
               }
@@ -18641,6 +18658,7 @@ namespace cimg_library {
             arg4 = is_relative?0U:(unsigned int)_cimg_mp_slot_c;
             arg5 = arg6 = ~0U;
             if (s0<se1) {
+              p3 = 1 + (p1!=~0U);
               s1 = next_arg(s0,se1,clevel1);
               arg1 = compile(s0,s1,depth1,0,block_flags);
               if (is_vector(arg1)) { // Coordinates specified as a vector
@@ -18656,21 +18674,32 @@ namespace cimg_library {
                 if (s1<se1) {
                   s2 = next_arg(++s1,se1,clevel1);
                   arg5 = compile(s1,s2,depth1,0,block_flags);
-                  arg6 = s2<se1?compile(++s2,se1,depth1,0,block_flags):~0U;
+                  _cimg_mp_check_type(arg5,p3 + 1,1,0);
+                  if (s2<se1) {
+                    arg6 = compile(++s2,se1,depth1,0,block_flags);
+                    _cimg_mp_check_type(arg6,p3 + 2,1,0);
+                  }
                 }
               } else if (s1<se1) {
                 s2 = next_arg(++s1,se1,clevel1);
                 arg2 = compile(s1,s2,depth1,0,block_flags);
+                _cimg_mp_check_type(arg2,p3 + 1,1,0);
                 if (s2<se1) {
                   s3 = next_arg(++s2,se1,clevel1);
                   arg3 = compile(s2,s3,depth1,0,block_flags);
+                  _cimg_mp_check_type(arg3,p3 + 2,1,0);
                   if (s3<se1) {
                     s2 = next_arg(++s3,se1,clevel1);
                     arg4 = compile(s3,s2,depth1,0,block_flags);
+                    _cimg_mp_check_type(arg4,p3 + 3,1,0);
                     if (s2<se1) {
                       s3 = next_arg(++s2,se1,clevel1);
                       arg5 = compile(s2,s3,depth1,0,block_flags);
-                      arg6 = s3<se1?compile(++s3,se1,depth1,0,block_flags):~0U;
+                      _cimg_mp_check_type(arg5,p3 + 4,1,0);
+                      if (s3<se1) {
+                        arg6 = compile(++s3,se1,depth1,0,block_flags);
+                        _cimg_mp_check_type(arg6,p3 + 5,1,0);
+                      }
                     }
                   }
                 }

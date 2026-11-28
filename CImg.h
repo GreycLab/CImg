@@ -21344,7 +21344,8 @@ namespace cimg_library {
 
               if (!std::strncmp(ss,"ispercentage(",13)) { // Does argument ends with '%'?
                 _cimg_mp_op("Function 'ispercentage()'");
-                _cimg_mp_return((unsigned int)(*se2=='%'));
+                s1 = se1; while (s1>ss + 13 && cimg::is_blank(*(s1 - 1))) --s1;
+                _cimg_mp_return((unsigned int)(s1>ss + 13 && *(s1 - 1)=='%'));
               }
 
               if (!std::strncmp(ss,"isvar(",6)) { // Is existing variable?
